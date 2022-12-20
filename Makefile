@@ -8,12 +8,15 @@ CFLAGS=-Wall -Wextra
 BIN=fs-os.bin
 ISO=$(BIN:.bin=.iso)
 
-.PHONY: clean all
+.PHONY: clean all qemu
 
 all: $(ISO)
 
 $(ISO): $(BIN)
-	@echo TODO
+	mkdir -p iso/boot/grub/
+	cp $(BIN) iso/boot/$(BIN)
+	cp cfg/grub.cfg iso/boot/grub/grub.cfg
+	grub-mkrescue -o $(ISO) iso
 
 # We will use the same compiler for linking
 $(BIN): obj/kernel.o obj/boot.o cfg/linker.ld
@@ -27,5 +30,12 @@ obj/boot.o: src/boot.asm
 	@mkdir -p obj/
 	$(ASM) $(ASM_FLAGS) $< -o $@
 
+# -----------------------------------------------------------------------
+
+# Alterative: qemu-system-i386 -kernel fs-os.bin
+qemu: $(ISO)
+	qemu-system-i386 -cdrom $<
+
 clean:
 	rm -f obj/*.o $(BIN) $(ISO)
+	rm -rf iso
