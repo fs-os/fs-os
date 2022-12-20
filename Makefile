@@ -11,8 +11,8 @@ CFLAGS=-Wall -Wextra
 all: fs-os.bin
 
 # We will use the same compiler for linking
-fs-os.bin: obj/kernel.o obj/boot.o src/linker.ld
-	$(CC) -T src/linker.ld -o $@ -O2 -ffreestanding -nostdlib obj/kernel.o obj/boot.o -lgcc
+fs-os.bin: obj/kernel.o obj/boot.o cfg/linker.ld
+	$(CC) -T cfg/linker.ld -o $@ -O2 -ffreestanding -nostdlib obj/kernel.o obj/boot.o -lgcc
 
 obj/kernel.o: src/kernel.c
 	@mkdir -p obj/
