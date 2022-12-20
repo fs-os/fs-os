@@ -5,13 +5,18 @@ ASM_FLAGS=-f elf32
 CC=/usr/local/cross/bin/i686-elf-gcc
 # Global cflags
 CFLAGS=-Wall -Wextra
+BIN=fs-os.bin
+ISO=$(BIN:.bin=.iso)
 
 .PHONY: clean all
 
-all: fs-os.bin
+all: $(ISO)
+
+$(ISO): $(BIN)
+	@echo TODO
 
 # We will use the same compiler for linking
-fs-os.bin: obj/kernel.o obj/boot.o cfg/linker.ld
+$(BIN): obj/kernel.o obj/boot.o cfg/linker.ld
 	$(CC) -T cfg/linker.ld -o $@ -O2 -ffreestanding -nostdlib obj/kernel.o obj/boot.o -lgcc
 
 obj/kernel.o: src/kernel.c
@@ -23,4 +28,4 @@ obj/boot.o: src/boot.asm
 	$(ASM) $(ASM_FLAGS) $< -o $@
 
 clean:
-	rm -f obj/*.o
+	rm -f obj/*.o $(BIN) $(ISO)
