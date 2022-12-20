@@ -1,6 +1,7 @@
 # Misc
 *.bin
 *.iso
+/iso/
 
 # Prerequisites
 *.d
