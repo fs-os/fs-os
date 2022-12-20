@@ -8,6 +8,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "lib/stdio.h"
+
 #if defined(__linux__)
 #error "You are not using a cross compiler." \
     "For more information see: https://github.com/fs-os/cross-compiler"
@@ -60,16 +62,6 @@ static inline uint16_t vga_entry(unsigned char uc, uint8_t color) {
      * ret = b1100101000001010
      */
     return (uint16_t)uc | (uint16_t)color << 8;
-}
-
-/* TODO: Move to inlcude? */
-size_t strlen(const char* str) {
-    size_t ret = 0;
-
-    while (str[ret] != '\0')
-        ret++;
-
-    return ret;
 }
 
 static const size_t VGA_WIDTH  = 80;
