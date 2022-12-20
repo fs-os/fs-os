@@ -105,6 +105,13 @@ void term_put_at(size_t y, size_t x, uint8_t col, char c) {
 }
 
 void term_putchar(char c) {
+    /* If we try to put a newline, go to the next line without putting any char */
+    if (c == '\n') {
+        term_y++;
+        term_x = 0;
+        return;
+    }
+
     term_put_at(term_y, term_x, term_col, c);
 
     /* If we reach the end of the line, reset x and increase y */
@@ -131,7 +138,8 @@ void term_sprint(const char* s) {
 void kernel_main() {
     term_init();
 
-    /* TODO: Newline support */
-    term_sprint("Hello, world!\n");
+    term_sprint("Hello, wellcome to the Free and Simple Operative System!\n"
+                "This project is still being developed. For more information, see:\n"
+                "https://github.com/fs-os/fs-os");
 }
 
