@@ -18,7 +18,7 @@ $ make
 ...
 ```
 Or for testing it directly with qemu:
-```
+```console
 $ make qemu
 ...
 ```
