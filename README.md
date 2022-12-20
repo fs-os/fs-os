@@ -1,6 +1,15 @@
 # fs-os
-**Free &amp; Simple Operative System**
+**[Free](https://www.gnu.org/philosophy/free-sw.html) &amp; [Simple](https://suckless.org/philosophy) Operative System**
 
+### Description
+The main purpose of this project is to learn, so expect some mistakes. If you want to contribute to the project, feel free to make a [pull request](https://github.com/fs-os/fs-os/pulls).
+
+An important part of this project, as the name implies, is to keep it as simple as possible. This is very important in order to understand how everything in the project works (*which is the main goal!*).
+
+Some interesting resources that influenced in the project's philosophy:
+- [GNU philosophy](https://www.gnu.org/philosophy).
+- [Suckless philosophy](https://suckless.org/philosophy).
+- [cat-v.org](http://cat-v.org) and their [harmful stuff](http://harmful.cat-v.org).
 
 ### Building from source
 #### Requisites
