@@ -9,6 +9,7 @@ CFLAGS=-Wall -Wextra
 BIN=fs-os.bin
 ISO=$(BIN:.bin=.iso)
 
+# In case we want to add more files to our "standard" library
 LIB=obj/lib/stdio.o
 
 .PHONY: clean all qemu
@@ -25,16 +26,20 @@ $(ISO): $(BIN)
 
 # We will use the same compiler for linking. We need to make a separate target for
 # the kernel, boot and lib, because they have different compilation methods.
-$(BIN): cfg/linker.ld obj/kernel.o obj/boot.o $(LIB)
-	$(CC) -T cfg/linker.ld -o $@ -O2 -ffreestanding -nostdlib obj/kernel.o obj/boot.o $(LIB) -lgcc
+$(BIN): cfg/linker.ld obj/boot.o obj/kernel.o obj/vga.o $(LIB)
+	$(CC) -T cfg/linker.ld -o $@ -O2 -ffreestanding -nostdlib obj/boot.o obj/kernel.o obj/vga.o $(LIB) -lgcc
+
+obj/boot.o: src/boot.asm
+	@mkdir -p obj/
+	$(ASM) $(ASM_FLAGS) $< -o $@
 
 obj/kernel.o: src/kernel.c
 	@mkdir -p obj/
 	$(CC) $(CFLAGS) -O2 -ffreestanding -std=gnu99 -c -o $@ $<
 
-obj/boot.o: src/boot.asm
+obj/vga.o: src/vga.c
 	@mkdir -p obj/
-	$(ASM) $(ASM_FLAGS) $< -o $@
+	$(CC) $(FLAGS) -ffreestanding -c -o $@ $<
 
 # Not sure if it's a good idea to use -ffreestanding here
 $(LIB): obj/lib/%.o : src/lib/%.c
