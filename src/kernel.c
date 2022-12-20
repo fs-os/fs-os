@@ -39,7 +39,7 @@ enum vga_color {
     VGA_COLOR_WHITE         = 15,
 };
 
-/* vga_entry_color: get  */
+/* vga_entry_color: get vga color pair from foreground and background colors */
 static inline uint8_t vga_entry_color(enum vga_color fg, enum vga_color bg) {
     /*
      * Shifts the background color 4 bytes and ORs it with the foreground color.
@@ -52,6 +52,7 @@ static inline uint8_t vga_entry_color(enum vga_color fg, enum vga_color bg) {
     return fg | bg << 4;
 }
 
+/* vga_entry: get vga entry from char and color pair (from vga_entry_color) */
 static inline uint16_t vga_entry(unsigned char uc, uint8_t color) {
     /*
      * Shifts the color from vga_entry_color 8 bytes and ORs it with uc.
