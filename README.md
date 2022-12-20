@@ -1,2 +1,3 @@
 # fs-os
-Free &amp; Simple Operative System
+**Free &amp; Simple Operative System**
+
