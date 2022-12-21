@@ -21,7 +21,7 @@ void itoa(char* str, int num) {
 
     /* Since we know the last idx, write null terminator */
     str[digits + sign] = '\0';
-    
+
     /*
      * Add 1 if num is negative (for "-")
      * Subtract 1 because we start on the string's idx (3 digits -> 2 last idx)
@@ -76,13 +76,9 @@ void itoan(char* str, int num, size_t max_digits) {
      * Also make sure the string position is not greater than the max we can write.
      */
     int cur_digit;
-    for (cur_digit = count_digits(num) - 1; cur_digit > 0 && sp < max_digits;
+    for (cur_digit = count_digits(num) - 1; cur_digit >= 0 && sp < max_digits;
          cur_digit--)
         str[sp++] = (num / ipow(10, cur_digit)) % 10 + '0';
-
-    /* Last digit */
-    if (cur_digit == 0)
-        str[sp++] = num % 10 + '0';
 
     str[sp++] = '\0';
 }
