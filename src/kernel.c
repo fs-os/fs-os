@@ -35,8 +35,8 @@ void kernel_main() {
     term_setcol(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK);
 
     /* Testing colors and scrolling */
-    char buf[10] = {0};
-    int fg = 1;
+    char buf[10] = { 0 };
+    int fg       = 1;
 
     term_setcol(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK);
     term_sprint("\nTesting colors, itoa, and terminal scrolling...\n");
@@ -45,20 +45,20 @@ void kernel_main() {
 
         term_setcol(fg, VGA_COLOR_BLACK);
         term_sprint(buf);
-        term_putchar('\n');
+        term_putchar(' ');
 
         if (++fg > 15)
             fg = 1;
     }
 
     term_setcol(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK);
-    term_sprint("Testing more colors, itoan, and terminal scrolling...\n");
-    for (int i = 10000; i <= 10100; i += 10) {
+    term_sprint("\n\nTesting more colors, itoan, and terminal scrolling...\n");
+    for (int i = 100000; i <= 101000; i += 100) {
         itoan(buf, i, 5);
 
         term_setcol(fg, VGA_COLOR_BLACK);
         term_sprint(buf);
-        term_sprint(" ");  /* Replace with '\n' to test scrolling */
+        term_putchar(' '); /* Replace with '\n' to test scrolling */
 
         if (++fg > 15)
             fg = 1;
