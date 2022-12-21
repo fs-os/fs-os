@@ -1,4 +1,7 @@
 
+#ifndef _STDLIB_H
+#define _STDLIB_H
+
 #include <stddef.h>
 
 /* count_digits: returns the number of digits of a positive num. Will not count "-"
@@ -17,3 +20,4 @@ int ipow(int b, int e);
  * mind that max_digits does not include the null terminator. */
 void itoan(char* str, int num, size_t max_digits);
 
+#endif

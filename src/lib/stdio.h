@@ -1,6 +1,6 @@
 
-#ifndef _HEADER_STDIO
-#define _HEADER_STDIO
+#ifndef _STDIO_H
+#define _STDIO_H
 
 #include <stddef.h> /* size_t */
 
