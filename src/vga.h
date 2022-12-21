@@ -23,6 +23,9 @@ enum vga_color {
     VGA_COLOR_WHITE         = 15,
 };
 
+extern const size_t VGA_WIDTH;
+extern const size_t VGA_HEIGHT;
+
 extern size_t term_y;
 extern size_t term_x;
 extern uint8_t term_col;   /* Color */
@@ -31,11 +34,17 @@ extern uint16_t* term_buf; /* Buffer of vga_entries */
 /* Inits the terminal x, y, color and sets the term buffer to grey spaces */
 void term_init();
 
-/* term_setcol: changes the current color for the terminal */
-void term_setcol(uint8_t col);
+/* term_setcol_entry: changes the current color for the terminal from a vga entry */
+void term_setcol_entry(uint8_t col);
+
+/* term_setcol: changes the current color for the terminal from 2 color codes */
+void term_setcol(enum vga_color fg, enum vga_color bg);
 
 /* term_put_at: writes "c" with the color "col" at "x" and "y" in the vga terminal */
 void term_put_at(size_t y, size_t x, uint8_t col, char c);
+
+/* shift_rows: scrolls the terminal n rows */
+void shift_rows(int n);
 
 /* term_putchar: prints 'c' to the vga terminal */
 void term_putchar(char c);

@@ -4,10 +4,12 @@
  *   https://wiki.osdev.org/Bare_Bones#Implementing_the_Kernel
  */
 
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 
 #include "lib/stdio.h"
+#include "lib/stdlib.h"
 #include "vga.h"
 
 #if defined(__linux__)
@@ -24,8 +26,42 @@
 void kernel_main() {
     term_init();
 
+    term_setcol(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK);
     term_sprint("Hello, welcome to the Free and Simple Operative System!\n"
-                "This project is still being developed. For more information, see:\n"
-                "https://github.com/fs-os/fs-os");
+                "This project is still being developed. For more information, "
+                "see:\n");
+    term_setcol(VGA_COLOR_WHITE, VGA_COLOR_BLACK);
+    term_sprint("https://github.com/fs-os/fs-os\n");
+    term_setcol(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK);
+
+    /* Testing colors and scrolling */
+    char buf[10] = {0};
+    int fg = 1;
+
+    term_setcol(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK);
+    term_sprint("\nTesting colors, itoa, and terminal scrolling...\n");
+    for (int i = 0; i <= 10; i++) {
+        itoa(buf, i);
+
+        term_setcol(fg, VGA_COLOR_BLACK);
+        term_sprint(buf);
+        term_putchar('\n');
+
+        if (++fg > 15)
+            fg = 1;
+    }
+
+    term_setcol(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK);
+    term_sprint("Testing more colors, itoan, and terminal scrolling...\n");
+    for (int i = 10000; i <= 10100; i += 10) {
+        itoan(buf, i, 5);
+
+        term_setcol(fg, VGA_COLOR_BLACK);
+        term_sprint(buf);
+        term_sprint(" ");  /* Replace with '\n' to test scrolling */
+
+        if (++fg > 15)
+            fg = 1;
+    }
 }
 
