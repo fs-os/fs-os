@@ -34,5 +34,8 @@ $ make qemu
 ...
 ```
 
+### Todo
+See [todo.md](TODO.md).
+
 ### Credits
 - [OSDev wiki](https://wiki.osdev.org)
