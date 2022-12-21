@@ -24,7 +24,7 @@
 void kernel_main() {
     term_init();
 
-    term_sprint("Hello, wellcome to the Free and Simple Operative System!\n"
+    term_sprint("Hello, welcome to the Free and Simple Operative System!\n"
                 "This project is still being developed. For more information, see:\n"
                 "https://github.com/fs-os/fs-os");
 }
