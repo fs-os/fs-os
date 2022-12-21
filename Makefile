@@ -10,7 +10,7 @@ BIN=fs-os.bin
 ISO=$(BIN:.bin=.iso)
 
 # In case we want to add more files to our "standard" library
-LIB=obj/lib/stdio.o
+LIB=obj/lib/stdio.o obj/lib/stdlib.o
 
 .PHONY: clean all qemu
 
