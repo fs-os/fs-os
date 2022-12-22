@@ -1,25 +1,6 @@
 
-# See https://github.com/fs-os/cross-compiler
-ASM=nasm
-ASM_FLAGS=-f elf32
-CC=/usr/local/cross/bin/i686-elf-gcc
-CFLAGS=-Wall -Wextra
-AR=/usr/local/cross/bin/i686-elf-ar
-
-KERNEL_BIN=fs-os.bin
-ISO=$(KERNEL_BIN:.bin=.iso)
-
-# In case we want to add more files to our "standard" library
-LIBC_OBJS=obj/libc/string.o obj/libc/stdlib.o
-LIBC=obj/libc.a
-
-# sysroot stuff
-SYSROOT=./sysroot
-SYSROOT_INCLUDEDIR=usr/include
-SYSROOT_LIBDIR=usr/lib
-SYSROOT_BOOTDIR=boot
-KERNEL_INCLUDES=src/kernel/include
-LIBC_INCLUDES=src/libc/include
+# See config for more info
+include config.mk
 
 .PHONY: clean all qemu sysroot_headers sysroot_lib sysroot_boot sysroot
 
@@ -97,3 +78,4 @@ clean:
 	rm -f $(LIBC_OBJS) $(LIBC)
 	rm -f $(KERNEL_BIN) $(ISO)
 	rm -rf iso sysroot
+
