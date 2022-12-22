@@ -1,5 +1,8 @@
 
-#include "vga.h"
+#include <string.h>
+#include <kernel/tty.h>
+
+/* TODO: Move vga stuff to header? */
 
 /* vga_entry_color: get vga color pair from foreground and background colors */
 static inline uint8_t vga_entry_color(enum vga_color fg, enum vga_color bg) {
@@ -70,13 +73,13 @@ void term_put_at(size_t y, size_t x, uint8_t col, char c) {
 /* shift_rows: scrolls the terminal n rows */
 void shift_rows(int n) {
     /* Shift n rows */
-    for (int y = 0; y < VGA_HEIGHT - n; y++)
-        for (int x = 0; x < VGA_WIDTH; x++)
+    for (size_t y = 0; y < VGA_HEIGHT - n; y++)
+        for (size_t x = 0; x < VGA_WIDTH; x++)
             term_buf[y * VGA_WIDTH + x] = term_buf[(y + n) * VGA_WIDTH + x];
 
     /* Clear last n rows with the current color (only the background matters) */
-    for (int y = VGA_HEIGHT - n; y < VGA_HEIGHT; y++)
-        for (int x = 0; x < VGA_WIDTH; x++)
+    for (size_t y = VGA_HEIGHT - n; y < VGA_HEIGHT; y++)
+        for (size_t x = 0; x < VGA_WIDTH; x++)
             term_buf[y * VGA_WIDTH + x] = vga_entry(' ', term_col);
 }
 

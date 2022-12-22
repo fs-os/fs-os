@@ -8,9 +8,9 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "lib/stdio.h"
-#include "lib/stdlib.h"
-#include "vga.h"
+#include <string.h>
+#include <stdlib.h>
+#include <kernel/tty.h>
 
 #if defined(__linux__)
 #error "You are not using a cross compiler." \
@@ -27,7 +27,7 @@ void kernel_main() {
     term_init();
 
     term_setcol(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK);
-    term_sprint("Hello, welcome to the Free and Simple Operative System!\n"
+    term_sprint("Hello, welcome to the Free and Simple Operating System!\n"
                 "This project is still being developed. For more information, "
                 "see:\n");
     term_setcol(VGA_COLOR_WHITE, VGA_COLOR_BLACK);

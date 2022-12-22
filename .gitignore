@@ -2,6 +2,7 @@
 *.bin
 *.iso
 /iso/
+/sysroot/
 
 # Prerequisites
 *.d

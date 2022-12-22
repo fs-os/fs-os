@@ -1,8 +1,9 @@
 
-#include <stddef.h>
-#include <stdint.h>
+#ifndef _KERNEL_TTY_H
+#define _KERNEL_TTY_H
 
-#include "lib/stdio.h" /* strlen */
+#include <stddef.h> /* size_t */
+#include <stdint.h> /* uintX_t */
 
 enum vga_color {
     VGA_COLOR_BLACK         = 0,
@@ -54,4 +55,6 @@ void term_write(const char* s, size_t len);
 
 /* term_sprint: prints zero-terminated string to the vga terminal using term_write */
 void term_sprint(const char* s);
+
+#endif
 

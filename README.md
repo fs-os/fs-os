@@ -1,5 +1,5 @@
 # fs-os
-**Free &amp; Simple Operative System**
+**Free &amp; Simple Operating System**
 
 ### Description
 The main purpose of this project is to learn, so expect some mistakes. If you want to contribute to the project, feel free to make a [pull request](https://github.com/fs-os/fs-os/pulls).

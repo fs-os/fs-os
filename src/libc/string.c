@@ -1,4 +1,6 @@
 
+/* TODO: Move functions to separate files if it gets too messy */
+
 #include <stddef.h>
 
 size_t strlen(const char* str) {
