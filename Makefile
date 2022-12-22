@@ -98,4 +98,4 @@ clean:
 	rm -f obj/kernel/*.o
 	rm -f $(LIBC_OBJS) $(LIBC)
 	rm -f $(KERNEL_BIN) $(ISO)
-	rm -rf iso
+	rm -rf iso sysroot
