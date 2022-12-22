@@ -1,5 +1,8 @@
 
-#include "vga.h"
+/* Include from sysroot */
+#include <kernel/tty.h>
+
+/* TODO: Move vga stuff to header? */
 
 /* vga_entry_color: get vga color pair from foreground and background colors */
 static inline uint8_t vga_entry_color(enum vga_color fg, enum vga_color bg) {
