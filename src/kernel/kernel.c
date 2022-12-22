@@ -27,7 +27,7 @@ void kernel_main() {
     term_init();
 
     term_setcol(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK);
-    term_sprint("Hello, welcome to the Free and Simple Operative System!\n"
+    term_sprint("Hello, welcome to the Free and Simple Operating System!\n"
                 "This project is still being developed. For more information, "
                 "see:\n");
     term_setcol(VGA_COLOR_WHITE, VGA_COLOR_BLACK);
