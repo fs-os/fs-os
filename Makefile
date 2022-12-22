@@ -42,7 +42,6 @@ obj/kernel/boot.o: src/kernel/boot.asm
 	@mkdir -p obj/kernel/
 	$(ASM) $(ASM_FLAGS) $< -o $@
 
-# TODO: -MD?
 # We need the sysroot with the includes and the static lib for building the kernel,
 # tty, etc.
 obj/kernel/kernel.o: src/kernel/kernel.c sysroot_headers
@@ -53,7 +52,6 @@ obj/kernel/tty.o: src/kernel/tty.c sysroot_headers
 	@mkdir -p obj/kernel/
 	$(CC) --sysroot=sysroot -isystem=/usr/include -c $< -o $@ -O2 -ffreestanding -std=gnu11 $(CFLAGS) -Iinclude
 
-# TODO: valid target dep?
 $(LIBC_OBJS): obj/libc/%.o : src/libc/%.c sysroot_headers
 	@mkdir -p obj/libc/
 	$(CC) --sysroot=sysroot -isystem=/usr/include -c $< -o $@ -O2 -ffreestanding -std=gnu11 $(CFLAGS) -Iinclude
