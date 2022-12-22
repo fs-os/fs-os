@@ -8,9 +8,9 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "lib/stdio.h"
-#include "lib/stdlib.h"
-#include "vga.h"
+#include <string.h>
+#include <stdlib.h>
+#include <kernel/tty.h>
 
 #if defined(__linux__)
 #error "You are not using a cross compiler." \

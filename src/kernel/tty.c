@@ -1,5 +1,5 @@
 
-/* Include from sysroot */
+#include <string.h>
 #include <kernel/tty.h>
 
 /* TODO: Move vga stuff to header? */
