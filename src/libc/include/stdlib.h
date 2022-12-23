@@ -20,4 +20,5 @@ int ipow(int b, int e);
  * mind that max_digits does not include the null terminator. */
 void itoan(char* str, int num, size_t max_digits);
 
-#endif
+#endif /* _STDLIB_H */
+

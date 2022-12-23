@@ -18,5 +18,5 @@ void* memset(void* ptr, int val, size_t sz);
 /* memcpy: copies "sz" bytes of "src" into "dst". Returns "dst" */
 void* memcpy(void* restrict dst, const void* restrict src, size_t sz);
 
-#endif
+#endif /* _STRING_H */
 

@@ -1,8 +1,8 @@
 
 /* TODO: Move functions to separate files if it gets too messy */
-/* TODO: Make separate libc and libk folders and sources if necessary */
 
 #include <stddef.h>
+#include <string.h>
 
 /* strlen: return length of str without null terminator */
 size_t strlen(const char* str) {
