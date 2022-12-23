@@ -2,9 +2,49 @@
 # See config for more info
 include config.mk
 
-.PHONY: clean all qemu sysroot_headers sysroot_lib sysroot_boot sysroot
+.PHONY: all qemu clean sysroot sysroot_headers sysroot_lib sysroot_boot
 
-# -----------------------------------------------------------------------
+# ----------------------------------------------------------------------------------
+
+all: sysroot $(ISO)
+
+# Alterative: qemu-system-i386 -kernel fs-os.bin
+qemu: all
+	qemu-system-i386 -cdrom $(ISO)
+
+clean:
+	rm -f obj/kernel/*.o$(ISO)
+	rm -f $(LIBC_OBJS) $(LIBC)
+	rm -f $(KERNEL_BIN) $(ISO)
+	rm -rf iso sysroot
+
+# ----------------------------------------------------------------------------------
+
+# Would be the same as: "Copy the headers to the sysroot, compile libc into object
+# files, make the static lib and copy it to the sysroot, build the kernel binary and
+# copy it to the sysroot"
+sysroot: sysroot_headers sysroot_lib sysroot_boot
+
+# Create the sysroot, copy the headers into the destination (include folder)
+sysroot_headers:
+	@mkdir -p $(SYSROOT)/$(SYSROOT_INCLUDEDIR)
+	cp -R --preserve=timestamps $(KERNEL_INCLUDES)/. $(SYSROOT)/$(SYSROOT_INCLUDEDIR)/.
+	cp -R --preserve=timestamps $(LIBC_INCLUDES)/. $(SYSROOT)/$(SYSROOT_INCLUDEDIR)/.
+
+# Create the sysroot, copy the libc static library to destination (lib folder)
+sysroot_lib: $(LIBC)
+	@mkdir -p $(SYSROOT)/$(SYSROOT_LIBDIR)
+	cp --preserve=timestamps $(LIBC) $(SYSROOT)/$(SYSROOT_LIBDIR)/
+
+# Create the sysroot, copy the kernel binary to destination (boot folder).
+# Make a target for the sysroot kernel file so $(ISO) doesn't have phony targets as
+# rules.
+sysroot_boot: $(SYSROOT_KERNEL)
+$(SYSROOT_KERNEL): $(KERNEL_BIN)
+	@mkdir -p $(SYSROOT)/$(SYSROOT_BOOTDIR)
+	cp --preserve=timestamps $(KERNEL_BIN) $(SYSROOT_KERNEL)
+
+# ----------------------------------------------------------------------------------
 
 # Use the sysroot kernel path as rule to make sure we have the sysroot ready. User
 # should run "make sysroot" before "make all". Sysroot already has all the components
@@ -26,7 +66,7 @@ obj/kernel/boot.o: src/kernel/boot.asm
 	$(ASM) $(ASM_FLAGS) $< -o $@
 
 # We need the sysroot with the includes and the static lib for building the kernel,
-# tty, etc.
+# tty, etc. We called 'make sysroot' in the 'all' target so we should be fine.
 obj/kernel/kernel.o: src/kernel/kernel.c
 	@mkdir -p obj/kernel/
 	$(CC) --sysroot=sysroot -isystem=/usr/include -c $< -o $@ -O2 -ffreestanding -std=gnu11 $(CFLAGS) -Iinclude
@@ -39,47 +79,9 @@ $(LIBC_OBJS): obj/libc/%.o : src/libc/%.c
 	@mkdir -p obj/libc/
 	$(CC) --sysroot=sysroot -isystem=/usr/include -c $< -o $@ -O2 -ffreestanding -std=gnu11 $(CFLAGS) -Iinclude
 
+# Archive the library objects into a static library.
 # TODO: For now it's using the same static library for "libc" and "libk", if "libc"
 # gets too big/complex, it might be a good idea to separate them.
 $(LIBC): $(LIBC_OBJS)
 	$(AR) rcs $(LIBC) $(LIBC_OBJS)
-
-# -----------------------------------------------------------------------
-
-# Create the sysroot, copy the headers into the destination (include folder)
-sysroot_headers:
-	@mkdir -p $(SYSROOT)/$(SYSROOT_INCLUDEDIR)
-	cp -R --preserve=timestamps $(KERNEL_INCLUDES)/. $(SYSROOT)/$(SYSROOT_INCLUDEDIR)/.
-	cp -R --preserve=timestamps $(LIBC_INCLUDES)/. $(SYSROOT)/$(SYSROOT_INCLUDEDIR)/.
-
-# Create the sysroot, copy the libc static library to destination (lib folder)
-sysroot_lib: $(LIBC)
-	@mkdir -p $(SYSROOT)/$(SYSROOT_LIBDIR)
-	cp --preserve=timestamps $(LIBC) $(SYSROOT)/$(SYSROOT_LIBDIR)/
-
-# Create the sysroot, copy the kernel binary to destination (boot folder).
-# Make a target for the file so $(ISO) doesn't have phony targets as rules.
-sysroot_boot: $(SYSROOT_KERNEL)
-$(SYSROOT_KERNEL): $(KERNEL_BIN)
-	@mkdir -p $(SYSROOT)/$(SYSROOT_BOOTDIR)
-	cp --preserve=timestamps $(KERNEL_BIN) $(SYSROOT_KERNEL)
-
-# Would be the same as: "Copy the headers to the sysroot, compile libc into object
-# files, make the static lib and copy it to the sysroot, build the kernel binary and
-# copy it to the sysroot"
-sysroot: sysroot_headers sysroot_lib sysroot_boot
-
-# -----------------------------------------------------------------------
-
-all: sysroot $(ISO)
-
-# Alterative: qemu-system-i386 -kernel fs-os.bin
-qemu: $(ISO)
-	qemu-system-i386 -cdrom $<
-
-clean:
-	rm -f obj/kernel/*.o
-	rm -f $(LIBC_OBJS) $(LIBC)
-	rm -f $(KERNEL_BIN) $(ISO)
-	rm -rf iso sysroot
 
