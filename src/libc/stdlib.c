@@ -16,8 +16,14 @@ int count_digits(int num) {
 
 /* itoa: write the digits of "num" into "str". "str" needs to have enough space */
 void itoa(char* str, int num) {
-    int sign   = (num < 0) ? 1 : 0;
+    int sign   = 0;
     int digits = count_digits(num);
+
+    if (num < 0) {
+        sign   = 1;
+        num    = -num;
+        str[0] = '-';
+    }
 
     /* Since we know the last idx, write null terminator */
     str[digits + sign] = '\0';
@@ -33,9 +39,6 @@ void itoa(char* str, int num) {
         str[i] = num % 10 + '0';
         num /= 10;
     }
-
-    if (sign)
-        str[0] = '-';
 }
 
 /* ipow: integer power. Returns b^e */
