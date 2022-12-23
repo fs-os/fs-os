@@ -16,6 +16,12 @@ AR=/usr/local/cross/bin/i686-elf-ar
 KERNEL_BIN=fs-os.bin
 ISO=$(KERNEL_BIN:.bin=.iso)
 
+# For replacing "(GITHASH)" with the last commit in the grub entry. Comment these
+# lines if you just want the os name.
+PERCENT:=%
+COMMIT_CMD=git branch -v --format="$(PERCENT)(objectname:short)$(PERCENT)(HEAD)" | grep "*$$" | tr -d "*"
+COMMIT_SHA1=($(shell $(COMMIT_CMD)))
+
 # List of object files of our standard library, and the final static library
 LIBC_OBJS=obj/libc/string.o obj/libc/stdlib.o
 LIBC=obj/libc.a

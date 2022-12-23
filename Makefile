@@ -10,7 +10,7 @@ include config.mk
 $(ISO): sysroot
 	mkdir -p iso/boot/grub/
 	cp $(KERNEL_BIN) iso/boot/$(KERNEL_BIN)
-	cp cfg/grub.cfg iso/boot/grub/grub.cfg
+	cat cfg/grub.cfg | sed "s/(GITHASH)/$(COMMIT_SHA1)/" > iso/boot/grub/grub.cfg
 	grub-mkrescue -o $(ISO) iso
 
 # We will use the same compiler for linking. We use `-lc` to link the compiler (now
