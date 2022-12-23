@@ -6,10 +6,12 @@ include config.mk
 
 # -----------------------------------------------------------------------
 
-# Sysroot already has all the components compiled and copied into it
-$(ISO): sysroot
+# Use the sysroot kernel path as rule to make sure we have the sysroot ready. User
+# should run "make sysroot" before "make all". Sysroot already has all the components
+# (kernel, inlcudes, lib) compiled and copied into it.
+$(ISO): $(SYSROOT_KERNEL)
 	mkdir -p iso/boot/grub/
-	cp $(KERNEL_BIN) iso/boot/$(KERNEL_BIN)
+	cp $(SYSROOT_KERNEL) iso/boot/$(KERNEL_BIN)
 	cat cfg/grub.cfg | sed "s/(GITHASH)/$(COMMIT_SHA1)/" > iso/boot/grub/grub.cfg
 	grub-mkrescue -o $(ISO) iso
 
@@ -55,10 +57,12 @@ sysroot_lib: $(LIBC)
 	@mkdir -p $(SYSROOT)/$(SYSROOT_LIBDIR)
 	cp --preserve=timestamps $(LIBC) $(SYSROOT)/$(SYSROOT_LIBDIR)/
 
-# Create the sysroot, copy the kernel binary to destination (boot folder)
-sysroot_boot: $(KERNEL_BIN)
+# Create the sysroot, copy the kernel binary to destination (boot folder).
+# Make a target for the file so $(ISO) doesn't have phony targets as rules.
+sysroot_boot: $(SYSROOT_KERNEL)
+$(SYSROOT_KERNEL): $(KERNEL_BIN)
 	@mkdir -p $(SYSROOT)/$(SYSROOT_BOOTDIR)
-	cp --preserve=timestamps $(KERNEL_BIN) $(SYSROOT)/$(SYSROOT_BOOTDIR)/
+	cp --preserve=timestamps $(KERNEL_BIN) $(SYSROOT_KERNEL)
 
 # Would be the same as: "Copy the headers to the sysroot, compile libc into object
 # files, make the static lib and copy it to the sysroot, build the kernel binary and
@@ -67,7 +71,7 @@ sysroot: sysroot_headers sysroot_lib sysroot_boot
 
 # -----------------------------------------------------------------------
 
-all: $(ISO)
+all: sysroot $(ISO)
 
 # Alterative: qemu-system-i386 -kernel fs-os.bin
 qemu: $(ISO)
