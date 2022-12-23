@@ -13,8 +13,8 @@ qemu: all
 	qemu-system-i386 -cdrom $(ISO)
 
 clean:
-	rm -f obj/kernel/*.o$(ISO)
-	rm -f $(LIBC_OBJS) $(LIBC)
+	rm -f obj/kernel/*.o $(ISO)
+	rm -f $(LIBK_OBJS) $(LIBC_OBJS) $(LIBC)
 	rm -f $(KERNEL_BIN) $(ISO)
 	rm -rf iso sysroot
 
@@ -31,7 +31,7 @@ sysroot_headers:
 	cp -R --preserve=timestamps $(KERNEL_INCLUDES)/. $(SYSROOT)/$(SYSROOT_INCLUDEDIR)/.
 	cp -R --preserve=timestamps $(LIBC_INCLUDES)/. $(SYSROOT)/$(SYSROOT_INCLUDEDIR)/.
 
-# Create the sysroot, copy the libc static library to destination (lib folder)
+# Create the sysroot, copy the libc static library to destination (lib folder).
 sysroot_lib: $(LIBC)
 	@mkdir -p $(SYSROOT)/$(SYSROOT_LIBDIR)
 	cp --preserve=timestamps $(LIBC) $(SYSROOT)/$(SYSROOT_LIBDIR)/
@@ -49,17 +49,16 @@ $(SYSROOT_KERNEL): $(KERNEL_BIN)
 # Use the sysroot kernel path as rule to make sure we have the sysroot ready. User
 # should run "make sysroot" before "make all". Sysroot already has all the components
 # (kernel, inlcudes, lib) compiled and copied into it.
+# TODO: grub -> limine
 $(ISO): $(SYSROOT_KERNEL)
 	mkdir -p iso/boot/grub/
 	cp $(SYSROOT_KERNEL) iso/boot/$(KERNEL_BIN)
 	cat cfg/grub.cfg | sed "s/(GITHASH)/$(COMMIT_SHA1)/" > iso/boot/grub/grub.cfg
 	grub-mkrescue -o $(ISO) iso
 
-# We will use the same compiler for linking. We use `-lc` to link the compiler (now
-# in the sysroot) with the static lib that we have in `/usr/lib/libc.a`. See $(LIBC)
-# todo comment.
-$(KERNEL_BIN): cfg/linker.ld obj/kernel/boot.o obj/kernel/kernel.o obj/kernel/tty.o $(LIBC)
-	$(CC) --sysroot=sysroot -isystem=/usr/include -T cfg/linker.ld -o $@ -O2 -ffreestanding -nostdlib $(CFLAGS) obj/kernel/boot.o obj/kernel/tty.o obj/kernel/kernel.o -lgcc -lc
+# We will use the same compiler for linking. Use sysroot for including with <>, etc.
+$(KERNEL_BIN): cfg/linker.ld obj/kernel/boot.o obj/kernel/kernel.o obj/kernel/tty.o $(LIBK_OBJS)
+	$(CC) --sysroot=sysroot -isystem=/usr/include -T cfg/linker.ld -o $@ -O2 -ffreestanding -nostdlib $(CFLAGS) obj/kernel/boot.o obj/kernel/tty.o obj/kernel/kernel.o $(LIBK_OBJS) -lgcc
 
 obj/kernel/boot.o: src/kernel/boot.asm
 	@mkdir -p obj/kernel/
@@ -79,9 +78,17 @@ $(LIBC_OBJS): obj/libc/%.o : src/libc/%.c
 	@mkdir -p obj/libc/
 	$(CC) --sysroot=sysroot -isystem=/usr/include -c $< -o $@ -O2 -ffreestanding -std=gnu11 $(CFLAGS) -Iinclude
 
-# Archive the library objects into a static library.
-# TODO: For now it's using the same static library for "libc" and "libk", if "libc"
-# gets too big/complex, it might be a good idea to separate them.
+# Libk is a modified version of libc for building the kernel. We don't need a static
+# lib for libk, we will just link the kernel with these objs.
+# TODO: Doesn't have its own include folder, so it uses the same headers as libc. If
+# some function parameters need to change, or we need to add a custom function for
+# the kernel, make libk header folder in sysroot.
+$(LIBK_OBJS): obj/libk/%.o : src/libk/%.c
+	@mkdir -p obj/libk/
+	$(CC) --sysroot=sysroot -isystem=/usr/include -c $< -o $@ -O2 -ffreestanding -std=gnu11 $(CFLAGS) -Iinclude
+
+# Libc used for the userspace. Currently useless. Archive the library objects into a
+# static library.
 $(LIBC): $(LIBC_OBJS)
 	$(AR) rcs $(LIBC) $(LIBC_OBJS)
 

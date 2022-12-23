@@ -26,6 +26,11 @@ COMMIT_SHA1=($(shell $(COMMIT_CMD)))
 LIBC_OBJS=obj/libc/string.o obj/libc/stdlib.o
 LIBC=obj/libc.a
 
+# Libk is the libc version (with some changes) that the kernel uses for building. We
+# don't need a static lib, because we can just link the kernel with these objs
+# instead.
+LIBK_OBJS=obj/libk/string.o obj/libk/stdlib.o
+
 # sysroot paths
 SYSROOT=./sysroot
 SYSROOT_INCLUDEDIR=usr/include
