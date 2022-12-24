@@ -79,8 +79,7 @@ void itoan(char* str, int num, size_t max_digits) {
      *
      * Also make sure the string position is not greater than the max we can write.
      */
-    int cur_digit;
-    for (cur_digit = count_digits(num) - 1; cur_digit >= 0 && sp < max_digits;
+    for (int cur_digit = count_digits(num) - 1; cur_digit >= 0 && sp < max_digits;
          cur_digit--)
         str[sp++] = (num / ipow(10, cur_digit)) % 10 + '0';
 
