@@ -3,6 +3,7 @@
 *.iso
 /iso/
 /sysroot/
+/limine/
 
 # Prerequisites
 *.d

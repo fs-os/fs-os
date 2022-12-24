@@ -49,12 +49,20 @@ $(SYSROOT_KERNEL): $(KERNEL_BIN)
 # Use the sysroot kernel path as rule to make sure we have the sysroot ready. User
 # should run "make sysroot" before "make all". Sysroot already has all the components
 # (kernel, inlcudes, lib) compiled and copied into it.
-# TODO: grub -> limine
-$(ISO): $(SYSROOT_KERNEL)
-	mkdir -p iso/boot/grub/
+$(ISO): $(SYSROOT_KERNEL) limine
+	mkdir -p iso/boot/
 	cp $(SYSROOT_KERNEL) iso/boot/$(KERNEL_BIN)
-	cat cfg/grub.cfg | sed "s/(GITHASH)/$(COMMIT_SHA1)/" > iso/boot/grub/grub.cfg
-	grub-mkrescue -o $(ISO) iso
+	cp limine/limine.sys limine/limine-cd.bin iso/
+	cat cfg/limine.cfg | sed "s/(GITHASH)/$(COMMIT_SHA1)/" > iso/limine.cfg
+	xorriso -as mkisofs -b limine-cd.bin \
+		-no-emul-boot -boot-load-size 4 -boot-info-table \
+		--protective-msdos-label \
+		iso -o $(ISO)
+	limine/limine-deploy --quiet $(ISO)
+
+limine:
+	git clone https://github.com/limine-bootloader/limine.git --branch=v4.x-branch-binary --depth=1
+	make -C limine
 
 # We will use the same compiler for linking. Use sysroot for including with <>, etc.
 $(KERNEL_BIN): cfg/linker.ld obj/kernel/boot.o obj/kernel/kernel.o obj/kernel/tty.o $(LIBK_OBJS)
