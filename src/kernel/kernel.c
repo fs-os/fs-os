@@ -10,7 +10,8 @@
 
 #include <string.h>
 #include <stdlib.h>
-#include <kernel/tty.h>
+#include <stdio.h>
+#include <kernel/tty.h> /* term color functions and vga color defines */
 
 #if defined(__linux__)
 #error "You are not using a cross compiler." \
@@ -25,7 +26,7 @@
 #define TEST_TITLE(s)                                       \
     {                                                       \
         term_setcol(VGA_COLOR_WHITE, VGA_COLOR_BLACK);      \
-        term_sprint(s);                                     \
+        puts(s);                                            \
         term_setcol(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK); \
     }
 
@@ -35,52 +36,34 @@ static inline void test_libk() {
 
     TEST_TITLE("\nTesting colors, itoa, itoan, and terminal scrolling...\n");
     for (int fg = 0; fg <= 15; fg++) {
-        itoa(buf, fg);
-
-        if (fg == VGA_COLOR_BLACK)
+        if (fg == VGA_COLOR_BLACK) {
             term_setcol(fg, VGA_COLOR_LIGHT_GREY);
-        else
+            printf("%d", fg);
             term_setcol(fg, VGA_COLOR_BLACK);
-
-        term_sprint(buf);
-
-        term_setcol(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK);
-        term_putchar(' ');
+            putchar(' ');
+        } else {
+            term_setcol(fg, VGA_COLOR_BLACK);
+            printf("%d ", fg);
+        }
     }
 
-    TEST_TITLE("\n\nTesting string.h functions...\n");
+    TEST_TITLE("\n\nTesting stdlib.h, string.h and stdio.h functions...\n");
 
-    term_sprint("strlen(\"abcd\") -> ");
-    itoa(buf, strlen("abcd"));
-    term_sprint(buf);
-    term_putchar('\n');
+    printf("strlen(\"abcd\") -> %d\n", strlen("abcd"));
+    printf("memcmp(\"abcd\", \"abca\", 4) -> %d\n", memcmp("abcd", "abc1", 4));
+    printf("memcmp(\"abcd\", \"abce\", 4) -> %d\n", memcmp("abcd", "abce", 4));
+    printf("memcmp(\"12345\", \"12345\", 5) -> %d\n", memcmp("12345", "12345", 5));
 
-    term_sprint("memcmp(\"abcd\", \"abca\", 4) -> ");
-    itoa(buf, memcmp("abcd", "abc1", 4));
-    term_sprint(buf);
-    term_putchar('\n');
-
-    term_sprint("memcmp(\"abcd\", \"abce\", 4) -> ");
-    itoa(buf, memcmp("abcd", "abce", 4));
-    term_sprint(buf);
-    term_putchar('\n');
-
-    term_sprint("memcmp(\"123456\", \"123456\", 6) -> ");
-    itoa(buf, memcmp("123456", "123456", 6));
-    term_sprint(buf);
-    term_putchar('\n');
-
-    term_sprint("memset(buf, 'h', 5) -> ");
+    /* More than one line for the null terminator */
+    printf("memset(buf, 'h', 5) -> ");
     memset(buf, 'h', 5);
     buf[5] = '\0';
-    term_sprint(buf);
-    term_putchar('\n');
+    puts(buf);
 
-    term_sprint("memcpy(&buf[5], &buf[0], 5) -> ");
+    printf("memcpy(&buf[5], &buf[0], 5) -> ");
     memcpy(&buf[5], &buf[0], 5);
     buf[10] = '\0';
-    term_sprint(buf);
-    term_putchar('\n');
+    puts(buf);
 }
 
 /* kernel_main: Called by boot.asm */
@@ -88,11 +71,11 @@ void kernel_main() {
     term_init();
 
     term_setcol(VGA_COLOR_LIGHT_BLUE, VGA_COLOR_BLACK);
-    term_sprint("Hello, welcome to the Free and Simple Operating System!\n"
-                "This project is still being developed. For more information, "
-                "see:\n");
+    puts("Hello, welcome to the Free and Simple Operating System!\n"
+         "This project is still being developed. For more information, "
+         "see:\n");
     term_setcol(VGA_COLOR_GREEN, VGA_COLOR_BLACK);
-    term_sprint("https://github.com/fs-os/fs-os\n");
+    puts("https://github.com/fs-os/fs-os\n");
 
     test_libk();
 }
