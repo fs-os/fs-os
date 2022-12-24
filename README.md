@@ -17,7 +17,7 @@ Some interesting resources that influenced the project's philosophy:
 #### Requisites
 - i686-elf cross compiler from [here](https://github.com/fs-os/cross-compiler).
 - [nasm](https://nasm.us) for compiling the assembly used in the project.
-- [grub](https://www.gnu.org/software/grub) and [xorriso](https://www.gnu.org/software/xorriso) for creating the bootable image.
+- The [limine](https://github.com/limine-bootloader/limine) dependencies, including [xorriso](https://www.gnu.org/software/xorriso) for creating the bootable image.
 - (Optional) [qemu](https://www.qemu.org) for testing the ISO on a VM.
 
 #### Building
@@ -55,3 +55,4 @@ See [todo.md](TODO.md).
 
 ### Credits
 - [OSDev wiki](https://wiki.osdev.org)
+- [The limine bootloader](https://github.com/limine-bootloader/limine)
