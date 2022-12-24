@@ -34,7 +34,7 @@
 static inline void test_libk() {
     char buf[255] = { 0 };
 
-    TEST_TITLE("\nTesting colors, itoa, itoan, and terminal scrolling...\n");
+    TEST_TITLE("\nTesting colors, printf, and terminal scrolling...");
     for (int fg = 0; fg <= 15; fg++) {
         if (fg == VGA_COLOR_BLACK) {
             term_setcol(fg, VGA_COLOR_LIGHT_GREY);
@@ -47,7 +47,7 @@ static inline void test_libk() {
         }
     }
 
-    TEST_TITLE("\n\nTesting stdlib.h, string.h and stdio.h functions...\n");
+    TEST_TITLE("\n\nTesting stdlib.h, string.h and stdio.h functions...");
 
     printf("strlen(\"abcd\") -> %d\n", strlen("abcd"));
     printf("memcmp(\"abcd\", \"abca\", 4) -> %d\n", memcmp("abcd", "abc1", 4));
@@ -72,10 +72,9 @@ void kernel_main() {
 
     term_setcol(VGA_COLOR_LIGHT_BLUE, VGA_COLOR_BLACK);
     puts("Hello, welcome to the Free and Simple Operating System!\n"
-         "This project is still being developed. For more information, "
-         "see:\n");
+         "This project is still being developed. For more information, see:");
     term_setcol(VGA_COLOR_GREEN, VGA_COLOR_BLACK);
-    puts("https://github.com/fs-os/fs-os\n");
+    puts("https://github.com/fs-os/fs-os");
 
     test_libk();
 }
