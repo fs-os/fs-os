@@ -23,13 +23,13 @@ COMMIT_CMD=git branch -v --format="$(PERCENT)(objectname:short)$(PERCENT)(HEAD)"
 COMMIT_SHA1=($(shell $(COMMIT_CMD)))
 
 # List of object files of our standard library, and the final static library
-LIBC_OBJS=obj/libc/string.o obj/libc/stdlib.o
+LIBC_OBJS=obj/libc/string.o obj/libc/stdlib.o obj/libc/stdio.o
 LIBC=obj/libc.a
 
 # Libk is the libc version (with some changes) that the kernel uses for building. We
 # don't need a static lib, because we can just link the kernel with these objs
 # instead.
-LIBK_OBJS=obj/libk/string.o obj/libk/stdlib.o
+LIBK_OBJS=obj/libk/string.o obj/libk/stdlib.o obj/libk/stdio.o
 
 # sysroot paths
 SYSROOT=./sysroot
