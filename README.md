@@ -6,12 +6,11 @@ The main purpose of this project is to learn, so expect some mistakes. If you wa
 
 An important part of this project, as the name implies, is to keep it as simple as possible.
 This is very important to understand how everything in the project works (*which is the main goal!*).
-Also keep in mind that when we say *free*, we are talking about [free as in freedom](https://www.gnu.org/philosophy/free-sw.html).
 
 Some interesting resources that influenced the project's philosophy:
-- [GNU philosophy](https://www.gnu.org/philosophy).
+- [GNU philosophy](https://www.gnu.org/philosophy) (See [free](https://www.gnu.org/philosophy/free-sw.html)).
 - [Suckless philosophy](https://suckless.org/philosophy).
-- [cat-v.org](http://cat-v.org) and their [harmful stuff](http://harmful.cat-v.org).
+- [cat-v.org](http://cat-v.org) and their [list of harmful stuff](http://harmful.cat-v.org).
 
 ### Building from source
 #### Requisites
@@ -31,6 +30,9 @@ $ make
 
 Which would be the same as the following.
 ```console
+$ make limine   # Clone and build the bootloader inside ./limine/, you only need to do this once
+...
+
 $ make sysroot
 ...
 
