@@ -1,5 +1,6 @@
 
 #include <stddef.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 /* count_digits: returns the number of digits of a positive num. Will not count "-"
@@ -85,3 +86,14 @@ void itoan(char* str, int num, size_t max_digits) {
 
     str[sp++] = '\0';
 }
+
+void abort(void) {
+    /* TODO: Abnormally terminate the process as if by SIGABRT */
+    puts("abort()");
+
+    while (1)
+        ;
+
+    __builtin_unreachable();
+}
+

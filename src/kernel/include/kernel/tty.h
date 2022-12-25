@@ -33,7 +33,7 @@ extern uint8_t term_col;   /* Color */
 extern uint16_t* term_buf; /* Buffer of vga_entries */
 
 /* Inits the terminal x, y, color and sets the term buffer to grey spaces */
-void term_init();
+void term_init(void);
 
 /* term_setcol_entry: changes the current color for the terminal from a vga entry */
 void term_setcol_entry(uint8_t col);

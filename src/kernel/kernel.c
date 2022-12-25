@@ -31,7 +31,7 @@
     }
 
 /* test_libk: called by kernel_main to test libk functions */
-static inline void test_libk() {
+static inline void test_libk(void) {
     char buf[255] = { 0 };
 
     TEST_TITLE("\nTesting colors, printf, and terminal scrolling...");
@@ -67,7 +67,7 @@ static inline void test_libk() {
 }
 
 /* kernel_main: Called by boot.asm */
-void kernel_main() {
+void kernel_main(void) {
     term_init();
 
     term_setcol(VGA_COLOR_LIGHT_BLUE, VGA_COLOR_BLACK);

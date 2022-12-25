@@ -39,7 +39,7 @@ uint8_t term_col;   /* Color */
 uint16_t* term_buf; /* Buffer of vga_entries */
 
 /* Inits the terminal x, y, color and sets the term buffer to grey spaces */
-void term_init() {
+void term_init(void) {
     term_y   = 0;
     term_x   = 0;
     term_col = vga_entry_color(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK);
