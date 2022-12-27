@@ -11,7 +11,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <kernel/tty.h> /* term color functions and vga color defines */
+#include <kernel/tty.h>       /* term color functions and vga color defines */
+#include <kernel/multiboot.h> /* multiboot info structure */
 
 #if defined(__linux__)
 #error "You are not using a cross compiler." \
@@ -67,7 +68,7 @@ static inline void test_libk(void) {
 }
 
 /* kernel_main: Called by boot.asm */
-void kernel_main(void) {
+void kernel_main(Multiboot* multiboot_info) {
     term_init();
 
     term_setcol(VGA_COLOR_LIGHT_BLUE, VGA_COLOR_BLACK);
@@ -75,6 +76,11 @@ void kernel_main(void) {
          "This project is still being developed. For more information, see:");
     term_setcol(VGA_COLOR_GREEN, VGA_COLOR_BLACK);
     puts("https://github.com/fs-os/fs-os");
+
+    TEST_TITLE("\nMultiboot info");
+    printf("mem_lower: %d\n"
+           "mem_upper: %d\n",
+           multiboot_info->mem_lower, multiboot_info->mem_upper);
 
     test_libk();
 }

@@ -69,7 +69,9 @@ _start:
     ;   - Paging
     ;   - C++ features such as global constructors and exceptions
 
-    ; Push ebx for 
+    ; Push ebx, containing the multiboot information structure pointer, which we will
+    ; pass to main as argument. See src/kernel/include/kernel/multiboot.h
+    push    ebx
 
     ; Enter a high level kernel. The ABI requires the stack to be 16byte aligned at
     ; the time of the call instruction (Because it pushes the return address to the
