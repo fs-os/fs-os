@@ -1,6 +1,6 @@
 
-#ifndef _MULTIBOOT_H
-#define _MULTIBOOT_H
+#ifndef _KERNEL_MULTIBOOT_H
+#define _KERNEL_MULTIBOOT_H
 
 /*
  * See:
@@ -59,5 +59,5 @@ typedef struct {
     uint8_t framebuffer_blue_mask_size;
 } Multiboot __attribute__((packed));
 
-#endif /* _MULTIBOOT_H */
+#endif /* _KERNEL_MULTIBOOT_H */
 
