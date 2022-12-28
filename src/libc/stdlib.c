@@ -87,13 +87,32 @@ void itoan(char* str, int num, size_t max_digits) {
     str[sp++] = '\0';
 }
 
-void abort(void) {
+/* abort: panic */
+void abort(char* msg) {
     /* TODO: Abnormally terminate the process as if by SIGABRT */
-    puts("abort()");
+    printf("abort: %s\n", msg);
 
-    while (1)
+    for (;;)
         ;
 
     __builtin_unreachable();
+}
+
+/* malloc: allocate "sz" bytes and return a pointer. Memory is not initialized. If
+ "sz" is 0, returns NULL. */
+void* malloc(size_t sz) {
+    sz++;
+
+    /* TODO: syscall wrapper for libk malloc */
+    abort("Free is not implemented for libc.");
+    return NULL;
+}
+
+/* free: free a previously allocated ptr */
+void free(void* ptr) {
+    ptr++;
+
+    /* TODO: syscall wrapper for libk free */
+    abort("Free is not implemented for libc.");
 }
 

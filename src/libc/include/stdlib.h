@@ -19,7 +19,15 @@ int ipow(int b, int e);
  * mind that max_digits does not include the null terminator. */
 void itoan(char* str, int num, size_t max_digits);
 
-void abort(void);
+/* abort: panic */
+void abort(char* msg);
+
+/* malloc: allocate "sz" bytes and return a pointer. Memory is not initialized. If
+ "sz" is 0, returns NULL. */
+void* malloc(size_t sz);
+
+/* free: free a previously allocated ptr */
+void free(void* ptr);
 
 #endif /* _STDLIB_H */
 

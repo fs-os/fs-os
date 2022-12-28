@@ -2,6 +2,7 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <kernel/alloc.h>
 
 /* count_digits: returns the number of digits of a positive num. Will not count "-"
  * for negative numbers */
@@ -88,14 +89,26 @@ void itoan(char* str, int num, size_t max_digits) {
     str[sp++] = '\0';
 }
 
-void abort(void) {
+/* abort: panic */
+void abort(char* msg) {
     /* TODO: Proper kernel panic */
-    puts("kernel panic: abort()");
+    printf("kernel panic: %s\n", msg);
     asm volatile("hlt");
 
-    while (1)
+    for (;;)
         ;
 
     __builtin_unreachable();
+}
+
+/* malloc: allocate "sz" bytes and return a pointer. Memory is not initialized. If
+ "sz" is 0, returns NULL. */
+void* malloc(size_t sz) {
+    return kernel_alloc(sz);
+}
+
+/* free: free a previously allocated ptr */
+void free(void* ptr) {
+    kernel_free(ptr);
 }
 

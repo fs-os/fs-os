@@ -11,9 +11,10 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <kernel/multiboot.h>   /* multiboot info structure */
+#include <kernel/alloc.h>       /* init_heap */
 #include <kernel/tty.h>         /* term color functions and vga color defines */
 #include <kernel/framebuffer.h> /* for writing to the framebuffer */
+#include <kernel/multiboot.h>   /* multiboot info structure */
 
 #if defined(__linux__)
 #error "You are not using a cross compiler." \
@@ -74,9 +75,9 @@ void kernel_main(Multiboot* mb_info) {
     puts("Terminal initialized.");
 
     if (mb_info->framebuffer_type == FB_TYPE_RGB) {
-        fb_init((uint32_t*)(uint32_t)mb_info->framebuffer_addr, mb_info->framebuffer_pitch,
-                mb_info->framebuffer_width, mb_info->framebuffer_height,
-                mb_info->framebuffer_bpp);
+        fb_init((uint32_t*)(uint32_t)mb_info->framebuffer_addr,
+                mb_info->framebuffer_pitch, mb_info->framebuffer_width,
+                mb_info->framebuffer_height, mb_info->framebuffer_bpp);
         puts("Framebuffer initialized.");
     }
 
@@ -97,6 +98,13 @@ void kernel_main(Multiboot* mb_info) {
            mb_info->mem_lower, mb_info->mem_upper, mb_info->framebuffer_pitch,
            mb_info->framebuffer_width, mb_info->framebuffer_height,
            mb_info->framebuffer_bpp, mb_info->framebuffer_type);
+
+    TEST_TITLE("\nInit header and alloc tests");
+    init_heap();
+    void* test1 = malloc(255);
+    void* test2 = malloc(100);
+    free(test2);
+    free(test1);
 
     test_libk();
 }
