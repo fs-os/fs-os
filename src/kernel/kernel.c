@@ -11,8 +11,9 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <kernel/tty.h>       /* term color functions and vga color defines */
-#include <kernel/multiboot.h> /* multiboot info structure */
+#include <kernel/multiboot.h>   /* multiboot info structure */
+#include <kernel/tty.h>         /* term color functions and vga color defines */
+#include <kernel/framebuffer.h> /* for writing to the framebuffer */
 
 #if defined(__linux__)
 #error "You are not using a cross compiler." \
@@ -68,8 +69,16 @@ static inline void test_libk(void) {
 }
 
 /* kernel_main: Called by boot.asm */
-void kernel_main(Multiboot* multiboot_info) {
+void kernel_main(Multiboot* mb_info) {
     term_init();
+    puts("Terminal initialized.");
+
+    if (mb_info->framebuffer_type == FB_TYPE_RGB) {
+        fb_init((uint32_t*)(uint32_t)mb_info->framebuffer_addr, mb_info->framebuffer_pitch,
+                mb_info->framebuffer_width, mb_info->framebuffer_height,
+                mb_info->framebuffer_bpp);
+        puts("Framebuffer initialized.");
+    }
 
     term_setcol(VGA_COLOR_LIGHT_BLUE, VGA_COLOR_BLACK);
     puts("Hello, welcome to the Free and Simple Operating System!\n"
@@ -79,8 +88,15 @@ void kernel_main(Multiboot* multiboot_info) {
 
     TEST_TITLE("\nMultiboot info");
     printf("mem_lower: %d\n"
-           "mem_upper: %d\n",
-           multiboot_info->mem_lower, multiboot_info->mem_upper);
+           "mem_upper: %d\n"
+           "fb_pitch: %d\n"
+           "fb_width: %d\n"
+           "fb_height: %d\n"
+           "fb_bpp: %d\n"
+           "fb_type: %d\n",
+           mb_info->mem_lower, mb_info->mem_upper, mb_info->framebuffer_pitch,
+           mb_info->framebuffer_width, mb_info->framebuffer_height,
+           mb_info->framebuffer_bpp, mb_info->framebuffer_type);
 
     test_libk();
 }
