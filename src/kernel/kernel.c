@@ -11,6 +11,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <kernel/alloc.h>     /* init_heap */
 #include <kernel/tty.h>       /* term color functions and vga color defines */
 #include <kernel/multiboot.h> /* multiboot info structure */
 
@@ -77,10 +78,19 @@ void kernel_main(Multiboot* multiboot_info) {
     term_setcol(VGA_COLOR_GREEN, VGA_COLOR_BLACK);
     puts("https://github.com/fs-os/fs-os");
 
+    /*
     TEST_TITLE("\nMultiboot info");
     printf("mem_lower: %d\n"
            "mem_upper: %d\n",
            multiboot_info->mem_lower, multiboot_info->mem_upper);
+    */
+
+    TEST_TITLE("\nInit header and alloc tests");
+    init_heap();
+    void* test1 = malloc(255);
+    void* test2 = malloc(100);
+    free(test2);
+    free(test1);
 
     test_libk();
 }
