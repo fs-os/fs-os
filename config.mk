@@ -16,11 +16,8 @@ AR=/usr/local/cross/bin/i686-elf-ar
 KERNEL_BIN=fs-os.bin
 ISO=$(KERNEL_BIN:.bin=.iso)
 
-# For replacing "(GITHASH)" with the last commit in the grub entry. Comment these
-# lines if you just want the os name.
-PERCENT:=%
-COMMIT_CMD=git branch -v --format="$(PERCENT)(objectname:short)$(PERCENT)(HEAD)" | grep "*$$" | tr -d "*"
-COMMIT_SHA1=($(shell $(COMMIT_CMD)))
+# List of object files to be linked with the kernel
+KERNEL_OBJS=obj/kernel/kernel.o obj/kernel/tty.o obj/kernel/framebuffer.o
 
 # List of object files of our standard library, and the final static library
 LIBC_OBJS=obj/libc/string.o obj/libc/stdlib.o obj/libc/stdio.o
@@ -43,4 +40,10 @@ SYSROOT_KERNEL=$(SYSROOT)/$(SYSROOT_BOOTDIR)/$(KERNEL_BIN)
 # (src/libc/include/*.h -> sysroot/usr/include/*.h)
 KERNEL_INCLUDES=src/kernel/include
 LIBC_INCLUDES=src/libc/include
+
+# For replacing "(GITHASH)" with the last commit in the grub entry. Comment these
+# lines if you just want the os name.
+PERCENT:=%
+COMMIT_CMD=git branch -v --format="$(PERCENT)(objectname:short)$(PERCENT)(HEAD)" | grep "*$$" | tr -d "*"
+COMMIT_SHA1=($(shell $(COMMIT_CMD)))
 

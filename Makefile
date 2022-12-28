@@ -65,8 +65,8 @@ limine:
 	make -C limine
 
 # We will use the same compiler for linking. Use sysroot for including with <>, etc.
-$(KERNEL_BIN): cfg/linker.ld obj/kernel/boot.o obj/kernel/kernel.o obj/kernel/tty.o $(LIBK_OBJS)
-	$(CC) --sysroot=sysroot -isystem=/usr/include -T cfg/linker.ld -o $@ -O2 -ffreestanding -nostdlib $(CFLAGS) obj/kernel/boot.o obj/kernel/tty.o obj/kernel/kernel.o $(LIBK_OBJS) -lgcc
+$(KERNEL_BIN): cfg/linker.ld obj/kernel/boot.o $(KERNEL_OBJS) $(LIBK_OBJS)
+	$(CC) --sysroot=sysroot -isystem=/usr/include -T cfg/linker.ld -o $@ -O2 -ffreestanding -nostdlib $(CFLAGS) obj/kernel/boot.o $(KERNEL_OBJS) $(LIBK_OBJS) -lgcc
 
 obj/kernel/boot.o: src/kernel/boot.asm
 	@mkdir -p obj/kernel/
@@ -74,11 +74,7 @@ obj/kernel/boot.o: src/kernel/boot.asm
 
 # We need the sysroot with the includes and the static lib for building the kernel,
 # tty, etc. We called 'make sysroot' in the 'all' target so we should be fine.
-obj/kernel/kernel.o: src/kernel/kernel.c
-	@mkdir -p obj/kernel/
-	$(CC) --sysroot=sysroot -isystem=/usr/include -c $< -o $@ -O2 -ffreestanding -std=gnu11 $(CFLAGS) -Iinclude
-
-obj/kernel/tty.o: src/kernel/tty.c
+$(KERNEL_OBJS): obj/kernel/%.o: src/kernel/%.c
 	@mkdir -p obj/kernel/
 	$(CC) --sysroot=sysroot -isystem=/usr/include -c $< -o $@ -O2 -ffreestanding -std=gnu11 $(CFLAGS) -Iinclude
 
