@@ -102,8 +102,6 @@ void kernel_main(Multiboot* mb_info) {
     TEST_TITLE("\nInit header and alloc tests");
     init_heap();
     void* test1 = malloc(255);
-    void* test2 = malloc(100);
-    free(test2);
     free(test1);
 
     test_libk();
