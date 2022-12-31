@@ -17,8 +17,14 @@ void init_heap() {
     };
 }
 
-/* kernel_alloc: allocate "sz" bytes of memory from the heap and return the address */
+/* kernel_alloc: allocate "sz" bytes of memory from the heap and return the address
+ */
 void* kernel_alloc(size_t sz) {
+    /* First, make sure the size is aligned to 8 bytes */
+    const size_t align_diff = sz % 8;
+    if (align_diff != 0)
+        sz += 8 - align_diff;
+
     /* From start of the heap, jump to the next block until end of heap. */
     for (Block* blk = HEAP_START; blk != NULL; blk = blk->next) {
         /* Invalid block, check next */
