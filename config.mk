@@ -7,7 +7,7 @@ ASM_FLAGS=-f elf32
 CC=/usr/local/cross/bin/i686-elf-gcc
 
 # Global cflags. Other commands use specific ones not yet in the config
-CFLAGS=-Wall -Wextra
+CFLAGS=-Wall -Wextra -O2
 
 # Cross-compiled ar for creating the static library (LIBC)
 AR=/usr/local/cross/bin/i686-elf-ar

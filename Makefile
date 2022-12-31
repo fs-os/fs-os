@@ -66,7 +66,7 @@ limine:
 
 # We will use the same compiler for linking. Use sysroot for including with <>, etc.
 $(KERNEL_BIN): cfg/linker.ld obj/kernel/boot.o $(KERNEL_OBJS) $(LIBK_OBJS)
-	$(CC) --sysroot=sysroot -isystem=/usr/include -T cfg/linker.ld -o $@ -O2 -ffreestanding -nostdlib $(CFLAGS) obj/kernel/boot.o $(KERNEL_OBJS) $(LIBK_OBJS) -lgcc
+	$(CC) --sysroot=sysroot -isystem=/usr/include -T cfg/linker.ld -o $@ -ffreestanding -nostdlib $(CFLAGS) obj/kernel/boot.o $(KERNEL_OBJS) $(LIBK_OBJS) -lgcc
 
 obj/kernel/boot.o: src/kernel/boot.asm
 	@mkdir -p obj/kernel/
@@ -76,11 +76,11 @@ obj/kernel/boot.o: src/kernel/boot.asm
 # tty, etc. We called 'make sysroot' in the 'all' target so we should be fine.
 $(KERNEL_OBJS): obj/kernel/%.o: src/kernel/%.c
 	@mkdir -p obj/kernel/
-	$(CC) --sysroot=sysroot -isystem=/usr/include -c $< -o $@ -O2 -ffreestanding -std=gnu11 $(CFLAGS) -Iinclude
+	$(CC) --sysroot=sysroot -isystem=/usr/include -c $< -o $@ -ffreestanding -std=gnu11 $(CFLAGS) -Iinclude
 
 $(LIBC_OBJS): obj/libc/%.o : src/libc/%.c
 	@mkdir -p obj/libc/
-	$(CC) --sysroot=sysroot -isystem=/usr/include -c $< -o $@ -O2 -ffreestanding -std=gnu11 $(CFLAGS) -Iinclude
+	$(CC) --sysroot=sysroot -isystem=/usr/include -c $< -o $@ -ffreestanding -std=gnu11 $(CFLAGS) -Iinclude
 
 # Libk is a modified version of libc for building the kernel. We don't need a static
 # lib for libk, we will just link the kernel with these objs.
@@ -89,7 +89,7 @@ $(LIBC_OBJS): obj/libc/%.o : src/libc/%.c
 # the kernel, make libk header folder in sysroot.
 $(LIBK_OBJS): obj/libk/%.o : src/libk/%.c
 	@mkdir -p obj/libk/
-	$(CC) --sysroot=sysroot -isystem=/usr/include -c $< -o $@ -O2 -ffreestanding -std=gnu11 $(CFLAGS) -Iinclude
+	$(CC) --sysroot=sysroot -isystem=/usr/include -c $< -o $@ -ffreestanding -std=gnu11 $(CFLAGS) -Iinclude
 
 # Libc used for the userspace. Currently useless. Archive the library objects into a
 # static library.
