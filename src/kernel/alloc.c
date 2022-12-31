@@ -1,27 +1,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
-#include <stdio.h> /* DELME */
 #include <kernel/alloc.h>
-
-/* DELME */
-static inline void print_header(int mod, Block* blk) {
-    switch (mod) {
-        case 0:
-            printf("+");
-            break;
-        case 1:
-            printf("*");
-            break;
-        case 2:
-            printf("-");
-            break;
-        default:
-            break;
-    }
-    printf(" Address: %d | Blk: %d | Next: %d | Sz: %d | Free: %d\n", (uint32_t)blk,
-           (uint32_t)blk->ptr, (uint32_t)blk->next, blk->sz, blk->free);
-}
 
 /* init_heap: initializes the heap headers for the allocation functions. */
 void init_heap() {
@@ -35,9 +15,6 @@ void init_heap() {
         HEAP_SIZE - sizeof(Block),
         1,
     };
-
-    /* DELME */
-    print_header(1, (Block*)first_blk);
 }
 
 /* kernel_alloc: allocate "sz" bytes of memory from the heap and return the address */
@@ -65,14 +42,13 @@ void* kernel_alloc(size_t sz) {
         blk->sz   = sz;
         blk->free = 0;
 
-        /* DELME */
-        print_header(0, blk);
-        print_header(1, new_blk);
-
         return blk->ptr;
     }
 
     /* No block available */
+#ifdef ALLOC_DEBUG
+    dump_alloc_headers();
+#endif
     abort("alloc: No block available");
     return NULL;
 }
@@ -88,17 +64,61 @@ void kernel_free(void* ptr) {
 
     /* If the next block is free, merge */
     if (blk->next->free) {
-        /* DELME */
-        print_header(2, blk->next);
-
         /* Add deleted header size and size of old block */
         blk->sz += sizeof(Block) + blk->next->sz;
         blk->next = blk->next->next;
     }
 
     /* If the next block is being used, just set this one free */
+}
 
-    /* DELME */
-    print_header(1, blk);
+/* For debugging */
+#include <stdio.h>
+
+enum header_mod {
+    NEW_HEADER = 0,
+    MOD_HEADER = 1,
+    DEL_HEADER = 2,
+    UNK_HEADER = 3,
+};
+
+/* print_header: prints information about a single alloc block header */
+static inline void print_header(enum header_mod mod, Block* blk) {
+    switch (mod) {
+        case NEW_HEADER:
+            printf("+ ");
+            break;
+        case MOD_HEADER:
+            printf("* ");
+            break;
+        case DEL_HEADER:
+            printf("- ");
+            break;
+        case UNK_HEADER:
+        default:
+            break;
+    }
+
+    printf("Header: %d | Blk: %d | Next: %d | Sz: %d | Free: %d\n", (uint32_t)blk,
+           (uint32_t)blk->ptr, (uint32_t)blk->next, blk->sz, blk->free);
+}
+
+/* print_header_id: wrapper for print_header for adding a block id */
+static inline void print_header_id(int blk_id, Block* blk) {
+    printf("[%d] ", blk_id);
+    print_header(UNK_HEADER, blk);
+}
+
+/* dump_alloc_headers: prints the information for all the alloc block headers */
+void dump_alloc_headers(void) {
+    printf("Dumping heap block headers:\n");
+
+    /* Block id */
+    int i = 0;
+
+    /* From start of the heap, jump to the next block until end of heap. */
+    for (Block* blk = HEAP_START; blk != NULL; blk = blk->next) {
+        print_header_id(i++, blk);
+    }
 }
 

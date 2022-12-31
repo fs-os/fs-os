@@ -25,5 +25,8 @@ void* kernel_alloc(size_t sz);
 /* kernel_free: free a previously allocated ptr */
 void kernel_free(void* ptr);
 
+/* dump_alloc_headers: prints the information for all the alloc block headers */
+void dump_alloc_headers(void);
+
 #endif /* _KERNEL_ALLOC_H */
 

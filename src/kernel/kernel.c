@@ -85,10 +85,14 @@ void kernel_main(Multiboot* multiboot_info) {
            multiboot_info->mem_lower, multiboot_info->mem_upper);
     */
 
-    TEST_TITLE("\nInit header and alloc tests");
+    TEST_TITLE("\nInitializing heap and testing alloc...");
     init_heap();
     void* test1 = malloc(255);
+    void* test2 = malloc(100);
     free(test1);
+    void* test3 = malloc(500);
+    void* test4 = malloc(69);
+    dump_alloc_headers();
 
     test_libk();
 }
