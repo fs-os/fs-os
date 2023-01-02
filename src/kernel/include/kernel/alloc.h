@@ -4,8 +4,8 @@
 
 #include <stdint.h>
 
-#define HEAP_START ((void*)524288) /* Bytes. 512 KB */
-#define HEAP_SIZE  (26214400)      /* Bytes. 25MB */
+#define HEAP_START ((void*)0x80000) /* Bytes. 512 KB */
+#define HEAP_SIZE  (0x1900000)      /* Bytes. 25MB */
 
 /* Block header struct. The block ptr should point to (header_ptr + sizeof(Block)) */
 typedef struct Block {
@@ -14,6 +14,9 @@ typedef struct Block {
     uint32_t sz;        /* Bytes */
     uint8_t free;       /* 1 or 0 */
 } Block;
+
+/* Initialized in src/kernel/alloc.c */
+extern Block* blk_cursor;
 
 /* init_heap: initializes the heap headers for the allocation functions. */
 void init_heap();
@@ -24,6 +27,9 @@ void* kernel_alloc(size_t sz);
 
 /* kernel_free: free a previously allocated ptr */
 void kernel_free(void* ptr);
+
+/* dump_alloc_headers: prints the information for all the alloc block headers */
+void dump_alloc_headers(void);
 
 #endif /* _KERNEL_ALLOC_H */
 
