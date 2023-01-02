@@ -15,6 +15,9 @@ typedef struct Block {
     uint8_t free;       /* 1 or 0 */
 } Block;
 
+/* Initialized in src/kernel/alloc.c */
+extern Block* blk_cursor;
+
 /* init_heap: initializes the heap headers for the allocation functions. */
 void init_heap();
 

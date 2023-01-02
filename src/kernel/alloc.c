@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <kernel/alloc.h>
 
+Block* blk_cursor = (Block*)HEAP_START;
+
 /* init_heap: initializes the heap headers for the allocation functions. */
 void init_heap() {
     void* first_blk = HEAP_START;
@@ -25,11 +27,17 @@ void* kernel_alloc(size_t sz) {
     if (align_diff != 0)
         sz += 8 - align_diff;
 
-    /* From start of the heap, jump to the next block until end of heap. */
-    for (Block* blk = HEAP_START; blk != NULL; blk = blk->next) {
+    /* From block cursor (last allocation/free), traverse blocks until we find one
+     * free or until we loop back to the original cursor. */
+    for (Block* blk = blk_cursor;; blk = blk->next) {
         /* Invalid block, check next */
-        if (blk->sz < sz || !blk->free)
-            continue;
+        if (!blk->free || blk->sz < sz + sizeof(Block)) {
+            /* If we are back to where we started, there is no block left. Break */
+            if (blk->next == blk_cursor)
+                break;
+            else
+                continue;
+        }
 
         /* Current block ptr + current alloc sz. The pointer is const */
         Block* const new_blk = (Block*)((uint32_t)blk->ptr + sz);
@@ -43,6 +51,8 @@ void* kernel_alloc(size_t sz) {
             1,
         };
 
+        blk_cursor = new_blk;
+
         /* Update values from old block */
         blk->next = new_blk;
         blk->sz   = sz;
@@ -52,9 +62,7 @@ void* kernel_alloc(size_t sz) {
     }
 
     /* No block available */
-#ifdef ALLOC_DEBUG
     dump_alloc_headers();
-#endif
     abort("alloc: No block available");
     return NULL;
 }
@@ -66,8 +74,6 @@ void kernel_free(void* ptr) {
 
     Block* blk = (Block*)(ptr - sizeof(Block));
 
-    blk->free = 1;
-
     /* If the next block is free, merge */
     if (blk->next->free) {
         /* Add deleted header size and size of old block */
@@ -76,6 +82,11 @@ void kernel_free(void* ptr) {
     }
 
     /* If the next block is being used, just set this one free */
+    blk->free = 1;
+
+    /* Update blk_cursor so it points to the block we just freed */
+    /* TODO: Check if (blk->sz > blk_cursor_sz)? */
+    blk_cursor = blk;
 }
 
 /* For debugging */
@@ -117,7 +128,9 @@ static inline void print_header_id(int blk_id, Block* blk) {
 
 /* dump_alloc_headers: prints the information for all the alloc block headers */
 void dump_alloc_headers(void) {
-    printf("Dumping heap block headers:\n");
+    printf("Cursor: %d\n"
+           "Dumping heap block headers:\n",
+           (uint32_t)blk_cursor);
 
     /* Block id */
     int i = 0;
