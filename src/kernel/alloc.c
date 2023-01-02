@@ -84,9 +84,10 @@ void kernel_free(void* ptr) {
     /* If the next block is being used, just set this one free */
     blk->free = 1;
 
-    /* Update blk_cursor so it points to the block we just freed */
-    /* TODO: Check if (blk->sz > blk_cursor_sz)? */
-    blk_cursor = blk;
+    /* If blk_cursor was pointing to a smaller block than the one we just freed,
+     * update it */
+    if (blk->sz > blk_cursor->sz)
+        blk_cursor = blk;
 }
 
 /* For debugging */
