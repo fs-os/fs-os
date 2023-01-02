@@ -117,7 +117,7 @@ static inline void print_header(enum header_mod mod, Block* blk) {
             break;
     }
 
-    printf("Header: %d | Blk: %d | Next: %d | Sz: %d | Free: %d\n", (uint32_t)blk,
+    printf("Header: 0x%X | Blk: 0x%X | Next: 0x%X | Sz: 0x%X | Free: %d\n", (uint32_t)blk,
            (uint32_t)blk->ptr, (uint32_t)blk->next, blk->sz, blk->free);
 }
 
@@ -129,7 +129,7 @@ static inline void print_header_id(int blk_id, Block* blk) {
 
 /* dump_alloc_headers: prints the information for all the alloc block headers */
 void dump_alloc_headers(void) {
-    printf("Cursor: %d\n"
+    printf("Cursor: 0x%X\n"
            "Dumping heap block headers:\n",
            (uint32_t)blk_cursor);
 
