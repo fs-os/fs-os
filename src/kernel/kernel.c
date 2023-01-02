@@ -16,6 +16,8 @@
 #include <kernel/framebuffer.h> /* for writing to the framebuffer */
 #include <kernel/multiboot.h>   /* multiboot info structure */
 
+#include "logo.h"
+
 #if defined(__linux__)
 #error "You are not using a cross compiler." \
     "For more information see: https://github.com/fs-os/cross-compiler"
@@ -69,6 +71,22 @@ static inline void test_libk(void) {
     puts(buf);
 }
 
+/* print_logo: prints the logo from logo.h using the GIMP macro */
+void print_logo(unsigned int ypad, unsigned int xpad) {
+    char rgb[3] = { 0 };
+    char* logo_start = fsos_logo;
+
+    for (unsigned int y = 0; y < logo_height; y++) {
+        for (unsigned int x = 0; x < logo_width; x++) {
+            HEADER_PIXEL(fsos_logo, rgb);
+            fb_setpx(y + ypad, x + xpad, rgb[0], rgb[1], rgb[2]);
+        }
+    }
+
+    /* Reset ptr because HEADER_PIXEL increases it */
+    fsos_logo = logo_start;
+}
+
 /* kernel_main: Called by boot.asm */
 void kernel_main(Multiboot* mb_info) {
     term_init();
@@ -109,5 +127,9 @@ void kernel_main(Multiboot* mb_info) {
     dump_alloc_headers();
 
     test_libk();
+
+    print_logo(20, 20);
+    print_logo(20, 270);
+    print_logo(20, 520);
 }
 
