@@ -27,6 +27,60 @@ static void printi(int num) {
         putchar((num / ipow(10, cur_digit)) % 10 + '0');
 }
 
+/* printx: print "num" in hexadecimal format (lowercase) */
+static void printx(unsigned long num) {
+    if (num == 0)
+        print("0");
+
+    /* max digits of an unsigned long */
+    char hex_str[12] = { 0 };
+
+    int tmp = 0;
+    size_t i;
+    for (i = 0; num > 0 && i < sizeof(hex_str) - 1; i++) {
+        tmp = num % 16;
+        num /= 16;
+
+        /* Convert to char */
+        tmp += (tmp < 10) ? '0' : 'a' - 10;
+
+        hex_str[i] = tmp;
+    }
+
+    hex_str[i] = '\0';
+
+    /* Reverse string and print */
+    strrev(hex_str);
+    print(hex_str);
+}
+
+/* printX: print "num" in hexadecimal format (uppercase) */
+static void printX(unsigned long num) {
+    if (num == 0)
+        print("0");
+
+    /* max digits of an unsigned long */
+    char hex_str[12] = { 0 };
+
+    int tmp = 0;
+    size_t i;
+    for (i = 0; num > 0 && i < sizeof(hex_str) - 1; i++) {
+        tmp = num % 16;
+        num /= 16;
+
+        /* Convert to char */
+        tmp += (tmp < 10) ? '0' : 'A' - 10;
+
+        hex_str[i] = tmp;
+    }
+
+    hex_str[i] = '\0';
+
+    /* Reverse string and print */
+    strrev(hex_str);
+    print(hex_str);
+}
+
 /* puts: prints "str" and a newline char */
 int puts(const char* str) {
     return printf("%s\n", str);
@@ -75,6 +129,12 @@ int vprintf(const char* fmt, va_list va) {
                     break;
                 case 'd':
                     printi(va_arg(va, int));
+                    break;
+                case 'x':
+                    printx(va_arg(va, unsigned long));
+                    break;
+                case 'X':
+                    printX(va_arg(va, unsigned long));
                     break;
                 default:
                     /* If unknown fmt, print the % and the unknown char */
