@@ -7,6 +7,9 @@
 /* strlen: return length of str without null terminator */
 size_t strlen(const char* str);
 
+/* strrev: reverse str in place without allocating. Return str */
+char* strrev(char* str);
+
 /* memcmp: compare the first "sz" bytes of 2 pointers. Returns 1 if in the first
  * mismatch, a is greater than b, or -1 if b is greater than a. If all the "sz" bytes
  * in a and b are the same, returns 0. */

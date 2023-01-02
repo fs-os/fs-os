@@ -14,6 +14,30 @@ size_t strlen(const char* str) {
     return ret;
 }
 
+/* strrev: reverse str in place without allocating. Return str */
+char* strrev(char* str) {
+    const int len = strlen(str);
+    char c        = 0;
+
+    /*
+     * Go from str[0] to str[len/2] and replace each char with the char from the
+     * other half:
+     * s = [ H E L L O ] => [ O L L E H ]
+     *       | |   | |
+     *       | ----- |
+     *       |-------|
+     */
+    for (int i = 0; i < len / 2 && str[i] != '\0'; i++) {
+        c = str[i];
+
+        /* -1 to convert length to idx */
+        str[i]           = str[len - 1 - i];
+        str[len - 1 - i] = c;
+    }
+
+    return str;
+}
+
 /* memcmp: compare the first "sz" bytes of 2 pointers. Returns 1 if in the first
  * mismatch, a is greater than b, or -1 if b is greater than a. If all the "sz" bytes
  * in a and b are the same, returns 0. */
