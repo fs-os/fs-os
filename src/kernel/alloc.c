@@ -1,6 +1,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <kernel/alloc.h>
 
 Block* blk_cursor = (Block*)HEAP_START;
@@ -62,6 +63,7 @@ void* kernel_alloc(size_t sz) {
     }
 
     /* No block available */
+    printf("Error trying to allocate size: 0x%X\n", sz);
     dump_alloc_headers();
     abort("alloc: No block available");
     return NULL;
@@ -91,7 +93,6 @@ void kernel_free(void* ptr) {
 }
 
 /* For debugging */
-#include <stdio.h>
 
 enum header_mod {
     NEW_HEADER = 0,
