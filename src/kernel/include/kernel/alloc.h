@@ -4,8 +4,8 @@
 
 #include <stdint.h>
 
-#define HEAP_START ((void*)0x80000) /* Bytes. 512 KB */
-#define HEAP_SIZE  (0x3200000)      /* Bytes. 50MB */
+#define HEAP_START ((void*)0xA00000) /* Bytes. 10MB */
+#define HEAP_SIZE  (0x3200000)       /* Bytes. 50MB */
 
 /* Block header struct. The block ptr should point to (header_ptr + sizeof(Block)) */
 typedef struct Block {
