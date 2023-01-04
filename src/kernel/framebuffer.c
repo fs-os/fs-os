@@ -45,9 +45,18 @@ void fb_setpx(uint32_t y, uint32_t x, uint8_t r, uint8_t g, uint8_t b) {
 
 /* fb_drawrect_col: fill "h" and "w" starting from "y" and "x" with color "col" */
 void fb_drawrect_col(uint32_t y, uint32_t x, uint32_t h, uint32_t w, uint32_t col) {
-    for (; y < h; y++)
-        for (; x < w; x++)
-            g_fb[y * g_width + x] = col;
+    if (y >= g_height || x >= g_width)
+        return;
+
+    /* If width or height go out of the screen, set them to the screen limit */
+    if (y + h >= g_height)
+        h = g_height - y - 1;
+    if (x + w >= g_width)
+        w = g_width - x - 1;
+
+    for (uint32_t cur_y = y; cur_y < y + h; cur_y++)
+        for (uint32_t cur_x = x; cur_x < x + w; cur_x++)
+            g_fb[cur_y * g_width + cur_x] = col;
 }
 
 /* fb_drawrect: RGB wrapper for fb_drawrect_col */
