@@ -10,7 +10,7 @@ all: sysroot $(ISO)
 
 # Alterative: qemu-system-i386 -kernel fs-os.bin
 qemu: all
-	qemu-system-i386 -cdrom $(ISO)
+	qemu-system-i386 -boot d -cdrom $(ISO)
 
 clean:
 	rm -f obj/kernel/*.o $(ISO)
