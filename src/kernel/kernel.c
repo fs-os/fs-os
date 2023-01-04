@@ -11,12 +11,16 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+
 #include <kernel/alloc.h>       /* init_heap */
 #include <kernel/tty.h>         /* term color functions and vga color defines */
-#include <kernel/framebuffer.h> /* for writing to the framebuffer */
-#include <kernel/multiboot.h>   /* multiboot info structure */
+#include <kernel/framebuffer.h> /* fb_init, fb_setpx */
+#include <kernel/framebuffer_console.h> /* fbc_init */
 
-#include "logo.h"
+#include <kernel/multiboot.h> /* multiboot info structure */
+#include <fonts/main_font.h>
+
+#include "logo_small.h"
 
 #if defined(__linux__)
 #error "You are not using a cross compiler." \
@@ -73,31 +77,49 @@ static inline void test_libk(void) {
 
 /* print_logo: prints the logo from logo.h using the GIMP macro */
 void print_logo(unsigned int ypad, unsigned int xpad) {
-    char rgb[3] = { 0 };
-    char* logo_start = fsos_logo;
+    char rgb[3]      = { 0 };
+    char* logo_start = fsos_logo_s;
 
-    for (unsigned int y = 0; y < logo_height; y++) {
-        for (unsigned int x = 0; x < logo_width; x++) {
-            HEADER_PIXEL(fsos_logo, rgb);
+    for (unsigned int y = 0; y < fsos_logo_s_h; y++) {
+        for (unsigned int x = 0; x < fsos_logo_s_w; x++) {
+            HEADER_PIXEL(fsos_logo_s, rgb);
             fb_setpx(y + ypad, x + xpad, rgb[0], rgb[1], rgb[2]);
         }
     }
 
     /* Reset ptr because HEADER_PIXEL increases it */
-    fsos_logo = logo_start;
+    fsos_logo_s = logo_start;
 }
 
 /* kernel_main: Called by boot.asm */
 void kernel_main(Multiboot* mb_info) {
-    term_init();
-    puts("Terminal initialized.");
+    init_heap();
+    puts("Heap initialized.");
 
-    if (mb_info->framebuffer_type == FB_TYPE_RGB) {
-        fb_init((uint32_t*)(uint32_t)mb_info->framebuffer_addr,
-                mb_info->framebuffer_pitch, mb_info->framebuffer_width,
-                mb_info->framebuffer_height, mb_info->framebuffer_bpp);
-        puts("Framebuffer initialized.");
-    }
+    term_init();
+    puts("VGA terminal initialized.");
+
+    if (mb_info->framebuffer_type != FB_TYPE_RGB)
+        abort("Could not initialize framebuffer on RGB mode.");
+
+    fb_init((uint32_t*)(uint32_t)mb_info->framebuffer_addr,
+            mb_info->framebuffer_pitch, mb_info->framebuffer_width,
+            mb_info->framebuffer_height, mb_info->framebuffer_bpp);
+    puts("Framebuffer initialized.");
+
+    print_logo(5, 0);
+    print_logo(5, 100);
+    print_logo(5, 200);
+
+    fbc_init(110, 3, mb_info->framebuffer_height, mb_info->framebuffer_width,
+             &main_font);
+    puts("Framebuffer console initialized.");
+
+    fbc_place_str(0, 0,
+                  "!\"#$%&\'()*+,-./"
+                  "0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`"
+                  "abcdefghijklmnopqrstuvwxyz{|}~");
+    fbc_refresh();
 
     term_setcol(VGA_COLOR_LIGHT_BLUE, VGA_COLOR_BLACK);
     puts("Hello, welcome to the Free and Simple Operating System!\n"
@@ -117,19 +139,6 @@ void kernel_main(Multiboot* mb_info) {
            mb_info->framebuffer_width, mb_info->framebuffer_height,
            mb_info->framebuffer_bpp, mb_info->framebuffer_type);
 
-    TEST_TITLE("\nInitializing heap and testing alloc...");
-    init_heap();
-    void* test1 = malloc(255);
-    void* test2 = malloc(100);
-    free(test1);
-    void* test3 = malloc(500);
-    void* test4 = malloc(69);
-    dump_alloc_headers();
-
     test_libk();
-
-    print_logo(20, 20);
-    print_logo(20, 270);
-    print_logo(20, 520);
 }
 
