@@ -30,6 +30,9 @@ void fb_init(uint32_t* fb, uint32_t pitch, uint32_t w, uint32_t h, uint32_t bpp)
 
 /* fb_setpx_col: set the pixel at (y, x) of the global framebuffer to "col" */
 void fb_setpx_col(uint32_t y, uint32_t x, uint32_t col) {
+    if (y >= g_height || x >= g_width)
+        return;
+
     g_fb[y * g_width + x] = col;
 }
 
