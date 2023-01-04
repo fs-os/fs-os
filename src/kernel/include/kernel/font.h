@@ -5,9 +5,10 @@
 #include <stdint.h>
 
 typedef struct {
-    uint8_t w;
-    uint8_t h;
-    uint8_t* font; /* 256 chars * w */
+    uint8_t w;     /* Width */
+    uint8_t h;     /* Height */
+    uint8_t s;     /* Scale. Actual pixels to display per font pixel */
+    uint8_t* font; /* Bitmap ptr. Size must be (256 * w) */
 } Font;
 
 /* get_font_bit: Gets the bit at pos (y, x) of the char "c" from the Font "font".

@@ -27,6 +27,8 @@
 Font main_font = {
     .w = 7,
     .h = 8,
+    /* Change scale to make the font bigger */
+    .s = 2,
     /* Invalid ptrs are spaces (marked as NULL) */
     .font = "\x00\x00\x00\x00\x00\x00\x00"  /* NULL */
             "\x00\x00\x00\x00\x00\x00\x00"  /* NULL */

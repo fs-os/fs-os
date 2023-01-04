@@ -5,7 +5,7 @@
 
 /* TODO: Color palette */
 #define DEFAULT_FG 0xEEEEEE
-#define DEFAULT_BG 0x010101
+#define DEFAULT_BG 0x000000
 
 /* Global framebuffer console. Allocated in fbc_init(). The framebuffer console array
  * won't be used for displaying (outside of fbc_refresh), but for keeping track of
@@ -30,8 +30,8 @@ void fbc_init(uint32_t y, uint32_t x, uint32_t px_h, uint32_t px_w, Font* font) 
     g_h = px_h;
     g_w = px_w;
     /* We get the font size but we save the console char dimensions */
-    g_ch   = (px_h / font->h);
-    g_cw   = (px_w / font->w);
+    g_ch   = px_h / (font->h * font->s);
+    g_cw   = px_w / (font->w * font->s);
     g_font = font;
 
     /* Allocate the number of fbc_entry's. Rows and cols of the console */
@@ -65,17 +65,22 @@ void fbc_refresh() {
             for (uint8_t fy = 0; fy < g_font->h; fy++) {
                 for (uint8_t fx = 0; fx < g_font->w; fx++) {
                     /* Get real screen position. We add g_y and g_x because its the
-                     * console px offset (position) */
-                    const uint32_t final_y = g_y + (cy * g_font->h) + fy;
-                    const uint32_t final_x = g_x + (cx * g_font->w) + fx;
+                     * console px offset (position). We multiply the font position by
+                     * the font scale. */
+                    const uint32_t final_y =
+                      g_y + ((cy * g_font->h * g_font->s) + (fy * g_font->s));
+                    const uint32_t final_x =
+                      g_x + ((cx * g_font->w * g_font->s) + (fx * g_font->s));
 
                     /* We check if the current bit of the current column is 1.
                      * Depending on that, set it to foreground or background. For
                      * more information see: src/kernel/include/kernel/font.h */
                     if (get_font_bit(g_font, cur_entry.c, fy, fx))
-                        fb_setpx_col(final_y, final_x, cur_entry.fg);
+                        fb_drawrect_col(final_y, final_x, g_font->s, g_font->s,
+                                        cur_entry.fg);
                     else
-                        fb_setpx_col(final_y, final_x, cur_entry.bg);
+                        fb_drawrect_col(final_y, final_x, g_font->s, g_font->s,
+                                        cur_entry.bg);
                 }
             }
         }
