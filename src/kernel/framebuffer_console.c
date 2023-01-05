@@ -142,5 +142,7 @@ void fbc_shift_rows(uint8_t n) {
             };
 }
 
-/* TODO: void fbc_putchar(); */
+void fbc_putchar() {
+
+}
 

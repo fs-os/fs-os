@@ -13,7 +13,7 @@
 #include <stdio.h>
 
 #include <kernel/alloc.h>       /* init_heap */
-#include <kernel/tty.h>         /* term color functions and vga color defines */
+#include <kernel/vga.h>         /* term color functions and vga color defines */
 #include <kernel/framebuffer.h> /* fb_init, fb_setpx */
 #include <kernel/framebuffer_console.h> /* fbc_init */
 

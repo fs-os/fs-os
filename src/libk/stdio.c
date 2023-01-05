@@ -5,7 +5,7 @@
 #include <string.h>
 #include <stdio.h>
 
-#include <kernel/tty.h>
+#include <kernel/vga.h>
 
 /* print: calls "putchar" for each char of "str". Returns bytes written. */
 static inline int print(const char* str) {

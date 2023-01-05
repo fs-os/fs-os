@@ -73,7 +73,8 @@ obj/kernel/boot.o: src/kernel/boot.asm
 	$(ASM) $(ASM_FLAGS) $< -o $@
 
 # We need the sysroot with the includes and the static lib for building the kernel,
-# tty, etc. We called 'make sysroot' in the 'all' target so we should be fine.
+# framebuffer, etc. We called 'make sysroot' in the 'all' target so we should be
+# fine.
 $(KERNEL_OBJS): obj/kernel/%.o: src/kernel/%.c
 	@mkdir -p obj/kernel/
 	$(CC) --sysroot=sysroot -isystem=/usr/include -c $< -o $@ -ffreestanding -std=gnu11 $(CFLAGS) -Iinclude

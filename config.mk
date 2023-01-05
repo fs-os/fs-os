@@ -17,7 +17,7 @@ KERNEL_BIN=fs-os.bin
 ISO=$(KERNEL_BIN:.bin=.iso)
 
 # List of object files to be linked with the kernel
-KERNEL_OBJS=obj/kernel/kernel.o obj/kernel/tty.o obj/kernel/alloc.o obj/kernel/framebuffer.o obj/kernel/framebuffer_console.o
+KERNEL_OBJS=obj/kernel/kernel.o obj/kernel/vga.o obj/kernel/alloc.o obj/kernel/framebuffer.o obj/kernel/framebuffer_console.o
 
 # List of object files of our standard library, and the final static library
 LIBC_OBJS=obj/libc/string.o obj/libc/stdlib.o obj/libc/stdio.o
