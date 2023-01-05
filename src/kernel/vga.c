@@ -16,7 +16,7 @@ void term_init(void) {
     term_x   = 0;
     term_col = vga_entry_color(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK);
     /* 0xB8000 is the location of the VGA text mode buffer */
-    term_buf = (uint16_t*)0xB8000;
+    term_buf = (uint16_t*)VGA_CONSOLE_ADDR;
 
     /* Clear terminal buffer */
     for (size_t y = 0; y < VGA_HEIGHT; y++) {

@@ -1,6 +1,7 @@
 
 #include <stdlib.h>
 #include <kernel/color.h>
+#include <kernel/vga.h> /* VGA_CONSOLE_ADDR */
 #include <kernel/framebuffer.h>
 #include <kernel/framebuffer_console.h>
 
@@ -27,6 +28,35 @@ static color_pair cur_cols;
 
 /* Current position on the console */
 static uint32_t cur_y, cur_x;
+
+/* ------------------------------------------------------------------------------- */
+
+/* vga_to_fbc: copy the contents of the vga console to the framebuffer console. Does
+ * not support vga colors */
+static void vga_to_fbc() {
+    const uint16_t* vga_console = (uint16_t*)VGA_CONSOLE_ADDR;
+    int non_spaces                    = 0;
+
+    for (uint16_t y = 0; y < VGA_HEIGHT; y++) {
+        for (uint16_t x = 0; x < VGA_WIDTH; x++) {
+            /* TODO: c is always 0xffff */
+            const uint16_t c = vga_console[y * VGA_WIDTH + x];
+
+            if (c != ' ')
+                non_spaces++;
+
+            fbc_putchar(c);
+        }
+
+        fbc_putchar('\n');
+
+        /* If we just put an empty line, go up */
+        if (non_spaces == 0 && cur_y > 0)
+            cur_y--;
+
+        non_spaces = 0;
+    }
+}
 
 /* fbc_init: initialize the framebuffer console. First 4 parameters are position and
  * size in pixels of the console and the last one is the font. The font ptr is stored
@@ -61,6 +91,7 @@ void fbc_init(uint32_t y, uint32_t x, uint32_t px_h, uint32_t px_w, Font* font) 
         }
     }
 
+    /* vga_to_fbc(); */
     fbc_refresh();
 }
 
@@ -148,16 +179,21 @@ void fbc_shift_rows(uint8_t n) {
     /* Shift n rows */
     for (uint32_t y = 0; y < g_ch - n; y++)
         for (uint32_t x = 0; x < g_cw; x++)
-            g_fbc[y * g_cw + x] = g_fbc[(y + n) * g_ch + x];
+            g_fbc[y * g_cw + x] = g_fbc[(y + n) * g_cw + x];
 
     /* Clear last n rows with clean entries */
-    for (uint32_t y = g_ch - n; y < g_ch; y++)
-        for (uint32_t x = 0; x < g_cw; x++)
+    for (uint32_t y = g_ch - n; y < g_ch; y++) {
+        for (uint32_t x = 0; x < g_cw; x++) {
             g_fbc[y * g_cw + x] = (fbc_entry){
                 ' ',
                 DEFAULT_FG,
                 DEFAULT_BG,
             };
+        }
+    }
+
+    /* TODO: Shift display */
+    fbc_refresh();
 }
 
 /* fbc_setcol: sets the current foreground and background colors */

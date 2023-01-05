@@ -5,7 +5,11 @@
 #include <string.h>
 #include <stdio.h>
 
+#ifdef USE_VGA
 #include <kernel/vga.h>
+#else /* Framebuffer console */
+#include <kernel/framebuffer_console.h>
+#endif
 
 /* print: calls "putchar" for each char of "str". Returns bytes written. */
 static inline int print(const char* str) {
@@ -161,8 +165,14 @@ int vprintf(const char* fmt, va_list va) {
 
 /* putchar: prints the single character "c" */
 int putchar(int c) {
-    char tmp = (char)c;
+    const char tmp = (char)c;
+
+#ifdef USE_VGA
     term_putchar(tmp);
+#else /* Framebuffer console */
+    fbc_putchar(tmp);
+#endif
+
     return tmp;
 }
 

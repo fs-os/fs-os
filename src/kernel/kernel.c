@@ -12,9 +12,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include <kernel/alloc.h>       /* init_heap */
-#include <kernel/vga.h>         /* term color functions and vga color defines */
-#include <kernel/framebuffer.h> /* fb_init, fb_setpx */
+#include <kernel/alloc.h>               /* init_heap */
+#include <kernel/vga.h>                 /* init_term */
+#include <kernel/framebuffer.h>         /* fb_init, fb_setpx */
 #include <kernel/framebuffer_console.h> /* fbc_init */
 
 #include <kernel/multiboot.h> /* multiboot info structure */
@@ -32,29 +32,15 @@
     "For more information see: https://github.com/fs-os/cross-compiler"
 #endif
 
-#define TEST_TITLE(s)                                       \
-    {                                                       \
-        term_setcol(VGA_COLOR_WHITE, VGA_COLOR_BLACK);      \
-        puts(s);                                            \
-        term_setcol(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK); \
-    }
+/* TODO: fbc colors */
+#define TEST_TITLE(s) \
+    { puts(s); }
 
 /* test_libk: called by kernel_main to test libk functions */
 static inline void test_libk(void) {
     char buf[255] = { 0 };
 
-    TEST_TITLE("\nTesting colors, printf, and terminal scrolling...");
-    for (int fg = 0; fg <= 15; fg++) {
-        if (fg == VGA_COLOR_BLACK) {
-            term_setcol(fg, VGA_COLOR_LIGHT_GREY);
-            printf("%d", fg);
-            term_setcol(fg, VGA_COLOR_BLACK);
-            putchar(' ');
-        } else {
-            term_setcol(fg, VGA_COLOR_BLACK);
-            printf("%d ", fg);
-        }
-    }
+    /* TODO: fbc color and scrolling test */
 
     TEST_TITLE("\n\nTesting stdlib.h, string.h and stdio.h functions...");
 
@@ -94,36 +80,37 @@ void print_logo(unsigned int ypad, unsigned int xpad) {
 /* kernel_main: Called by boot.asm */
 void kernel_main(Multiboot* mb_info) {
     init_heap();
-    puts("Heap initialized.");
 
+    /* Currently unused */
     term_init();
-    puts("VGA terminal initialized.");
+    term_setcol(VGA_COLOR_GREEN, VGA_COLOR_RED);
+    term_sprint("VGA terminal initialized.\n");
 
-    if (mb_info->framebuffer_type != FB_TYPE_RGB)
-        abort("Could not initialize framebuffer on RGB mode.");
+    if (mb_info->framebuffer_type != FB_TYPE_RGB) {
+        term_sprint("Could not initialize framebuffer on RGB mode.\n");
+        abort(NULL);
+    }
 
     fb_init((uint32_t*)(uint32_t)mb_info->framebuffer_addr,
             mb_info->framebuffer_pitch, mb_info->framebuffer_width,
             mb_info->framebuffer_height, mb_info->framebuffer_bpp);
-    puts("Framebuffer initialized.");
+    term_sprint("Framebuffer initialized.\n");
 
     print_logo(5, 0);
     print_logo(5, 100);
     print_logo(5, 200);
 
-    fbc_init(110, 3, mb_info->framebuffer_height, mb_info->framebuffer_width,
-             &main_font);
+    fbc_init(110, 3, mb_info->framebuffer_height - 110 - 5,
+             mb_info->framebuffer_width - 3 * 2, &main_font);
     puts("Framebuffer console initialized.");
 
     for (int i = 0; i < 10; i++)
-        fbc_sprint("!\"#$%&\'()*+,-./"
-                   "0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`"
-                   "abcdefghijklmnopqrstuvwxyz{|}~\n");
+        puts("!\"#$%&\'()*+,-./"
+             "0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`"
+             "abcdefghijklmnopqrstuvwxyz{|}~");
 
-    term_setcol(VGA_COLOR_LIGHT_BLUE, VGA_COLOR_BLACK);
     puts("Hello, welcome to the Free and Simple Operating System!\n"
          "This project is still being developed. For more information, see:");
-    term_setcol(VGA_COLOR_GREEN, VGA_COLOR_BLACK);
     puts("https://github.com/fs-os/fs-os");
 
     TEST_TITLE("\nMultiboot info");

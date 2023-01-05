@@ -24,6 +24,8 @@ enum vga_color {
     VGA_COLOR_WHITE         = 15,
 };
 
+#define VGA_CONSOLE_ADDR 0xB8000
+
 extern const size_t VGA_WIDTH;
 extern const size_t VGA_HEIGHT;
 
