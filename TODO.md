@@ -9,7 +9,7 @@ Stuff that needs to be/has been done.
 - [X] Add allocation functions and heap.
 - [X] Framebuffer support.
     - [X] Add framebuffer console array with char and color info.
-    - [ ] Replace vga functions (`tty.c`) with framebuffer console.
+    - [ ] Replace vga functions (`vga.c`) with framebuffer console.
 - [ ] Sleep functions ([Link](https://wiki.osdev.org/Programmable_Interval_Timer)).
 - [ ] Keyboard.
 - [ ] Ext2

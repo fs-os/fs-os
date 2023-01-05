@@ -1,5 +1,6 @@
 
 #include <kernel/framebuffer.h>
+#include <kernel/color.h>
 
 /* Framebuffer globals */
 static uint32_t* g_fb; /* We will save the pointer, not a copy of the framebuffer */
@@ -7,10 +8,6 @@ static uint32_t g_pitch;
 static uint32_t g_width;
 static uint32_t g_height;
 static uint32_t g_bpp;
-
-static inline uint32_t rgb2col(uint8_t r, uint8_t g, uint8_t b) {
-    return (r << 16 | g << 8 | b);
-}
 
 /* fb_init: initialize global framebuffer variables and clear the framebuffer */
 void fb_init(uint32_t* fb, uint32_t pitch, uint32_t w, uint32_t h, uint32_t bpp) {

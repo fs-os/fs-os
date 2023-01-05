@@ -93,6 +93,9 @@ void term_write(const char* s, size_t len) {
 }
 
 /* term_sprint: prints zero-terminated string to the vga terminal using term_write */
+/* TODO: If we actually used vga, it would be better to write until '\0' instead of
+ * calling strlen */
 void term_sprint(const char* s) {
     term_write(s, strlen(s));
 }
+
