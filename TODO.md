@@ -8,8 +8,11 @@ Stuff that needs to be/has been done.
 - [X] Sysroot and similar file structure to [this](https://wiki.osdev.org/Meaty_Skeleton#libc_and_libk_Design).
 - [X] Add allocation functions and heap.
 - [X] Framebuffer support.
-    - [ ] Add framebuffer console array with char and color info.
+    - [X] Add framebuffer console array with char and color info.
+    - [ ] Replace vga functions (`tty.c`) with framebuffer console.
 - [ ] Sleep functions ([Link](https://wiki.osdev.org/Programmable_Interval_Timer)).
+- [ ] Keyboard.
+- [ ] Ext2
 - [ ] Paging.
 
 ### Misc
