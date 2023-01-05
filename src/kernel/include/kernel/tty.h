@@ -44,8 +44,8 @@ void term_setcol(enum vga_color fg, enum vga_color bg);
 /* term_put_at: writes "c" with the color "col" at "x" and "y" in the vga terminal */
 void term_put_at(size_t y, size_t x, uint8_t col, char c);
 
-/* shift_rows: scrolls the terminal n rows */
-void shift_rows(int n);
+/* term_shift_rows: scrolls the terminal n rows */
+void term_shift_rows(int n);
 
 /* term_putchar: prints 'c' to the vga terminal */
 void term_putchar(char c);

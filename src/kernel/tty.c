@@ -70,8 +70,8 @@ void term_put_at(size_t y, size_t x, uint8_t col, char c) {
     term_buf[y * VGA_WIDTH + x] = vga_entry(c, col);
 }
 
-/* shift_rows: scrolls the terminal n rows */
-void shift_rows(int n) {
+/* term_shift_rows: scrolls the terminal n rows */
+void term_shift_rows(int n) {
     /* Shift n rows */
     for (size_t y = 0; y < VGA_HEIGHT - n; y++)
         for (size_t x = 0; x < VGA_WIDTH; x++)
