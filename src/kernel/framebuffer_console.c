@@ -1,5 +1,6 @@
 
 #include <stdlib.h>
+#include <kernel/color.h>
 #include <kernel/framebuffer.h>
 #include <kernel/framebuffer_console.h>
 
@@ -21,6 +22,12 @@ static uint32_t g_ch, g_cw;
 /* Global pointer to the font the framebufer console uses */
 static Font* g_font;
 
+/* Current color we are using when printing. Foreground and background */
+static color_pair cur_cols;
+
+/* Current position on the console */
+static uint32_t cur_y, cur_x;
+
 /* fbc_init: initialize the framebuffer console. First 4 parameters are position and
  * size in pixels of the console and the last one is the font. The font ptr is stored
  * and used to get the height and width of each char. */
@@ -29,10 +36,17 @@ void fbc_init(uint32_t y, uint32_t x, uint32_t px_h, uint32_t px_w, Font* font) 
     g_x = x;
     g_h = px_h;
     g_w = px_w;
+
     /* We get the font size but we save the console char dimensions */
     g_ch   = px_h / (font->h * font->s);
     g_cw   = px_w / (font->w * font->s);
     g_font = font;
+
+    cur_cols.fg = DEFAULT_FG;
+    cur_cols.bg = DEFAULT_BG;
+
+    cur_y = 0;
+    cur_x = 0;
 
     /* Allocate the number of fbc_entry's. Rows and cols of the console */
     g_fbc = malloc(g_ch * g_cw * sizeof(fbc_entry));
@@ -41,8 +55,8 @@ void fbc_init(uint32_t y, uint32_t x, uint32_t px_h, uint32_t px_w, Font* font) 
         for (uint32_t cx = 0; cx < g_cw; cx++) {
             g_fbc[cy * g_cw + cx] = (fbc_entry){
                 ' ',
-                DEFAULT_FG,
-                DEFAULT_BG,
+                cur_cols.fg,
+                cur_cols.bg,
             };
         }
     }
@@ -50,44 +64,48 @@ void fbc_init(uint32_t y, uint32_t x, uint32_t px_h, uint32_t px_w, Font* font) 
     fbc_refresh();
 }
 
-/* fbc_refresh: updates each pixel of the framebuffer with the real one in g_fbc.
- * Calling this function everytime we update g_fbc would be slow. Insead call this
- * function on specific situations and we refresh the framebuffer pixels we need when
- * updating g_fbc (e.g. when calling fbc_putchar) */
-void fbc_refresh() {
-    /* First iterate each char of the framebuffer console */
-    for (uint32_t cy = 0; cy < g_ch; cy++) {
-        for (uint32_t cx = 0; cx < g_cw; cx++) {
-            /* Get the current fbc_entry */
-            const fbc_entry cur_entry = g_fbc[cy * g_cw + cx];
+/* fbc_refresh_entry: refreshes the pixels on the screen corresponding to g_fbc's
+ * entry at (cy, cx) */
+static inline void fbc_refresh_entry(uint32_t cy, uint32_t cx) {
+    /* Get the current fbc_entry */
+    const fbc_entry cur_entry = g_fbc[cy * g_cw + cx];
 
-            /* Then iterate each pixel that forms the font char */
-            for (uint8_t fy = 0; fy < g_font->h; fy++) {
-                for (uint8_t fx = 0; fx < g_font->w; fx++) {
-                    /* Get real screen position. We add g_y and g_x because its the
-                     * console px offset (position). We multiply the font position by
-                     * the font scale. */
-                    const uint32_t final_y =
-                      g_y + ((cy * g_font->h * g_font->s) + (fy * g_font->s));
-                    const uint32_t final_x =
-                      g_x + ((cx * g_font->w * g_font->s) + (fx * g_font->s));
+    /* Then iterate each pixel that forms the font char */
+    for (uint8_t fy = 0; fy < g_font->h; fy++) {
+        for (uint8_t fx = 0; fx < g_font->w; fx++) {
+            /* Get real screen position. We add g_y and g_x because its the
+             * console px offset (position). We multiply the font position by
+             * the font scale. */
+            const uint32_t final_y =
+              g_y + ((cy * g_font->h * g_font->s) + (fy * g_font->s));
+            const uint32_t final_x =
+              g_x + ((cx * g_font->w * g_font->s) + (fx * g_font->s));
 
-                    /* We check if the current bit of the current column is 1.
-                     * Depending on that, set it to foreground or background. For
-                     * more information see: src/kernel/include/kernel/font.h */
-                    if (get_font_bit(g_font, cur_entry.c, fy, fx))
-                        fb_drawrect_col(final_y, final_x, g_font->s, g_font->s,
-                                        cur_entry.fg);
-                    else
-                        fb_drawrect_col(final_y, final_x, g_font->s, g_font->s,
-                                        cur_entry.bg);
-                }
-            }
+            /* We check if the current bit of the current column is 1.
+             * Depending on that, set it to foreground or background. For
+             * more information see: src/kernel/include/kernel/font.h */
+            if (get_font_bit(g_font, cur_entry.c, fy, fx))
+                fb_drawrect_col(final_y, final_x, g_font->s, g_font->s,
+                                cur_entry.fg);
+            else
+                fb_drawrect_col(final_y, final_x, g_font->s, g_font->s,
+                                cur_entry.bg);
         }
     }
 }
 
-/* fbc_pace_str: place "str" with default colors at positions (y, x) of the
+/* fbc_refresh: updates each pixel of the framebuffer with the real one in g_fbc.
+ * Calling this function everytime we update g_fbc would be slow. Insead call this
+ * function on specific situations and we refresh the entries we need when updating
+ * g_fbc (e.g. when calling fbc_putchar) */
+void fbc_refresh() {
+    /* First iterate each char of the framebuffer console */
+    for (uint32_t cy = 0; cy < g_ch; cy++)
+        for (uint32_t cx = 0; cx < g_cw; cx++)
+            fbc_refresh_entry(cy, cx);
+}
+
+/* fbc_pace_str: place "str" with current colors at positions (y, x) of the
  * framebuffer console array. Warning: Overwrites! */
 void fbc_place_str(uint32_t y, uint32_t x, const char* str) {
     while (*str != '\0' && y < g_ch && x < g_cw) {
@@ -142,7 +160,65 @@ void fbc_shift_rows(uint8_t n) {
             };
 }
 
-void fbc_putchar() {
+/* fbc_setcol: sets the current foreground and background colors */
+void fbc_setcol(uint32_t fg, uint32_t bg) {
+    cur_cols.fg = fg;
+    cur_cols.bg = bg;
+}
 
+/* fbc_setcol_rgb: sets the current foreground and background colors in rgb format */
+void fbc_setcol_rgb(uint8_t fore_r, uint8_t fore_g, uint8_t fore_b, uint8_t back_r,
+                    uint8_t back_g, uint8_t back_b) {
+    cur_cols.fg = rgb2col(fore_r, fore_g, fore_b);
+    cur_cols.bg = rgb2col(back_r, back_g, back_b);
+}
+
+/* fbc_putchar: prints "c" to the framebuffer console */
+void fbc_putchar(char c) {
+    if (c == '\n') {
+        /* If we have rows left on the terminal, go down, if we are on the last
+         * one, shift 1 up, but stay on that last row */
+        if (cur_y + 1 < g_ch)
+            cur_y++;
+        else
+            fbc_shift_rows(1);
+
+        cur_x = 0;
+
+        return;
+    }
+
+    g_fbc[cur_y * g_cw + cur_x] = (fbc_entry){
+        c,
+        cur_cols.fg,
+        cur_cols.bg,
+    };
+
+    /* Draw the pixels on the screen */
+    fbc_refresh_entry(cur_y, cur_x);
+
+    /* If we reach the end of the line, reset x and increase y */
+    if (++cur_x >= g_cw) {
+        cur_x = 0;
+
+        /* See comment on newline conditional */
+        if (cur_y + 1 < g_ch)
+            cur_y++;
+        else
+            fbc_shift_rows(1);
+    }
+}
+
+/* fbc_write: prints "len" of "s" to the framebuffer console using fbc_putchar */
+void fbc_write(const char* s, size_t len) {
+    while (len-- > 0)
+        fbc_putchar(*s++);
+}
+
+/* fbc_sprint: prints zero-terminated string to the framebuffer console using
+ * fbc_putchar */
+void fbc_sprint(const char* s) {
+    while (*s > '\0')
+        fbc_putchar(*s++);
 }
 

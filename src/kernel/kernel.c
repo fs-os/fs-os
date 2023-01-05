@@ -115,11 +115,10 @@ void kernel_main(Multiboot* mb_info) {
              &main_font);
     puts("Framebuffer console initialized.");
 
-    fbc_place_str(0, 0,
-                  "!\"#$%&\'()*+,-./"
-                  "0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`"
-                  "abcdefghijklmnopqrstuvwxyz{|}~");
-    fbc_refresh();
+    for (int i = 0; i < 10; i++)
+        fbc_sprint("!\"#$%&\'()*+,-./"
+                   "0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`"
+                   "abcdefghijklmnopqrstuvwxyz{|}~\n");
 
     term_setcol(VGA_COLOR_LIGHT_BLUE, VGA_COLOR_BLACK);
     puts("Hello, welcome to the Free and Simple Operating System!\n"
