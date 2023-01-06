@@ -104,14 +104,19 @@ void kernel_main(Multiboot* mb_info) {
              mb_info->framebuffer_width - 3 * 2, &main_font);
     puts("Framebuffer console initialized.");
 
-    for (int i = 0; i < 10; i++)
-        puts("!\"#$%&\'()*+,-./"
-             "0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`"
-             "abcdefghijklmnopqrstuvwxyz{|}~");
+    // DELME
+    for (int i = 0; i < 100; i++) {
+        printf("%d\n", i);
+    }
 
     puts("Hello, welcome to the Free and Simple Operating System!\n"
          "This project is still being developed. For more information, see:");
     puts("https://github.com/fs-os/fs-os");
+
+    TEST_TITLE("\nTesting font");
+    puts("!\"#$%&\'()*+,-./"
+         "0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`"
+         "abcdefghijklmnopqrstuvwxyz{|}~");
 
     TEST_TITLE("\nMultiboot info");
     printf("mem_lower: %d\n"

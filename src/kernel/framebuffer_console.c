@@ -31,11 +31,12 @@ static uint32_t cur_y, cur_x;
 
 /* ------------------------------------------------------------------------------- */
 
+#if 0
 /* vga_to_fbc: copy the contents of the vga console to the framebuffer console. Does
  * not support vga colors */
 static void vga_to_fbc() {
     const uint16_t* vga_console = (uint16_t*)VGA_CONSOLE_ADDR;
-    int non_spaces                    = 0;
+    int non_spaces              = 0;
 
     for (uint16_t y = 0; y < VGA_HEIGHT; y++) {
         for (uint16_t x = 0; x < VGA_WIDTH; x++) {
@@ -57,6 +58,7 @@ static void vga_to_fbc() {
         non_spaces = 0;
     }
 }
+#endif
 
 /* fbc_init: initialize the framebuffer console. First 4 parameters are position and
  * size in pixels of the console and the last one is the font. The font ptr is stored
@@ -177,9 +179,12 @@ void fbc_place_str(uint32_t y, uint32_t x, const char* str) {
 /* fbc_shift_rows: scrolls the framebuffer terminal "n" rows (fbc_entry's) */
 void fbc_shift_rows(uint8_t n) {
     /* Shift n rows */
-    for (uint32_t y = 0; y < g_ch - n; y++)
-        for (uint32_t x = 0; x < g_cw; x++)
+    for (uint32_t y = 0; y < g_ch - n; y++) {
+        for (uint32_t x = 0; x < g_cw; x++) {
             g_fbc[y * g_cw + x] = g_fbc[(y + n) * g_cw + x];
+            fbc_refresh_entry(y, x);
+        }
+    }
 
     /* Clear last n rows with clean entries */
     for (uint32_t y = g_ch - n; y < g_ch; y++) {
@@ -192,8 +197,10 @@ void fbc_shift_rows(uint8_t n) {
         }
     }
 
-    /* TODO: Shift display */
-    fbc_refresh();
+    const uint32_t final_y = g_y + ((g_ch - n) * g_font->h * g_font->s);
+    const uint32_t final_h = g_font->h * g_font->s * n;
+
+    fb_drawrect_col(final_y, g_x, final_h, g_w, DEFAULT_BG);
 }
 
 /* fbc_setcol: sets the current foreground and background colors */
