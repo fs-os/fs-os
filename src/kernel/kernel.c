@@ -42,7 +42,7 @@ static inline void test_libk(void) {
 
     /* TODO: fbc color and scrolling test */
 
-    TEST_TITLE("\n\nTesting stdlib.h, string.h and stdio.h functions...");
+    TEST_TITLE("\nTesting stdlib.h, string.h and stdio.h functions...");
 
     printf("strlen(\"abcd\") -> %d\n", strlen("abcd"));
     printf("memcmp(\"abcd\", \"abca\", 4) -> %d\n", memcmp("abcd", "abc1", 4));
@@ -104,10 +104,8 @@ void kernel_main(Multiboot* mb_info) {
              mb_info->framebuffer_width - 3 * 2, &main_font);
     puts("Framebuffer console initialized.");
 
-    // DELME
-    for (int i = 0; i < 100; i++) {
-        printf("%d\n", i);
-    }
+    for (int i = 0; i < 300; i++)
+        printf("i = %d\n", i);
 
     puts("Hello, welcome to the Free and Simple Operating System!\n"
          "This project is still being developed. For more information, see:");
@@ -119,13 +117,13 @@ void kernel_main(Multiboot* mb_info) {
          "abcdefghijklmnopqrstuvwxyz{|}~");
 
     TEST_TITLE("\nMultiboot info");
-    printf("mem_lower: %d\n"
-           "mem_upper: %d\n"
-           "fb_pitch: %d\n"
-           "fb_width: %d\n"
-           "fb_height: %d\n"
-           "fb_bpp: %d\n"
-           "fb_type: %d\n",
+    printf("\tmem_lower: %d\n"
+           "\tmem_upper: %d\n"
+           "\tfb_pitch: %d\n"
+           "\tfb_width: %d\n"
+           "\tfb_height: %d\n"
+           "\tfb_bpp: %d\n"
+           "\tfb_type: %d\n",
            mb_info->mem_lower, mb_info->mem_upper, mb_info->framebuffer_pitch,
            mb_info->framebuffer_width, mb_info->framebuffer_height,
            mb_info->framebuffer_bpp, mb_info->framebuffer_type);

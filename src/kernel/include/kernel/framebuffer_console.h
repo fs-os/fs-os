@@ -6,6 +6,8 @@
 #include <stddef.h>
 #include <kernel/font.h>
 
+#define FBC_TABSIZE 4
+
 /* Framebuffer console entry. Char and rgb fg and bg in uint32_t format */
 typedef struct {
     uint8_t c;

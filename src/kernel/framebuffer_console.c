@@ -143,6 +143,13 @@ void fbc_refresh() {
 void fbc_place_str(uint32_t y, uint32_t x, const char* str) {
     while (*str != '\0' && y < g_ch && x < g_cw) {
         if (*str == '\n') {
+            /* Save newline char (don't display anything) */
+            g_fbc[y * g_cw + x] = (fbc_entry){
+                '\n',
+                DEFAULT_FG,
+                DEFAULT_BG,
+            };
+
             /* If we have rows left on the terminal, go down, if we are on the last
              * one, shift 1 up, but stay on that last row */
             if (y + 1 < g_ch)
@@ -153,6 +160,11 @@ void fbc_place_str(uint32_t y, uint32_t x, const char* str) {
             x = 0;
 
             str++;
+            continue;
+        } else if (*str == '\t') {
+            for (int i = 0; i < FBC_TABSIZE; i++)
+                fbc_putchar(' ');
+
             continue;
         }
 
@@ -178,17 +190,48 @@ void fbc_place_str(uint32_t y, uint32_t x, const char* str) {
 
 /* fbc_shift_rows: scrolls the framebuffer terminal "n" rows (fbc_entry's) */
 void fbc_shift_rows(uint8_t n) {
-    /* Shift n rows */
+    /* Used to count the position of the last valid char in the line */
+    uint32_t char_count = 0;
+
+    /* Shift n rows. We go to the newline instead of always g_cw because that will be
+     * the last valid char we care about. We can fill the rest faster with
+     * fb_drawrect_col */
     for (uint32_t y = 0; y < g_ch - n; y++) {
+        /* Update valid entries until we encounter newline */
         for (uint32_t x = 0; x < g_cw; x++) {
             g_fbc[y * g_cw + x] = g_fbc[(y + n) * g_cw + x];
+
+            /* We need to check after the assignment and not in the for because we
+             * want to also copy the newline */
+            if (g_fbc[(y + n) * g_cw + x].c == '\n')
+                break;
+
             fbc_refresh_entry(y, x);
+
+            char_count++;
         }
+
+        /* Fill from last valid to the end of the line */
+        const uint32_t fill_y = g_y + (y * g_font->h * g_font->s);
+        const uint32_t fill_x = g_x + (char_count * g_font->w * g_font->s);
+        const uint32_t fill_h = g_font->h * g_font->s;
+        const uint32_t fill_w = g_w + g_x - fill_x;
+        fb_drawrect_col(fill_y, fill_x, fill_h, fill_w, DEFAULT_BG);
+
+        char_count = 0;
     }
 
-    /* Clear last n rows with clean entries */
+    /* Clear last n rows with clean entries. Only change the ones that were full */
     for (uint32_t y = g_ch - n; y < g_ch; y++) {
-        for (uint32_t x = 0; x < g_cw; x++) {
+        /* First entry is newline, rest spaces. We dont need to call
+         * fbc_refresh_entry because we know the whole line is empty */
+        g_fbc[y * g_cw + 0] = (fbc_entry){
+            '\n',
+            DEFAULT_FG,
+            DEFAULT_BG,
+        };
+
+        for (uint32_t x = 1; x < g_cw; x++) {
             g_fbc[y * g_cw + x] = (fbc_entry){
                 ' ',
                 DEFAULT_FG,
@@ -197,10 +240,12 @@ void fbc_shift_rows(uint8_t n) {
         }
     }
 
-    const uint32_t final_y = g_y + ((g_ch - n) * g_font->h * g_font->s);
-    const uint32_t final_h = g_font->h * g_font->s * n;
-
-    fb_drawrect_col(final_y, g_x, final_h, g_w, DEFAULT_BG);
+    /* Fill last empty lines with background color */
+    const uint32_t fill_y = g_y + ((g_ch - n) * g_font->h * g_font->s);
+    const uint32_t fill_x = g_x;
+    const uint32_t fill_h = n * g_font->h * g_font->s;
+    const uint32_t fill_w = g_w;
+    fb_drawrect_col(fill_y, fill_x, fill_h, fill_w, DEFAULT_BG);
 }
 
 /* fbc_setcol: sets the current foreground and background colors */
@@ -219,6 +264,13 @@ void fbc_setcol_rgb(uint8_t fore_r, uint8_t fore_g, uint8_t fore_b, uint8_t back
 /* fbc_putchar: prints "c" to the framebuffer console */
 void fbc_putchar(char c) {
     if (c == '\n') {
+        /* Save newline char (don't display anything) */
+        g_fbc[cur_y * g_cw + cur_x] = (fbc_entry){
+            '\n',
+            DEFAULT_FG,
+            DEFAULT_BG,
+        };
+
         /* If we have rows left on the terminal, go down, if we are on the last
          * one, shift 1 up, but stay on that last row */
         if (cur_y + 1 < g_ch)
@@ -227,6 +279,11 @@ void fbc_putchar(char c) {
             fbc_shift_rows(1);
 
         cur_x = 0;
+
+        return;
+    } else if (c == '\t') {
+        for (int i = 0; i < FBC_TABSIZE; i++)
+            fbc_putchar(' ');
 
         return;
     }
