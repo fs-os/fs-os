@@ -12,6 +12,11 @@ all: sysroot $(ISO)
 qemu: all
 	qemu-system-i386 -boot d -cdrom $(ISO)
 
+# Connect with the patched gdb from (https://github.com/fs-os/cross-compiler):
+#   (gdb) target remote :1234
+qemu-debug: all
+	qemu-system-i386 -s -boot d -cdrom $(ISO)
+
 clean:
 	rm -f obj/kernel/*.o $(ISO)
 	rm -f $(LIBK_OBJS) $(LIBC_OBJS) $(LIBC)
