@@ -32,30 +32,40 @@
     "For more information see: https://github.com/fs-os/cross-compiler"
 #endif
 
-/* TODO: fbc colors */
-#define TEST_TITLE(s) \
-    { puts(s); }
+#define TEST_TITLE(s)               \
+    {                               \
+        fbc_setfore(COLOR_WHITE_B); \
+        puts(s);                    \
+        fbc_setfore(COLOR_WHITE);   \
+    }
+
+#define LOAD_INFO(s)                  \
+    {                                 \
+        fbc_setfore(COLOR_MAGENTA_B); \
+        printf(" * ");                \
+        fbc_setfore(COLOR_MAGENTA);   \
+        puts(s);                      \
+        fbc_setfore(COLOR_WHITE);     \
+    }
 
 /* test_libk: called by kernel_main to test libk functions */
 static inline void test_libk(void) {
     char buf[255] = { 0 };
 
-    /* TODO: fbc color and scrolling test */
-
     TEST_TITLE("\nTesting stdlib.h, string.h and stdio.h functions...");
 
-    printf("strlen(\"abcd\") -> %d\n", strlen("abcd"));
-    printf("memcmp(\"abcd\", \"abca\", 4) -> %d\n", memcmp("abcd", "abc1", 4));
-    printf("memcmp(\"abcd\", \"abce\", 4) -> %d\n", memcmp("abcd", "abce", 4));
-    printf("memcmp(\"12345\", \"12345\", 5) -> %d\n", memcmp("12345", "12345", 5));
+    printf("\tstrlen(\"abcd\") -> %d\n", strlen("abcd"));
+    printf("\tmemcmp(\"abcd\", \"abca\", 4) -> %d\n", memcmp("abcd", "abc1", 4));
+    printf("\tmemcmp(\"abcd\", \"abce\", 4) -> %d\n", memcmp("abcd", "abce", 4));
+    printf("\tmemcmp(\"12345\", \"12345\", 5) -> %d\n", memcmp("12345", "12345", 5));
 
     /* More than one line for the null terminator */
-    printf("memset(buf, 'h', 5) -> ");
+    printf("\tmemset(buf, 'h', 5) -> ");
     memset(buf, 'h', 5);
     buf[5] = '\0';
     puts(buf);
 
-    printf("memcpy(&buf[5], &buf[0], 5) -> ");
+    printf("\tmemcpy(&buf[5], &buf[0], 5) -> ");
     memcpy(&buf[5], &buf[0], 5);
     buf[10] = '\0';
     puts(buf);
@@ -83,7 +93,6 @@ void kernel_main(Multiboot* mb_info) {
 
     /* Currently unused */
     term_init();
-    term_setcol(VGA_COLOR_GREEN, VGA_COLOR_RED);
     term_sprint("VGA terminal initialized.\n");
 
     if (mb_info->framebuffer_type != FB_TYPE_RGB) {
@@ -102,31 +111,41 @@ void kernel_main(Multiboot* mb_info) {
 
     fbc_init(110, 3, mb_info->framebuffer_height - 110 - 5,
              mb_info->framebuffer_width - 3 * 2, &main_font);
-    puts("Framebuffer console initialized.");
 
-    for (int i = 0; i < 300; i++)
-        printf("i = %d\n", i);
+    /* Once we have a framebuffer terminal, print previous messages too */
+    LOAD_INFO("Heap initialized.");
+    LOAD_INFO("Framebuffer initialized.");
+    LOAD_INFO("Framebuffer console initialized.");
 
-    puts("Hello, welcome to the Free and Simple Operating System!\n"
+    /* --------------------------------------------------------------------------- */
+
+    fbc_setfore(COLOR_BLUE);
+    puts("\nHello, welcome to the Free and Simple Operating System!\n"
          "This project is still being developed. For more information, see:");
+    fbc_setfore(COLOR_GREEN);
     puts("https://github.com/fs-os/fs-os");
+    fbc_setfore(COLOR_WHITE);
 
     TEST_TITLE("\nTesting font");
-    puts("!\"#$%&\'()*+,-./"
+    puts("\t!\"#$%&\'()*+,-./"
          "0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`"
          "abcdefghijklmnopqrstuvwxyz{|}~");
 
+    /* TODO: fbc color and scrolling test */
+
     TEST_TITLE("\nMultiboot info");
-    printf("\tmem_lower: %d\n"
-           "\tmem_upper: %d\n"
-           "\tfb_pitch: %d\n"
-           "\tfb_width: %d\n"
+    printf("\tmem_lower: 0x%x\n"
+           "\tmem_upper: 0x%x\n"
+           "\tfb_addr:   0x%x\n"
+           "\tfb_pitch:  %d\n"
+           "\tfb_width:  %d\n"
            "\tfb_height: %d\n"
-           "\tfb_bpp: %d\n"
-           "\tfb_type: %d\n",
-           mb_info->mem_lower, mb_info->mem_upper, mb_info->framebuffer_pitch,
-           mb_info->framebuffer_width, mb_info->framebuffer_height,
-           mb_info->framebuffer_bpp, mb_info->framebuffer_type);
+           "\tfb_bpp:    %d\n"
+           "\tfb_type:   %d\n",
+           mb_info->mem_lower, mb_info->mem_upper, mb_info->framebuffer_addr,
+           mb_info->framebuffer_pitch, mb_info->framebuffer_width,
+           mb_info->framebuffer_height, mb_info->framebuffer_bpp,
+           mb_info->framebuffer_type);
 
     test_libk();
 }

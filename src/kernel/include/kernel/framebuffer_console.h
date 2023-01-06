@@ -33,8 +33,17 @@ void fbc_place_str(uint32_t y, uint32_t x, const char* str);
 /* fbc_shift_rows: scrolls the framebuffer terminal "n" rows (fbc_entry's) */
 void fbc_shift_rows(uint8_t n);
 
+/* fbc_getcols: writes the current colors of the terminal to "fg" and "bg" */
+void fbc_getcols(uint32_t* fg, uint32_t* bg);
+
 /* fbc_setcol: sets the current foreground and background colors */
 void fbc_setcol(uint32_t fg, uint32_t bg);
+
+/* fbc_setfore: change the current foreground color */
+void fbc_setfore(uint32_t fg);
+
+/* fbc_setback: change the current background color */
+void fbc_setback(uint32_t bg);
 
 /* fbc_setcol_rgb: sets the current foreground and background colors in rgb format */
 void fbc_setcol_rgb(uint8_t fore_r, uint8_t fore_g, uint8_t fore_b, uint8_t back_r,

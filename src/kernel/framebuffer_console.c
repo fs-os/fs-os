@@ -5,9 +5,8 @@
 #include <kernel/framebuffer.h>
 #include <kernel/framebuffer_console.h>
 
-/* TODO: Color palette */
-#define DEFAULT_FG 0xEEEEEE
-#define DEFAULT_BG 0x000000
+#define DEFAULT_FG COLOR_WHITE
+#define DEFAULT_BG COLOR_BLACK
 
 /* Global framebuffer console. Allocated in fbc_init(). The framebuffer console array
  * won't be used for displaying (outside of fbc_refresh), but for keeping track of
@@ -248,9 +247,25 @@ void fbc_shift_rows(uint8_t n) {
     fb_drawrect_col(fill_y, fill_x, fill_h, fill_w, DEFAULT_BG);
 }
 
+/* fbc_getcols: writes the current colors of the terminal to "fg" and "bg" */
+void fbc_getcols(uint32_t* fg, uint32_t* bg) {
+    *fg = cur_cols.fg;
+    *bg = cur_cols.bg;
+}
+
 /* fbc_setcol: sets the current foreground and background colors */
 void fbc_setcol(uint32_t fg, uint32_t bg) {
     cur_cols.fg = fg;
+    cur_cols.bg = bg;
+}
+
+/* fbc_setfore: change the current foreground color */
+void fbc_setfore(uint32_t fg) {
+    cur_cols.fg = fg;
+}
+
+/* fbc_setback: change the current background color */
+void fbc_setback(uint32_t bg) {
     cur_cols.bg = bg;
 }
 
