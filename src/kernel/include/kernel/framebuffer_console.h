@@ -24,7 +24,7 @@ void fbc_init(uint32_t y, uint32_t x, uint32_t px_h, uint32_t px_w, Font* font);
  * Calling this function everytime we update g_fbc would be slow. Insead call this
  * function on specific situations and we refresh the framebuffer pixels we need when
  * updating g_fbc (e.g. when calling fbc_putchar) */
-void fbc_refresh();
+void fbc_refresh(void);
 
 /* fbc_pace_str: place "str" with current colors at positions (y, x) of the
  * framebuffer console array. Warning: Overwrites! */

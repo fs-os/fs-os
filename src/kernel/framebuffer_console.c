@@ -33,7 +33,7 @@ static uint32_t cur_y, cur_x;
 #if 0
 /* vga_to_fbc: copy the contents of the vga console to the framebuffer console. Does
  * not support vga colors */
-static void vga_to_fbc() {
+static void vga_to_fbc(void) {
     const uint16_t* vga_console = (uint16_t*)VGA_CONSOLE_ADDR;
     int non_spaces              = 0;
 
@@ -130,7 +130,7 @@ static inline void fbc_refresh_entry(uint32_t cy, uint32_t cx) {
  * Calling this function everytime we update g_fbc would be slow. Insead call this
  * function on specific situations and we refresh the entries we need when updating
  * g_fbc (e.g. when calling fbc_putchar) */
-void fbc_refresh() {
+void fbc_refresh(void) {
     /* First iterate each char of the framebuffer console */
     for (uint32_t cy = 0; cy < g_ch; cy++)
         for (uint32_t cx = 0; cx < g_cw; cx++)

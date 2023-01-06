@@ -19,7 +19,7 @@ typedef struct Block {
 extern Block* blk_cursor;
 
 /* init_heap: initializes the heap headers for the allocation functions. */
-void init_heap();
+void init_heap(void);
 
 /* kernel_alloc: allocate "sz" bytes of memory from the heap and return the address
  */

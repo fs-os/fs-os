@@ -7,7 +7,7 @@
 Block* blk_cursor = (Block*)HEAP_START;
 
 /* init_heap: initializes the heap headers for the allocation functions. */
-void init_heap() {
+void init_heap(void) {
     void* first_blk = HEAP_START;
 
     /* Set the next block ptr to NULL (End of memory) and the block size to the
