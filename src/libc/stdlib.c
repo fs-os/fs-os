@@ -104,7 +104,17 @@ void* malloc(size_t sz) {
     sz++;
 
     /* TODO: syscall wrapper for libk malloc */
-    abort("Free is not implemented for libc.");
+    abort("Malloc is not implemented for libc.");
+    return NULL;
+}
+
+/* calloc: allocate "item_n" items of size "item_sz" and set them to 0 */
+void* calloc(size_t item_n, size_t item_sz) {
+    item_n++;
+    item_sz++;
+
+    /* TODO: syscall wrapper for libk calloc */
+    abort("Calloc is not implemented for libc.");
     return NULL;
 }
 

@@ -26,6 +26,9 @@ void abort(char* msg);
  "sz" is 0, returns NULL. */
 void* malloc(size_t sz);
 
+/* calloc: allocate "item_n" items of size "item_sz" and set them to 0 */
+void* calloc(size_t item_n, size_t item_sz);
+
 /* free: free a previously allocated ptr */
 void free(void* ptr);
 
