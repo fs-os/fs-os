@@ -20,7 +20,7 @@ static inline uint8_t get_font_bit(Font* font, uint8_t c, uint8_t y, uint8_t x) 
     if (x > font->w)
         x = font->w;
 
-    return font->font[c * font->h + y] & (1 << x);
+    return font->font[c * font->h + y] & (0x80 >> x);
 }
 
 #endif /* _KERNEL_FONT_H */
