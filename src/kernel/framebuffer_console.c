@@ -30,42 +30,6 @@ static uint32_t cur_y, cur_x;
 
 /* ------------------------------------------------------------------------------- */
 
-/* fbc_init: initialize the framebuffer console. First 4 parameters are position and
- * size in pixels of the console and the last one is the font. The font ptr is stored
- * and used to get the height and width of each char. */
-void fbc_init(uint32_t y, uint32_t x, uint32_t px_h, uint32_t px_w, Font* font) {
-    g_y = y;
-    g_x = x;
-    g_h = px_h;
-    g_w = px_w;
-
-    /* We get the font size but we save the console char dimensions */
-    g_ch   = px_h / (font->h * font->s);
-    g_cw   = px_w / (font->w * font->s);
-    g_font = font;
-
-    cur_cols.fg = DEFAULT_FG;
-    cur_cols.bg = DEFAULT_BG;
-
-    cur_y = 0;
-    cur_x = 0;
-
-    /* Allocate the number of fbc_entry's. Rows and cols of the console */
-    g_fbc = malloc(g_ch * g_cw * sizeof(fbc_entry));
-
-    for (uint32_t cy = 0; cy < g_ch; cy++) {
-        for (uint32_t cx = 0; cx < g_cw; cx++) {
-            g_fbc[cy * g_cw + cx] = (fbc_entry){
-                ' ',
-                cur_cols.fg,
-                cur_cols.bg,
-            };
-        }
-    }
-
-    fbc_refresh();
-}
-
 /* fbc_refresh_entry: refreshes the pixels on the screen corresponding to g_fbc's
  * entry at (cy, cx) */
 static inline void fbc_refresh_entry(uint32_t cy, uint32_t cx) {
@@ -96,15 +60,70 @@ static inline void fbc_refresh_entry(uint32_t cy, uint32_t cx) {
     }
 }
 
-/* fbc_refresh: updates each pixel of the framebuffer with the real one in g_fbc.
- * Calling this function everytime we update g_fbc would be slow. Insead call this
- * function on specific situations and we refresh the entries we need when updating
- * g_fbc (e.g. when calling fbc_putchar) */
-void fbc_refresh(void) {
-    /* First iterate each char of the framebuffer console */
-    for (uint32_t cy = 0; cy < g_ch; cy++)
-        for (uint32_t cx = 0; cx < g_cw; cx++)
-            fbc_refresh_entry(cy, cx);
+/* ------------------------------------------------------------------------------- */
+
+/* fbc_init: initialize the framebuffer console. First 4 parameters are position and
+ * size in pixels of the console and the last one is the font. The font ptr is stored
+ * and used to get the height and width of each char. */
+void fbc_init(uint32_t y, uint32_t x, uint32_t px_h, uint32_t px_w, Font* font) {
+    g_y = y;
+    g_x = x;
+    g_h = px_h;
+    g_w = px_w;
+
+    /* We get the font size but we save the console char dimensions */
+    g_ch   = px_h / (font->h * font->s);
+    g_cw   = px_w / (font->w * font->s);
+    g_font = font;
+
+    cur_cols.fg = DEFAULT_FG;
+    cur_cols.bg = DEFAULT_BG;
+
+    cur_y = 0;
+    cur_x = 0;
+
+    /* Allocate the number of fbc_entry's. Rows and cols of the console */
+    g_fbc = malloc(g_ch * g_cw * sizeof(fbc_entry));
+
+    fbc_clear();
+    fbc_refresh();
+}
+
+/* fbc_clear: clears the framebuffer console and moves cursor to the first char */
+void fbc_clear(void) {
+    cur_x = 0;
+    cur_y = 0;
+
+    for (uint32_t cy = 0; cy < g_ch; cy++) {
+        /* First entry is newline, rest spaces. We dont need to call
+         * fbc_refresh_entry because we know the whole line is empty */
+        g_fbc[cy * g_cw + 0] = (fbc_entry){
+            '\n',
+            DEFAULT_FG,
+            DEFAULT_BG,
+        };
+
+        for (uint32_t cx = 1; cx < g_cw; cx++) {
+            g_fbc[cy * g_cw + cx] = (fbc_entry){
+                ' ',
+                DEFAULT_FG,
+                DEFAULT_BG,
+            };
+        }
+    }
+}
+
+/* fbc_write: prints "len" of "s" to the framebuffer console using fbc_putchar */
+void fbc_write(const char* s, size_t len) {
+    while (len-- > 0)
+        fbc_putchar(*s++);
+}
+
+/* fbc_sprint: prints zero-terminated string to the framebuffer console using
+ * fbc_putchar */
+void fbc_sprint(const char* s) {
+    while (*s > '\0')
+        fbc_putchar(*s++);
 }
 
 /* fbc_pace_str: place "str" with current colors at positions (y, x) of the
@@ -157,6 +176,67 @@ void fbc_place_str(uint32_t y, uint32_t x, const char* str) {
                 fbc_shift_rows(1);
         }
     }
+}
+
+/* fbc_putchar: prints "c" to the framebuffer console */
+void fbc_putchar(char c) {
+    if (c == '\n') {
+        /* Save newline char (don't display anything) */
+        g_fbc[cur_y * g_cw + cur_x] = (fbc_entry){
+            '\n',
+            DEFAULT_FG,
+            DEFAULT_BG,
+        };
+
+        /* If we have rows left on the terminal, go down, if we are on the last
+         * one, shift 1 up, but stay on that last row */
+        if (cur_y + 1 < g_ch)
+            cur_y++;
+        else
+            fbc_shift_rows(1);
+
+        cur_x = 0;
+
+        return;
+    } else if (c == '\t') {
+        /* For having TABSIZE-aligned tabs */
+        const int tabs_needed = FBC_TABSIZE - (cur_x % FBC_TABSIZE);
+        for (int i = 0; i < tabs_needed; i++)
+            fbc_putchar(' ');
+
+        return;
+    }
+
+    g_fbc[cur_y * g_cw + cur_x] = (fbc_entry){
+        c,
+        cur_cols.fg,
+        cur_cols.bg,
+    };
+
+    /* Draw the pixels on the screen */
+    fbc_refresh_entry(cur_y, cur_x);
+
+    /* If we reach the end of the line, reset x and increase y */
+    if (++cur_x >= g_cw) {
+        cur_x = 0;
+
+        /* See comment on newline conditional */
+        if (cur_y + 1 < g_ch)
+            cur_y++;
+        else
+            fbc_shift_rows(1);
+    }
+}
+
+/* fbc_refresh: updates each pixel of the framebuffer with the real one in g_fbc.
+ * Calling this function everytime we update g_fbc would be slow. Insead call this
+ * function on specific situations and we refresh the entries we need when updating
+ * g_fbc (e.g. when calling fbc_putchar) */
+void fbc_refresh(void) {
+    /* First iterate each char of the framebuffer console */
+    for (uint32_t cy = 0; cy < g_ch; cy++)
+        for (uint32_t cx = 0; cx < g_cw; cx++)
+            fbc_refresh_entry(cy, cx);
 }
 
 /* fbc_shift_rows: scrolls the framebuffer terminal "n" rows (fbc_entry's) */
@@ -219,6 +299,8 @@ void fbc_shift_rows(uint8_t n) {
     fb_drawrect_col(fill_y, fill_x, fill_h, fill_w, DEFAULT_BG);
 }
 
+/* ------------------------------------------------------------------------------- */
+
 /* fbc_getcols: writes the current colors of the terminal to "fg" and "bg" */
 void fbc_getcols(uint32_t* fg, uint32_t* bg) {
     *fg = cur_cols.fg;
@@ -246,68 +328,5 @@ void fbc_setcol_rgb(uint8_t fore_r, uint8_t fore_g, uint8_t fore_b, uint8_t back
                     uint8_t back_g, uint8_t back_b) {
     cur_cols.fg = rgb2col(fore_r, fore_g, fore_b);
     cur_cols.bg = rgb2col(back_r, back_g, back_b);
-}
-
-/* fbc_putchar: prints "c" to the framebuffer console */
-void fbc_putchar(char c) {
-    if (c == '\n') {
-        /* Save newline char (don't display anything) */
-        g_fbc[cur_y * g_cw + cur_x] = (fbc_entry){
-            '\n',
-            DEFAULT_FG,
-            DEFAULT_BG,
-        };
-
-        /* If we have rows left on the terminal, go down, if we are on the last
-         * one, shift 1 up, but stay on that last row */
-        if (cur_y + 1 < g_ch)
-            cur_y++;
-        else
-            fbc_shift_rows(1);
-
-        cur_x = 0;
-
-        return;
-    } else if (c == '\t') {
-        /* For having TABSIZE-aligned tabs */
-        const int tabs_needed = FBC_TABSIZE - (cur_x % FBC_TABSIZE);
-        for (int i = 0; i < tabs_needed; i++)
-            fbc_putchar(' ');
-
-        return;
-    }
-
-    g_fbc[cur_y * g_cw + cur_x] = (fbc_entry){
-        c,
-        cur_cols.fg,
-        cur_cols.bg,
-    };
-
-    /* Draw the pixels on the screen */
-    fbc_refresh_entry(cur_y, cur_x);
-
-    /* If we reach the end of the line, reset x and increase y */
-    if (++cur_x >= g_cw) {
-        cur_x = 0;
-
-        /* See comment on newline conditional */
-        if (cur_y + 1 < g_ch)
-            cur_y++;
-        else
-            fbc_shift_rows(1);
-    }
-}
-
-/* fbc_write: prints "len" of "s" to the framebuffer console using fbc_putchar */
-void fbc_write(const char* s, size_t len) {
-    while (len-- > 0)
-        fbc_putchar(*s++);
-}
-
-/* fbc_sprint: prints zero-terminated string to the framebuffer console using
- * fbc_putchar */
-void fbc_sprint(const char* s) {
-    while (*s > '\0')
-        fbc_putchar(*s++);
 }
 
