@@ -6,8 +6,11 @@
 
 /* count_digits: returns the number of digits of a positive num. Will not count "-"
  * for negative numbers */
-int count_digits(int num) {
+int count_digits(int64_t num) {
     int ret = 1;
+
+    if (num < 0)
+        num = -num;
 
     /* Count how many numbers we can remove */
     while ((num /= 10) > 0) {

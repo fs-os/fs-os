@@ -3,10 +3,11 @@
 #define _STDLIB_H
 
 #include <stddef.h>
+#include <stdint.h>
 
 /* count_digits: returns the number of digits of a positive num. Will not count "-"
  * for negative numbers */
-int count_digits(int num);
+int count_digits(int64_t num);
 
 /* itoa: write the digits of "num" into "str". "str" needs to have enough space */
 void itoa(char* str, int num);
