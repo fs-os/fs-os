@@ -30,35 +30,6 @@ static uint32_t cur_y, cur_x;
 
 /* ------------------------------------------------------------------------------- */
 
-#if 0
-/* vga_to_fbc: copy the contents of the vga console to the framebuffer console. Does
- * not support vga colors */
-static void vga_to_fbc(void) {
-    const uint16_t* vga_console = (uint16_t*)VGA_CONSOLE_ADDR;
-    int non_spaces              = 0;
-
-    for (uint16_t y = 0; y < VGA_HEIGHT; y++) {
-        for (uint16_t x = 0; x < VGA_WIDTH; x++) {
-            /* TODO: c is always 0xffff */
-            const uint16_t c = vga_console[y * VGA_WIDTH + x];
-
-            if (c != ' ')
-                non_spaces++;
-
-            fbc_putchar(c);
-        }
-
-        fbc_putchar('\n');
-
-        /* If we just put an empty line, go up */
-        if (non_spaces == 0 && cur_y > 0)
-            cur_y--;
-
-        non_spaces = 0;
-    }
-}
-#endif
-
 /* fbc_init: initialize the framebuffer console. First 4 parameters are position and
  * size in pixels of the console and the last one is the font. The font ptr is stored
  * and used to get the height and width of each char. */
@@ -92,7 +63,6 @@ void fbc_init(uint32_t y, uint32_t x, uint32_t px_h, uint32_t px_w, Font* font) 
         }
     }
 
-    /* vga_to_fbc(); */
     fbc_refresh();
 }
 
