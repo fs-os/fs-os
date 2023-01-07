@@ -52,8 +52,6 @@
 static inline void test_libk(void) {
     char buf[255] = { 0 };
 
-    TEST_TITLE("\nTesting stdlib.h, string.h and stdio.h functions...");
-
     printf("\tstrlen(\"abcd\") -> %d\n", strlen("abcd"));
     printf("\tmemcmp(\"abcd\", \"abca\", 4) -> %d\n", memcmp("abcd", "abc1", 4));
     printf("\tmemcmp(\"abcd\", \"abce\", 4) -> %d\n", memcmp("abcd", "abce", 4));
@@ -69,6 +67,47 @@ static inline void test_libk(void) {
     memcpy(&buf[5], &buf[0], 5);
     buf[10] = '\0';
     puts(buf);
+}
+
+static inline void test_colors(void) {
+    printf("\n\t");
+    fbc_setfore(COLOR_BLACK);
+    printf("%c%c%c", 219, 219, 219);
+    fbc_setfore(COLOR_RED);
+    printf("%c%c%c", 219, 219, 219);
+    fbc_setfore(COLOR_GREEN);
+    printf("%c%c%c", 219, 219, 219);
+    fbc_setfore(COLOR_YELLOW);
+    printf("%c%c%c", 219, 219, 219);
+    fbc_setfore(COLOR_BLUE);
+    printf("%c%c%c", 219, 219, 219);
+    fbc_setfore(COLOR_MAGENTA);
+    printf("%c%c%c", 219, 219, 219);
+    fbc_setfore(COLOR_CYAN);
+    printf("%c%c%c", 219, 219, 219);
+    fbc_setfore(COLOR_WHITE);
+    printf("%c%c%c", 219, 219, 219);
+    printf("\n\t");
+
+    fbc_setfore(COLOR_BLACK_B);
+    printf("%c%c%c", 219, 219, 219);
+    fbc_setfore(COLOR_RED_B);
+    printf("%c%c%c", 219, 219, 219);
+    fbc_setfore(COLOR_GREEN_B);
+    printf("%c%c%c", 219, 219, 219);
+    fbc_setfore(COLOR_YELLOW_B);
+    printf("%c%c%c", 219, 219, 219);
+    fbc_setfore(COLOR_BLUE_B);
+    printf("%c%c%c", 219, 219, 219);
+    fbc_setfore(COLOR_MAGENTA_B);
+    printf("%c%c%c", 219, 219, 219);
+    fbc_setfore(COLOR_CYAN_B);
+    printf("%c%c%c", 219, 219, 219);
+    fbc_setfore(COLOR_WHITE_B);
+    printf("%c%c%c", 219, 219, 219);
+    printf("\n\t");
+
+    fbc_setfore(COLOR_WHITE);
 }
 
 /* print_logo: prints the logo from logo.h using the GIMP macro */
@@ -126,6 +165,9 @@ void kernel_main(Multiboot* mb_info) {
     puts("https://github.com/fs-os/fs-os");
     fbc_setfore(COLOR_WHITE);
 
+    TEST_TITLE("\nTesting color palette");
+    test_colors();
+
     TEST_TITLE("\nTesting font");
     puts("\t!\"#$%&\'()*+,-./"
          "0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`"
@@ -136,7 +178,7 @@ void kernel_main(Multiboot* mb_info) {
     TEST_TITLE("\nMultiboot info");
     printf("\tmem_lower: 0x%x\n"
            "\tmem_upper: 0x%x\n"
-           "\tfb_addr:   0x%x\n"
+           "\tfb_addr:   0x%llx\n"
            "\tfb_pitch:  %d\n"
            "\tfb_width:  %d\n"
            "\tfb_height: %d\n"
@@ -147,6 +189,7 @@ void kernel_main(Multiboot* mb_info) {
            mb_info->framebuffer_height, mb_info->framebuffer_bpp,
            mb_info->framebuffer_type);
 
+    TEST_TITLE("\nTesting stdlib.h, string.h and stdio.h functions...");
     test_libk();
 }
 

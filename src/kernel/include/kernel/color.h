@@ -25,15 +25,15 @@ static inline void col2rgb(uint8_t* r, uint8_t* g, uint8_t* b, uint32_t col) {
 #endif
 
 #ifndef COLOR_RED
-#define COLOR_RED 0xff1c23
+#define COLOR_RED 0xcc2828
 #endif
 
 #ifndef COLOR_GREEN
-#define COLOR_GREEN 0x23ff1c
+#define COLOR_GREEN 0x44e544
 #endif
 
 #ifndef COLOR_YELLOW
-#define COLOR_YELLOW 0xfff71c
+#define COLOR_YELLOW 0xdbc51c
 #endif
 
 #ifndef COLOR_BLUE
@@ -49,7 +49,7 @@ static inline void col2rgb(uint8_t* r, uint8_t* g, uint8_t* b, uint32_t col) {
 #endif
 
 #ifndef COLOR_CYAN
-#define COLOR_CYAN 0x1cfff7
+#define COLOR_CYAN 0x56d8d4
 #endif
 
 #ifndef COLOR_WHITE
@@ -62,19 +62,19 @@ static inline void col2rgb(uint8_t* r, uint8_t* g, uint8_t* b, uint32_t col) {
 #endif
 
 #ifndef COLOR_RED_B
-#define COLOR_RED_B 0xf92672
+#define COLOR_RED_B 0xff1c23
 #endif
 
 #ifndef COLOR_GREEN_B
-#define COLOR_GREEN_B 0xa6e22e
+#define COLOR_GREEN_B 0x23ff1c
 #endif
 
 #ifndef COLOR_YELLOW_B
-#define COLOR_YELLOW_B 0xcaa427
+#define COLOR_YELLOW_B 0xfff71c
 #endif
 
 #ifndef COLOR_BLUE_B
-#define COLOR_BLUE_B 0x1c23ff
+#define COLOR_BLUE_B 0x1616e5
 #endif
 
 #ifndef COLOR_MAGENTA_B
@@ -86,7 +86,7 @@ static inline void col2rgb(uint8_t* r, uint8_t* g, uint8_t* b, uint32_t col) {
 #endif
 
 #ifndef COLOR_CYAN_B
-#define COLOR_CYAN_B 0x2aa198
+#define COLOR_CYAN_B 0x1cfff7
 #endif
 
 #ifndef COLOR_WHITE_B

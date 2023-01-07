@@ -46,17 +46,13 @@ typedef struct {
     uint16_t vbe_interface_len;
 
     uint64_t framebuffer_addr;
-    uint32_t framebuffer_pitch;
+    uint32_t framebuffer_pitch; /* bytes per row (w * bpp / 8) */
     uint32_t framebuffer_width;
     uint32_t framebuffer_height;
     uint8_t framebuffer_bpp;
     uint8_t framebuffer_type;
-    /* color_info */
-    uint8_t framebuffer_red_mask_size;
-    uint8_t framebuffer_green_field_position;
-    uint8_t framebuffer_green_mask_size;
-    uint8_t framebuffer_blue_field_position;
-    uint8_t framebuffer_blue_mask_size;
+
+    /* color_info depends on the fb type */
 } Multiboot __attribute__((packed));
 
 #endif /* _KERNEL_MULTIBOOT_H */
