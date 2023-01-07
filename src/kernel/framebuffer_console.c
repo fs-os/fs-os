@@ -131,7 +131,9 @@ void fbc_place_str(uint32_t y, uint32_t x, const char* str) {
             str++;
             continue;
         } else if (*str == '\t') {
-            for (int i = 0; i < FBC_TABSIZE; i++)
+            /* For having TABSIZE-aligned tabs */
+            const int tabs_needed = FBC_TABSIZE - (x % FBC_TABSIZE);
+            for (int i = 0; i < tabs_needed; i++)
                 fbc_putchar(' ');
 
             continue;
@@ -267,7 +269,9 @@ void fbc_putchar(char c) {
 
         return;
     } else if (c == '\t') {
-        for (int i = 0; i < FBC_TABSIZE; i++)
+        /* For having TABSIZE-aligned tabs */
+        const int tabs_needed = FBC_TABSIZE - (cur_x % FBC_TABSIZE);
+        for (int i = 0; i < tabs_needed; i++)
             fbc_putchar(' ');
 
         return;
