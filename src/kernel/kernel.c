@@ -180,15 +180,15 @@ void kernel_main(Multiboot* mb_info) {
     /* TODO: fbc color and scrolling test */
 
     TEST_TITLE("\nMultiboot info");
-    printf("mem_lower: 0x%x\n"
-           "mem_upper: 0x%x\n"
-           "fb_addr:   0x%llx\n"
+    printf("mem_lower: 0x%X\n"
+           "mem_upper: 0x%X\n"
+           "fb_addr:   0x%llX\n"
            "fb_pitch:  %d\n"
            "fb_width:  %d\n"
            "fb_height: %d\n"
            "fb_bpp:    %d\n"
            "fb_type:   %d\n",
-           mb_info->mem_lower, mb_info->mem_upper, mb_info->framebuffer_addr,
+           mb_info->mem_lower, mb_info->mem_upper, (uint64_t)mb_info->framebuffer_addr,
            mb_info->framebuffer_pitch, mb_info->framebuffer_width,
            mb_info->framebuffer_height, mb_info->framebuffer_bpp,
            mb_info->framebuffer_type);

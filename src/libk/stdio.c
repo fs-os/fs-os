@@ -92,7 +92,7 @@ static void printp(void* ptr) {
         print("(null)");
     } else {
         print("0x");
-        printx((uint32_t)ptr);
+        printX((uint32_t)ptr);
     }
 }
 

@@ -118,7 +118,7 @@ static inline void print_header(enum header_mod mod, Block* blk) {
             break;
     }
 
-    printf("Header: %p | Blk: %p | Next: %p | Sz: 0x%x | Free: %d\n", blk, blk->ptr,
+    printf("Header: %p | Blk: %p | Next: %p | Sz: 0x%X | Free: %d\n", blk, blk->ptr,
            blk->next, blk->sz, blk->free);
 }
 
