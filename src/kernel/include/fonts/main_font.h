@@ -35,7 +35,8 @@ Font main_font = {
     .h = 13,
     /* Change scale to make the font bigger */
     .s = 1,
-    /* Cozette font: HUGE credits to https://github.com/pixelmatix/bdf2c */
+    .name = "Cozette",
+    /* Huge credits to https://github.com/pixelmatix/bdf2c */
     .font =
       (uint8_t[]){
         /* From 0 to 20, NULL */
