@@ -2,7 +2,10 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
+
 #include <kernel/alloc.h>
+#include <kernel/framebuffer_console.h> /* Color to abort() */
+#include <kernel/color.h>               /* Color to abort() */
 
 /* count_digits: returns the number of digits of a positive num. Will not count "-"
  * for negative numbers */
@@ -93,9 +96,19 @@ void itoan(char* str, int num, size_t max_digits) {
 }
 
 /* abort: panic */
-void abort(char* msg) {
+void abort(const char* fmt, ...) {
     /* TODO: Proper kernel panic */
-    printf("kernel panic: %s\n", msg);
+
+    va_list va;
+    va_start(va, fmt);
+
+    fbc_setfore(COLOR_RED_B);
+    printf("kernel panic: ");
+    fbc_setfore(COLOR_RED);
+    vprintf(fmt, va);
+
+    va_end(va);
+
     asm volatile("hlt");
 
     for (;;)

@@ -92,9 +92,16 @@ void itoan(char* str, int num, size_t max_digits) {
 }
 
 /* abort: panic */
-void abort(char* msg) {
+void abort(const char* fmt, ...) {
     /* TODO: Abnormally terminate the process as if by SIGABRT */
-    printf("abort: %s\n", msg);
+
+    va_list va;
+    va_start(va, fmt);
+
+    printf("abort: ");
+    vprintf(fmt, va);
+
+    va_end(va);
 
     for (;;)
         ;

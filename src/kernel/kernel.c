@@ -48,6 +48,15 @@
         fbc_setfore(COLOR_WHITE);     \
     }
 
+#define SYSTEM_INFO(s1, s2fmt, ...) \
+    {                               \
+        fbc_setfore(COLOR_WHITE_B); \
+        printf("\t%s", s1);         \
+        fbc_setfore(COLOR_WHITE);   \
+        printf(s2fmt, __VA_ARGS__); \
+        putchar('\n');              \
+    }
+
 /* test_libk: called by kernel_main to test libk functions */
 static inline void test_libk(void) {
     char buf[255] = { 0 };
@@ -159,6 +168,17 @@ void kernel_main(Multiboot* mb_info) {
     LOAD_INFO("Heap initialized.");
     LOAD_INFO("Framebuffer initialized.");
     LOAD_INFO("Framebuffer console initialized.");
+    putchar('\n');
+
+    LOAD_INFO("System info:");
+    SYSTEM_INFO("Memory:\t\t", "%dMb", mb_info->mem_upper / 1024);
+    SYSTEM_INFO("Resolution:\t", "%dx%d", mb_info->framebuffer_width,
+                mb_info->framebuffer_height);
+    SYSTEM_INFO("Font:\t\t", "%s", main_font.name);
+    putchar('\n');
+
+    LOAD_INFO("Color palette:");
+    test_colors();
 
     /* --------------------------------------------------------------------------- */
 
@@ -169,34 +189,20 @@ void kernel_main(Multiboot* mb_info) {
     puts("https://github.com/fs-os/fs-os");
     fbc_setfore(COLOR_WHITE);
 
-    TEST_TITLE("\nTesting color palette");
-    test_colors();
-
+#if 0
     TEST_TITLE("\nTesting font");
     puts("!\"#$%&\'()*+,-./"
          "0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`"
          "abcdefghijklmnopqrstuvwxyz{|}~");
-
-    /* TODO: fbc color and scrolling test */
-
-    TEST_TITLE("\nMultiboot info");
-    printf("mem_lower: 0x%X\n"
-           "mem_upper: 0x%X\n"
-           "fb_addr:   0x%llX\n"
-           "fb_pitch:  %d\n"
-           "fb_width:  %d\n"
-           "fb_height: %d\n"
-           "fb_bpp:    %d\n"
-           "fb_type:   %d\n",
-           mb_info->mem_lower, mb_info->mem_upper, (uint64_t)mb_info->framebuffer_addr,
-           mb_info->framebuffer_pitch, mb_info->framebuffer_width,
-           mb_info->framebuffer_height, mb_info->framebuffer_bpp,
-           mb_info->framebuffer_type);
+#endif
 
     TEST_TITLE("\nHeap headers");
     dump_alloc_headers();
 
     TEST_TITLE("\nTesting stdlib.h, string.h and stdio.h functions");
     test_libk();
+
+    putchar('\n');
+    abort("test at address %p", (void*)0x1337ac);
 }
 

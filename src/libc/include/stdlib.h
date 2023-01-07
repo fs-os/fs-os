@@ -21,7 +21,7 @@ int ipow(int b, int e);
 void itoan(char* str, int num, size_t max_digits);
 
 /* abort: panic */
-void abort(char* msg);
+void abort(const char* fmt, ...);
 
 /* malloc: allocate "sz" bytes and return a pointer. Memory is not initialized. If
  "sz" is 0, returns NULL. */
