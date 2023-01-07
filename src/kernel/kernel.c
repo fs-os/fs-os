@@ -36,7 +36,7 @@
     {                               \
         fbc_setfore(COLOR_WHITE_B); \
         puts(s);                    \
-        fbc_setfore(COLOR_WHITE);   \
+        fbc_setfore(COLOR_GRAY);    \
     }
 
 #define LOAD_INFO(s)                  \
@@ -52,18 +52,18 @@
 static inline void test_libk(void) {
     char buf[255] = { 0 };
 
-    printf("\tstrlen(\"abcd\") -> %d\n", strlen("abcd"));
-    printf("\tmemcmp(\"abcd\", \"abca\", 4) -> %d\n", memcmp("abcd", "abc1", 4));
-    printf("\tmemcmp(\"abcd\", \"abce\", 4) -> %d\n", memcmp("abcd", "abce", 4));
-    printf("\tmemcmp(\"12345\", \"12345\", 5) -> %d\n", memcmp("12345", "12345", 5));
+    printf("strlen(\"abcd\") -> %d\n", strlen("abcd"));
+    printf("memcmp(\"abcd\", \"abca\", 4) -> %d\n", memcmp("abcd", "abc1", 4));
+    printf("memcmp(\"abcd\", \"abce\", 4) -> %d\n", memcmp("abcd", "abce", 4));
+    printf("memcmp(\"12345\", \"12345\", 5) -> %d\n", memcmp("12345", "12345", 5));
 
     /* More than one line for the null terminator */
-    printf("\tmemset(buf, 'h', 5) -> ");
+    printf("memset(buf, 'h', 5) -> ");
     memset(buf, 'h', 5);
     buf[5] = '\0';
     puts(buf);
 
-    printf("\tmemcpy(&buf[5], &buf[0], 5) -> ");
+    printf("memcpy(&buf[5], &buf[0], 5) -> ");
     memcpy(&buf[5], &buf[0], 5);
     buf[10] = '\0';
     puts(buf);
@@ -85,6 +85,8 @@ static inline void test_colors(void) {
     printf("%c%c%c", 219, 219, 219);
     fbc_setfore(COLOR_CYAN);
     printf("%c%c%c", 219, 219, 219);
+    fbc_setfore(COLOR_GRAY);
+    printf("%c%c%c", 219, 219, 219);
     fbc_setfore(COLOR_WHITE);
     printf("%c%c%c", 219, 219, 219);
     printf("\n\t");
@@ -102,6 +104,8 @@ static inline void test_colors(void) {
     fbc_setfore(COLOR_MAGENTA_B);
     printf("%c%c%c", 219, 219, 219);
     fbc_setfore(COLOR_CYAN_B);
+    printf("%c%c%c", 219, 219, 219);
+    fbc_setfore(COLOR_GRAY_B);
     printf("%c%c%c", 219, 219, 219);
     fbc_setfore(COLOR_WHITE_B);
     printf("%c%c%c", 219, 219, 219);
@@ -169,27 +173,30 @@ void kernel_main(Multiboot* mb_info) {
     test_colors();
 
     TEST_TITLE("\nTesting font");
-    puts("\t!\"#$%&\'()*+,-./"
+    puts("!\"#$%&\'()*+,-./"
          "0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`"
          "abcdefghijklmnopqrstuvwxyz{|}~");
 
     /* TODO: fbc color and scrolling test */
 
     TEST_TITLE("\nMultiboot info");
-    printf("\tmem_lower: 0x%x\n"
-           "\tmem_upper: 0x%x\n"
-           "\tfb_addr:   0x%llx\n"
-           "\tfb_pitch:  %d\n"
-           "\tfb_width:  %d\n"
-           "\tfb_height: %d\n"
-           "\tfb_bpp:    %d\n"
-           "\tfb_type:   %d\n",
+    printf("mem_lower: 0x%x\n"
+           "mem_upper: 0x%x\n"
+           "fb_addr:   0x%llx\n"
+           "fb_pitch:  %d\n"
+           "fb_width:  %d\n"
+           "fb_height: %d\n"
+           "fb_bpp:    %d\n"
+           "fb_type:   %d\n",
            mb_info->mem_lower, mb_info->mem_upper, mb_info->framebuffer_addr,
            mb_info->framebuffer_pitch, mb_info->framebuffer_width,
            mb_info->framebuffer_height, mb_info->framebuffer_bpp,
            mb_info->framebuffer_type);
 
-    TEST_TITLE("\nTesting stdlib.h, string.h and stdio.h functions...");
+    TEST_TITLE("\nHeap headers");
+    dump_alloc_headers();
+
+    TEST_TITLE("\nTesting stdlib.h, string.h and stdio.h functions");
     test_libk();
 }
 

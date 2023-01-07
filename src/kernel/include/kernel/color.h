@@ -52,13 +52,17 @@ static inline void col2rgb(uint8_t* r, uint8_t* g, uint8_t* b, uint32_t col) {
 #define COLOR_CYAN 0x56d8d4
 #endif
 
+#ifndef COLOR_GRAY
+#define COLOR_GRAY 0xa5a5a5
+#endif
+
 #ifndef COLOR_WHITE
 #define COLOR_WHITE 0xd9d9d9
 #endif
 
 /* Bold colors */
 #ifndef COLOR_BLACK_B
-#define COLOR_BLACK_B 0x3f3f3f
+#define COLOR_BLACK_B 0x333333
 #endif
 
 #ifndef COLOR_RED_B
@@ -87,6 +91,10 @@ static inline void col2rgb(uint8_t* r, uint8_t* g, uint8_t* b, uint32_t col) {
 
 #ifndef COLOR_CYAN_B
 #define COLOR_CYAN_B 0x1cfff7
+#endif
+
+#ifndef COLOR_GRAY_B
+#define COLOR_GRAY_B 0x7f7f7f
 #endif
 
 #ifndef COLOR_WHITE_B
