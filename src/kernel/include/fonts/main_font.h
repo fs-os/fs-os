@@ -31,7 +31,7 @@
  * (https://web.archive.org/web/20221206153507/https://jared.geek.nz/2014/jan/custom-fonts-for-microcontrollers)
  */
 Font main_font = {
-    .w = 6,
+    .w = 7,
     .h = 13,
     /* Change scale to make the font bigger */
     .s = 1,
