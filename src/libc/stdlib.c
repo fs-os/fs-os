@@ -1,12 +1,16 @@
 
 #include <stddef.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 /* count_digits: returns the number of digits of a positive num. Will not count "-"
  * for negative numbers */
-int count_digits(int num) {
+int count_digits(int64_t num) {
     int ret = 1;
+
+    if (num < 0)
+        num = -num;
 
     /* Count how many numbers we can remove */
     while ((num /= 10) > 0) {
@@ -104,7 +108,17 @@ void* malloc(size_t sz) {
     sz++;
 
     /* TODO: syscall wrapper for libk malloc */
-    abort("Free is not implemented for libc.");
+    abort("Malloc is not implemented for libc.");
+    return NULL;
+}
+
+/* calloc: allocate "item_n" items of size "item_sz" and set them to 0 */
+void* calloc(size_t item_n, size_t item_sz) {
+    item_n++;
+    item_sz++;
+
+    /* TODO: syscall wrapper for libk calloc */
+    abort("Calloc is not implemented for libc.");
     return NULL;
 }
 

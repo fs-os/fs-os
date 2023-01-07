@@ -1,12 +1,13 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <kernel/alloc.h>
 
 Block* blk_cursor = (Block*)HEAP_START;
 
 /* init_heap: initializes the heap headers for the allocation functions. */
-void init_heap() {
+void init_heap(void) {
     void* first_blk = HEAP_START;
 
     /* Set the next block ptr to NULL (End of memory) and the block size to the
@@ -62,6 +63,7 @@ void* kernel_alloc(size_t sz) {
     }
 
     /* No block available */
+    printf("Error trying to allocate size: 0x%X\n", sz);
     dump_alloc_headers();
     abort("alloc: No block available");
     return NULL;
@@ -91,7 +93,6 @@ void kernel_free(void* ptr) {
 }
 
 /* For debugging */
-#include <stdio.h>
 
 enum header_mod {
     NEW_HEADER = 0,
@@ -117,8 +118,8 @@ static inline void print_header(enum header_mod mod, Block* blk) {
             break;
     }
 
-    printf("Header: 0x%X | Blk: 0x%X | Next: 0x%X | Sz: 0x%X | Free: %d\n", (uint32_t)blk,
-           (uint32_t)blk->ptr, (uint32_t)blk->next, blk->sz, blk->free);
+    printf("Header: %p | Blk: %p | Next: %p | Sz: 0x%X | Free: %d\n", blk, blk->ptr,
+           blk->next, blk->sz, blk->free);
 }
 
 /* print_header_id: wrapper for print_header for adding a block id */
@@ -129,9 +130,9 @@ static inline void print_header_id(int blk_id, Block* blk) {
 
 /* dump_alloc_headers: prints the information for all the alloc block headers */
 void dump_alloc_headers(void) {
-    printf("Cursor: 0x%X\n"
+    printf("Cursor: %p\n"
            "Dumping heap block headers:\n",
-           (uint32_t)blk_cursor);
+           blk_cursor);
 
     /* Block id */
     int i = 0;

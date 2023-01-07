@@ -6,8 +6,11 @@
 
 /* count_digits: returns the number of digits of a positive num. Will not count "-"
  * for negative numbers */
-int count_digits(int num) {
+int count_digits(int64_t num) {
     int ret = 1;
+
+    if (num < 0)
+        num = -num;
 
     /* Count how many numbers we can remove */
     while ((num /= 10) > 0) {
@@ -105,6 +108,18 @@ void abort(char* msg) {
  "sz" is 0, returns NULL. */
 void* malloc(size_t sz) {
     return kernel_alloc(sz);
+}
+
+/* calloc: allocate "item_n" items of size "item_sz" and set them to 0 */
+void* calloc(size_t item_n, size_t item_sz) {
+    const size_t bytes = item_n * item_sz;
+
+    void* ptr = malloc(bytes);
+    for (uint8_t i = 0; i < bytes; i++) {
+        ((uint8_t*)ptr)[i] = 0;
+    }
+
+    return ptr;
 }
 
 /* free: free a previously allocated ptr */

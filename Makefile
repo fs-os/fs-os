@@ -10,7 +10,12 @@ all: sysroot $(ISO)
 
 # Alterative: qemu-system-i386 -kernel fs-os.bin
 qemu: all
-	qemu-system-i386 -cdrom $(ISO)
+	qemu-system-i386 -boot d -cdrom $(ISO)
+
+# Connect with the patched gdb from (https://github.com/fs-os/cross-compiler):
+#   (gdb) target remote :1234
+qemu-debug: all
+	qemu-system-i386 -s -boot d -cdrom $(ISO)
 
 clean:
 	rm -f obj/kernel/*.o $(ISO)
@@ -73,7 +78,8 @@ obj/kernel/boot.o: src/kernel/boot.asm
 	$(ASM) $(ASM_FLAGS) $< -o $@
 
 # We need the sysroot with the includes and the static lib for building the kernel,
-# tty, etc. We called 'make sysroot' in the 'all' target so we should be fine.
+# framebuffer, etc. We called 'make sysroot' in the 'all' target so we should be
+# fine.
 $(KERNEL_OBJS): obj/kernel/%.o: src/kernel/%.c
 	@mkdir -p obj/kernel/
 	$(CC) --sysroot=sysroot -isystem=/usr/include -c $< -o $@ -ffreestanding -std=gnu11 $(CFLAGS) -Iinclude

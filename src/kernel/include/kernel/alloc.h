@@ -4,8 +4,8 @@
 
 #include <stdint.h>
 
-#define HEAP_START ((void*)0x80000) /* Bytes. 512 KB */
-#define HEAP_SIZE  (0x1900000)      /* Bytes. 25MB */
+#define HEAP_START ((void*)0xA00000) /* Bytes. 10MB */
+#define HEAP_SIZE  (0x3200000)       /* Bytes. 50MB */
 
 /* Block header struct. The block ptr should point to (header_ptr + sizeof(Block)) */
 typedef struct Block {
@@ -19,7 +19,7 @@ typedef struct Block {
 extern Block* blk_cursor;
 
 /* init_heap: initializes the heap headers for the allocation functions. */
-void init_heap();
+void init_heap(void);
 
 /* kernel_alloc: allocate "sz" bytes of memory from the heap and return the address
  */

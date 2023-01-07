@@ -6,7 +6,8 @@
 
 MB_ALIGN    equ 1 << 0                  ; Align loaded modules on page boundaries
 MB_MEMINFO  equ 1 << 1                  ; Provide memory map
-MB_FLAGS    equ MB_ALIGN | MB_MEMINFO   ; Multiboot flag field
+MB_GFX      equ 1 << 2                  ; Use GFX (For the framebuffer. See bellow)
+MB_FLAGS    equ MB_ALIGN | MB_MEMINFO | MB_GFX  ; Multiboot flag field
 MB_MAGIC    equ 0x1BADB002              ; Magic number for the bootloader
 MB_CHECKSUM equ -(MB_MAGIC + MB_FLAGS)  ; Checksum of above to prove we are multiboot
 
@@ -14,14 +15,30 @@ MB_CHECKSUM equ -(MB_MAGIC + MB_FLAGS)  ; Checksum of above to prove we are mult
 ; values that are documented in the multiboot standard. The bootloader will search
 ; for this signature in the first 8KiB of the kernel file, aligned at a 32-bit
 ; boundary.
+; Here we ask for graphics mode type 0, which is linear type. We use 0 as width and
+; height because in this case we don't care about a "default resolution", we want to
+; use what the bootloader gives us. Depth will be the ammount of bytes per pixel.
 ;
 ; More information on alignment:
 ;   https://stackoverflow.com/questions/19608845/understanding-assembly-mips-align-and-memory-addressing
+; More information on next values & credits:
+;   https://www.gnu.org/software/grub/manual/multiboot/html_node/Header-address-fields.html#Header-address-fields
+;   https://www.gnu.org/software/grub/manual/multiboot/html_node/Header-graphics-fields.html#Header-graphics-fields
+;   https://github.com/ozkl/soso/blob/master/kernel/boot.asm#L17-L26
 section .multiboot
     align 4
     dd      MB_MAGIC
     dd      MB_FLAGS
     dd      MB_CHECKSUM
+    dd      0x00000000      ; header_addr
+    dd      0x00000000      ; load_addr
+    dd      0x00000000      ; load_end_addr
+    dd      0x00000000      ; bss_end_addr
+    dd      0x00000000      ; entry_addr
+    dd      0x00000000      ; (graphics) requested mode_type (See previous comment)
+    dd      0x00000000      ; (graphics) width
+    dd      0x00000000      ; (graphics) height
+    dd      32              ; (graphics) depth
 
 ; The multiboot standard does not the fine the vale of esp, and it's up to the kernel
 ; to provide a stack. This allocates room for a small stack by creating a symbol at 

@@ -1,34 +1,6 @@
 
 #include <string.h>
-#include <kernel/tty.h>
-
-/* TODO: Move vga stuff to header? */
-
-/* vga_entry_color: get vga color pair from foreground and background colors */
-static inline uint8_t vga_entry_color(enum vga_color fg, enum vga_color bg) {
-    /*
-     * Shifts the background color 4 bytes and ORs it with the foreground color.
-     *
-     * fg  = b00001010
-     * bg  = b00001100
-     *       ---------
-     * ret = b11001010
-     */
-    return fg | bg << 4;
-}
-
-/* vga_entry: get vga entry from char and color pair (from vga_entry_color) */
-static inline uint16_t vga_entry(unsigned char uc, uint8_t color) {
-    /*
-     * Shifts the color from vga_entry_color 8 bytes and ORs it with uc.
-     *
-     * uc  = b0000000000001010 (10)
-     * col = b0000000011001010
-     *       -----------------
-     * ret = b1100101000001010
-     */
-    return (uint16_t)uc | (uint16_t)color << 8;
-}
+#include <kernel/vga.h>
 
 const size_t VGA_WIDTH  = 80;
 const size_t VGA_HEIGHT = 25;
@@ -44,7 +16,7 @@ void term_init(void) {
     term_x   = 0;
     term_col = vga_entry_color(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK);
     /* 0xB8000 is the location of the VGA text mode buffer */
-    term_buf = (uint16_t*)0xB8000;
+    term_buf = (uint16_t*)VGA_CONSOLE_ADDR;
 
     /* Clear terminal buffer */
     for (size_t y = 0; y < VGA_HEIGHT; y++) {
@@ -70,8 +42,8 @@ void term_put_at(size_t y, size_t x, uint8_t col, char c) {
     term_buf[y * VGA_WIDTH + x] = vga_entry(c, col);
 }
 
-/* shift_rows: scrolls the terminal n rows */
-void shift_rows(int n) {
+/* term_shift_rows: scrolls the terminal n rows */
+void term_shift_rows(int n) {
     /* Shift n rows */
     for (size_t y = 0; y < VGA_HEIGHT - n; y++)
         for (size_t x = 0; x < VGA_WIDTH; x++)
@@ -92,7 +64,7 @@ void term_putchar(char c) {
         if (term_y + 1 < VGA_HEIGHT)
             term_y++;
         else
-            shift_rows(1);
+            term_shift_rows(1);
 
         term_x = 0;
 
@@ -109,7 +81,7 @@ void term_putchar(char c) {
         if (term_y + 1 < VGA_HEIGHT)
             term_y++;
         else
-            shift_rows(1);
+            term_shift_rows(1);
     }
 }
 
@@ -121,6 +93,9 @@ void term_write(const char* s, size_t len) {
 }
 
 /* term_sprint: prints zero-terminated string to the vga terminal using term_write */
+/* TODO: If we actually used vga, it would be better to write until '\0' instead of
+ * calling strlen */
 void term_sprint(const char* s) {
     term_write(s, strlen(s));
 }
+

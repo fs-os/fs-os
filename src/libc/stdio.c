@@ -15,7 +15,7 @@ static inline int print(const char* str) {
 
 /* printi: similar to stdlib's itoan, but instead of writting to buffer, prints. Used
  * by printf's "%i". */
-static void printi(int num) {
+static void printi(int64_t num) {
     /* Write '-' for negative numbers and convert number to positive */
     if (num < 0) {
         putchar('-');
@@ -27,9 +27,9 @@ static void printi(int num) {
         putchar((num / ipow(10, cur_digit)) % 10 + '0');
 }
 
-/* printx: print "num" in hexadecimal format (lowercase) */
-static void printx(unsigned long num) {
-    if (num == 0)
+/* printx: print "num" in hexadecimal format (lowercase). Does not support sign */
+static void printx(int64_t num) {
+    if (num <= 0)
         print("0");
 
     /* max digits of an unsigned long */
@@ -54,9 +54,9 @@ static void printx(unsigned long num) {
     print(hex_str);
 }
 
-/* printX: print "num" in hexadecimal format (uppercase) */
-static void printX(unsigned long num) {
-    if (num == 0)
+/* printX: print "num" in hexadecimal format (uppercase). Does not support sign */
+static void printX(int64_t num) {
+    if (num <= 0)
         print("0");
 
     /* max digits of an unsigned long */
@@ -79,6 +79,15 @@ static void printX(unsigned long num) {
     /* Reverse string and print */
     strrev(hex_str);
     print(hex_str);
+}
+/* printp: print the "ptr" address in hexadecimal format (lowercase) */
+static void printp(void* ptr) {
+    if (ptr == NULL) {
+        print("(null)");
+    } else {
+        print("0x");
+        printX((uint32_t)ptr);
+    }
 }
 
 /* puts: prints "str" and a newline char */
@@ -110,7 +119,6 @@ int vprintf(const char* fmt, va_list va) {
             else
                 return -1; /* TODO: Set errno to EOVERFLOW */
 
-            /* TODO: Support for more than 1 format char */
             switch (*fmt) {
                 case 'c':
                     putchar((char)va_arg(va, int));
@@ -131,10 +139,38 @@ int vprintf(const char* fmt, va_list va) {
                     printi(va_arg(va, int));
                     break;
                 case 'x':
-                    printx(va_arg(va, unsigned long));
+                    printx(va_arg(va, int));
                     break;
                 case 'X':
-                    printX(va_arg(va, unsigned long));
+                    printX(va_arg(va, int));
+                    break;
+                case 'p':
+                    printp(va_arg(va, void*));
+                    break;
+                case 'l':
+                    /* Check pattern. Not the best way but good enough for now */
+                    if (memcmp(fmt, "ld", 2) == 0) {
+                        fmt++;                        /* The 'd' */
+                        printi(va_arg(va, long int)); /* "%ld" */
+                    } else if (memcmp(fmt, "ll", 2) == 0) {
+                        fmt++; /* The 'l' */
+
+                        if (memcmp(fmt, "lx", 2) == 0) {
+                            fmt++;                             /* The 'x' */
+                            printx(va_arg(va, long long int)); /* "%llx" */
+                        } else if (memcmp(fmt, "lX", 2) == 0) {
+                            fmt++;                             /* The 'X' */
+                            printX(va_arg(va, long long int)); /* "%llX" */
+                        } else if (memcmp(fmt, "ld", 2) == 0) {
+                            fmt++;                             /* The 'd' */
+                            printi(va_arg(va, long long int)); /* "%lld" */
+                        } else {
+                            printi(va_arg(va, long long int)); /* "%ll???" */
+                        }
+                    } else {
+                        printi(va_arg(va, long int)); /* "%l???" */
+                    }
+
                     break;
                 default:
                     /* If unknown fmt, print the % and the unknown char */
