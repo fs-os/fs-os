@@ -58,3 +58,5 @@ See [todo.md](TODO.md).
 ### Credits
 - [OSDev wiki](https://wiki.osdev.org)
 - [The limine bootloader](https://github.com/limine-bootloader/limine)
+- [The cozette font](https://github.com/slavfox/Cozette)
+- [bdf2c](https://github.com/pixelmatix/bdf2c)
