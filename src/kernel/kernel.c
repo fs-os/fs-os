@@ -20,7 +20,7 @@
 #include <kernel/multiboot.h> /* multiboot info structure */
 #include <fonts/main_font.h>
 
-#include "logo_small.h"
+#include "logo/logo_small.h"
 
 #if defined(__linux__)
 #error "You are not using a cross compiler." \

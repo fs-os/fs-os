@@ -1,2 +1,5 @@
-# Ignore the 3k line logo header for lang stats
-/src/kernel/logo*.h linguist-detectable=false
+# Ignore the logo headers for lang stats
+/src/kernel/logo/logo*.h linguist-detectable=false
+
+# Ignore the font header for lang stats
+/src/kernel/include/fonts/main_font.h linguist-detectable=false
