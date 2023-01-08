@@ -16,8 +16,10 @@ AR=/usr/local/cross/bin/i686-elf-ar
 KERNEL_BIN=fs-os.bin
 ISO=$(KERNEL_BIN:.bin=.iso)
 
-# List of object files to be linked with the kernel
+# List of object files to be linked with the kernel. Same for asm_objs but with
+# different compilation method.
 KERNEL_OBJS=obj/kernel/kernel.o obj/kernel/vga.o obj/kernel/alloc.o obj/kernel/framebuffer.o obj/kernel/framebuffer_console.o
+ASM_OBJS=obj/kernel/boot.o
 
 # List of object files of our standard library, and the final static library
 LIBC_OBJS=obj/libc/string.o obj/libc/stdlib.o obj/libc/stdio.o

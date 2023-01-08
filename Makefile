@@ -70,10 +70,10 @@ limine:
 	make -C limine
 
 # We will use the same compiler for linking. Use sysroot for including with <>, etc.
-$(KERNEL_BIN): cfg/linker.ld obj/kernel/boot.o $(KERNEL_OBJS) $(LIBK_OBJS)
-	$(CC) --sysroot=sysroot -isystem=/usr/include -T cfg/linker.ld -o $@ -ffreestanding -nostdlib $(CFLAGS) obj/kernel/boot.o $(KERNEL_OBJS) $(LIBK_OBJS) -lgcc
+$(KERNEL_BIN): cfg/linker.ld $(ASM_OBJS) $(KERNEL_OBJS) $(LIBK_OBJS)
+	$(CC) --sysroot=sysroot -isystem=/usr/include -T cfg/linker.ld -o $@ -ffreestanding -nostdlib $(CFLAGS) $(ASM_OBJS) $(KERNEL_OBJS) $(LIBK_OBJS) -lgcc
 
-obj/kernel/boot.o: src/kernel/boot.asm
+$(ASM_OBJS): obj/kernel/%.o: src/kernel/%.asm
 	@mkdir -p obj/kernel/
 	$(ASM) $(ASM_FLAGS) $< -o $@
 
