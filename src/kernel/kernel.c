@@ -177,8 +177,7 @@ void kernel_main(Multiboot* mb_info) {
                 mb_info->framebuffer_height);
     SYSTEM_INFO("Font:\t\t", "%s", main_font.name);
     DateTime now = rtc_get_datetime();
-    /* TODO: "%2d" format */
-    SYSTEM_INFO("Time:\t\t", "%d/%d/%d - %d:%d:%d", now.date.d, now.date.m,
+    SYSTEM_INFO("Time:\t\t", "%2d/%2d/%2d - %2d:%2d:%2d", now.date.d, now.date.m,
                 now.date.y, now.time.h, now.time.m, now.time.s);
     putchar('\n');
 

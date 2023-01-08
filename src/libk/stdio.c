@@ -33,6 +33,25 @@ static void printi(int64_t num) {
         putchar((num / ipow(10, cur_digit)) % 10 + '0');
 }
 
+/* printi_n: similar to printi, but adds digits("num") - "pad" zeros before "num".
+ * Used for "%123d" */
+static void printi_n(int64_t num, uint32_t pad) {
+    uint8_t sign = (num < 0) ? 1 : 0;
+    if (sign)
+        num = -num;
+
+    char converted_num[21] = { 0 };
+    itoa(converted_num, num);
+
+    if (sign)
+        putchar('-');
+
+    int final_pad = (pad - strlen(converted_num)) - sign;
+    while (final_pad-- > 0)
+        putchar('0');
+    print(converted_num);
+}
+
 /* printx: print "num" in hexadecimal format (lowercase). Does not support sign */
 static void printx(int64_t num) {
     if (num <= 0)
@@ -178,6 +197,31 @@ int vprintf(const char* fmt, va_list va) {
                     }
 
                     break;
+                case '0': /* Not necesary */
+                case '1':
+                case '2':
+                case '3':
+                case '4':
+                case '5':
+                case '6':
+                case '7':
+                case '8':
+                case '9':
+                    /* "%123s", "%123d", ... */
+                    /* Read all the numbers from the format */
+                    uint32_t fmt_num = 0;
+                    do {
+                        fmt_num *= 10;
+                        fmt_num += *fmt - '0';
+                        fmt++;
+                    } while (*fmt >= '0' && *fmt <= '9');
+
+                    /* "%123d" */
+                    if (*fmt == 'd')
+                        printi_n(va_arg(va, int), fmt_num);
+
+                    break;
+                case '%': /* "%%" -> "%" */
                 default:
                     /* If unknown fmt, print the % and the unknown char */
                     putchar('%');
