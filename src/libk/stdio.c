@@ -19,6 +19,17 @@ static inline int print(const char* str) {
     return 0;
 }
 
+/* prints_n: similar to print, but adds strlen("str") - "pad" spaces before "str".
+ * Used for "%123s" */
+static void prints_n(const char* str, uint32_t pad) {
+    int final_pad = pad - strlen(str);
+
+    while (final_pad-- > 0)
+        putchar(' ');
+
+    print(str);
+}
+
 /* printi: similar to stdlib's itoan, but instead of writting to buffer, prints. Used
  * by printf's "%i". */
 static void printi(int64_t num) {
@@ -216,9 +227,16 @@ int vprintf(const char* fmt, va_list va) {
                         fmt++;
                     } while (*fmt >= '0' && *fmt <= '9');
 
-                    /* "%123d" */
-                    if (*fmt == 'd')
-                        printi_n(va_arg(va, int), fmt_num);
+                    switch (*fmt) {
+                        case 'd': /* "%123d" */
+                            printi_n(va_arg(va, int), fmt_num);
+                            break;
+                        case 's': /* "%132s" */
+                            prints_n(va_arg(va, const char*), fmt_num);
+                            break;
+                        default:
+                            break;
+                    }
 
                     break;
                 case '%': /* "%%" -> "%" */
