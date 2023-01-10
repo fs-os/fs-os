@@ -14,15 +14,15 @@ gdt_start:
         dw      0xffff          ; Define the first 16 bits of the limit
         dw      0x0000          ; First 24 bits of the base (16 + 8)
         db      0x00
-        db      0b10011010      ; ppt flags (4 bits) + type flags (4 bits). Note 1*
-        db      0b11001111      ; Other flags + last 4 bits of the limit. Note 2*
+        db      10011010b       ; ppt flags (4 bits) + type flags (4 bits). Note 1*
+        db      11001111b       ; Other flags + last 4 bits of the limit. Note 2*
         db      0x00            ; Last 8 bits of the base
     .data_descriptor:
         dw      0xffff          ; Same limit as code
         dw      0x0000          ; Same base as code
         db      0x00
-        db      0b10010010      ; Same ppt flags as code, but new type. Note 3*
-        db      0b11001111      ; Same "Other flags", same limit as code
+        db      10010010b       ; Same ppt flags as code, but new type. Note 3*
+        db      11001111b       ; Same "Other flags", same limit as code
         db      0x00            ; Same base as code
 gdt_end:
 
