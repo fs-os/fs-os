@@ -61,7 +61,8 @@ stack_top:
 ; Declare the kernel entry point.
 ; TODO: What is :funtion (...) for?
 section .text
-    global _start:function (_start.end - _start)        ; Size of the _start section
+    global _start:function (_start.end - _start)    ; Size of the _start section
+    extern gdt_init                                 ; /src/kernel/gdt.asm
 
 _start:
     ; The bootloader loaded us into 32bit protected mode on a x86 machine. Interrupts
@@ -75,16 +76,15 @@ _start:
     ; the stack grows to a lower memory address in x86 assembly.
     mov     esp, stack_top
 
-    ; This is a good place to initialize crucial processor state before the high-level
-    ; kernel is entered. The processor is not fully initialized yet. We are missing
-    ; features such as:
+    ; Init the Global Descriptor Table
+    call    gdt_init
+
+    ; Here would be a good place to add:
     ;   - Floating point instructions
     ;   - Instruction set extensions (Instruction Set Extensions are additional
     ;     instructions that can increase performance when the same operations are
     ;     performed on multiple data objects.)
-    ;   - GDT (Global Descriptor Table)
     ;   - Paging
-    ;   - C++ features such as global constructors and exceptions
 
     ; Push ebx, containing the multiboot information structure pointer, which we will
     ; pass to main as argument. See src/kernel/include/kernel/multiboot.h
