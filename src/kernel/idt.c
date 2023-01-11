@@ -1,13 +1,19 @@
 
+/*
+ * Interrupt Descriptor Table. For more information, see:
+ *   https://wiki.osdev.org/Interrupt_Descriptor_Table
+ *   http://www.brokenthorn.com/Resources/OSDevPic.html
+ */
+
 #include <stdint.h>
 #include <stdlib.h>
+#include <kernel/io.h>
 #include <kernel/idt.h>
 #include <kernel/exceptions.h>
 
 #define IDT_SZ 256
 
-/* Interrupt Descriptor Table. For more information, see:
- *   https://wiki.osdev.org/Interrupt_Descriptor_Table */
+/* Interrupt descriptor table itself, 256 entries */
 idt_entry idt[IDT_SZ] = { 0 };
 
 /* The descriptor containing the idt size and ptr. Initialized in idt_init */
@@ -27,6 +33,47 @@ static void register_isr(uint16_t idx, uint32_t func) {
         .type     = P_BIT | DPL_NONE | IDT_GATE_32BIT_INT,
         .zero     = 0,
     };
+}
+
+/* pic_remap: remap the programable interrupt controllers so the interrupt numbers of
+ * the master PIC don't overlap with the CPU exceptions */
+static inline void pic_remap(void) {
+    /*
+     * Modern computers have 2 PICs (Programable Interrupt Controller), the master
+     * and the slave. One line of the master PIC is used to signal the slave PIC.
+     * We are going to change the PIC interrupt numbers because by default, the
+     * ranges are:
+     *   IRQ 0..7  -> INT 0x8..0xF
+     *   IRQ 8..15 -> INT 0x70..0x77
+     * The first 8 overlap with the CPU's exceptions (src/kernel/exceptions.c), so we
+     * need to move them.
+     * We comunicate through the IO bus. Similar to the RTC, each PIC has a command
+     * port and a data port:
+     *   Master -> cmd: 0x20, data: 0x21
+     *   Slave  -> cmd: 0xA0, data: 0xA1
+     * TODO: The flags need comments with explanation.
+     */
+
+    /* Start the initialization sequence in cascade mode */
+    io_outb(PIC_MASTER_CMD, ICW1_INIT | ICW1_ICW4);
+    io_outb(PIC_SLAVE_CMD, ICW1_INIT | ICW1_ICW4);
+
+    /* Make the master PIC start in the interrupt number 32 instead of 8
+     * Make the slave PIC start in the interrupt number 40 instead of 0x70 */
+    io_outb(PIC_MASTER_DATA, 32);
+    io_outb(PIC_SLAVE_DATA, 40);
+
+    /* Slave PIC is chained to the master */
+    io_outb(PIC_MASTER_DATA, 4);
+    io_outb(PIC_SLAVE_DATA, 2);
+
+    /* We are in 32 bits */
+    io_outb(PIC_MASTER_DATA, ICW4_8086);
+    io_outb(PIC_SLAVE_DATA, ICW4_8086);
+
+    /* We don't need to restore saved masks because they are not masked */
+    io_outb(PIC_MASTER_DATA, 0);
+    io_outb(PIC_SLAVE_DATA, 0);
 }
 
 /* idt_init: initialize the idt and the idt descriptor */
@@ -60,6 +107,11 @@ void idt_init(void) {
     /* register_isr(32, (void*)exc_32); */ /* TODO: PIT */
     /* register_isr(33, (void*)exc_33); */ /* TODO: Keyboard */
 
-    idt_load(&descriptor); /* src/kernel/idt_asm.asm */
+    /* Remap the PICs so the interrupt numbers of the master PIC don't overlap with
+     * the CPU exceptions. See comment inside function. */
+    pic_remap();
+
+    /* src/kernel/idt_asm.asm */
+    idt_load(&descriptor);
 }
 
