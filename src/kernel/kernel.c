@@ -16,6 +16,7 @@
 #include <kernel/vga.h>                 /* init_term */
 #include <kernel/framebuffer.h>         /* fb_init, fb_setpx */
 #include <kernel/framebuffer_console.h> /* fbc_init */
+#include <kernel/idt.h>                 /* idt_init */
 #include <kernel/rtc.h>                 /* rtc_get_datetime */
 
 #include <kernel/multiboot.h> /* multiboot info structure */
@@ -169,6 +170,9 @@ void kernel_main(Multiboot* mb_info) {
     LOAD_INFO("Heap initialized.");
     LOAD_INFO("Framebuffer initialized.");
     LOAD_INFO("Framebuffer console initialized.");
+
+    idt_init();
+    LOAD_INFO("IDT initialized.");
     putchar('\n');
 
     LOAD_INFO("System info:");
