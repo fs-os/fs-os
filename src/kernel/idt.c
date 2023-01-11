@@ -2,7 +2,6 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <kernel/idt.h>
-#include <kernel/misc_asm.h>
 #include <kernel/exceptions.h>
 
 #define IDT_SZ 256

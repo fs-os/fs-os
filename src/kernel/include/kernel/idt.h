@@ -30,5 +30,12 @@ typedef struct {
 /* idt_init: initialize the idt and the idt descriptor */
 void idt_init(void);
 
+/* src/kernel/idt_asm.asm */
+void asm_cli(void);
+void asm_sti(void);
+
+/* load_idt: loads the idt descriptor from the assembly using the lidt instruction */
+void load_idt(void* idt_desc);
+
 #endif /* _KERNEL_IDT_H */
 

@@ -1,7 +1,7 @@
 
 #include <stdlib.h>
+#include <kernel/idt.h> /* asm_cli */
 #include <kernel/exceptions.h>
-#include <kernel/misc_asm.h>
 
 static char* exceptions[] = {
     [0]  = "Division by Zero",

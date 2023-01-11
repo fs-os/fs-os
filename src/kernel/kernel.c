@@ -143,6 +143,8 @@ void print_logo(unsigned int ypad, unsigned int xpad) {
 
 /* kernel_main: Called by boot.asm */
 void kernel_main(Multiboot* mb_info) {
+    idt_init();
+
     init_heap();
 
     /* Currently unused */
@@ -167,12 +169,10 @@ void kernel_main(Multiboot* mb_info) {
              mb_info->framebuffer_width - 3 * 2, &main_font);
 
     /* Once we have a framebuffer terminal, print previous messages too */
+    LOAD_INFO("IDT initialized.");
     LOAD_INFO("Heap initialized.");
     LOAD_INFO("Framebuffer initialized.");
     LOAD_INFO("Framebuffer console initialized.");
-
-    idt_init();
-    LOAD_INFO("IDT initialized.");
     putchar('\n');
 
     LOAD_INFO("System info:");
