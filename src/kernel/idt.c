@@ -33,7 +33,7 @@ static void register_isr(uint16_t idx, uint32_t func) {
 void idt_init(void) {
     /* Descritor */
     descriptor.limit = (IDT_SZ * sizeof(idt_entry)) - 1;
-    descriptor.base  = idt;
+    descriptor.base  = &idt[0];
 
     /* Exception Handling */
     register_isr(0, (uint32_t)&exc_0);
@@ -61,7 +61,7 @@ void idt_init(void) {
     /* register_isr(33, (void*)exc_33); */ /* TODO: Keyboard */
 
     /* src/kernel/misc.asm */
-    load_idt(&descriptor);
+    idt_load(&descriptor);
 
     /* FIXME */
     /* asm_sti(); */

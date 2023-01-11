@@ -4,32 +4,32 @@
 #include <kernel/exceptions.h>
 
 static char* exceptions[] = {
-    [0]  = "Division by Zero",
-    [1]  = "Debug",
-    [2]  = "Non Maskable Interrupt",
-    [3]  = "Breakpoint",
-    [4]  = "Overflow",
-    [5]  = "Bound Range Exceeded",
-    [6]  = "Invalid opcode",
-    [7]  = "Device not available",
-    [8]  = "Double Fault",
-    [10] = "Invalid TSS",
-    [11] = "Segment not present",
-    [12] = "Stack Exception",
-    [13] = "General Protection fault",
-    [14] = "Page fault",
-    [16] = "x87 Floating Point Exception",
-    [17] = "Alignment check",
-    [18] = "Machine check",
-    [19] = "SIMD floating point Exception",
-    [20] = "Virtualization Exception",
-    [30] = "Security Exception",
+    [0]  = "division by zero",
+    [1]  = "debug",
+    [2]  = "non maskable interrupt",
+    [3]  = "breakpoint",
+    [4]  = "overflow",
+    [5]  = "bound range exceeded",
+    [6]  = "invalid opcode",
+    [7]  = "device not available",
+    [8]  = "double fault",
+    [10] = "invalid TSS",
+    [11] = "segment not present",
+    [12] = "stack exception",
+    [13] = "general protection fault",
+    [14] = "page fault",
+    [16] = "x87 floating point exception",
+    [17] = "alignment check",
+    [18] = "machine check",
+    [19] = "SIMD floating point exception",
+    [20] = "virtualization exception",
+    [30] = "security exception",
 };
 
 /* handle_exception: disables interrupts and panics with the specified exception. */
 static void handle_exception(int exc) {
     asm_cli();
-    abort(exceptions[exc]);
+    abort("exception: %s\n", exceptions[exc]);
 }
 
 /* exc_X: call the exception handler with the specified IRQ. Used as offsets for the

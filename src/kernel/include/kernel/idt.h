@@ -5,7 +5,7 @@
 #define P_BIT    (1 << 7) /* 0x80, 0b10000000 */
 #define DPL_NONE 0
 
-enum gate_types {
+enum idt_gate_types {
     IDT_GATE_TASK       = 0x5,
     IDT_GATE_16BIT_INT  = 0x6,
     IDT_GATE_16BIT_TRAP = 0x7,
@@ -34,8 +34,8 @@ void idt_init(void);
 void asm_cli(void);
 void asm_sti(void);
 
-/* load_idt: loads the idt descriptor from the assembly using the lidt instruction */
-void load_idt(void* idt_desc);
+/* idt_load: loads the idt descriptor from the assembly using the lidt instruction */
+void idt_load(void* idt_desc);
 
 #endif /* _KERNEL_IDT_H */
 

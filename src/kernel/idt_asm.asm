@@ -2,20 +2,19 @@
 bits 32
 
 section .data
-    global load_idt:function
+    global idt_load:function
     global asm_cli:function
     global asm_sti:function
 
-; void load_idt(void* idt_desc)
-load_idt:
-    push    ebp
-    mov     ebp, esp
+; void idt_load(void* idt_desc)
+idt_load:
+    push    eax
 
-    lidt    [esp + 8]       ; First arg, pointer to the idt descriptor. (ebp (4) +
-                            ; return addr (4))
+    mov     eax, [esp + 8]      ; First arg, pointer to the idt descriptor. (pushed
+                                ; eax (4) + return addr (4))
+    lidt    [eax]
 
-    mov     esp, ebp
-    pop     ebp
+    pop     eax
     ret
 
 ; void asm_cli(void)
@@ -27,4 +26,3 @@ asm_cli:
 asm_sti:
     sti
     ret
-
