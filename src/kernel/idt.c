@@ -60,10 +60,6 @@ void idt_init(void) {
     /* register_isr(32, (void*)exc_32); */ /* TODO: PIT */
     /* register_isr(33, (void*)exc_33); */ /* TODO: Keyboard */
 
-    /* src/kernel/misc.asm */
-    idt_load(&descriptor);
-
-    /* FIXME */
-    /* asm_sti(); */
+    idt_load(&descriptor); /* src/kernel/idt_asm.asm */
 }
 

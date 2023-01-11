@@ -17,12 +17,3 @@ idt_load:
     pop     eax
     ret
 
-; void asm_cli(void)
-asm_cli:
-    cli
-    ret
-
-; void asm_sti(void)
-asm_sti:
-    sti
-    ret

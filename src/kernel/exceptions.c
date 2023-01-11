@@ -28,7 +28,7 @@ static char* exceptions[] = {
 
 /* handle_exception: disables interrupts and panics with the specified exception. */
 static void handle_exception(int exc) {
-    asm_cli();
+    asm("cli");
     abort("exception: %s\n", exceptions[exc]);
 }
 
