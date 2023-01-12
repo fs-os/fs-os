@@ -2,10 +2,17 @@
 **Free &amp; Simple Operating System**
 
 ### Description
-The main purpose of this project is to learn, so expect some mistakes. If you want to contribute to the project, feel free to make a [pull request](https://github.com/fs-os/fs-os/pulls).
+The main purpose of this project is to learn, so expect some mistakes. If you want to
+contribute to the project, feel free to make a [pull request](https://github.com/fs-os/fs-os/pulls).
 
-An important part of this project, as the name implies, is to keep it as simple as possible.
-This is very important to understand how everything in the project works (*which is the main goal!*).
+This project has a wiki explaining how the OS works from the start, so feel free to
+check it out [here](https://github.com/fs-os/fs-os/wiki) and open an issue if you
+find wrong or incomplete information. You can clone the wiki with
+`git clone git@github.com:fs-os/fs-os.wiki.git`.
+
+An important part of this project, as the name implies, is to keep it as simple as
+possible. This is very important to understand how everything in the project works
+(*which is the main goal!*).
 
 Some interesting resources that influenced the project's philosophy:
 - [GNU philosophy](https://www.gnu.org/philosophy) (See [free](https://www.gnu.org/philosophy/free-sw.html)).
@@ -16,7 +23,8 @@ Some interesting resources that influenced the project's philosophy:
 #### Requisites
 - i686-elf cross compiler from [here](https://github.com/fs-os/cross-compiler).
 - [nasm](https://nasm.us) for compiling the assembly used in the project.
-- The [limine](https://github.com/limine-bootloader/limine) dependencies, including [xorriso](https://www.gnu.org/software/xorriso) for creating the bootable image.
+- The [limine](https://github.com/limine-bootloader/limine) dependencies, including
+  [xorriso](https://www.gnu.org/software/xorriso) for creating the bootable image.
 - (Optional) [qemu](https://www.qemu.org) for testing the ISO on a VM.
 
 #### Building
@@ -40,7 +48,9 @@ $ make fs-os.iso
 ...
 ```
 
-*Note: Keep in mind that `fs-os.iso` requires the kernel binary, and the kernel binary requires the headers and libs that `sysroot` copies, so make sure you don't build the iso without the sysroot ready.*
+*Note: Keep in mind that `fs-os.iso` requires the kernel binary, and the kernel
+binary requires the headers and libs that `sysroot` copies, so make sure you don't
+build the iso without the sysroot ready.*
 ```console
 $ make fs-os.iso    # If you haven't built sysroot before, it will fail
 Error.
