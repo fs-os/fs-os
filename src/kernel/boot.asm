@@ -49,9 +49,9 @@ section .multiboot
 ; From https://www.nasm.us/doc/nasmdoc8.html
 ;   > nobits defines the section to be one with no explicit contents given, such as a
 ;   > BSS section.
-; The stack must be 16 byte aligned acording to the System V ABI standard and de-facto
-; extensions. The compiler will assume the stack is properly aligned and failure to
-; align the stack will result in undefined behavior.
+; The stack must be 16 byte aligned acording to the System V ABI standard and
+; de-facto extensions. The compiler will assume the stack is properly aligned and
+; failure to align the stack will result in undefined behavior.
 section .bss
     align   16
 stack_bottom:       ; Items pushed to the stack will get 'closer' to this label (in x86)

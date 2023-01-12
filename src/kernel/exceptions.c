@@ -36,67 +36,67 @@ static void handle_exception(int exc) {
 
 /* exc_X: call the exception handler with the specified IRQ. Used as offsets for the
  * idt. */
-void exc_0(void) {
+void __attribute__((aligned (8))) __attribute__((aligned (8))) exc_0(void) {
     handle_exception(0);
 }
-void exc_1(void) {
+void __attribute__((aligned (8))) exc_1(void) {
     handle_exception(1);
 }
-void exc_2(void) {
+void __attribute__((aligned (8))) exc_2(void) {
     handle_exception(2);
 }
-void exc_3(void) {
+void __attribute__((aligned (8))) exc_3(void) {
     handle_exception(3);
 }
-void exc_4(void) {
+void __attribute__((aligned (8))) exc_4(void) {
     handle_exception(4);
 }
-void exc_5(void) {
+void __attribute__((aligned (8))) exc_5(void) {
     handle_exception(5);
 }
-void exc_6(void) {
+void __attribute__((aligned (8))) exc_6(void) {
     handle_exception(6);
 }
-void exc_7(void) {
+void __attribute__((aligned (8))) exc_7(void) {
     handle_exception(7);
 }
-void exc_8(void) {
+void __attribute__((aligned (8))) exc_8(void) {
     handle_exception(8);
 }
-void exc_10(void) {
+void __attribute__((aligned (8))) exc_10(void) {
     handle_exception(10);
 }
-void exc_11(void) {
+void __attribute__((aligned (8))) exc_11(void) {
     handle_exception(11);
 }
-void exc_12(void) {
+void __attribute__((aligned (8))) exc_12(void) {
     handle_exception(12);
 }
-void exc_13(void) {
+void __attribute__((aligned (8))) exc_13(void) {
     handle_exception(13);
 }
-void exc_14(void) {
+void __attribute__((aligned (8))) exc_14(void) {
     handle_exception(14);
 }
-void exc_15(void) {
+void __attribute__((aligned (8))) exc_15(void) {
     handle_exception(15);
 }
-void exc_16(void) {
+void __attribute__((aligned (8))) exc_16(void) {
     handle_exception(16);
 }
-void exc_17(void) {
+void __attribute__((aligned (8))) exc_17(void) {
     handle_exception(17);
 }
-void exc_18(void) {
+void __attribute__((aligned (8))) exc_18(void) {
     handle_exception(18);
 }
-void exc_19(void) {
+void __attribute__((aligned (8))) exc_19(void) {
     handle_exception(19);
 }
-void exc_20(void) {
+void __attribute__((aligned (8))) exc_20(void) {
     handle_exception(20);
 }
-void exc_30(void) {
+void __attribute__((aligned (8))) exc_30(void) {
     handle_exception(30);
 }
 
