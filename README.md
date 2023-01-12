@@ -7,8 +7,10 @@ contribute to the project, feel free to make a [pull request](https://github.com
 
 This project has a wiki explaining how the OS works from the start, so feel free to
 check it out [here](https://github.com/fs-os/fs-os/wiki) and open an issue if you
-find wrong or incomplete information. You can clone the wiki with
-`git clone git@github.com:fs-os/fs-os.wiki.git`.
+find wrong or incomplete information. You can clone the wiki with:
+```bash
+git clone git@github.com:fs-os/fs-os.wiki.git
+```
 
 An important part of this project, as the name implies, is to keep it as simple as
 possible. This is very important to understand how everything in the project works
