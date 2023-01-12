@@ -127,18 +127,16 @@ static inline void test_colors(void) {
 
 /* print_logo: prints the logo from logo.h using the GIMP macro */
 void print_logo(unsigned int ypad, unsigned int xpad) {
-    char rgb[3]      = { 0 };
-    char* logo_start = fsos_logo_s;
+    char rgb[3] = { 0 };
+    /* Copy ptr because HEADER_PIXEL increases it */
+    char* logo_ptr = fsos_logo_s;
 
     for (unsigned int y = 0; y < fsos_logo_s_h; y++) {
         for (unsigned int x = 0; x < fsos_logo_s_w; x++) {
-            HEADER_PIXEL(fsos_logo_s, rgb);
+            HEADER_PIXEL(logo_ptr, rgb);
             fb_setpx(y + ypad, x + xpad, rgb[0], rgb[1], rgb[2]);
         }
     }
-
-    /* Reset ptr because HEADER_PIXEL increases it */
-    fsos_logo_s = logo_start;
 }
 
 /* kernel_main: Called by boot.asm */
