@@ -19,17 +19,16 @@ typedef struct Block {
 extern Block* blk_cursor;
 
 /* init_heap: initializes the heap headers for the allocation functions. */
-void init_heap(void);
+void heap_init(void);
 
-/* kernel_alloc: allocate "sz" bytes of memory from the heap and return the address
- */
-void* kernel_alloc(size_t sz);
+/* heap_alloc: allocate "sz" bytes of memory from the heap and return the address */
+void* heap_alloc(size_t sz);
 
-/* kernel_free: free a previously allocated ptr */
-void kernel_free(void* ptr);
+/* heap_free: free a previously allocated ptr */
+void heap_free(void* ptr);
 
-/* dump_alloc_headers: prints the information for all the alloc block headers */
-void dump_alloc_headers(void);
+/* heap_dump_headers: prints the information for all the alloc block headers */
+void heap_dump_headers(void);
 
 #endif /* _KERNEL_ALLOC_H */
 

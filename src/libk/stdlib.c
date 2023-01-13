@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <kernel/alloc.h>
+#include <kernel/heap.h>
 #include <kernel/framebuffer_console.h> /* Color to abort() */
 #include <kernel/color.h>               /* Color to abort() */
 
@@ -120,7 +120,7 @@ void abort(const char* fmt, ...) {
 /* malloc: allocate "sz" bytes and return a pointer. Memory is not initialized. If
  "sz" is 0, returns NULL. */
 void* malloc(size_t sz) {
-    return kernel_alloc(sz);
+    return heap_alloc(sz);
 }
 
 /* calloc: allocate "item_n" items of size "item_sz" and set them to 0 */
@@ -137,6 +137,6 @@ void* calloc(size_t item_n, size_t item_sz) {
 
 /* free: free a previously allocated ptr */
 void free(void* ptr) {
-    kernel_free(ptr);
+    heap_free(ptr);
 }
 

@@ -13,6 +13,6 @@ void sleep(uint32_t sec) {
 void sleep_cs(uint64_t ms) {
     pit_set_ticks(ms);
     while (pit_get_ticks() > 0)
-        ;
+        asm("hlt");
 }
 

@@ -13,8 +13,8 @@
 #include <stdio.h>
 #include <time.h>
 
-#include <kernel/alloc.h>               /* init_heap */
-#include <kernel/vga.h>                 /* init_term */
+#include <kernel/heap.h>                /* heap_init */
+#include <kernel/vga.h>                 /* term_init */
 #include <kernel/framebuffer.h>         /* fb_init, fb_setpx */
 #include <kernel/framebuffer_console.h> /* fbc_init */
 #include <kernel/idt.h>                 /* idt_init */
@@ -145,7 +145,7 @@ void print_logo(unsigned int ypad, unsigned int xpad) {
 void kernel_main(Multiboot* mb_info) {
     idt_init();
 
-    init_heap();
+    heap_init();
 
     /* Currently unused */
     term_init();
@@ -209,7 +209,7 @@ void kernel_main(Multiboot* mb_info) {
 #endif
 
     TEST_TITLE("\nHeap headers");
-    dump_alloc_headers();
+    heap_dump_headers();
 
     TEST_TITLE("\nTesting stdlib.h, string.h and stdio.h functions");
     test_libk();

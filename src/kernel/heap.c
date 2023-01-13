@@ -2,12 +2,12 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <kernel/alloc.h>
+#include <kernel/heap.h>
 
 Block* blk_cursor = (Block*)HEAP_START;
 
 /* init_heap: initializes the heap headers for the allocation functions. */
-void init_heap(void) {
+void heap_init(void) {
     void* first_blk = HEAP_START;
 
     /* Set the next block ptr to NULL (End of memory) and the block size to the
@@ -20,9 +20,8 @@ void init_heap(void) {
     };
 }
 
-/* kernel_alloc: allocate "sz" bytes of memory from the heap and return the address
- */
-void* kernel_alloc(size_t sz) {
+/* heap_alloc: allocate "sz" bytes of memory from the heap and return the address */
+void* heap_alloc(size_t sz) {
     /* First, make sure the size is aligned to 8 bytes */
     const size_t align_diff = sz % 8;
     if (align_diff != 0)
@@ -64,13 +63,13 @@ void* kernel_alloc(size_t sz) {
 
     /* No block available */
     printf("Error trying to allocate size: 0x%X\n", sz);
-    dump_alloc_headers();
+    heap_dump_headers();
     abort("alloc: No block available");
     return NULL;
 }
 
-/* kernel_free: free a previously allocated ptr */
-void kernel_free(void* ptr) {
+/* heap_free: free a previously allocated ptr */
+void heap_free(void* ptr) {
     if (!ptr)
         return;
 
@@ -128,8 +127,8 @@ static inline void print_header_id(int blk_id, Block* blk) {
     print_header(UNK_HEADER, blk);
 }
 
-/* dump_alloc_headers: prints the information for all the alloc block headers */
-void dump_alloc_headers(void) {
+/* heap_dump_headers: prints the information for all the alloc block headers */
+void heap_dump_headers(void) {
     printf("Cursor: %p\n"
            "Dumping heap block headers:\n",
            blk_cursor);
