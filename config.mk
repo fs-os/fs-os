@@ -19,7 +19,7 @@ ISO=$(KERNEL_BIN:.bin=.iso)
 # List of object files to be linked with the kernel. Same for asm_objs but with
 # different compilation method.
 KERNEL_OBJS=obj/kernel/kernel.o obj/kernel/vga.o obj/kernel/alloc.o obj/kernel/framebuffer.o obj/kernel/framebuffer_console.o obj/kernel/idt.o obj/kernel/exceptions.o obj/kernel/rtc.o
-ASM_OBJS=obj/kernel/boot.o obj/kernel/io.o obj/kernel/gdt.o obj/kernel/idt_asm.o obj/kernel/exceptions_asm.o
+ASM_OBJS=obj/kernel/boot.o obj/kernel/io.o obj/kernel/gdt.o obj/kernel/idt_asm.o
 
 # List of object files of our standard library, and the final static library
 LIBC_OBJS=obj/libc/string.o obj/libc/stdlib.o obj/libc/stdio.o

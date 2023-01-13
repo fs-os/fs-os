@@ -82,7 +82,7 @@ void idt_init(void) {
     descriptor.limit = (IDT_SZ * sizeof(idt_entry)) - 1;
     descriptor.base  = &idt[0];
 
-    /* Exception Handling */
+    /* Exception Handling. exc_* defined in src/kernel/idt_asm.asm */
     register_isr(0, (uint32_t)&exc_0);
     register_isr(1, (uint32_t)&exc_1);
     register_isr(2, (uint32_t)&exc_2);
