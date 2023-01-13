@@ -104,6 +104,8 @@ void idt_init(void) {
     register_isr(19, (uint32_t)&exc_19);
     register_isr(20, (uint32_t)&exc_20);
     register_isr(30, (uint32_t)&exc_30);
+
+    /* IRQs */
     /* register_isr(32, (void*)exc_32); */ /* TODO: PIT */
     /* register_isr(33, (void*)exc_33); */ /* TODO: Keyboard */
 

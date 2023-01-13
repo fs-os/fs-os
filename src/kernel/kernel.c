@@ -209,6 +209,6 @@ void kernel_main(Multiboot* mb_info) {
     test_libk();
 
     putchar('\n');
-    abort("test at address %p", (void*)0x1337ac);
+    asm("int 0x3");
 }
 
