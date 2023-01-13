@@ -82,6 +82,10 @@ void idt_init(void) {
     descriptor.limit = (IDT_SZ * sizeof(idt_entry)) - 1;
     descriptor.base  = &idt[0];
 
+    /* Remap the PICs so the interrupt numbers of the master PIC don't overlap with
+     * the CPU exceptions. See comment inside function. */
+    pic_remap();
+
     /* Exception Handling. exc_* defined in src/kernel/idt_asm.asm */
     register_isr(0, (uint32_t)&exc_0);
     register_isr(1, (uint32_t)&exc_1);
@@ -106,14 +110,19 @@ void idt_init(void) {
     register_isr(30, (uint32_t)&exc_30);
 
     /* IRQs */
-    /* register_isr(32, (void*)exc_32); */ /* TODO: PIT */
+    register_isr(32, (uint32_t)&irq_pit);  /* src/kernel/idt_asm.asm */
     /* register_isr(33, (void*)exc_33); */ /* TODO: Keyboard */
 
-    /* Remap the PICs so the interrupt numbers of the master PIC don't overlap with
-     * the CPU exceptions. See comment inside function. */
-    pic_remap();
+    /* Unused IRQs, just ignore. See src/kernel/idt_asm.asm */
+    for (int i = 33; i < 40; i++)
+        register_isr(i, (uint32_t)&irq_default_master);
+    for (int i = 40; i < 48; i++)
+        register_isr(i, (uint32_t)&irq_default_slave);
 
     /* src/kernel/idt_asm.asm */
     idt_load(&descriptor);
+
+    /* Enable interrupts (afaik sti is the opposite of cli) */
+    asm("sti");
 }
 

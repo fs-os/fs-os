@@ -1,6 +1,6 @@
 
 %macro EXC_WRAPPER 1
-    global exc_%1
+    global exc_%1:function
     exc_%1:
         push    %1                  ; Push the parameter
         call    handle_exception    ; Call the function from exceptions.c
@@ -11,10 +11,11 @@ bits 32
 
 section .text
     align 8
-    global idt_load:function
     extern handle_exception     ; src/kernel/exceptions.c
+    extern pit_dec              ; src/kernel/idt.c
 
 ; void idt_load(void* idt_desc)
+global idt_load:function
 idt_load:
     push    eax
 
@@ -48,4 +49,30 @@ EXC_WRAPPER 18
 EXC_WRAPPER 19
 EXC_WRAPPER 20
 EXC_WRAPPER 30
+
+; void irq_pit(void)
+; First IRQ we remapped to 0x20
+global irq_pit:function
+irq_pit:
+    pusha
+    call    pit_dec     ; Decrement the static counter from src/kernel/idt.c
+    popa
+    iretd
+
+; void irq_default_master(void)
+; Ignore all IRQs we didn't add from master PIC
+global irq_default_master:function
+irq_default_master:
+    mov     al, 0x20
+	out     0x20, al
+    iretd
+
+; void irq_default_slave(void)
+; Ignore all IRQs we didn't add from slave PIC
+global irq_default_slave:function
+irq_default_slave:
+	mov     al, 0x20
+	out     0xa0, al
+	out     0x20, al
+    iretd
 

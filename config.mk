@@ -18,17 +18,17 @@ ISO=$(KERNEL_BIN:.bin=.iso)
 
 # List of object files to be linked with the kernel. Same for asm_objs but with
 # different compilation method.
-KERNEL_OBJS=obj/kernel/kernel.o obj/kernel/vga.o obj/kernel/alloc.o obj/kernel/framebuffer.o obj/kernel/framebuffer_console.o obj/kernel/idt.o obj/kernel/exceptions.o obj/kernel/rtc.o
+KERNEL_OBJS=obj/kernel/kernel.o obj/kernel/vga.o obj/kernel/alloc.o obj/kernel/framebuffer.o obj/kernel/framebuffer_console.o obj/kernel/idt.o obj/kernel/exceptions.o obj/kernel/rtc.o obj/kernel/pit.o
 ASM_OBJS=obj/kernel/boot.o obj/kernel/io.o obj/kernel/gdt.o obj/kernel/idt_asm.o
 
 # List of object files of our standard library, and the final static library
-LIBC_OBJS=obj/libc/string.o obj/libc/stdlib.o obj/libc/stdio.o
+LIBC_OBJS=obj/libc/string.o obj/libc/stdlib.o obj/libc/stdio.o obj/libc/time.o
 LIBC=obj/libc.a
 
 # Libk is the libc version (with some changes) that the kernel uses for building. We
 # don't need a static lib, because we can just link the kernel with these objs
 # instead.
-LIBK_OBJS=obj/libk/string.o obj/libk/stdlib.o obj/libk/stdio.o
+LIBK_OBJS=obj/libk/string.o obj/libk/stdlib.o obj/libk/stdio.o obj/libk/time.o
 
 # sysroot paths
 SYSROOT=./sysroot

@@ -11,12 +11,14 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <time.h>
 
 #include <kernel/alloc.h>               /* init_heap */
 #include <kernel/vga.h>                 /* init_term */
 #include <kernel/framebuffer.h>         /* fb_init, fb_setpx */
 #include <kernel/framebuffer_console.h> /* fbc_init */
 #include <kernel/idt.h>                 /* idt_init */
+#include <kernel/pit.h>                 /* pit_init */
 #include <kernel/rtc.h>                 /* rtc_get_datetime */
 
 #include <kernel/multiboot.h> /* multiboot info structure */
@@ -171,10 +173,14 @@ void kernel_main(Multiboot* mb_info) {
     LOAD_INFO("Heap initialized.");
     LOAD_INFO("Framebuffer initialized.");
     LOAD_INFO("Framebuffer console initialized.");
+
+    /* Init PIT with 1ms interval (1/1000 of a sec) */
+    pit_init(1000);
+    LOAD_INFO("PIT initialized.");
     putchar('\n');
 
     LOAD_INFO("System info:");
-    SYSTEM_INFO("Memory:\t\t", "%dMb", mb_info->mem_upper / 1024);
+    SYSTEM_INFO("Memory:\t\t", "%dMiB", mb_info->mem_upper / 1024);
     SYSTEM_INFO("Resolution:\t", "%dx%d", mb_info->framebuffer_width,
                 mb_info->framebuffer_height);
     SYSTEM_INFO("Font:\t\t", "%s", main_font.name);
@@ -208,7 +214,13 @@ void kernel_main(Multiboot* mb_info) {
     TEST_TITLE("\nTesting stdlib.h, string.h and stdio.h functions");
     test_libk();
 
-    putchar('\n');
+    TEST_TITLE("\nTesting time.h functions");
+    for (int i = 0; i < 10; i++) {
+        printf("%d ", i);
+        sleep(1);
+    }
+
+    printf("\n\n");
     asm("int 0x3");
 }
 

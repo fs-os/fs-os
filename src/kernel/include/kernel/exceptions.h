@@ -29,5 +29,11 @@ void exc_19(void);
 void exc_20(void);
 void exc_30(void);
 
+void irq_pit(void);
+
+/* Ignore all IRQs we didn't add from master and slave PIC */
+void irq_default_master(void);
+void irq_default_slave(void);
+
 #endif /* _KERNEL_EXCEPTIONS_H */
 
