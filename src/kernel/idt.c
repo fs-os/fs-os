@@ -43,7 +43,7 @@ static inline void pic_remap(void) {
      * and the slave. One line of the master PIC is used to signal the slave PIC.
      * We are going to change the PIC interrupt numbers because by default, the
      * ranges are:
-     *   IRQ 0..7  -> INT 0x8..0xF
+     *   IRQ 0..7  -> INT 0x08..0x0F
      *   IRQ 8..15 -> INT 0x70..0x77
      * The first 8 overlap with the CPU's exceptions (src/kernel/exceptions.c), so we
      * need to move them.

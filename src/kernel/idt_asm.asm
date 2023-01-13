@@ -3,8 +3,6 @@ bits 32
 
 section .data
     global idt_load:function
-    global asm_cli:function
-    global asm_sti:function
 
 ; void idt_load(void* idt_desc)
 idt_load:
