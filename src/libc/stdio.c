@@ -180,8 +180,14 @@ int vprintf(const char* fmt, va_list va) {
                 case 'l':
                     /* Check pattern. Not the best way but good enough for now */
                     if (memcmp(fmt, "ld", 2) == 0) {
-                        fmt++;                        /* The 'd' */
+                        fmt++;                        /* The 'l' */
                         printi(va_arg(va, long int)); /* "%ld" */
+                    } else if (memcmp(fmt, "lx", 2) == 0) {
+                        fmt++;                        /* The 'l' */
+                        printx(va_arg(va, long int)); /* "%lx" */
+                    } else if (memcmp(fmt, "lX", 2) == 0) {
+                        fmt++;                        /* The 'l' */
+                        printX(va_arg(va, long int)); /* "%lX" */
                     } else if (memcmp(fmt, "ll", 2) == 0) {
                         fmt++; /* The 'l' */
 

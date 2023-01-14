@@ -62,7 +62,7 @@ void* heap_alloc(size_t sz) {
     }
 
     /* No block available */
-    printf("Error trying to allocate size: 0x%X\n", sz);
+    printf("Error trying to allocate size: 0x%lX\n", sz);
     heap_dump_headers();
     abort("alloc: No block available");
     return NULL;
@@ -117,7 +117,7 @@ static inline void print_header(enum header_mod mod, Block* blk) {
             break;
     }
 
-    printf("Header: %p | Blk: %p | Next: %p | Sz: 0x%X | Free: %d\n", blk, blk->ptr,
+    printf("Header: %p | Blk: %p | Next: %p | Sz: 0x%lX | Free: %d\n", blk, blk->ptr,
            blk->next, blk->sz, blk->free);
 }
 

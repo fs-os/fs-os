@@ -10,7 +10,7 @@
 int puts(const char* str);
 
 /* printf: prints with format "fmt" */
-int printf(const char* fmt, ...);
+int printf(const char* fmt, ...) __attribute__((format(printf, 1, 2)));
 
 /* vprintf: prints with format "fmt" using the variable argument list "va" */
 int vprintf(const char* fmt, va_list va);

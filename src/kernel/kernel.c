@@ -65,7 +65,7 @@
 static inline void test_libk(void) {
     char buf[255] = { 0 };
 
-    printf("strlen(\"abcd\") -> %d\n", strlen("abcd"));
+    printf("strlen(\"abcd\") -> %ld\n", strlen("abcd"));
     printf("memcmp(\"abcd\", \"abca\", 4) -> %d\n", memcmp("abcd", "abc1", 4));
     printf("memcmp(\"abcd\", \"abce\", 4) -> %d\n", memcmp("abcd", "abce", 4));
     printf("memcmp(\"12345\", \"12345\", 5) -> %d\n", memcmp("12345", "12345", 5));
@@ -180,8 +180,8 @@ void kernel_main(Multiboot* mb_info) {
     putchar('\n');
 
     LOAD_INFO("System info:");
-    SYSTEM_INFO("Memory:\t\t", "%dMiB", mb_info->mem_upper / 1024);
-    SYSTEM_INFO("Resolution:\t", "%dx%d", mb_info->framebuffer_width,
+    SYSTEM_INFO("Memory:\t\t", "%ldMiB", mb_info->mem_upper / 1024);
+    SYSTEM_INFO("Resolution:\t", "%ldx%ld", mb_info->framebuffer_width,
                 mb_info->framebuffer_height);
     SYSTEM_INFO("Font:\t\t", "%s", main_font.name);
     DateTime now = rtc_get_datetime();
