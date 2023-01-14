@@ -7,13 +7,13 @@
 
 /* count_digits: returns the number of digits of a positive num. Will not count "-"
  * for negative numbers */
-int count_digits(int64_t num);
+int count_digits(int64_t num) __attribute__((pure));
 
 /* itoa: write the digits of "num" into "str". "str" needs to have enough space */
 void itoa(char* str, int64_t num);
 
 /* ipow: integer power. Returns b^e */
-int ipow(int b, int e);
+int ipow(int b, int e) __attribute__((pure));
 
 /* itoan: write the first "max_digits" of "num" (at max) into "str". "str" needs to
  * have enough space. Useful for making sure you won't write out of bounds. Keep in
@@ -25,10 +25,10 @@ void abort(const char* fmt, ...);
 
 /* malloc: allocate "sz" bytes and return a pointer. Memory is not initialized. If
  "sz" is 0, returns NULL. */
-void* malloc(size_t sz);
+void* malloc(size_t sz) __attribute__((warn_unused_result));
 
 /* calloc: allocate "item_n" items of size "item_sz" and set them to 0 */
-void* calloc(size_t item_n, size_t item_sz);
+void* calloc(size_t item_n, size_t item_sz) __attribute__((warn_unused_result));
 
 /* free: free a previously allocated ptr */
 void free(void* ptr);

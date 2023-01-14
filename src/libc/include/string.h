@@ -5,7 +5,7 @@
 #include <stddef.h> /* size_t */
 
 /* strlen: return length of str without null terminator */
-size_t strlen(const char* str);
+size_t strlen(const char* str) __attribute__((pure));
 
 /* strrev: reverse str in place without allocating. Return str */
 char* strrev(char* str);
