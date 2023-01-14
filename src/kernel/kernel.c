@@ -153,7 +153,7 @@ void kernel_main(Multiboot* mb_info) {
 
     if (mb_info->framebuffer_type != FB_TYPE_RGB) {
         term_sprint("Could not initialize framebuffer on RGB mode.\n");
-        abort(NULL);
+        abort_line(NULL);
     }
 
     fb_init((uint32_t*)(uint32_t)mb_info->framebuffer_addr,

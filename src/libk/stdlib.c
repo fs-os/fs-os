@@ -95,15 +95,19 @@ void itoan(char* str, int64_t num, size_t max_digits) {
     str[sp++] = '\0';
 }
 
-/* abort: panic */
-void abort(const char* fmt, ...) {
+/* abort: panic. "func" should be the __func__ macro and "line" should be the
+ * __LINE__ macro. Use the "abort_line" macro for shorter version */
+void abort(const char* func, unsigned int line, const char* fmt, ...) {
     /* TODO: Proper kernel panic */
+
+    if (func == NULL)
+        func = "???";
 
     va_list va;
     va_start(va, fmt);
 
     fbc_setfore(COLOR_RED_B);
-    printf("kernel panic: ");
+    printf("[%s:%d] kernel panic: ", func, line);
     fbc_setfore(COLOR_RED);
     vprintf(fmt, va);
 

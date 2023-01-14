@@ -64,7 +64,7 @@ void* heap_alloc(size_t sz) {
     /* No block available */
     printf("Error trying to allocate size: 0x%lX\n", sz);
     heap_dump_headers();
-    abort("alloc: No block available");
+    abort_line("alloc: No block available");
     return NULL;
 }
 

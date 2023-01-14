@@ -91,14 +91,18 @@ void itoan(char* str, int64_t num, size_t max_digits) {
     str[sp++] = '\0';
 }
 
-/* abort: panic */
-void abort(const char* fmt, ...) {
+/* abort: panic. "func" should be the __func__ macro and "line" should be the
+ * __LINE__ macro. Use the "abort_line" macro for shorter version */
+void abort(const char* func, unsigned int line, const char* fmt, ...) {
     /* TODO: Abnormally terminate the process as if by SIGABRT */
+
+    if (func == NULL)
+        func = "???";
 
     va_list va;
     va_start(va, fmt);
 
-    printf("abort: ");
+    printf("[%s:%d] abort: ", func, line);
     vprintf(fmt, va);
 
     va_end(va);
@@ -115,7 +119,7 @@ void* malloc(size_t sz) {
     sz++;
 
     /* TODO: syscall wrapper for libk malloc */
-    abort("Malloc is not implemented for libc.");
+    abort_line("Malloc is not implemented for libc.");
     return NULL;
 }
 
@@ -125,7 +129,7 @@ void* calloc(size_t item_n, size_t item_sz) {
     item_sz++;
 
     /* TODO: syscall wrapper for libk calloc */
-    abort("Calloc is not implemented for libc.");
+    abort_line("Calloc is not implemented for libc.");
     return NULL;
 }
 
@@ -134,6 +138,6 @@ void free(void* ptr) {
     ptr++;
 
     /* TODO: syscall wrapper for libk free */
-    abort("Free is not implemented for libc.");
+    abort_line("Free is not implemented for libc.");
 }
 

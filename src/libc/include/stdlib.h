@@ -5,6 +5,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#define abort_line(...) abort(__func__, __LINE__, __VA_ARGS__)
+
 /* count_digits: returns the number of digits of a positive num. Will not count "-"
  * for negative numbers */
 int count_digits(int64_t num) __attribute__((pure));
@@ -20,8 +22,9 @@ int ipow(int b, int e) __attribute__((pure));
  * mind that max_digits does not include the null terminator. */
 void itoan(char* str, int64_t num, size_t max_digits);
 
-/* abort: panic */
-void abort(const char* fmt, ...);
+/* abort: panic. "func" should be the __func__ macro and "line" should be the
+ * __LINE__ macro. Use the "abort_line" macro for shorter version */
+void abort(const char* func, unsigned int line, const char* fmt, ...);
 
 /* malloc: allocate "sz" bytes and return a pointer. Memory is not initialized. If
  "sz" is 0, returns NULL. */

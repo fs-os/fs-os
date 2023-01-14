@@ -22,7 +22,7 @@ idt_descriptor descriptor;
 /* register_isr: registers an interrupt service routine in the selected idt idx */
 static void register_isr(uint16_t idx, uint32_t func) {
     if (idx >= IDT_SZ)
-        abort("Idx out of bounds when registering ISR.");
+        abort_line("Idx out of bounds when registering ISR.");
 
     idt[idx] = (idt_entry){
         .selector = 0x8, /* 00000000 00001000. Last 3 bits of the selector are TI and

@@ -31,6 +31,6 @@ void handle_exception(int exc) {
     /* See https://gcc.gnu.org/onlinedocs/gcc/Using-Assembly-Language-with-C.html */
     asm("cli");
 
-    abort("exception: %s\n", exceptions[exc]);
+    abort_line("exception: %s\n", exceptions[exc]);
 }
 
