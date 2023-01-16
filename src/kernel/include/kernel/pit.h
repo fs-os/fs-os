@@ -45,6 +45,11 @@ enum pit_cmd_flags {
  * in interrupts per seccond (freq 1000 would mean 1000 ticks in 1 sec) */
 void pit_init(uint32_t freq);
 
+/* pit_read_freq: read the current count from the specified channel.
+ * "port" is PIT_CHANNEL_N and "flag" is PIT_FLAG_CHANNEL_N */
+uint16_t pit_read_count(enum pit_io_ports channel_port,
+                        enum pit_cmd_flags channel_flag);
+
 /* pit_dec: decrease the current tick count. Called from the PIT interrupt, on:
  * src/kernel/idt_asm.asm */
 void pit_dec(void);

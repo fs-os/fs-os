@@ -21,6 +21,21 @@ void pit_init(uint32_t freq) {
     io_outb(PIT_CHANNEL_0, (uint8_t)((freq & 0xFF00) >> 8));
 }
 
+/* pit_read_freq: read the current count from the specified channel.
+ * "port" is PIT_CHANNEL_N and "flag" is PIT_FLAG_CHANNEL_N */
+uint16_t pit_read_count(enum pit_io_ports channel_port,
+                        enum pit_cmd_flags channel_flag) {
+    uint16_t ret = 0;
+
+    asm("cli");                             /* Disable interrupts */
+    io_outb(PIT_CHANNEL_CMD, channel_flag); /* Select current channel */
+    ret = io_inb(channel_port);             /* Low byte */
+    ret |= io_inb(channel_port) << 8;       /* High byte */
+    asm("sti");                             /* Re-enable interrupts */
+
+    return ret;
+}
+
 /* Stores the remaining ticks for the current PIT wait. Each tick is supposed to be 1
  * ms. */
 static volatile uint64_t ticks = 0;
