@@ -7,8 +7,8 @@
 /* sleep: sleep "sec" seconds */
 void sleep(uint32_t sec);
 
-/* sleep_cs: sleep "ms" milliseconds */
-void sleep_cs(uint64_t ms);
+/* sleep_ms: sleep "ms" milliseconds */
+void sleep_ms(uint64_t ms);
 
 #endif /* _TIME_H */
 
