@@ -9,19 +9,25 @@ include config.mk
 all: sysroot $(ISO)
 
 # Alterative: qemu-system-i386 -kernel fs-os.bin
+# Change "-audiodev pa" if not using pulseaudio
 qemu: all
-	qemu-system-i386        \
-		-rtc base=localtime \
-		-boot d             \
+	qemu-system-i386                   \
+		-rtc base=localtime            \
+		-audiodev pa,id=audio0         \
+		-machine pcspk-audiodev=audio0 \
+		-boot d                        \
 		-cdrom $(ISO)
 
 # Connect with the patched gdb from (https://github.com/fs-os/cross-compiler):
 #   (gdb) target remote :1234
+# Change "-audiodev pa" if not using pulseaudio
 qemu-debug: all
-	qemu-system-i386        \
-		-s                  \
-		-rtc base=localtime \
-		-boot d             \
+	qemu-system-i386                   \
+		-s                             \
+		-rtc base=localtime            \
+		-audiodev pa,id=audio0         \
+		-machine pcspk-audiodev=audio0 \
+		-boot d                        \
 		-cdrom $(ISO)
 
 clean:

@@ -20,6 +20,7 @@
 #include <kernel/idt.h>                 /* idt_init */
 #include <kernel/pit.h>                 /* pit_init */
 #include <kernel/rtc.h>                 /* rtc_get_datetime */
+#include <kernel/pcspkr.h>              /* pcspkr_beep */
 
 #include <kernel/multiboot.h> /* multiboot info structure */
 #include <fonts/main_font.h>
@@ -215,8 +216,9 @@ void kernel_main(Multiboot* mb_info) {
     test_libk();
 
     TEST_TITLE("\nTesting time.h functions");
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 5; i++) {
         printf("%d ", i);
+        pcspkr_beep();
         sleep(1);
     }
 
