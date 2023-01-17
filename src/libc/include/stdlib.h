@@ -34,7 +34,7 @@ void* malloc(size_t sz) __attribute__((warn_unused_result));
 void* calloc(size_t item_n, size_t item_sz) __attribute__((warn_unused_result));
 
 /* free: free a previously allocated ptr */
-void free(void* ptr);
+void free(void* ptr) __attribute__((nonnull));
 
 #endif /* _STDLIB_H */
 
