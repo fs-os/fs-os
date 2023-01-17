@@ -1,9 +1,9 @@
 
 #include <kernel/pcspkr.h>
+#include <kernel/framebuffer_console.h>
+#include <kernel/color.h>
 
 #define THUNDERSTRUCK_DELAY 100
-
-#define LENGTH(arr) (sizeof(arr) / sizeof(arr[0]))
 
 Beep thunderstruck[] = {
     { .freq = 493, .ms_len = THUNDERSTRUCK_DELAY },
@@ -268,4 +268,25 @@ Beep thunderstruck[] = {
     { .freq = 493, .ms_len = THUNDERSTRUCK_DELAY },
     { .freq = 622, .ms_len = THUNDERSTRUCK_DELAY },
 };
+
+#define LENGTH(arr) (sizeof(arr) / sizeof(arr[0]))
+
+static inline void play_thunderstruck(void) {
+    fbc_setfore(COLOR_GREEN_B);
+    printf("Playing thunderstruck...\n");
+
+    for (unsigned long i = 0; i < LENGTH(thunderstruck); i++) {
+        fbc_setfore(COLOR_WHITE_B);
+        putchar('[');
+        fbc_setfore(COLOR_GREEN);
+        printf("%3d", (unsigned int)i);
+        fbc_setfore(COLOR_WHITE_B);
+        putchar(']');
+        fbc_setfore(COLOR_WHITE);
+
+        printf(" Frequency: %ld, Delay: %ld\n", thunderstruck[i].freq,
+               thunderstruck[i].ms_len);
+        pcspkr_beep_custom(thunderstruck[i]);
+    }
+}
 

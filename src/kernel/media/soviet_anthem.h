@@ -1,7 +1,7 @@
 
 #include <kernel/pcspkr.h>
-
-#define LENGTH(arr) (sizeof(arr) / sizeof(arr[0]))
+#include <kernel/framebuffer_console.h>
+#include <kernel/color.h>
 
 Beep soviet_anthem[] = {
     { .freq = 392, .ms_len = 375 },  { .freq = 523, .ms_len = 750 },
@@ -18,3 +18,23 @@ Beep soviet_anthem[] = {
     { .freq = 587, .ms_len = 1125 },
 };
 
+#define LENGTH(arr) (sizeof(arr) / sizeof(arr[0]))
+
+static inline void play_soviet_anthem(void) {
+    fbc_setfore(COLOR_GREEN_B);
+    printf("Playing soviet anthem...\n");
+
+    for (unsigned long i = 0; i < LENGTH(soviet_anthem); i++) {
+        fbc_setfore(COLOR_WHITE_B);
+        putchar('[');
+        fbc_setfore(COLOR_GREEN);
+        printf("%2d", (unsigned int)i);
+        fbc_setfore(COLOR_WHITE_B);
+        putchar(']');
+        fbc_setfore(COLOR_WHITE);
+
+        printf(" Frequency: %ld, Delay: %ld\n", soviet_anthem[i].freq,
+               soviet_anthem[i].ms_len);
+        pcspkr_beep_custom(soviet_anthem[i]);
+    }
+}

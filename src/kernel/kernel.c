@@ -222,18 +222,12 @@ void kernel_main(Multiboot* mb_info) {
         printf("%d ", i);
         sleep(1);
     }
+    putchar('\n');
 
-    for (int i = 0; i < LENGTH(soviet_anthem); i++) {
-        printf("[%d]\n", i);
-        pcspkr_beep_custom(soviet_anthem[i]);
-    }
+    play_soviet_anthem();
+    play_thunderstruck();
 
-    for (int i = 0; i < LENGTH(thunderstruck); i++) {
-        printf("[%d]\n", i);
-        pcspkr_beep_custom(thunderstruck[i]);
-    }
-
-    printf("\n\n");
+    putchar('\n');
     asm("int 0x3");
 }
 
