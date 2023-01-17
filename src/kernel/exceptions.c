@@ -1,6 +1,5 @@
 
 #include <stdlib.h>
-#include <kernel/idt.h> /* asm_cli */
 #include <kernel/exceptions.h>
 
 static char* exceptions[] = {
