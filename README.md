@@ -69,3 +69,5 @@ See [todo.md](TODO.md).
 - [The limine bootloader](https://github.com/limine-bootloader/limine)
 - [The cozette font](https://github.com/slavfox/Cozette)
 - [bdf2c](https://github.com/pixelmatix/bdf2c)
+- [This repo](https://github.com/ShaneMcC/beeps) for the beep frequencies and
+  timings.
