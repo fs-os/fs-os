@@ -25,7 +25,9 @@
 #include <kernel/multiboot.h> /* multiboot info structure */
 #include <fonts/main_font.h>
 
-#include "logo/logo_small.h"
+#include "media/logo_small.h"
+#include "media/soviet_anthem.h"
+#include "media/thunderstruck.h"
 
 #if defined(__linux__)
 #error "You are not using a cross compiler." \
@@ -218,8 +220,17 @@ void kernel_main(Multiboot* mb_info) {
     TEST_TITLE("\nTesting time.h functions");
     for (int i = 0; i < 5; i++) {
         printf("%d ", i);
-        pcspkr_beep();
         sleep(1);
+    }
+
+    for (int i = 0; i < LENGTH(soviet_anthem); i++) {
+        printf("[%d]\n", i);
+        pcspkr_beep_custom(soviet_anthem[i]);
+    }
+
+    for (int i = 0; i < LENGTH(thunderstruck); i++) {
+        printf("[%d]\n", i);
+        pcspkr_beep_custom(thunderstruck[i]);
     }
 
     printf("\n\n");
