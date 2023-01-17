@@ -7,7 +7,7 @@
 #include <kernel/io.h>
 #include <kernel/pcspkr.h>
 
-/* pcspkr_play: play pc speaker with "freq" frequency (1s format) */
+/* pcspkr_play: play pc speaker with "freq" frequency (1s format). freq can't be 0 */
 void pcspkr_play(uint32_t freq) {
     /* freq should be how many HZs it should wait bewteen sending interrupt. We pass
      * the frequency per second to convert it to HZ (by dividing how many HZs are in
@@ -36,10 +36,11 @@ void pcspkr_clear(void) {
     io_outb(PCSPKR_PORT, tmp);
 }
 
-/* pcspkr_beep: simple beep using the pc speaker */
-void pcspkr_beep(void) {
-    pcspkr_play(1000);
-    sleep_ms(20);
+/* pcspkr_beep: simple beep using the pc speaker (wrapper for pcspkr_beep_custom) */
+/* pcspkr_beep_custom: custom beep with freq and duration using the pc speaker */
+void pcspkr_beep_custom(Beep info) {
+    pcspkr_play(info.freq);
+    sleep_ms(info.ms_len);
     pcspkr_clear();
 
     /* TODO: Reset old frequency of PIT channel 2. Not needed for now since we don't
