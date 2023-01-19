@@ -4,7 +4,7 @@
 
 #include <stdint.h>
 
-/* How many times the PIT oscilates in 1 sec by default */
+/* How many times the PIT oscillates in 1 sec by default */
 #define PIT_BASE_FREQ 1193182
 
 /* Frequency in 1 sec (e.g. 1000 times in a sec == 1ms) to PIT hz */
