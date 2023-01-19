@@ -132,7 +132,7 @@ void* calloc(size_t item_n, size_t item_sz) {
     const size_t bytes = item_n * item_sz;
 
     void* ptr = malloc(bytes);
-    for (uint8_t i = 0; i < bytes; i++) {
+    for (size_t i = 0; i < bytes; i++) {
         ((uint8_t*)ptr)[i] = 0;
     }
 
