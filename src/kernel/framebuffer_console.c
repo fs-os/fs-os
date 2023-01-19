@@ -28,6 +28,10 @@ static color_pair cur_cols;
 /* Current position on the console */
 static uint32_t cur_y, cur_x;
 
+/* Bool that will be set to 1 if we know we are going to shift the console. See
+ * framebuffer console wiki page */
+static uint8_t should_shift;
+
 /* ------------------------------------------------------------------------------- */
 
 /* fbc_refresh_entry: refreshes the pixels on the screen corresponding to g_fbc's
@@ -82,6 +86,8 @@ void fbc_init(uint32_t y, uint32_t x, uint32_t h, uint32_t w, Font* font) {
     cur_y = 0;
     cur_x = 0;
 
+    should_shift = 0;
+
     /* Allocate the number of fbc_entry's. Rows and cols of the console */
     g_fbc = malloc(g_ch * g_cw * sizeof(fbc_entry));
 
@@ -130,6 +136,12 @@ void fbc_sprint(const char* s) {
  * framebuffer console array. Warning: Overwrites! */
 void fbc_place_str(uint32_t y, uint32_t x, const char* str) {
     while (*str != '\0' && y < g_ch && x < g_cw) {
+        /* See fbc_putchar comment */
+        if (should_shift) {
+            fbc_shift_rows(1);
+            should_shift = 0;
+        }
+
         if (*str == '\n') {
             /* Save newline char (don't display anything) */
             g_fbc[y * g_cw + x] = (fbc_entry){
@@ -139,11 +151,11 @@ void fbc_place_str(uint32_t y, uint32_t x, const char* str) {
             };
 
             /* If we have rows left on the terminal, go down, if we are on the last
-             * one, shift 1 up, but stay on that last row */
+             * one, store that we need to shift 1 up, but stay on that last row. */
             if (y + 1 < g_ch)
                 y++;
             else
-                fbc_shift_rows(1);
+                should_shift = 1;
 
             x = 0;
 
@@ -173,13 +185,21 @@ void fbc_place_str(uint32_t y, uint32_t x, const char* str) {
             if (y + 1 < g_ch)
                 y++;
             else
-                fbc_shift_rows(1);
+                should_shift = 1;
         }
     }
 }
 
 /* fbc_putchar: prints "c" to the framebuffer console */
 void fbc_putchar(char c) {
+    /* First of all, check if we need to shift the array. We need this kind of
+     * "queue" system so the array doesn't inmediately shift when a line ends with
+     * '\n', for example */
+    if (should_shift) {
+        fbc_shift_rows(1);
+        should_shift = 0;
+    }
+
     if (c == '\n') {
         /* Save newline char (don't display anything) */
         g_fbc[cur_y * g_cw + cur_x] = (fbc_entry){
@@ -189,11 +209,12 @@ void fbc_putchar(char c) {
         };
 
         /* If we have rows left on the terminal, go down, if we are on the last
-         * one, shift 1 up, but stay on that last row */
+         * one, store that we need to shift 1 up, but stay on that last row.
+         * See comment on top of this function */
         if (cur_y + 1 < g_ch)
             cur_y++;
         else
-            fbc_shift_rows(1);
+            should_shift = 1;
 
         cur_x = 0;
 
@@ -224,7 +245,7 @@ void fbc_putchar(char c) {
         if (cur_y + 1 < g_ch)
             cur_y++;
         else
-            fbc_shift_rows(1);
+            should_shift = 1;
     }
 }
 
