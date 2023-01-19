@@ -65,15 +65,15 @@ static inline void fbc_refresh_entry(uint32_t cy, uint32_t cx) {
 /* fbc_init: initialize the framebuffer console. First 4 parameters are position and
  * size in pixels of the console and the last one is the font. The font ptr is stored
  * and used to get the height and width of each char. */
-void fbc_init(uint32_t y, uint32_t x, uint32_t px_h, uint32_t px_w, Font* font) {
+void fbc_init(uint32_t y, uint32_t x, uint32_t h, uint32_t w, Font* font) {
     g_y = y;
     g_x = x;
-    g_h = px_h;
-    g_w = px_w;
+    g_h = h;
+    g_w = w;
 
     /* We get the font size but we save the console char dimensions */
-    g_ch   = px_h / (font->h * font->s);
-    g_cw   = px_w / (font->w * font->s);
+    g_ch   = h / (font->h * font->s);
+    g_cw   = w / (font->w * font->s);
     g_font = font;
 
     cur_cols.fg = DEFAULT_FG;
