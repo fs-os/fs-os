@@ -109,9 +109,9 @@ void idt_init(void) {
     register_isr(20, (uint32_t)&exc_20);
     register_isr(30, (uint32_t)&exc_30);
 
-    /* IRQs */
-    register_isr(32, (uint32_t)&irq_pit);  /* src/kernel/idt_asm.asm */
-    /* register_isr(33, (void*)exc_33); */ /* TODO: Keyboard */
+    /* IRQs. See src/kernel/idt_asm.asm */
+    register_isr(32, (uint32_t)&irq_pit); /* Programable interrupt timer. IRQ 0 */
+    register_isr(33, (uint32_t)&irq_kb);  /* Keyboard. IRQ 1 */
 
     /* Unused IRQs, just ignore. See src/kernel/idt_asm.asm */
     for (int i = 33; i < 40; i++)

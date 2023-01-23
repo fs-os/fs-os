@@ -13,6 +13,7 @@ section .text
     align 8
     extern handle_exception     ; src/kernel/exceptions.c
     extern pit_dec              ; src/kernel/idt.c
+    extern kb_handler           ; src/kernel/keyboard.c
 
 ; void idt_load(void* idt_desc)
 global idt_load:function
@@ -56,6 +57,17 @@ global irq_pit:function
 irq_pit:
     pusha
     call    pit_dec     ; Decrement the static counter from src/kernel/idt.c
+    popa
+    iretd
+
+global irq_kb:function
+irq_kb:
+    pusha
+    cld                 ; Clear direction flag. The flag is used to specify the
+                        ; string order for operations that use the 'edi' and 'esi'
+                        ; registers. Tells the CPU that it should increase or
+                        ; decrease the pointer for strings.
+    call    kb_handler  ; src/kernel/keyboard.c
     popa
     iretd
 
