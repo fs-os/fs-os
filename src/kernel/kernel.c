@@ -224,10 +224,12 @@ void kernel_main(Multiboot* mb_info) {
     }
     putchar('\n');
 
-    play_soviet_anthem();
-    play_thunderstruck();
+    /* play_soviet_anthem(); */
+    /* play_thunderstruck(); */
 
-    putchar('\n');
-    asm("int 0x3");
+    for (;;)
+        ;
+
+    __builtin_unreachable();
 }
 
