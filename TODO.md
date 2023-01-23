@@ -10,10 +10,10 @@ Stuff that needs to be/has been done.
 - [X] Framebuffer support.
     - [X] Add framebuffer console array with char and color info.
     - [X] Replace vga functions (`vga.c`) with framebuffer console.
-- [ ] Sleep functions ([Link](https://wiki.osdev.org/Programmable_Interval_Timer)).
-- [ ] GDT and IDT.
-- [ ] PCI devices.
+- [X] Sleep functions ([Link](https://wiki.osdev.org/Programmable_Interval_Timer)).
+- [X] GDT and IDT.
 - [ ] Keyboard.
+- [ ] PCI devices.
 - [ ] Ext2.
 - [ ] Paging?
 
