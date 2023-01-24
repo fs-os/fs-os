@@ -114,7 +114,7 @@ void idt_init(void) {
     register_isr(33, (uint32_t)&irq_kb);  /* Keyboard. IRQ 1 */
 
     /* Unused IRQs, just ignore. See src/kernel/idt_asm.asm */
-    for (int i = 33; i < 40; i++)
+    for (int i = 34; i < 40; i++)
         register_isr(i, (uint32_t)&irq_default_master);
     for (int i = 40; i < 48; i++)
         register_isr(i, (uint32_t)&irq_default_slave);
