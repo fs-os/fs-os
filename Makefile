@@ -2,9 +2,9 @@
 # See config for more info
 include config.mk
 
-.PHONY: all qemu clean sysroot sysroot_headers sysroot_lib sysroot_boot
-
 # ----------------------------------------------------------------------------------
+
+.PHONY: all qemu debug-flags qemu-debug clean
 
 all: sysroot $(ISO)
 
@@ -18,10 +18,15 @@ qemu: all
 		-boot d                        \
 		-cdrom $(ISO)
 
+# Add -g for compiling stuff
+debug_flags:
+	$(eval CFLAGS += -g)
+	$(eval ASM_FLAGS += -g)
+
 # Connect with the patched gdb from (https://github.com/fs-os/cross-compiler):
 #   (gdb) target remote :1234
 # Change "-audiodev pa" if not using pulseaudio (try replacing "pa" with "alsa")
-qemu-debug: all
+qemu-debug: debug_flags clean all
 	qemu-system-i386                   \
 		-s                             \
 		-rtc base=localtime            \
@@ -37,6 +42,8 @@ clean:
 	rm -rf iso sysroot
 
 # ----------------------------------------------------------------------------------
+
+.PHONY: sysroot sysroot_headers sysroot_lib sysroot_boot
 
 # Would be the same as: "Copy the headers to the sysroot, compile libc into object
 # files, make the static lib and copy it to the sysroot, build the kernel binary and
