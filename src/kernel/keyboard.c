@@ -4,6 +4,8 @@
 #include <kernel/keyboard.h>
 #include <kernel/io.h>
 
+#include <layouts/en.h>
+
 enum kb_io_ports {
     KB_PORT_DATA   = 0x60, /* Read/Write. Data port */
     KB_PORT_STATUS = 0x64, /* Read. Status port */
@@ -23,8 +25,11 @@ enum kb_status_flags {
     KB_STATUS_PARITY  = 0x80,   /* 10000000. If 1, parity error */
 };
 
-/* check_layout: change the layout to lang_layout[1] when using shift */
-static inline void check_layout(uint8_t key) {
+static char* cur_layout = en_layout.def;
+
+/* check_layout: change the cur_layout to lang_layout.shift when we detect the shift
+ * is pressed, or to lang_layout.def when shift is released */
+static inline void check_layout(uint8_t released, uint8_t key) {
     /* TODO */
 }
 
@@ -37,21 +42,19 @@ void kb_handler(void) {
     uint8_t status = io_inb(KB_PORT_STATUS);
 
     while (status & KB_STATUS_BUFFER_OUT) {
-        /* We don't care about the highest bit */
-        uint8_t key = io_inb(KB_PORT_DATA) & 0x7f;
+        uint8_t key = io_inb(KB_PORT_DATA);
+
+        /* Highest bit is 1 if the key is released, store it and clear it from key */
+        uint8_t released = (key >> 7) & 1;
+        key &= 0x7f;
 
         /* Check if we need to use an alternative layout when using shift, etc. */
-        /* check_layout(key); */
+        /* check_layout(released, key); */
 
-        // DELME
-        printf("kb: %c (%d)", key, key);
-        break;
-
-        /* Check if the current layout has a char to display, and print it */
-        /*
-        if (layout[key] != 0)
-            putchar(layout[key]);
-        */
+        /* Check if we are pressing a key (not releasing) and if the current layout
+         * has a char to display, and print it */
+        if (!released && cur_layout[key] != 0)
+            putchar(cur_layout[key]);
 
         status = io_inb(KB_PORT_STATUS);
     }
