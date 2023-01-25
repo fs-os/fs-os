@@ -52,7 +52,8 @@ EXC_WRAPPER 20
 EXC_WRAPPER 30
 
 ; void irq_pit(void)
-; First IRQ we remapped to 0x20
+; First IRQ we remapped to 0x20. Calls the pit_dec C function, located in:
+; src/kernel/pit.c
 global irq_pit:function
 irq_pit:
     pusha
@@ -60,6 +61,9 @@ irq_pit:
     popa
     iretd
 
+; void irq_kb(void)
+; Second IRQ we remapped to 0x21. Calls the kb_handler C function, located in:
+; src/kernel/keyboard.c
 global irq_kb:function
 irq_kb:
     pusha
