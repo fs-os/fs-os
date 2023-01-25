@@ -66,7 +66,7 @@ static const layout en_layout = {
         0,                                                       /**/
         0,                                                       /* right arrow */
         '+',                                                     /**/
-        0,                                                       /* end key */
+        0,                                                       /* end */
         0,                                                       /* down arrow */
         0,                                                       /* page down */
         0,                                                       /* insert */
@@ -75,5 +75,38 @@ static const layout en_layout = {
         0,                                                       /* f11 key */
         0,                                                       /* f12 key */
         0, /* all other keys are undefined */
+      },
+    .special =
+      (uint16_t[]){
+        [KB_SPECIAL_IDX_ESC]         = 0x1,  /**/
+        [KB_SPECIAL_IDX_LCTRL]       = 0x1D, /**/
+        [KB_SPECIAL_IDX_LSHIFT]      = 0x2A, /**/
+        [KB_SPECIAL_IDX_RSHIFT]      = 0x36, /**/
+        [KB_SPECIAL_IDX_LALT]        = 0x38, /**/
+        [KB_SPECIAL_IDX_CAPSLOCK]    = 0x3A, /**/
+        [KB_SPECIAL_IDX_F1]          = 0x3B, /**/
+        [KB_SPECIAL_IDX_F2]          = 0x3C, /**/
+        [KB_SPECIAL_IDX_F3]          = 0x3D, /**/
+        [KB_SPECIAL_IDX_F4]          = 0x3E, /**/
+        [KB_SPECIAL_IDX_F5]          = 0x3F, /**/
+        [KB_SPECIAL_IDX_F6]          = 0x40, /**/
+        [KB_SPECIAL_IDX_F7]          = 0x41, /**/
+        [KB_SPECIAL_IDX_F8]          = 0x42, /**/
+        [KB_SPECIAL_IDX_F9]          = 0x43, /**/
+        [KB_SPECIAL_IDX_F10]         = 0x44, /**/
+        [KB_SPECIAL_IDX_NUMLOCK]     = 0x45, /**/
+        [KB_SPECIAL_IDX_SCROLL_LOCK] = 0x46, /**/
+        [KB_SPECIAL_IDX_HOME]        = 0x47, /**/
+        [KB_SPECIAL_IDX_ARROW_UP]    = 0x48, /**/
+        [KB_SPECIAL_IDX_PAGE_UP]     = 0x49, /**/
+        [KB_SPECIAL_IDX_ARROW_LEFT]  = 0x4B, /**/
+        [KB_SPECIAL_IDX_ARROW_RIGHT] = 0x4D, /**/
+        [KB_SPECIAL_IDX_END]         = 0x4F, /**/
+        [KB_SPECIAL_IDX_ARROW_DOWN]  = 0x50, /**/
+        [KB_SPECIAL_IDX_PAGE_DOWN]   = 0x51, /**/
+        [KB_SPECIAL_IDX_INSERT]      = 0x52, /**/
+        [KB_SPECIAL_IDX_DELETE]      = 0x53, /**/
+        [KB_SPECIAL_IDX_F11]         = 0x57, /**/
+        [KB_SPECIAL_IDX_F12]         = 0x58, /**/
       },
 };

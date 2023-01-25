@@ -33,20 +33,35 @@ enum kb_flags {
 
 /* ------------------------------------------------------------------------------- */
 
-/* Pointer to the current 128 char array with the corresponding char for each key
- * code */
-static char* cur_layout = en_layout.def;
+/* Pointer to the current layout struct being used */
+static const layout* cur_layout = &en_layout;
 
 /* Array of bytes contaning information about each key state. Each bit gives
  * information about the key corresponding to its index. For example: bit 0 of
  * key_flags['c'] will be 1 if that key is pressed. */
 static uint8_t key_flags[128] = { 0 };
 
-/* check_layout: change the cur_layout to lang_layout.shift when we detect the shift
- * is pressed, or to lang_layout.def when shift is released; toggle when caps lock is
- * pressed, etc. */
-static inline void check_layout(uint8_t released, uint8_t key) {
-    /* TODO */
+/* Store if we should use caps */
+static uint8_t capslock_on = 0, shift_held = 0;
+
+/* check_special: toggle variables like capslock_on or shift_held if needed */
+static inline void check_special(uint8_t released, uint8_t key) {
+    /* We can't use a case because they indexes are not constant at compile time */
+    if (key == cur_layout->special[KB_SPECIAL_IDX_LSHIFT] ||
+        key == cur_layout->special[KB_SPECIAL_IDX_RSHIFT]) {
+        /* Store that shift is being held */
+        shift_held = !released;
+    } else if (key == cur_layout->special[KB_SPECIAL_IDX_CAPSLOCK]) {
+        /* Toggle capslock_on when we press the key */
+        if (!released)
+            capslock_on = !capslock_on;
+    }
+}
+
+/* check_layout: return lang_layout.shift if the shift is pressed, or to
+ * lang_layout.def when shift is not being usd */
+static inline char* get_layout(void) {
+    return (capslock_on || shift_held) ? cur_layout->shift : cur_layout->def;
 }
 
 /* ------------------------------------------------------------------------------- */
@@ -66,21 +81,24 @@ void kb_handler(void) {
         uint8_t released = (key >> 7) & 1;
         key &= 0x7f;
 
-        /* Check if we need to use an alternative layout when using shift, etc. */
-        /* check_layout(released, key); */
-
         /* Store the current key as pressed or released in the key_flags array */
         if (released)
             key_flags[key] &= ~KB_FLAG_PRESSED;
         else
             key_flags[key] |= KB_FLAG_PRESSED;
 
+        /* Check if we should toggle global variables for caps, etc. */
+        check_special(released, key);
+
+        /* Check if we need to use an alternative layout when using shift, etc. */
+        const char* final_layout = get_layout();
+
         /* Check if we are pressing a key (not releasing) and if the current layout
          * has a char to display, and print it */
         /* TODO: When printing '\b', check if we put the char so we can't delete
          * strings printed by other programs */
-        if (!released && cur_layout[key] != 0)
-            putchar(cur_layout[key]);
+        if (!released && final_layout[key] != 0)
+            putchar(final_layout[key]);
 
         status = io_inb(KB_PORT_STATUS);
     }
