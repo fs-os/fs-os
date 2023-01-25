@@ -12,7 +12,8 @@ enum kb_io_ports {
     KB_PORT_CMD    = 0x64, /* Write. Command port */
 };
 
-/* See https://wiki.osdev.org/%228042%22_PS/2_Controller */
+/* Flags for the KB_PORT_STATUS information. See:
+ * https://wiki.osdev.org/%228042%22_PS/2_Controller */
 enum kb_status_flags {
     KB_STATUS_BUFFER_OUT = 0x1, /* 00000001. Output buffer status. 1 if full */
     KB_STATUS_BUFFER_IN  = 0x2, /* 00000010. Input buffer status. 1 if full */
@@ -25,7 +26,21 @@ enum kb_status_flags {
     KB_STATUS_PARITY  = 0x80,   /* 10000000. If 1, parity error */
 };
 
+/* Flags for each bit of the key_flags array */
+enum kb_flags {
+    KB_FLAG_PRESSED = 0x1, /* 00000001. Will be 1 if the key is currently pressed */
+};
+
+/* ------------------------------------------------------------------------------- */
+
+/* Pointer to the current 128 char array with the corresponding char for each key
+ * code */
 static char* cur_layout = en_layout.def;
+
+/* Array of bytes contaning information about each key state. Each bit gives
+ * information about the key corresponding to its index. For example: bit 0 of
+ * key_flags['c'] will be 1 if that key is pressed. */
+static uint8_t key_flags[128] = { 0 };
 
 /* check_layout: change the cur_layout to lang_layout.shift when we detect the shift
  * is pressed, or to lang_layout.def when shift is released; toggle when caps lock is
@@ -33,6 +48,8 @@ static char* cur_layout = en_layout.def;
 static inline void check_layout(uint8_t released, uint8_t key) {
     /* TODO */
 }
+
+/* ------------------------------------------------------------------------------- */
 
 /* kb_handler: actual C handler for the keyboard exceptions recieved from "irq_kb".
  * See src/kernel/idt_asm.asm */
@@ -52,6 +69,12 @@ void kb_handler(void) {
         /* Check if we need to use an alternative layout when using shift, etc. */
         /* check_layout(released, key); */
 
+        /* Store the current key as pressed or released in the key_flags array */
+        if (released)
+            key_flags[key] &= ~KB_FLAG_PRESSED;
+        else
+            key_flags[key] |= KB_FLAG_PRESSED;
+
         /* Check if we are pressing a key (not releasing) and if the current layout
          * has a char to display, and print it */
         /* TODO: When printing '\b', check if we put the char so we can't delete
@@ -65,5 +88,14 @@ void kb_handler(void) {
     /* Tell CPU that it's okay to resume interrupts. See:
      * https://wiki.osdev.org/Interrupts#From_the_OS.27s_perspective */
     io_outb(0x20, 0x20);
+}
+
+/* kb_held: check if "c" is being held. Returns 1 if the first bit of key_flags[c] is
+ * set. */
+uint8_t kb_held(unsigned char c) {
+    if (c >= 128)
+        return 0;
+
+    return key_flags[c] & KB_FLAG_PRESSED;
 }
 
