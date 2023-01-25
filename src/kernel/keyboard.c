@@ -28,7 +28,8 @@ enum kb_status_flags {
 static char* cur_layout = en_layout.def;
 
 /* check_layout: change the cur_layout to lang_layout.shift when we detect the shift
- * is pressed, or to lang_layout.def when shift is released */
+ * is pressed, or to lang_layout.def when shift is released; toggle when caps lock is
+ * pressed, etc. */
 static inline void check_layout(uint8_t released, uint8_t key) {
     /* TODO */
 }
@@ -53,6 +54,8 @@ void kb_handler(void) {
 
         /* Check if we are pressing a key (not releasing) and if the current layout
          * has a char to display, and print it */
+        /* TODO: When printing '\b', check if we put the char so we can't delete
+         * strings printed by other programs */
         if (!released && cur_layout[key] != 0)
             putchar(cur_layout[key]);
 

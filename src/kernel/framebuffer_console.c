@@ -111,7 +111,7 @@ void fbc_clear(void) {
 
         for (uint32_t cx = 1; cx < g_cw; cx++) {
             g_fbc[cy * g_cw + cx] = (fbc_entry){
-                ' ',
+                '\0',
                 DEFAULT_FG,
                 DEFAULT_BG,
             };
@@ -142,32 +142,58 @@ void fbc_place_str(uint32_t y, uint32_t x, const char* str) {
             should_shift = 0;
         }
 
-        if (*str == '\n') {
-            /* Save newline char (don't display anything) */
-            g_fbc[y * g_cw + x] = (fbc_entry){
-                '\n',
-                DEFAULT_FG,
-                DEFAULT_BG,
-            };
+        switch (*str) {
+            case '\n':
+                /* Save newline char (don't display anything) */
+                g_fbc[y * g_cw + x] = (fbc_entry){
+                    '\n',
+                    DEFAULT_FG,
+                    DEFAULT_BG,
+                };
 
-            /* If we have rows left on the terminal, go down, if we are on the last
-             * one, store that we need to shift 1 up, but stay on that last row. */
-            if (y + 1 < g_ch)
-                y++;
-            else
-                should_shift = 1;
+                /* If we have rows left on the terminal, go down, if we are on the
+                 * last one, store that we need to shift 1 up, but stay on that last
+                 * row. */
+                if (y + 1 < g_ch)
+                    y++;
+                else
+                    should_shift = 1;
 
-            x = 0;
+                x = 0;
 
-            str++;
-            continue;
-        } else if (*str == '\t') {
-            /* For having TABSIZE-aligned tabs */
-            const int tabs_needed = FBC_TABSIZE - (x % FBC_TABSIZE);
-            for (int i = 0; i < tabs_needed; i++)
-                fbc_putchar(' ');
+                str++;
+                continue;
+            case '\t':
+                /* For having TABSIZE-aligned tabs */
+                const int tabs_needed = FBC_TABSIZE - (x % FBC_TABSIZE);
+                for (int i = 0; i < tabs_needed; i++)
+                    fbc_putchar(' ');
 
-            continue;
+                continue;
+            case '\b':
+                if (x > 0) {
+                    x--;
+                } else if (y > 0) {
+                    y--;
+                    x = g_cw - 1;
+
+                    while (g_fbc[y * g_cw + x].c == '\0')
+                        x--;
+                }
+
+                /* Clear the char we just deleted */
+                g_fbc[y * g_cw + x] = (fbc_entry){
+                    ' ',
+                    DEFAULT_FG,
+                    DEFAULT_BG,
+                };
+
+                /* Draw the pixels on the screen */
+                fbc_refresh_entry(y, x);
+
+                continue;
+            default:
+                break;
         }
 
         g_fbc[y * g_cw + x] = (fbc_entry){
@@ -200,32 +226,58 @@ void fbc_putchar(char c) {
         should_shift = 0;
     }
 
-    if (c == '\n') {
-        /* Save newline char (don't display anything) */
-        g_fbc[cur_y * g_cw + cur_x] = (fbc_entry){
-            '\n',
-            DEFAULT_FG,
-            DEFAULT_BG,
-        };
+    /* Check for special chars like newlines, tabs, backspaces, etc. */
+    switch (c) {
+        case '\n':
+            /* Save newline char (don't display anything) */
+            g_fbc[cur_y * g_cw + cur_x] = (fbc_entry){
+                '\n',
+                DEFAULT_FG,
+                DEFAULT_BG,
+            };
 
-        /* If we have rows left on the terminal, go down, if we are on the last
-         * one, store that we need to shift 1 up, but stay on that last row.
-         * See comment on top of this function */
-        if (cur_y + 1 < g_ch)
-            cur_y++;
-        else
-            should_shift = 1;
+            /* If we have rows left on the terminal, go down, if we are on the last
+             * one, store that we need to shift 1 up, but stay on that last row.
+             * See comment on top of this function */
+            if (cur_y + 1 < g_ch)
+                cur_y++;
+            else
+                should_shift = 1;
 
-        cur_x = 0;
+            cur_x = 0;
 
-        return;
-    } else if (c == '\t') {
-        /* For having TABSIZE-aligned tabs */
-        const int tabs_needed = FBC_TABSIZE - (cur_x % FBC_TABSIZE);
-        for (int i = 0; i < tabs_needed; i++)
-            fbc_putchar(' ');
+            return;
+        case '\t':
+            /* For having TABSIZE-aligned tabs */
+            const int tabs_needed = FBC_TABSIZE - (cur_x % FBC_TABSIZE);
+            for (int i = 0; i < tabs_needed; i++)
+                fbc_putchar(' ');
 
-        return;
+            return;
+        case '\b':
+            if (cur_x > 0) {
+                cur_x--;
+            } else if (cur_y > 0) {
+                cur_y--;
+                cur_x = g_cw - 1;
+
+                while (g_fbc[cur_y * g_cw + cur_x].c == '\0')
+                    cur_x--;
+            }
+
+            /* Clear the char we just deleted */
+            g_fbc[cur_y * g_cw + cur_x] = (fbc_entry){
+                ' ',
+                DEFAULT_FG,
+                DEFAULT_BG,
+            };
+
+            /* Draw the pixels on the screen */
+            fbc_refresh_entry(cur_y, cur_x);
+
+            return;
+        default:
+            break;
     }
 
     g_fbc[cur_y * g_cw + cur_x] = (fbc_entry){
@@ -269,13 +321,14 @@ void fbc_shift_rows(uint8_t n) {
      * the last valid char we care about. We can fill the rest faster with
      * fb_drawrect_col */
     for (uint32_t y = 0; y < g_ch - n; y++) {
-        /* Update valid entries until we encounter newline */
+        /* Update valid entries until we encounter a null byte. '\0' denotes the end
+         * of the valid line. */
         for (uint32_t x = 0; x < g_cw; x++) {
             g_fbc[y * g_cw + x] = g_fbc[(y + n) * g_cw + x];
 
             /* We need to check after the assignment and not in the for because we
-             * want to also copy the newline */
-            if (g_fbc[(y + n) * g_cw + x].c == '\n')
+             * want to also copy the null byte to keep where the line ends */
+            if (g_fbc[(y + n) * g_cw + x].c == '\0')
                 break;
 
             fbc_refresh_entry(y, x);
@@ -305,7 +358,7 @@ void fbc_shift_rows(uint8_t n) {
 
         for (uint32_t x = 1; x < g_cw; x++) {
             g_fbc[y * g_cw + x] = (fbc_entry){
-                ' ',
+                '\0',
                 DEFAULT_FG,
                 DEFAULT_BG,
             };
