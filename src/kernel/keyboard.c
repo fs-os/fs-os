@@ -5,7 +5,7 @@
 #include <kernel/keyboard.h>
 #include <kernel/io.h>
 
-#include <layouts/en.h>
+#include <layouts/us.h>
 
 /* IO ports used by the keyboard */
 enum kb_io_ports {
@@ -36,7 +36,7 @@ enum kb_flags {
 /* ------------------------------------------------------------------------------- */
 
 /* Pointer to the current Layout struct being used */
-static const Layout* cur_layout = &en_layout;
+static const Layout* cur_layout = &us_layout;
 
 /* Array of bytes contaning information about each key state. Each bit gives
  * information about the key corresponding to its index. For example: bit 0 of

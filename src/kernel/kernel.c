@@ -25,7 +25,7 @@
 
 #include <kernel/multiboot.h> /* multiboot info structure */
 #include <fonts/main_font.h>
-#include <layouts/en.h>
+#include <layouts/us.h>
 
 #include "media/logo_small.h"
 #include "media/soviet_anthem.h"
@@ -183,7 +183,7 @@ void kernel_main(Multiboot* mb_info) {
     pit_init(1000);
     LOAD_INFO("PIT initialized.");
 
-    kb_setlayout(&en_layout);
+    kb_setlayout(&us_layout);
     LOAD_INFO("Keyboard initialized.");
     putchar('\n');
 

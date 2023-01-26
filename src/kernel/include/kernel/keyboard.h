@@ -6,10 +6,10 @@
 #include <stdbool.h>
 
 /* Indexes of the layout.special array. For example:
- *   - en_layout.special will contain the key codes for special chars like shift
+ *   - us_layout.special will contain the key codes for special chars like shift
  *   - KB_SPECIAL_IDX_LSHIFT is 2 because the second item of the .special array will
  *     be the key code of the left shift key
- *   - en_layout.special[2] is 0x2A because 0x2A is the key code for left shift */
+ *   - us_layout.special[2] is 0x2A because 0x2A is the key code for left shift */
 enum kb_special_indexes {
     KB_SPECIAL_IDX_ESC = 0,
     KB_SPECIAL_IDX_LCTRL,
