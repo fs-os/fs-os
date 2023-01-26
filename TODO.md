@@ -12,8 +12,10 @@ Stuff that needs to be/has been done.
     - [X] Replace vga functions (`vga.c`) with framebuffer console.
 - [X] Sleep functions ([Link](https://wiki.osdev.org/Programmable_Interval_Timer)).
 - [X] GDT and IDT.
-- [ ] Keyboard.
+- [X] Keyboard.
+    - [ ] Getchar system.
 - [ ] PCI devices.
+- [ ] Userspace (ring0? ring3?)
 - [ ] Ext2.
 - [ ] Paging?
 
