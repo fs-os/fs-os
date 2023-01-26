@@ -4,8 +4,8 @@
 #include <stdlib.h>
 
 #include <kernel/heap.h>
-#include <kernel/framebuffer_console.h> /* Color to abort() */
-#include <kernel/color.h>               /* Color to abort() */
+#include <kernel/framebuffer_console.h> /* Color to panic() */
+#include <kernel/color.h>               /* Color to panit() */
 
 /* count_digits: returns the number of digits of a positive num. Will not count "-"
  * for negative numbers */
@@ -95,9 +95,10 @@ void itoan(char* str, int64_t num, size_t max_digits) {
     str[sp++] = '\0';
 }
 
-/* abort: panic. "func" should be the __func__ macro and "line" should be the
- * __LINE__ macro. Use the "abort_line" macro for shorter version */
-void abort(const char* func, unsigned int line, const char* fmt, ...) {
+/* panic: "func" should be the __func__ macro and "line" should be the
+ * __LINE__ macro. Use the "panic_line" macro for shorter version */
+/* TODO: Move from stdlib? */
+void panic(const char* func, unsigned int line, const char* fmt, ...) {
     /* TODO: Proper kernel panic */
 
     if (func == NULL)
@@ -112,6 +113,18 @@ void abort(const char* func, unsigned int line, const char* fmt, ...) {
     vprintf(fmt, va);
 
     va_end(va);
+
+    asm volatile("hlt");
+
+    for (;;)
+        ;
+
+    __builtin_unreachable();
+}
+
+/* abort: panic */
+void abort(void) {
+    puts("kernel panic: abort");
 
     asm volatile("hlt");
 
