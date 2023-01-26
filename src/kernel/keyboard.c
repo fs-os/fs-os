@@ -1,11 +1,13 @@
 
 #include <stdint.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <kernel/keyboard.h>
 #include <kernel/io.h>
 
 #include <layouts/en.h>
 
+/* IO ports used by the keyboard */
 enum kb_io_ports {
     KB_PORT_DATA   = 0x60, /* Read/Write. Data port */
     KB_PORT_STATUS = 0x64, /* Read. Status port */
@@ -33,8 +35,8 @@ enum kb_flags {
 
 /* ------------------------------------------------------------------------------- */
 
-/* Pointer to the current layout struct being used */
-static const layout* cur_layout = &en_layout;
+/* Pointer to the current Layout struct being used */
+static const Layout* cur_layout = &en_layout;
 
 /* Array of bytes contaning information about each key state. Each bit gives
  * information about the key corresponding to its index. For example: bit 0 of
@@ -42,7 +44,10 @@ static const layout* cur_layout = &en_layout;
 static uint8_t key_flags[128] = { 0 };
 
 /* Store if we should use caps */
-static uint8_t capslock_on = 0, shift_held = 0;
+static bool capslock_on = 0, shift_held = 0;
+
+/* Store if we should print the characters to screen when recieving them */
+static bool print_chars = 1;
 
 /* check_special: toggle variables like capslock_on or shift_held if needed */
 static inline void check_special(uint8_t released, uint8_t key) {
@@ -99,7 +104,7 @@ void kb_handler(void) {
          * has a char to display, and print it */
         /* TODO: When printing '\b', check if we put the char so we can't delete
          * strings printed by other programs */
-        if (!released && final_layout[key] != 0)
+        if (print_chars && !released && final_layout[key] != 0)
             putchar(final_layout[key]);
 
         status = io_inb(KB_PORT_STATUS);
@@ -112,10 +117,25 @@ void kb_handler(void) {
 
 /* kb_held: check if "c" is being held. Returns 1 if the first bit of key_flags[c] is
  * set. */
-uint8_t kb_held(unsigned char c) {
+bool kb_held(unsigned char c) {
     if (c >= 128)
         return 0;
 
     return key_flags[c] & KB_FLAG_PRESSED;
+}
+
+/* kb_noecho: disable char printing on key press */
+void kb_noecho(void) {
+    print_chars = false;
+}
+
+/* kb_echo: enable char printing on key press */
+void kb_echo(void) {
+    print_chars = true;
+}
+
+/* kb_setlayout: set the current active layout to the specified Layout pointer */
+void kb_setlayout(const Layout* ptr) {
+    cur_layout = ptr;
 }
 

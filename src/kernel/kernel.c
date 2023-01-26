@@ -21,9 +21,11 @@
 #include <kernel/pit.h>                 /* pit_init */
 #include <kernel/rtc.h>                 /* rtc_get_datetime */
 #include <kernel/pcspkr.h>              /* pcspkr_beep */
+#include <kernel/keyboard.h>            /* kb_setlayout, kb_noecho, kb_echo */
 
 #include <kernel/multiboot.h> /* multiboot info structure */
 #include <fonts/main_font.h>
+#include <layouts/en.h>
 
 #include "media/logo_small.h"
 #include "media/soviet_anthem.h"
@@ -180,6 +182,9 @@ void kernel_main(Multiboot* mb_info) {
     /* Init PIT with 1ms interval (1/1000 of a sec) */
     pit_init(1000);
     LOAD_INFO("PIT initialized.");
+
+    kb_setlayout(&en_layout);
+    LOAD_INFO("Keyboard initialized.");
     putchar('\n');
 
     LOAD_INFO("System info:");
@@ -223,6 +228,8 @@ void kernel_main(Multiboot* mb_info) {
         sleep(1);
     }
     putchar('\n');
+
+    kb_noecho();
 
     /* play_soviet_anthem(); */
     /* play_thunderstruck(); */

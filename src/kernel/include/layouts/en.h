@@ -1,7 +1,7 @@
 
-#include <kernel/keyboard.h> /* layout */
+#include <kernel/keyboard.h> /* Layout */
 
-static const layout en_layout = {
+static const Layout en_layout = {
     .def =
       (char[]){
         0,                                                             /**/

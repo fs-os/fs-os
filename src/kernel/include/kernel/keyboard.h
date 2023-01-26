@@ -2,6 +2,9 @@
 #ifndef _KERNEL_KEYBOARD_H
 #define _KERNEL_KEYBOARD_H
 
+#include <stdint.h>
+#include <stdbool.h>
+
 /* Indexes of the layout.special array. For example:
  *   - en_layout.special will contain the key codes for special chars like shift
  *   - KB_SPECIAL_IDX_LSHIFT is 2 because the second item of the .special array will
@@ -40,13 +43,13 @@ enum kb_special_indexes {
     KB_SPECIAL_IDX_F12,
 };
 
-/* layout: struct containing a pointer to the default and shift layouts for a lang */
+/* Layout: struct containing a pointer to the default and shift layouts for a lang */
 typedef struct {
     char* def;         /* Chars to display for each key code */
     char* shift;       /* Same as .def but when holding shift */
     uint16_t* special; /* Array contaning the indexes of special chars for the
                         * current layout */
-} layout;
+} Layout;
 
 /* kb_handler: actual C handler for the keyboard exceptions recieved from "irq_kb".
  * See src/kernel/idt_asm.asm */
@@ -54,7 +57,16 @@ void kb_handler(void);
 
 /* kb_held: check if "c" is being held. Returns 1 if the first bit of key_flags[c] is
  * set. */
-uint8_t kb_held(unsigned char c);
+bool kb_held(unsigned char c);
+
+/* kb_noecho: disable char printing on key press */
+void kb_noecho(void);
+
+/* kb_echo: enable char printing on key press */
+void kb_echo(void);
+
+/* kb_setlayout: set the current active layout to the specified Layout pointer */
+void kb_setlayout(const Layout* ptr);
 
 #endif /* _KERNEL_KEYBOARD_H */
 

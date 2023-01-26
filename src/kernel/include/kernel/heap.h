@@ -3,6 +3,7 @@
 #define _KERNEL_ALLOC_H
 
 #include <stdint.h>
+#include <stdbool.h>
 
 #define HEAP_START ((void*)0xA00000) /* Bytes. 10MB */
 #define HEAP_SIZE  (0x3200000)       /* Bytes. 50MB */
@@ -12,7 +13,7 @@ typedef struct Block {
     void* ptr;          /* Pointer to block memory. */
     struct Block* next; /* Pointer to next header. End of memory if NULL */
     uint32_t sz;        /* Bytes */
-    uint8_t free;       /* 1 or 0 */
+    bool free;          /* 1 or 0 */
 } Block;
 
 /* Initialized in src/kernel/alloc.c */
