@@ -47,9 +47,10 @@ $ make fs-os.iso
 ...
 ```
 
-*Note: Keep in mind that `fs-os.iso` requires the kernel binary, and the kernel
-binary requires the headers and libs that `sysroot` copies, so make sure you don't
-build the iso without the sysroot ready.*
+> **Note**
+> Keep in mind that `fs-os.iso` requires the kernel binary, and the kernel
+> binary requires the headers and libs that `sysroot` copies, so make sure you don't
+> build the iso without the sysroot ready.
 ```console
 $ make fs-os.iso    # If you haven't built sysroot before, it will fail
 Error.
