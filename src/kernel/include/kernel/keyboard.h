@@ -5,6 +5,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+/* Max length of an input line */
+#define KB_GETCHAR_BUFSZ 1000
+
 /* Indexes of the layout.special array. For example:
  *   - us_layout.special will contain the key codes for special chars like shift
  *   - KB_SPECIAL_IDX_LSHIFT is 2 because the second item of the .special array will
@@ -67,6 +70,12 @@ void kb_echo(void);
 
 /* kb_setlayout: set the current active layout to the specified Layout pointer */
 void kb_setlayout(const Layout* ptr);
+
+/* kb_getchar_init: initialize the static getchar arrays to EOF */
+void kb_getchar_init(void);
+
+/* kb_getchar: get input chars from "getchar_buf" once the user wrote a line */
+int kb_getchar(void);
 
 #endif /* _KERNEL_KEYBOARD_H */
 

@@ -2,10 +2,13 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <kernel/keyboard.h>
 #include <kernel/io.h>
 
 #include <layouts/us.h>
+
+#define LENGTH(arr) (sizeof(arr) / sizeof(arr[0]))
 
 /* IO ports used by the keyboard */
 enum kb_io_ports {
@@ -48,6 +51,13 @@ static bool capslock_on = 0, shift_held = 0;
 
 /* Store if we should print the characters to screen when recieving them */
 static bool print_chars = 1;
+
+/* Buffers for the getchar functions. Since kb_handler only reads 8 bit chars, we
+ * don't need bigger arrays. We need to use signed chars because of EOF, though */
+static int8_t getchar_buf[KB_GETCHAR_BUFSZ]      = { EOF };
+static uint16_t getchar_buf_pos                  = 0;
+static int8_t getchar_line_buf[KB_GETCHAR_BUFSZ] = { EOF };
+static uint16_t getchar_line_buf_pos             = 0;
 
 /* check_special: toggle variables like capslock_on or shift_held if needed */
 static inline void check_special(uint8_t released, uint8_t key) {
@@ -99,13 +109,41 @@ void kb_handler(void) {
 
         /* Check if we need to use an alternative layout when using shift, etc. */
         const char* final_layout = get_layout();
+        const char final_key     = final_layout[key];
+
+        /* We only want to go to the next part if the key was pressed */
+        if (released) {
+            status = io_inb(KB_PORT_STATUS);
+            continue;
+        }
 
         /* Check if we are pressing a key (not releasing) and if the current layout
          * has a char to display, and print it */
         /* TODO: When printing '\b', check if we put the char so we can't delete
          * strings printed by other programs */
-        if (print_chars && !released && final_layout[key] != 0)
-            putchar(final_layout[key]);
+        if (print_chars && final_key != 0)
+            putchar(final_key);
+
+        /* Store the current char to the getchar line buffer (if the char can be
+         * displayed with the current font) */
+        if (getchar_line_buf_pos >= KB_GETCHAR_BUFSZ)
+            panic_line("getchar buffer out of bounds");
+
+        if (final_key != 0) {
+            getchar_line_buf[getchar_line_buf_pos++] = final_key;
+
+            /* Check if the key we just saved is '\n'. If it is, the user is done
+             * with the input line so we can move the chars to the final buffer */
+            if (final_key == '\n') {
+                for (int i = 0; i < getchar_line_buf_pos; i++) {
+                    getchar_buf[i]      = getchar_line_buf[i];
+                    getchar_line_buf[i] = EOF;
+                }
+
+                getchar_buf_pos      = 0; /* Not needed */
+                getchar_line_buf_pos = 0;
+            }
+        }
 
         status = io_inb(KB_PORT_STATUS);
     }
@@ -137,5 +175,32 @@ void kb_echo(void) {
 /* kb_setlayout: set the current active layout to the specified Layout pointer */
 void kb_setlayout(const Layout* ptr) {
     cur_layout = ptr;
+}
+
+/* kb_getchar_init: initialize the static getchar arrays to EOF */
+void kb_getchar_init(void) {
+    for (size_t i = 0; i < LENGTH(getchar_buf); i++) {
+        /* Both buffers should have the same length... */
+        getchar_buf[i]      = EOF;
+        getchar_line_buf[i] = EOF;
+    }
+}
+
+/* kb_getchar: get input chars from "getchar_buf" once the user wrote a line */
+int kb_getchar(void) {
+    /* Wait until we read a valid char */
+    volatile int8_t* tmp = &getchar_buf[getchar_buf_pos];
+    while (*tmp == EOF)
+        ;
+
+    int c                        = getchar_buf[getchar_buf_pos];
+    getchar_buf[getchar_buf_pos] = EOF;
+
+    /* Try to increase the buffer position. If the next char is EOF, reset the pos to
+     * 0 */
+    if (getchar_buf[++getchar_buf_pos] == EOF)
+        getchar_buf_pos = 0;
+
+    return c;
 }
 

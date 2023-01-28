@@ -184,6 +184,7 @@ void kernel_main(Multiboot* mb_info) {
     LOAD_INFO("PIT initialized.");
 
     kb_setlayout(&us_layout);
+    kb_getchar_init();
     LOAD_INFO("Keyboard initialized.");
     putchar('\n');
 
@@ -223,19 +224,22 @@ void kernel_main(Multiboot* mb_info) {
     test_libk();
 
     TEST_TITLE("\nTesting time.h functions");
-    for (int i = 0; i < 5; i++) {
-        printf("%d ", i);
-        sleep(1);
-    }
-    putchar('\n');
-
-    kb_noecho();
+    printf("Hello, ");
+    sleep(2);
+    printf("world!\n");
 
     /* play_soviet_anthem(); */
     /* play_thunderstruck(); */
 
-    for (;;)
-        ;
+    int c = 0;
+    for (;;) {
+        fbc_setfore(COLOR_WHITE_B);
+        printf("\n$ ");
+        fbc_setfore(COLOR_GRAY);
+
+        while ((c = kb_getchar()) != '\n')
+            putchar(c);
+    }
 
     __builtin_unreachable();
 }

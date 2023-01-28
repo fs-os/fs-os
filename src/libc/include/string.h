@@ -2,12 +2,12 @@
 #ifndef _STRING_H
 #define _STRING_H
 
-#include <stddef.h> /* size_t */
+#include <stddef.h>
 
-/* strlen: return length of str without null terminator */
+/* strlen: return length of "str" without null terminator */
 size_t strlen(const char* str) __attribute__((pure)) __attribute__((nonnull));
 
-/* strrev: reverse str in place without allocating. Return str */
+/* strrev: reverse "str" in place without allocating. Return "str" */
 char* strrev(char* str) __attribute__((nonnull));
 
 /* memcmp: compare the first "sz" bytes of 2 pointers. Returns 1 if in the first
