@@ -13,7 +13,7 @@ Stuff that needs to be/has been done.
 - [X] Sleep functions ([Link](https://wiki.osdev.org/Programmable_Interval_Timer)).
 - [X] GDT and IDT.
 - [X] Keyboard.
-    - [ ] Getchar system.
+    - [X] Getchar system.
 - [ ] PCI devices.
 - [ ] Userspace (ring0? ring3?)
 - [ ] Ext2.
