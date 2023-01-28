@@ -21,7 +21,7 @@
 #include <kernel/pit.h>                 /* pit_init */
 #include <kernel/rtc.h>                 /* rtc_get_datetime */
 #include <kernel/pcspkr.h>              /* pcspkr_beep */
-#include <kernel/keyboard.h>            /* kb_setlayout, kb_noecho, kb_echo */
+#include <kernel/keyboard.h>            /* kb_setlayout, kb_getchar_init */
 
 #include <kernel/multiboot.h> /* multiboot info structure */
 #include <fonts/main_font.h>
@@ -237,7 +237,7 @@ void kernel_main(Multiboot* mb_info) {
         printf("\n$ ");
         fbc_setfore(COLOR_GRAY);
 
-        while ((c = kb_getchar()) != '\n')
+        while ((c = getchar()) != '\n')
             putchar(c);
     }
 

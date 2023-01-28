@@ -11,6 +11,8 @@
 #include <kernel/framebuffer_console.h>
 #endif
 
+#include <kernel/keyboard.h> /* kb_getchar */
+
 /* print: calls "putchar" for each char of "str". Returns bytes written. */
 static inline int print(const char* str) {
     while (*str != '\0')
@@ -278,5 +280,10 @@ int putchar(int c) {
 #endif
 
     return tmp;
+}
+
+/* getchar: wrapper for kb_getchar */
+int getchar(void) {
+    return kb_getchar();
 }
 

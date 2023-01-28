@@ -18,5 +18,8 @@ int vprintf(const char* fmt, va_list va);
 /* putchar: prints the single character "c" */
 int putchar(int c);
 
+/* getchar: wrapper for kb_getchar */
+int getchar(void);
+
 #endif /* _STDIO_H */
 

@@ -267,3 +267,9 @@ int putchar(int c) {
     return c;
 }
 
+/* getchar: wrapper for kb_getchar */
+int getchar(void) {
+    /* TODO: Implement stdio and proper getchar */
+    return EOF;
+}
+
