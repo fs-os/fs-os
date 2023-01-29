@@ -107,15 +107,15 @@ void kb_handler(void) {
         /* Check if we should toggle global variables for caps, etc. */
         check_special(released, key);
 
-        /* Check if we need to use an alternative layout when using shift, etc. */
-        const char* final_layout = get_layout();
-        const char final_key     = final_layout[key];
-
         /* We only want to go to the next part if the key was pressed */
         if (released) {
             status = io_inb(KB_PORT_STATUS);
             continue;
         }
+
+        /* Check if we need to use an alternative layout when using shift, etc. */
+        const char* final_layout = get_layout();
+        const char final_key     = final_layout[key];
 
         /* Check if we are pressing a key (not releasing) and if the current layout
          * has a char to display, and print it */
@@ -124,12 +124,13 @@ void kb_handler(void) {
         if (print_chars && final_key != 0)
             putchar(final_key);
 
-        /* Store the current char to the getchar line buffer (if the char can be
-         * displayed with the current font) */
         if (getchar_line_buf_pos >= KB_GETCHAR_BUFSZ)
             panic_line("getchar buffer out of bounds");
 
         if (final_key != 0) {
+            /* Store the current char to the getchar line buffer (if the char can be
+             * displayed with the current font) */
+            /* TODO: Delete last char from line buffer if we detect '\b' */
             getchar_line_buf[getchar_line_buf_pos++] = final_key;
 
             /* Check if the key we just saved is '\n'. If it is, the user is done
