@@ -53,7 +53,7 @@ static Command cmd_list[] = {
 int sh_main(void) {
     int c = 0;
 
-    char cmd[MAX_CMD_SZ] = { 0 };
+    char cur_cmd[MAX_CMD_SZ] = { 0 };
 
     while (!quit_sh) {
         fbc_setfore(COLOR_WHITE_B);
@@ -61,13 +61,13 @@ int sh_main(void) {
         fbc_setfore(COLOR_GRAY);
 
         int cmd_pos = 0;
-        while ((c = getchar()) != '\n')
-            cmd[cmd_pos++] = c;
-        cmd[cmd_pos] = '\0';
+        while ((c = getchar()) != '\n' && cmd_pos < (int)(sizeof(cur_cmd) - 1))
+            cur_cmd[cmd_pos++] = c;
+        cur_cmd[cmd_pos] = '\0';
 
         bool valid_cmd = false;
         for (size_t i = 0; i < LENGTH(cmd_list); i++) {
-            if (strcmp(cmd, cmd_list[i].cmd) == 0) {
+            if (strcmp(cur_cmd, cmd_list[i].cmd) == 0) {
                 /* Call the function */
                 (*cmd_list[i].func)();
                 valid_cmd = true;
