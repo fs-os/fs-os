@@ -21,14 +21,19 @@ ISO=$(KERNEL_BIN:.bin=.iso)
 KERNEL_OBJS=obj/kernel/kernel.o obj/kernel/vga.o obj/kernel/heap.o obj/kernel/framebuffer.o obj/kernel/framebuffer_console.o obj/kernel/idt.o obj/kernel/exceptions.o obj/kernel/rtc.o obj/kernel/pit.o obj/kernel/pcspkr.o obj/kernel/keyboard.o
 ASM_OBJS=obj/kernel/boot.o obj/kernel/io.o obj/kernel/gdt.o obj/kernel/idt_asm.o
 
-# List of object files of our standard library, and the final static library
-LIBC_OBJS=obj/libc/string.o obj/libc/stdlib.o obj/libc/stdio.o obj/libc/time.o
-LIBC=obj/libc.a
+# List of object files containing the app functions. For now built into the kernel
+# until we have a proper userspace.
+# sh means src/apps/sh/sh.c will be compiled to obj/apps/sh.o
+APP_OBJS=obj/apps/sh/sh.o
 
 # Libk is the libc version (with some changes) that the kernel uses for building. We
 # don't need a static lib, because we can just link the kernel with these objs
 # instead.
 LIBK_OBJS=obj/libk/string.o obj/libk/stdlib.o obj/libk/stdio.o obj/libk/time.o
+
+# List of object files of our standard library, and the final static library
+LIBC_OBJS=obj/libc/string.o obj/libc/stdlib.o obj/libc/stdio.o obj/libc/time.o
+LIBC=obj/libc.a
 
 # sysroot paths
 SYSROOT=./sysroot

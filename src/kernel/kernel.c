@@ -27,6 +27,8 @@
 #include <fonts/main_font.h>
 #include <layouts/us.h>
 
+#include "../apps/sh/sh.h"
+
 #include "media/logo_small.h"
 #include "media/soviet_anthem.h"
 #include "media/thunderstruck.h"
@@ -203,19 +205,12 @@ void kernel_main(Multiboot* mb_info) {
 
     /* --------------------------------------------------------------------------- */
 
-    fbc_setfore(COLOR_BLUE);
+    fbc_setfore(COLOR_MAGENTA);
     puts("\nHello, welcome to the Free and Simple Operating System!\n"
          "This project is still being developed. For more information, see:");
     fbc_setfore(COLOR_GREEN);
     puts("https://github.com/fs-os/fs-os");
     fbc_setfore(COLOR_WHITE);
-
-#if 0
-    TEST_TITLE("\nTesting font");
-    puts("!\"#$%&\'()*+,-./"
-         "0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`"
-         "abcdefghijklmnopqrstuvwxyz{|}~");
-#endif
 
     TEST_TITLE("\nHeap headers");
     heap_dump_headers();
@@ -231,15 +226,11 @@ void kernel_main(Multiboot* mb_info) {
     /* play_soviet_anthem(); */
     /* play_thunderstruck(); */
 
-    int c = 0;
-    for (;;) {
-        fbc_setfore(COLOR_WHITE_B);
-        printf("\n$ ");
-        fbc_setfore(COLOR_GRAY);
+    /* Main shell */
+    sh_main();
 
-        while ((c = getchar()) != '\n')
-            putchar(c);
-    }
+    for (;;)
+        ;
 
     __builtin_unreachable();
 }

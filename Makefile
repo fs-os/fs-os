@@ -36,9 +36,10 @@ qemu-debug: debug_flags clean all
 		-cdrom $(ISO)
 
 clean:
-	rm -f obj/kernel/*.o $(ISO)
 	rm -f $(LIBK_OBJS) $(LIBC_OBJS) $(LIBC)
+	rm -f $(KERNEL_OBJS) $(ASM_OBJS)
 	rm -f $(KERNEL_BIN) $(ISO)
+	rm -f obj/apps/*.o
 	rm -rf iso sysroot
 
 # ----------------------------------------------------------------------------------
@@ -90,22 +91,22 @@ limine:
 	make -C limine
 
 # We will use the same compiler for linking. Use sysroot for including with <>, etc.
-$(KERNEL_BIN): cfg/linker.ld $(ASM_OBJS) $(KERNEL_OBJS) $(LIBK_OBJS)
-	$(CC) --sysroot=sysroot -isystem=/usr/include -T cfg/linker.ld -o $@ -ffreestanding -nostdlib $(CFLAGS) $(ASM_OBJS) $(KERNEL_OBJS) $(LIBK_OBJS) -lgcc
+$(KERNEL_BIN): cfg/linker.ld $(ASM_OBJS) $(KERNEL_OBJS) $(LIBK_OBJS) $(APP_OBJS)
+	$(CC) --sysroot=sysroot -isystem=/usr/include -T cfg/linker.ld -o $@ -ffreestanding -nostdlib $(CFLAGS) $(ASM_OBJS) $(KERNEL_OBJS) $(LIBK_OBJS) $(APP_OBJS) -lgcc
 
 $(ASM_OBJS): obj/kernel/%.o: src/kernel/%.asm
-	@mkdir -p obj/kernel/
+	@mkdir -p $(dir $@)
 	$(ASM) $(ASM_FLAGS) $< -o $@
 
 # We need the sysroot with the includes and the static lib for building the kernel,
 # framebuffer, etc. We called 'make sysroot' in the 'all' target so we should be
 # fine.
 $(KERNEL_OBJS): obj/kernel/%.o: src/kernel/%.c
-	@mkdir -p obj/kernel/
+	@mkdir -p $(dir $@)
 	$(CC) --sysroot=sysroot -isystem=/usr/include -c $< -o $@ -ffreestanding -std=gnu11 $(CFLAGS) -Iinclude
 
-$(LIBC_OBJS): obj/libc/%.o : src/libc/%.c
-	@mkdir -p obj/libc/
+$(APP_OBJS): obj/apps/%.o: src/apps/%.c
+	@mkdir -p $(dir $@)
 	$(CC) --sysroot=sysroot -isystem=/usr/include -c $< -o $@ -ffreestanding -std=gnu11 $(CFLAGS) -Iinclude
 
 # Libk is a modified version of libc for building the kernel. We don't need a static
@@ -114,7 +115,11 @@ $(LIBC_OBJS): obj/libc/%.o : src/libc/%.c
 # some function parameters need to change, or we need to add a custom function for
 # the kernel, make libk header folder in sysroot.
 $(LIBK_OBJS): obj/libk/%.o : src/libk/%.c
-	@mkdir -p obj/libk/
+	@mkdir -p $(dir $@)
+	$(CC) --sysroot=sysroot -isystem=/usr/include -c $< -o $@ -ffreestanding -std=gnu11 $(CFLAGS) -Iinclude
+
+$(LIBC_OBJS): obj/libc/%.o : src/libc/%.c
+	@mkdir -p $(dir $@)
 	$(CC) --sysroot=sysroot -isystem=/usr/include -c $< -o $@ -ffreestanding -std=gnu11 $(CFLAGS) -Iinclude
 
 # Libc used for the userspace. Currently useless. Archive the library objects into a

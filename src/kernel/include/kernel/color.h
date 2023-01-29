@@ -78,7 +78,7 @@ static inline void col2rgb(uint8_t* r, uint8_t* g, uint8_t* b, uint32_t col) {
 #endif
 
 #ifndef COLOR_BLUE_B
-#define COLOR_BLUE_B 0x1616e5
+#define COLOR_BLUE_B 0x1818f9
 #endif
 
 #ifndef COLOR_MAGENTA_B
