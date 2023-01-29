@@ -79,3 +79,20 @@ void* memcpy(void* restrict dst, const void* restrict src, size_t sz) {
     return dst;
 }
 
+/* strcmp: compare 2 strings. Returns 1+ if in the first mismatch, a is greater than
+ * b, 0 if they are equal or 0- if in the mismatch, a is less than b */
+int strcmp(const char* a, const char* b) {
+    /* See section 5.5 of TCPL (K&R) */
+    while (*a == *b) {
+        /* Because of the while condition, we know *b is '\0' too */
+        if (*a == '\0')
+            return 0;
+
+        /* Only increase if they match */
+        a++;
+        b++;
+    }
+
+    return *a - *b;
+}
+

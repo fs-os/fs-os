@@ -22,5 +22,9 @@ void* memset(void* ptr, int val, size_t sz) __attribute__((nonnull));
 void* memcpy(void* restrict dst, const void* restrict src, size_t sz)
   __attribute__((nonnull));
 
+/* strcmp: compare 2 strings. Returns 1+ if in the first mismatch, a is greater than
+ * b, 0 if they are equal or 0- if in the mismatch, a is less than b */
+int strcmp(const char* a, const char* b);
+
 #endif /* _STRING_H */
 
