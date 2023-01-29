@@ -25,6 +25,8 @@ static inline void play_soviet_anthem(void) {
     printf("Playing soviet anthem...\n");
 
     for (unsigned long i = 0; i < LENGTH(soviet_anthem); i++) {
+        putchar('\r');
+
         fbc_setfore(COLOR_WHITE_B);
         putchar('[');
         fbc_setfore(COLOR_GREEN);
@@ -33,8 +35,10 @@ static inline void play_soviet_anthem(void) {
         putchar(']');
         fbc_setfore(COLOR_WHITE);
 
-        printf(" Frequency: %ld, Delay: %ld\n", soviet_anthem[i].freq,
+        printf(" Frequency: %ld, Delay: %ld", soviet_anthem[i].freq,
                soviet_anthem[i].ms_len);
         pcspkr_beep_custom(soviet_anthem[i]);
     }
+
+    putchar('\n');
 }

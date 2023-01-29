@@ -276,6 +276,8 @@ static inline void play_thunderstruck(void) {
     printf("Playing thunderstruck...\n");
 
     for (unsigned long i = 0; i < LENGTH(thunderstruck); i++) {
+        putchar('\r');
+
         fbc_setfore(COLOR_WHITE_B);
         putchar('[');
         fbc_setfore(COLOR_GREEN);
@@ -284,9 +286,11 @@ static inline void play_thunderstruck(void) {
         putchar(']');
         fbc_setfore(COLOR_WHITE);
 
-        printf(" Frequency: %ld, Delay: %ld\n", thunderstruck[i].freq,
+        printf(" Frequency: %ld, Delay: %ld", thunderstruck[i].freq,
                thunderstruck[i].ms_len);
         pcspkr_beep_custom(thunderstruck[i]);
     }
+
+    putchar('\n');
 }
 
