@@ -89,28 +89,25 @@ void kb_handler(void) {
     /* The ps2 controller wiki page says (at the bottom, interrupts) that you don't
      * really need to read the bit 0 of the status byte when reading port 0x60, but
      * I have seen it in other projects so I am going to do it. */
-    uint8_t status = io_inb(KB_PORT_STATUS);
-
-    while (status & KB_STATUS_BUFFER_OUT) {
+    for (uint8_t status = io_inb(KB_PORT_STATUS); status & KB_STATUS_BUFFER_OUT;
+         status         = io_inb(KB_PORT_STATUS)) {
         uint8_t key = io_inb(KB_PORT_DATA);
 
         /* Highest bit is 1 if the key is released, store it and clear it from key */
         uint8_t released = (key >> 7) & 1;
         key &= 0x7f;
 
-        /* Store the current key as pressed or released in the key_flags array */
-        if (released)
-            key_flags[key] &= ~KB_FLAG_PRESSED;
-        else
-            key_flags[key] |= KB_FLAG_PRESSED;
-
         /* Check if we should toggle global variables for caps, etc. */
         check_special(released, key);
 
-        /* We only want to go to the next part if the key was pressed */
+        /* Store the current key as pressed or released in the key_flags array */
         if (released) {
-            status = io_inb(KB_PORT_STATUS);
+            key_flags[key] &= ~KB_FLAG_PRESSED;
+
+            /* We only want to go to the next part if the key was pressed */
             continue;
+        } else {
+            key_flags[key] |= KB_FLAG_PRESSED;
         }
 
         /* Check if we need to use an alternative layout when using shift, etc. */
@@ -118,10 +115,8 @@ void kb_handler(void) {
         const char final_key     = final_layout[key];
 
         /* We only want to go to the next part if the key can be displayed */
-        if (final_key == 0) {
-            status = io_inb(KB_PORT_STATUS);
+        if (final_key == 0)
             continue;
-        }
 
         /* Check if we are pressing a key (not releasing) and if the current layout
          * has a char to display, and print it */
@@ -135,7 +130,6 @@ void kb_handler(void) {
 
         /* Store the current char to the getchar line buffer (if the char can be
          * displayed with the current font) */
-        /* TODO: Delete last char from line buffer if we detect '\b' */
         getchar_line_buf[getchar_line_buf_pos++] = final_key;
 
         /* Check if the key we just saved is '\n'. If it is, the user is done
@@ -148,9 +142,16 @@ void kb_handler(void) {
 
             getchar_buf_pos      = 0; /* Not needed */
             getchar_line_buf_pos = 0;
-        }
+        } else if (final_key == '\b') {
+            /* Delete last char from line buffer if we detect '\b' */
 
-        status = io_inb(KB_PORT_STATUS);
+            /* Remove the '\b' we just added */
+            getchar_line_buf[--getchar_line_buf_pos] = EOF;
+
+            /* Delete the last char */
+            if (getchar_line_buf_pos > 0)
+                getchar_line_buf[--getchar_line_buf_pos] = EOF;
+        }
     }
 
     /* Tell CPU that it's okay to resume interrupts. See:
