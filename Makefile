@@ -39,7 +39,7 @@ clean:
 	rm -f $(LIBK_OBJS) $(LIBC_OBJS) $(LIBC)
 	rm -f $(KERNEL_OBJS) $(ASM_OBJS)
 	rm -f $(KERNEL_BIN) $(ISO)
-	rm -f obj/apps/*.o
+	rm -f $(APP_OBJS)
 	rm -rf iso sysroot
 
 # ----------------------------------------------------------------------------------
