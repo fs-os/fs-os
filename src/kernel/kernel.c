@@ -30,8 +30,6 @@
 #include "../apps/sh/sh.h"
 
 #include "media/logo_small.h"
-#include "media/soviet_anthem.h"
-#include "media/thunderstruck.h"
 
 #if defined(__linux__)
 #error "You are not using a cross compiler." \
@@ -67,27 +65,6 @@
         printf(s2fmt, __VA_ARGS__); \
         putchar('\n');              \
     }
-
-/* test_libk: called by kernel_main to test libk functions */
-static inline void test_libk(void) {
-    char buf[255] = { 0 };
-
-    printf("strlen(\"abcd\") -> %ld\n", strlen("abcd"));
-    printf("memcmp(\"abcd\", \"abca\", 4) -> %d\n", memcmp("abcd", "abc1", 4));
-    printf("memcmp(\"abcd\", \"abce\", 4) -> %d\n", memcmp("abcd", "abce", 4));
-    printf("memcmp(\"12345\", \"12345\", 5) -> %d\n", memcmp("12345", "12345", 5));
-
-    /* More than one line for the null terminator */
-    printf("memset(buf, 'h', 5) -> ");
-    memset(buf, 'h', 5);
-    buf[5] = '\0';
-    puts(buf);
-
-    printf("memcpy(&buf[5], &buf[0], 5) -> ");
-    memcpy(&buf[5], &buf[0], 5);
-    buf[10] = '\0';
-    puts(buf);
-}
 
 static inline void test_colors(void) {
     printf("\n\t");
@@ -211,20 +188,6 @@ void kernel_main(Multiboot* mb_info) {
     fbc_setfore(COLOR_GREEN);
     puts("https://github.com/fs-os/fs-os");
     fbc_setfore(COLOR_WHITE);
-
-    TEST_TITLE("\nHeap headers");
-    heap_dump_headers();
-
-    TEST_TITLE("\nTesting stdlib.h, string.h and stdio.h functions");
-    test_libk();
-
-    TEST_TITLE("\nTesting time.h functions");
-    printf("Hello, ");
-    sleep(2);
-    printf("world!\n");
-
-    /* play_soviet_anthem(); */
-    /* play_thunderstruck(); */
 
     /* Main shell */
     sh_main();
