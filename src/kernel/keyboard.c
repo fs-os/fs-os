@@ -117,33 +117,37 @@ void kb_handler(void) {
         const char* final_layout = get_layout();
         const char final_key     = final_layout[key];
 
+        /* We only want to go to the next part if the key can be displayed */
+        if (final_key == 0) {
+            status = io_inb(KB_PORT_STATUS);
+            continue;
+        }
+
         /* Check if we are pressing a key (not releasing) and if the current layout
          * has a char to display, and print it */
         /* TODO: When printing '\b', check if we put the char so we can't delete
          * strings printed by other programs */
-        if (print_chars && final_key != 0)
+        if (print_chars)
             putchar(final_key);
 
         if (getchar_line_buf_pos >= KB_GETCHAR_BUFSZ)
             panic_line("getchar buffer out of bounds");
 
-        if (final_key != 0) {
-            /* Store the current char to the getchar line buffer (if the char can be
-             * displayed with the current font) */
-            /* TODO: Delete last char from line buffer if we detect '\b' */
-            getchar_line_buf[getchar_line_buf_pos++] = final_key;
+        /* Store the current char to the getchar line buffer (if the char can be
+         * displayed with the current font) */
+        /* TODO: Delete last char from line buffer if we detect '\b' */
+        getchar_line_buf[getchar_line_buf_pos++] = final_key;
 
-            /* Check if the key we just saved is '\n'. If it is, the user is done
-             * with the input line so we can move the chars to the final buffer */
-            if (final_key == '\n') {
-                for (int i = 0; i < getchar_line_buf_pos; i++) {
-                    getchar_buf[i]      = getchar_line_buf[i];
-                    getchar_line_buf[i] = EOF;
-                }
-
-                getchar_buf_pos      = 0; /* Not needed */
-                getchar_line_buf_pos = 0;
+        /* Check if the key we just saved is '\n'. If it is, the user is done
+         * with the input line so we can move the chars to the final buffer */
+        if (final_key == '\n') {
+            for (int i = 0; i < getchar_line_buf_pos; i++) {
+                getchar_buf[i]      = getchar_line_buf[i];
+                getchar_line_buf[i] = EOF;
             }
+
+            getchar_buf_pos      = 0; /* Not needed */
+            getchar_line_buf_pos = 0;
         }
 
         status = io_inb(KB_PORT_STATUS);
