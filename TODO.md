@@ -14,6 +14,8 @@ Stuff that needs to be/has been done.
 - [X] GDT and IDT.
 - [X] Keyboard.
     - [X] Getchar system.
+    - [X] Control backspace in getchar.
+    - [ ] Control backspace so you can only delete what you wrote.
 - [ ] PCI devices.
 - [ ] Userspace (ring0? ring3?)
 - [ ] Ext2.

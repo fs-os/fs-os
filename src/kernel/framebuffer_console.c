@@ -337,6 +337,7 @@ void fbc_refresh(void) {
 }
 
 /* fbc_shift_rows: scrolls the framebuffer terminal "n" rows (fbc_entry's) */
+/* TODO: Still not very fast. Optimize */
 void fbc_shift_rows(uint8_t n) {
     /* Used to count the position of the last valid char in the line */
     uint32_t char_count = 0;
