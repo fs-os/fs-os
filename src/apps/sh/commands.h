@@ -34,8 +34,13 @@ static void cmd_test_libk(void);
 static void cmd_play_soviet(void);
 static void cmd_play_thunder(void);
 
+/*
+ * Structure of the array:
+ *   command name, description, command function pointer
+ * For adding commands, see:
+ *   https://github.com/fs-os/fs-os/commit/b61e2b7d7934d1f0f58442152bd0563c91439a52
+ */
 /* TODO: arg support (for sleep for example) */
-/* command name, description, command function pointer */
 static Command cmd_list[] = {
     { "help", "Show a list of commands", &cmd_help },
     { "quit", "Permanently exit the shell", &cmd_quit },

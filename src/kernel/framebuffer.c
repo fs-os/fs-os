@@ -24,6 +24,22 @@ void fb_init(uint32_t* fb, uint32_t pitch, uint32_t w, uint32_t h, uint32_t bpp)
     }
 }
 
+/* fb_get_ptr: get the framebuffer ptr. Used by operations that need high performance
+ * like the fbc. Use with caution. */
+uint32_t* fb_get_ptr(void) {
+    return g_fb;
+}
+
+/* fb_get_width: get the framebuffer width in px */
+uint32_t fb_get_width(void) {
+    return g_width;
+}
+
+/* fb_get_height: get the framebuffer height in px */
+uint32_t fb_get_height(void) {
+    return g_height;
+}
+
 /* fb_setpx: RGB wrapper for fb_setpx_col */
 /* fb_setpx_col: set the pixel at (y, x) of the global framebuffer to "col" */
 void fb_setpx_col(uint32_t y, uint32_t x, uint32_t col) {
@@ -50,3 +66,10 @@ void fb_drawrect_col(uint32_t y, uint32_t x, uint32_t h, uint32_t w, uint32_t co
             g_fb[cur_y * g_width + cur_x] = col;
 }
 
+/* fb_drawrect_fast: same as fb_drawrect_col but less secure. Used when we know for
+ * sure we can control the parameters. */
+void fb_drawrect_fast(uint32_t y, uint32_t x, uint32_t h, uint32_t w, uint32_t col) {
+    for (uint32_t cur_y = y; cur_y < y + h; cur_y++)
+        for (uint32_t cur_x = x; cur_x < x + w; cur_x++)
+            g_fb[cur_y * g_width + cur_x] = col;
+}

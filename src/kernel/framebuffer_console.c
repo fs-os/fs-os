@@ -43,6 +43,8 @@ static uint8_t should_shift;
 static inline void fbc_refresh_entry(uint32_t cy, uint32_t cx) {
     /* Get the current fbc_entry */
     const fbc_entry cur_entry = g_fbc[cy * g_cw + cx];
+    uint32_t* const fb_ptr    = fb_get_ptr();
+    const uint32_t fb_w       = fb_get_width();
 
     /* Then iterate each pixel that forms the font char */
     for (uint8_t fy = 0; fy < g_font->h; fy++) {
@@ -58,12 +60,9 @@ static inline void fbc_refresh_entry(uint32_t cy, uint32_t cx) {
             /* We check if the current bit of the current column is 1.
              * Depending on that, set it to foreground or background. For
              * more information see: src/kernel/include/kernel/font.h */
-            if (get_font_bit(g_font, cur_entry.c, fy, fx))
-                fb_drawrect_col(final_y, final_x, g_font->s, g_font->s,
-                                cur_entry.fg);
-            else
-                fb_drawrect_col(final_y, final_x, g_font->s, g_font->s,
-                                cur_entry.bg);
+            fb_ptr[final_y * fb_w + final_x] =
+              (get_font_bit(g_font, cur_entry.c, fy, fx)) ? cur_entry.fg
+                                                          : cur_entry.bg;
         }
     }
 }
@@ -202,7 +201,7 @@ void fbc_place_str(uint32_t y, uint32_t x, const char* str) {
                 const uint32_t fill_x = CHAR_X_TO_PX(x);
                 const uint32_t fill_h = g_font->h * g_font->s;
                 const uint32_t fill_w = CHAR_X_TO_PX(x) - fill_x;
-                fb_drawrect_col(fill_y, fill_x, fill_h, fill_w, cur_cols.bg);
+                fb_drawrect_fast(fill_y, fill_x, fill_h, fill_w, cur_cols.bg);
 
                 cur_x = 0;
                 return;
@@ -296,7 +295,7 @@ void fbc_putchar(char c) {
             const uint32_t fill_x = CHAR_X_TO_PX(0);
             const uint32_t fill_h = g_font->h * g_font->s;
             const uint32_t fill_w = CHAR_X_TO_PX(cur_x) - fill_x;
-            fb_drawrect_col(fill_y, fill_x, fill_h, fill_w, cur_cols.bg);
+            fb_drawrect_fast(fill_y, fill_x, fill_h, fill_w, cur_cols.bg);
 
             cur_x = 0;
             return;
@@ -344,7 +343,7 @@ void fbc_shift_rows(uint8_t n) {
 
     /* Shift n rows. We go to the newline instead of always g_cw because that will be
      * the last valid char we care about. We can fill the rest faster with
-     * fb_drawrect_col */
+     * fb_drawrect_fast */
     for (uint32_t y = 0; y < g_ch - n; y++) {
         /* Update valid entries until we encounter a null byte. '\0' denotes the end
          * of the valid line. */
@@ -366,7 +365,7 @@ void fbc_shift_rows(uint8_t n) {
         const uint32_t fill_x = CHAR_X_TO_PX(char_count);
         const uint32_t fill_h = g_font->h * g_font->s;
         const uint32_t fill_w = g_w + g_x - fill_x;
-        fb_drawrect_col(fill_y, fill_x, fill_h, fill_w, DEFAULT_BG);
+        fb_drawrect_fast(fill_y, fill_x, fill_h, fill_w, DEFAULT_BG);
 
         char_count = 0;
     }
@@ -395,7 +394,7 @@ void fbc_shift_rows(uint8_t n) {
     const uint32_t fill_x = CHAR_X_TO_PX(0);
     const uint32_t fill_h = n * g_font->h * g_font->s;
     const uint32_t fill_w = g_w;
-    fb_drawrect_col(fill_y, fill_x, fill_h, fill_w, DEFAULT_BG);
+    fb_drawrect_fast(fill_y, fill_x, fill_h, fill_w, DEFAULT_BG);
 }
 
 /* ------------------------------------------------------------------------------- */
