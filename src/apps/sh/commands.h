@@ -27,6 +27,7 @@ static bool quit_sh = false;
 static void cmd_unk(void);
 static void cmd_help(void);
 static void cmd_quit(void);
+static void cmd_ping(void);
 static void cmd_date(void);
 static void cmd_heap_headers(void);
 static void cmd_test_libk(void);
@@ -39,6 +40,7 @@ static Command cmd_list[] = {
     { "help", "Show a list of commands", &cmd_help },
     { "quit", "Permanently exit the shell", &cmd_quit },
     { "date", "Display current date and time", &cmd_date },
+    { "ping", "Simple test command", &cmd_ping },
     { "heap_headers", "Dump the alloc headers", &cmd_heap_headers },
     { "test_libk", "Test the kernel standard lib", &cmd_test_libk },
     { "play_soviet", "Play the soviet anthem using the pc speaker",
@@ -68,6 +70,10 @@ static void cmd_help(void) {
 
 static void cmd_quit(void) {
     quit_sh = true;
+}
+
+static void cmd_ping(void) {
+    puts("pong");
 }
 
 static void cmd_date(void) {
