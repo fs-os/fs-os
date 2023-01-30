@@ -9,8 +9,8 @@
 #define DEFAULT_BG COLOR_BLACK
 
 /* Converts a char position in the fbc to a pixel position (top left corner) */
-#define CHAR_Y_TO_PX(y) (g_y + (y * g_font->h * g_font->s))
-#define CHAR_X_TO_PX(x) (g_x + (x * g_font->w * g_font->s))
+#define CHAR_Y_TO_PX(y) (g_y + (y * g_font->h))
+#define CHAR_X_TO_PX(x) (g_x + (x * g_font->w))
 
 /* Global framebuffer console. Allocated in fbc_init(). The framebuffer console array
  * won't be used for displaying (outside of fbc_refresh), but for keeping track of
@@ -49,13 +49,10 @@ static inline void fbc_refresh_entry(uint32_t cy, uint32_t cx) {
     /* Then iterate each pixel that forms the font char */
     for (uint8_t fy = 0; fy < g_font->h; fy++) {
         for (uint8_t fx = 0; fx < g_font->w; fx++) {
-            /* Get real screen position. We add g_y and g_x because its the
-             * console px offset (position). We multiply the font position by
-             * the font scale. */
-            const uint32_t final_y =
-              g_y + ((cy * g_font->h * g_font->s) + (fy * g_font->s));
-            const uint32_t final_x =
-              g_x + ((cx * g_font->w * g_font->s) + (fx * g_font->s));
+            /* Get real screen position from the char offset on the screen and the
+             * pixel font offset on the char */
+            const uint32_t final_y = CHAR_Y_TO_PX(cy) + fy;
+            const uint32_t final_x = CHAR_X_TO_PX(cx) + fx;
 
             /* We check if the current bit of the current column is 1.
              * Depending on that, set it to foreground or background. For
@@ -79,8 +76,8 @@ void fbc_init(uint32_t y, uint32_t x, uint32_t h, uint32_t w, Font* font) {
     g_w = w;
 
     /* We get the font size but we save the console char dimensions */
-    g_ch   = h / (font->h * font->s);
-    g_cw   = w / (font->w * font->s);
+    g_ch   = h / font->h;
+    g_cw   = w / font->w;
     g_font = font;
 
     cur_cols.fg = DEFAULT_FG;
@@ -199,7 +196,7 @@ void fbc_place_str(uint32_t y, uint32_t x, const char* str) {
                 /* Fill from initial string pos to the cursor pos */
                 const uint32_t fill_y = CHAR_Y_TO_PX(y);
                 const uint32_t fill_x = CHAR_X_TO_PX(x);
-                const uint32_t fill_h = g_font->h * g_font->s;
+                const uint32_t fill_h = g_font->h;
                 const uint32_t fill_w = CHAR_X_TO_PX(x) - fill_x;
                 fb_drawrect_fast(fill_y, fill_x, fill_h, fill_w, cur_cols.bg);
 
@@ -293,7 +290,7 @@ void fbc_putchar(char c) {
             /* Fill from start of the line to the cursor pos */
             const uint32_t fill_y = CHAR_Y_TO_PX(cur_y);
             const uint32_t fill_x = CHAR_X_TO_PX(0);
-            const uint32_t fill_h = g_font->h * g_font->s;
+            const uint32_t fill_h = g_font->h;
             const uint32_t fill_w = CHAR_X_TO_PX(cur_x) - fill_x;
             fb_drawrect_fast(fill_y, fill_x, fill_h, fill_w, cur_cols.bg);
 
@@ -363,7 +360,7 @@ void fbc_shift_rows(uint8_t n) {
         /* Fill from last valid to the end of the line */
         const uint32_t fill_y = CHAR_Y_TO_PX(y);
         const uint32_t fill_x = CHAR_X_TO_PX(char_count);
-        const uint32_t fill_h = g_font->h * g_font->s;
+        const uint32_t fill_h = g_font->h;
         const uint32_t fill_w = g_w + g_x - fill_x;
         fb_drawrect_fast(fill_y, fill_x, fill_h, fill_w, DEFAULT_BG);
 
@@ -392,7 +389,7 @@ void fbc_shift_rows(uint8_t n) {
     /* Fill last empty lines with background color */
     const uint32_t fill_y = CHAR_Y_TO_PX(g_ch - n);
     const uint32_t fill_x = CHAR_X_TO_PX(0);
-    const uint32_t fill_h = n * g_font->h * g_font->s;
+    const uint32_t fill_h = n * g_font->h;
     const uint32_t fill_w = g_w;
     fb_drawrect_fast(fill_y, fill_x, fill_h, fill_w, DEFAULT_BG);
 }

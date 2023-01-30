@@ -33,8 +33,6 @@
 Font main_font = {
     .w = 7,
     .h = 13,
-    /* Change scale to make the font bigger */
-    .s = 1,
     .name = "Cozette",
     /* Huge credits to https://github.com/pixelmatix/bdf2c */
     .font =

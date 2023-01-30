@@ -7,7 +7,6 @@
 typedef struct {
     uint8_t w;     /* Width */
     uint8_t h;     /* Height */
-    uint8_t s;     /* Scale. Actual pixels to display per font pixel */
     uint8_t* name; /* Font name */
     uint8_t* font; /* Bitmap ptr. Size must be (256 * w) */
 } Font;
