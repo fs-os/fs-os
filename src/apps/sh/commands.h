@@ -5,6 +5,7 @@
 
 #include "sh.h"
 
+#include "../piano/piano.h"
 #include "../../kernel/media/soviet_anthem.h"
 #include "../../kernel/media/thunderstruck.h"
 
@@ -40,12 +41,13 @@ static void cmd_play_thunder(void);
  * For adding commands, see:
  *   https://github.com/fs-os/fs-os/commit/b61e2b7d7934d1f0f58442152bd0563c91439a52
  */
-/* TODO: arg support (for sleep for example) */
+/* TODO: argc and argv support (+ int return) */
 static Command cmd_list[] = {
     { "help", "Show a list of commands", &cmd_help },
     { "quit", "Permanently exit the shell", &cmd_quit },
     { "date", "Display current date and time", &cmd_date },
     { "ping", "Simple test command", &cmd_ping },
+    { "piano", "Play the piano through the pc speaker", &piano_main },
     { "heap_headers", "Dump the alloc headers", &cmd_heap_headers },
     { "test_libk", "Test the kernel standard lib", &cmd_test_libk },
     { "play_soviet", "Play the soviet anthem using the pc speaker",
