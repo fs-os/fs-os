@@ -9,8 +9,8 @@
 #define DEFAULT_BG COLOR_BLACK
 
 /* Converts a char position in the fbc to a pixel position (top left corner) */
-#define CHAR_Y_TO_PX(y) (g_y + (y * g_font->h))
-#define CHAR_X_TO_PX(x) (g_x + (x * g_font->w))
+#define CHAR_Y_TO_PX(y) (g_y + ((y) * g_font->h))
+#define CHAR_X_TO_PX(x) (g_x + ((x) * g_font->w))
 
 /* Global framebuffer console. Allocated in fbc_init(). The framebuffer console array
  * won't be used for displaying (outside of fbc_refresh), but for keeping track of
