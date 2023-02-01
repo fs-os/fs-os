@@ -65,7 +65,7 @@ void piano_main(void) {
     print_piano();
 
     /* Store the frequency of the current playing note */
-    piano_key playing_note = { 0, NULL, 0, false, false };
+    piano_key* playing_note = NULL;
 
     /* Main piano loop */
     while (!kb_held(EXIT_CH)) {
@@ -94,7 +94,7 @@ void piano_main(void) {
         for (size_t i = 0; i < LENGTH(piano_keys); i++) {
             if (piano_keys[i].pressed) {
                 /* If we just pressed a key, give that key priority */
-                playing_note = piano_keys[i];
+                playing_note = &piano_keys[i];
                 playing      = true;
 
                 break;
@@ -104,7 +104,7 @@ void piano_main(void) {
                  * overwrite the freq even before checking the whole array for
                  * pressed keys because we would break inmediately after we find a
                  * pressed key. */
-                playing_note = piano_keys[i];
+                playing_note = &piano_keys[i];
                 playing      = true;
             }
         }
@@ -115,10 +115,10 @@ void piano_main(void) {
                 pcspkr_clear();
                 printf("\r\tCurrent note:");
             }
-        } else if (pcspkr_get_freq() != playing_note.freq) {
-            pcspkr_play(playing_note.freq);
-            printf("\r\tCurrent note: %s (%ld)", playing_note.note_name,
-                   playing_note.freq);
+        } else if (pcspkr_get_freq() != playing_note->freq) {
+            pcspkr_play(playing_note->freq);
+            printf("\r\tCurrent note: %s (%ld)", playing_note->note_name,
+                   playing_note->freq);
         }
     }
 
