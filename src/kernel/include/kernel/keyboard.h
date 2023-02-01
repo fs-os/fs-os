@@ -48,10 +48,10 @@ enum kb_special_indexes {
 
 /* Layout: struct containing a pointer to the default and shift layouts for a lang */
 typedef struct {
-    char* def;         /* Chars to display for each key code */
-    char* shift;       /* Same as .def but when holding shift */
-    uint16_t* special; /* Array contaning the indexes of special chars for the
-                        * current layout */
+    unsigned char* def;   /* Chars to display for each key code */
+    unsigned char* shift; /* Same as .def but when holding shift */
+    uint16_t* special;    /* Array contaning the indexes of special chars for the
+                           * current layout */
 } Layout;
 
 /* kb_handler: actual C handler for the keyboard exceptions recieved from "irq_kb".

@@ -3,7 +3,7 @@
 
 static const Layout us_layout = {
     .def =
-      (char[]){
+      (unsigned char[]){
         0,                                                             /**/
         0x1b,                                                          /* esc */
         '1',  '2',  '3', '4', '5', '6', '7', '8', '9', '0', '-',  '=', /**/
@@ -40,7 +40,7 @@ static const Layout us_layout = {
         0, /* all other keys are undefined */
       },
     .shift =
-      (char[]){
+      (unsigned char[]){
         0,                                                             /**/
         0x1b,                                                          /* esc */
         '!',  '@',  '#', '$', '%', '^', '&', '*', '(', ')', '_',  '+', /**/

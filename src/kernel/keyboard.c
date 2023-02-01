@@ -75,7 +75,7 @@ static inline void check_special(uint8_t released, uint8_t key) {
 
 /* check_layout: return lang_layout.shift if the shift is pressed, or to
  * lang_layout.def when shift is not being usd */
-static inline char* get_layout(void) {
+static inline unsigned char* get_layout(void) {
     /* TODO: We should only change letters with caps lock, special chars like '#'
      * should only be changed with shift. */
     return (capslock_on || shift_held) ? cur_layout->shift : cur_layout->def;
@@ -101,8 +101,8 @@ void kb_handler(void) {
         check_special(released, key);
 
         /* Check if we need to use an alternative layout when using shift, etc. */
-        const char* final_layout = get_layout();
-        const char final_key     = final_layout[key];
+        const unsigned char* final_layout = get_layout();
+        const unsigned char final_key     = final_layout[key];
 
         /* Store the current key as pressed or released in the key_flags array */
         if (released) {
