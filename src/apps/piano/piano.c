@@ -28,27 +28,31 @@ static inline void print_piano(void) {
         "\xCD\xCD\xCA\xCD\xCD\xCD\xCA\xCD\xCD\xCD\xCA\xCD\xCD\xCD\xBC",
     };
 
+    putchar('\n');
+
     for (size_t i = 0; i < LENGTH(piano_layout); i++) {
         putchar('\t');
         puts(piano_layout[i]);
     }
+
+    putchar('\n');
 }
 
 static piano_key piano_keys[] = {
     /* char, freq, pressed, held */
-    { 's', 261, false, false }, /* C  | freq: .6 */
-    { 'e', 277, false, false }, /* C# | freq: .2 */
-    { 'd', 293, false, false }, /* D  | freq: .7 */
-    { 'r', 311, false, false }, /* D# | freq: .1 */
-    { 'f', 329, false, false }, /* E  | freq: .6 */
-    { 'g', 349, false, false }, /* F  | freq: .2 */
-    { 'y', 370, false, false }, /* F# | freq: .0 */
-    { 'h', 392, false, false }, /* G  | freq: .0 */
-    { 'u', 415, false, false }, /* G# | freq: .3 */
-    { 'j', 440, false, false }, /* A  | freq: .0 */
-    { 'i', 466, false, false }, /* A# | freq: .2 */
-    { 'k', 493, false, false }, /* B  | freq: .9 */
-    { 'l', 523, false, false }, /* C  | freq: .2 */
+    { 's', "C ", 261, false, false }, /* C  | freq: .6 */
+    { 'e', "C#", 277, false, false }, /* C# | freq: .2 */
+    { 'd', "D ", 293, false, false }, /* D  | freq: .7 */
+    { 'r', "D#", 311, false, false }, /* D# | freq: .1 */
+    { 'f', "E ", 329, false, false }, /* E  | freq: .6 */
+    { 'g', "F ", 349, false, false }, /* F  | freq: .2 */
+    { 'y', "F#", 370, false, false }, /* F# | freq: .0 */
+    { 'h', "G ", 392, false, false }, /* G  | freq: .0 */
+    { 'u', "G#", 415, false, false }, /* G# | freq: .3 */
+    { 'j', "A ", 440, false, false }, /* A  | freq: .0 */
+    { 'i', "A#", 466, false, false }, /* A# | freq: .2 */
+    { 'k', "B ", 493, false, false }, /* B  | freq: .9 */
+    { 'l', "C ", 523, false, false }, /* C  | freq: .2 */
 
 };
 
@@ -60,7 +64,7 @@ void piano_main(void) {
     print_piano();
 
     /* Store the frequency of the current playing note */
-    uint32_t playing_freq = 0;
+    piano_key playing_note = { 0, NULL, 0, false, false };
 
     /* Main piano loop */
     while (!kb_held(EXIT_CH)) {
@@ -98,7 +102,7 @@ void piano_main(void) {
         for (size_t i = 0; i < LENGTH(piano_keys); i++) {
             if (piano_keys[i].pressed) {
                 /* If we just pressed a key, give that key priority */
-                playing_freq = piano_keys[i].freq;
+                playing_note = piano_keys[i];
                 playing      = true;
 
 #ifdef DEBUG
@@ -112,17 +116,25 @@ void piano_main(void) {
                  * overwrite the freq even before checking the whole array for
                  * pressed keys because we would break inmediately after we find a
                  * pressed key. */
-                playing_freq = piano_keys[i].freq;
+                playing_note = piano_keys[i];
                 playing      = true;
             }
         }
 
         /* If we are not playing any note, stop the pc speaker */
-        if (playing)
-            pcspkr_play(playing_freq);
-        else
-            pcspkr_clear();
+        if (!playing) {
+            if (pcspkr_get_freq() != 0) {
+                pcspkr_clear();
+                printf("\r\tCurrent note:");
+            }
+        } else if (pcspkr_get_freq() != playing_note.freq) {
+            pcspkr_play(playing_note.freq);
+            printf("\r\tCurrent note: %s (%ld)", playing_note.note_name,
+                   playing_note.freq);
+        }
     }
+
+    printf("\r\tGoodbye.\n");
 
     /* If we were echoing the keyboard before the program, restore it */
     if (restore_echo)
