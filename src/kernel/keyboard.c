@@ -47,10 +47,13 @@ static const Layout* cur_layout = &us_layout;
 static uint8_t key_flags[128] = { 0 };
 
 /* Store if we should use caps */
-static bool capslock_on = 0, shift_held = 0;
+static bool capslock_on = false, shift_held = false;
 
 /* Store if we should print the characters to screen when recieving them */
-static bool print_chars = 1;
+static bool print_chars = true;
+
+/* True if a program is waiting for kb_getchar */
+static volatile bool getting_char = false;
 
 /* Buffers for the getchar functions. Since kb_handler only reads 8 bit chars, we
  * don't need bigger arrays. We need to use signed chars because of EOF, though */
@@ -125,32 +128,35 @@ void kb_handler(void) {
         if (print_chars)
             putchar(final_key);
 
-        if (getchar_line_buf_pos >= KB_GETCHAR_BUFSZ)
-            panic_line("getchar buffer out of bounds");
+        /* If a program called kb_getchar */
+        if (getting_char) {
+            if (getchar_line_buf_pos >= KB_GETCHAR_BUFSZ)
+                panic_line("getchar buffer out of bounds");
 
-        /* Store the current char to the getchar line buffer (if the char can be
-         * displayed with the current font) */
-        getchar_line_buf[getchar_line_buf_pos++] = final_key;
+            /* Store the current char to the getchar line buffer (if the char can be
+             * displayed with the current font) */
+            getchar_line_buf[getchar_line_buf_pos++] = final_key;
 
-        /* Check if the key we just saved is '\n'. If it is, the user is done
-         * with the input line so we can move the chars to the final buffer */
-        if (final_key == '\n') {
-            for (int i = 0; i < getchar_line_buf_pos; i++) {
-                getchar_buf[i]      = getchar_line_buf[i];
-                getchar_line_buf[i] = EOF;
-            }
+            /* Check if the key we just saved is '\n'. If it is, the user is done
+             * with the input line so we can move the chars to the final buffer */
+            if (final_key == '\n') {
+                for (int i = 0; i < getchar_line_buf_pos; i++) {
+                    getchar_buf[i]      = getchar_line_buf[i];
+                    getchar_line_buf[i] = EOF;
+                }
 
-            getchar_buf_pos      = 0; /* Not needed */
-            getchar_line_buf_pos = 0;
-        } else if (final_key == '\b') {
-            /* Delete last char from line buffer if we detect '\b' */
+                getchar_buf_pos      = 0; /* Not needed */
+                getchar_line_buf_pos = 0;
+            } else if (final_key == '\b') {
+                /* Delete last char from line buffer if we detect '\b' */
 
-            /* Remove the '\b' we just added */
-            getchar_line_buf[--getchar_line_buf_pos] = EOF;
-
-            /* Delete the last char */
-            if (getchar_line_buf_pos > 0)
+                /* Remove the '\b' we just added */
                 getchar_line_buf[--getchar_line_buf_pos] = EOF;
+
+                /* Delete the last char */
+                if (getchar_line_buf_pos > 0)
+                    getchar_line_buf[--getchar_line_buf_pos] = EOF;
+            }
         }
     }
 
@@ -199,6 +205,9 @@ void kb_getchar_init(void) {
 
 /* kb_getchar: get input chars from "getchar_buf" once the user wrote a line */
 int kb_getchar(void) {
+    /* Tell the keyboard handler to store the key presses */
+    getting_char = true;
+
     /* Wait until we read a valid char */
     volatile int8_t* tmp = &getchar_buf[getchar_buf_pos];
     while (*tmp == EOF)
@@ -211,6 +220,9 @@ int kb_getchar(void) {
      * 0 */
     if (getchar_buf[++getchar_buf_pos] == EOF)
         getchar_buf_pos = 0;
+
+    /* We don't want to read keys anymore (if we do, enable in next getchar call) */
+    getting_char = false;
 
     return c;
 }
