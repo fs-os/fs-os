@@ -69,6 +69,9 @@ void piano_main(void) {
 
     /* Main piano loop */
     while (!kb_held(EXIT_CH)) {
+        /* Used to check if we are playing a note at all */
+        bool playing = false;
+
         /* Store which keys are being pressed and held */
         for (size_t i = 0; i < LENGTH(piano_keys); i++) {
             const bool keyboard_held = kb_held(piano_keys[i].ch);
@@ -77,6 +80,10 @@ void piano_main(void) {
                 /* The key was just pressed */
                 piano_keys[i].pressed = true;
                 piano_keys[i].held    = true;
+
+                /* If we just pressed a key, give that key priority */
+                playing_note = &piano_keys[i];
+                playing      = true;
             } else if (piano_keys[i].held) {
                 /* The key is being held (or not) but not for the first time */
                 piano_keys[i].pressed = false;
@@ -87,25 +94,22 @@ void piano_main(void) {
             }
         }
 
-        /* Used to check if we are playing a note at all */
-        bool playing = false;
+        if (playing_note != NULL && playing_note->held)
+            playing = true;
 
-        /* Iterate again to see what keys are being pressed or held */
-        for (size_t i = 0; i < LENGTH(piano_keys); i++) {
-            if (piano_keys[i].pressed) {
-                /* If we just pressed a key, give that key priority */
-                playing_note = &piano_keys[i];
-                playing      = true;
-
-                break;
-            } else if (piano_keys[i].held) {
-                /* If we didn't press a key this iteration, but we are still holding
-                 * a key, change the frequency and don't stop the speaker. We
-                 * overwrite the freq even before checking the whole array for
-                 * pressed keys because we would break inmediately after we find a
-                 * pressed key. */
-                playing_note = &piano_keys[i];
-                playing      = true;
+        /* If the key that we were holding was released, iterate again to find
+         * another held key */
+        if (!playing) {
+            for (size_t i = 0; i < LENGTH(piano_keys); i++) {
+                if (piano_keys[i].held) {
+                    /* If we didn't press a key this iteration, but we are still
+                     * holding a key, change the frequency and don't stop the
+                     * speaker. We overwrite the freq even before checking the whole
+                     * array for pressed keys because we would break inmediately
+                     * after we find a pressed key. */
+                    playing_note = &piano_keys[i];
+                    playing      = true;
+                }
             }
         }
 
