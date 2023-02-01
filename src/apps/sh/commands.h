@@ -1,5 +1,5 @@
 
-#include <kernel/framebuffer_console.h> /* fbc_setfore */
+#include <kernel/framebuffer_console.h> /* fbc_setfore, fbc_clear */
 #include <kernel/heap.h>                /* heap_dump_headers */
 #include <kernel/rtc.h>                 /* rtc_get_datetime */
 #include <kernel/pcspkr.h>              /* pcspkr_beep */
@@ -31,6 +31,8 @@ static void cmd_help(void);
 static void cmd_quit(void);
 static void cmd_ping(void);
 static void cmd_beep(void);
+static void cmd_clear(void);
+static void cmd_ref(void);
 static void cmd_date(void);
 static void cmd_heap_headers(void);
 static void cmd_test_libk(void);
@@ -47,10 +49,12 @@ static void cmd_play_thunder(void);
 static Command cmd_list[] = {
     { "help", "Show a list of commands", &cmd_help },
     { "quit", "Permanently exit the shell", &cmd_quit },
-    { "date", "Display current date and time", &cmd_date },
     { "ping", "Simple test command", &cmd_ping },
     { "beep", "Beep through the pc speaker", &cmd_beep },
+    { "clear", "Clear the console", &cmd_clear },
+    { "ref", "Refresh the console", &cmd_ref },
     { "piano", "Play the piano through the pc speaker", &piano_main },
+    { "date", "Display current date and time", &cmd_date },
     { "heap_headers", "Dump the alloc headers", &cmd_heap_headers },
     { "test_libk", "Test the kernel standard lib", &cmd_test_libk },
     { "play_soviet", "Play the soviet anthem using the pc speaker",
@@ -88,6 +92,15 @@ static void cmd_ping(void) {
 
 static void cmd_beep(void) {
     pcspkr_beep();
+}
+
+static void cmd_clear(void) {
+    fbc_clear();
+    fbc_refresh();
+}
+
+static void cmd_ref(void) {
+    fbc_refresh();
 }
 
 static void cmd_date(void) {
