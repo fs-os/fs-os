@@ -61,6 +61,7 @@ void piano_main(void) {
     const bool restore_echo = kb_getecho();
 
     kb_noecho();
+    printf("\n\tPress \'q\' to exit...\n");
     print_piano();
 
     /* Store the frequency of the current playing note */
