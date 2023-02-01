@@ -35,19 +35,20 @@ static inline void print_piano(void) {
 }
 
 static piano_key piano_keys[] = {
-    { 's', 261, false }, /* C  | freq: .6 */
-    { 'e', 277, false }, /* C# | freq: .2 */
-    { 'd', 293, false }, /* D  | freq: .7 */
-    { 'r', 311, false }, /* D# | freq: .1 */
-    { 'f', 329, false }, /* E  | freq: .6 */
-    { 'g', 349, false }, /* F  | freq: .2 */
-    { 'y', 370, false }, /* F# | freq: .0 */
-    { 'h', 392, false }, /* G  | freq: .0 */
-    { 'u', 415, false }, /* G# | freq: .3 */
-    { 'j', 440, false }, /* A  | freq: .0 */
-    { 'i', 466, false }, /* A# | freq: .2 */
-    { 'k', 493, false }, /* B  | freq: .9 */
-    { 'l', 523, false }, /* C  | freq: .2 */
+    /* char, freq, pressed, held */
+    { 's', 261, false, false }, /* C  | freq: .6 */
+    { 'e', 277, false, false }, /* C# | freq: .2 */
+    { 'd', 293, false, false }, /* D  | freq: .7 */
+    { 'r', 311, false, false }, /* D# | freq: .1 */
+    { 'f', 329, false, false }, /* E  | freq: .6 */
+    { 'g', 349, false, false }, /* F  | freq: .2 */
+    { 'y', 370, false, false }, /* F# | freq: .0 */
+    { 'h', 392, false, false }, /* G  | freq: .0 */
+    { 'u', 415, false, false }, /* G# | freq: .3 */
+    { 'j', 440, false, false }, /* A  | freq: .0 */
+    { 'i', 466, false, false }, /* A# | freq: .2 */
+    { 'k', 493, false, false }, /* B  | freq: .9 */
+    { 'l', 523, false, false }, /* C  | freq: .2 */
 
 };
 
@@ -58,31 +59,68 @@ void piano_main(void) {
     kb_noecho();
     print_piano();
 
+    /* Store the frequency of the current playing note */
+    uint32_t playing_freq = 0;
+
     /* Main piano loop */
     while (!kb_held(EXIT_CH)) {
-        /* Used to check if we are playing a note at all */
-        bool playing = false;
-
+        /* Store which keys are being pressed and held */
         for (size_t i = 0; i < LENGTH(piano_keys); i++) {
             const bool keyboard_held = kb_held(piano_keys[i].ch);
 
-            if (keyboard_held && !piano_keys[i].pressed) {
+            if (keyboard_held && !piano_keys[i].held) {
                 /* The key was just pressed */
                 piano_keys[i].pressed = true;
-                pcspkr_play(piano_keys[i].freq);
-            } else if (!keyboard_held && piano_keys[i].pressed) {
-                /* The key just released */
-                piano_keys[i].pressed = false;
-            }
+                piano_keys[i].held    = true;
 
-            if (piano_keys[i].pressed)
-                playing = true;
+#ifdef DEBUG
+                printf("Pressed key \'%c\'\n", piano_keys[i].ch);
+#endif
+            } else if (piano_keys[i].held) {
+                /* The key is being held (or not) but not for the first time */
+                piano_keys[i].pressed = false;
+
+                /* The key just released */
+                if (!keyboard_held) {
+                    piano_keys[i].held = false;
+
+#ifdef DEBUG
+                    printf("Released key \'%c\'\n", piano_keys[i].ch);
+#endif
+                }
+            }
         }
 
-        /* If we just pressed a key, give that key priority */
+        /* Used to check if we are playing a note at all */
+        bool playing = false;
+
+        /* Iterate again to see what keys are being pressed or held */
+        for (size_t i = 0; i < LENGTH(piano_keys); i++) {
+            if (piano_keys[i].pressed) {
+                /* If we just pressed a key, give that key priority */
+                playing_freq = piano_keys[i].freq;
+                playing      = true;
+
+#ifdef DEBUG
+                printf("Found pressed key: \'%c\' (%ld)\n", piano_keys[i].ch,
+                       piano_keys[i].freq);
+#endif
+                break;
+            } else if (piano_keys[i].held) {
+                /* If we didn't press a key this iteration, but we are still holding
+                 * a key, change the frequency and don't stop the speaker. We
+                 * overwrite the freq even before checking the whole array for
+                 * pressed keys because we would break inmediately after we find a
+                 * pressed key. */
+                playing_freq = piano_keys[i].freq;
+                playing      = true;
+            }
+        }
 
         /* If we are not playing any note, stop the pc speaker */
-        if (!playing)
+        if (playing)
+            pcspkr_play(playing_freq);
+        else
             pcspkr_clear();
     }
 
