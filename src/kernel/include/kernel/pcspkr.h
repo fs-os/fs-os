@@ -18,6 +18,10 @@ void pcspkr_play(uint32_t freq);
 /* pcspkr_clear: tell the pc speaker to stop listening from PIT channel 2 */
 void pcspkr_clear(void);
 
+/* pcspkr_get_freq: returns the current frequency used by the pc speaker. 0 if
+ * disabled */
+uint32_t pcspkr_get_freq(void);
+
 /* pcspkr_beep_custom: custom beep with freq and duration using the pc speaker */
 void pcspkr_beep_custom(Beep info);
 

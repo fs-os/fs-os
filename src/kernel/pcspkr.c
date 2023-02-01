@@ -7,8 +7,14 @@
 #include <kernel/io.h>
 #include <kernel/pcspkr.h>
 
+/* Current frequency used by the pc speaker. 0 if disabled */
+static uint32_t current_freq = 0;
+
 /* pcspkr_play: play pc speaker with "freq" frequency (1s format). freq can't be 0 */
 void pcspkr_play(uint32_t freq) {
+    /* Save the current frequency */
+    current_freq = freq;
+
     /* freq should be how many HZs it should wait bewteen sending interrupt. We pass
      * the frequency per second to convert it to HZ (by dividing how many HZs are in
      * a sec) */
@@ -34,6 +40,15 @@ void pcspkr_clear(void) {
     /* Set last 2 bits to 0 */
     uint8_t tmp = io_inb(PCSPKR_PORT) & 0xFC;
     io_outb(PCSPKR_PORT, tmp);
+
+    /* Set the last freq to 0 */
+    current_freq = 0;
+}
+
+/* pcspkr_get_freq: returns the current frequency used by the pc speaker. 0 if
+ * disabled */
+uint32_t pcspkr_get_freq(void) {
+    return current_freq;
 }
 
 /* pcspkr_beep: simple beep using the pc speaker (wrapper for pcspkr_beep_custom) */
