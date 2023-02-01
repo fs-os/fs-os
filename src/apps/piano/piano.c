@@ -61,7 +61,7 @@ void piano_main(void) {
     const bool restore_echo = kb_getecho();
 
     kb_noecho();
-    printf("\n\tPress \'q\' to exit...\n");
+    printf("\n\tPress \'%c\' to exit...\n", EXIT_CH);
     print_piano();
 
     /* Store the frequency of the current playing note */
@@ -77,22 +77,13 @@ void piano_main(void) {
                 /* The key was just pressed */
                 piano_keys[i].pressed = true;
                 piano_keys[i].held    = true;
-
-#ifdef DEBUG
-                printf("Pressed key \'%c\'\n", piano_keys[i].ch);
-#endif
             } else if (piano_keys[i].held) {
                 /* The key is being held (or not) but not for the first time */
                 piano_keys[i].pressed = false;
 
                 /* The key just released */
-                if (!keyboard_held) {
+                if (!keyboard_held)
                     piano_keys[i].held = false;
-
-#ifdef DEBUG
-                    printf("Released key \'%c\'\n", piano_keys[i].ch);
-#endif
-                }
             }
         }
 
@@ -106,10 +97,6 @@ void piano_main(void) {
                 playing_note = piano_keys[i];
                 playing      = true;
 
-#ifdef DEBUG
-                printf("Found pressed key: \'%c\' (%ld)\n", piano_keys[i].ch,
-                       piano_keys[i].freq);
-#endif
                 break;
             } else if (piano_keys[i].held) {
                 /* If we didn't press a key this iteration, but we are still holding
