@@ -100,19 +100,19 @@ void kb_handler(void) {
         /* Check if we should toggle global variables for caps, etc. */
         check_special(released, key);
 
+        /* Check if we need to use an alternative layout when using shift, etc. */
+        const char* final_layout = get_layout();
+        const char final_key     = final_layout[key];
+
         /* Store the current key as pressed or released in the key_flags array */
         if (released) {
-            key_flags[key] &= ~KB_FLAG_PRESSED;
+            key_flags[final_key] &= ~KB_FLAG_PRESSED;
 
             /* We only want to go to the next part if the key was pressed */
             continue;
         } else {
-            key_flags[key] |= KB_FLAG_PRESSED;
+            key_flags[final_key] |= KB_FLAG_PRESSED;
         }
-
-        /* Check if we need to use an alternative layout when using shift, etc. */
-        const char* final_layout = get_layout();
-        const char final_key     = final_layout[key];
 
         /* We only want to go to the next part if the key can be displayed */
         if (final_key == 0)
