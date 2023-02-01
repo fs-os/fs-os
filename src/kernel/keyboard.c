@@ -178,6 +178,11 @@ void kb_echo(void) {
     print_chars = true;
 }
 
+/* kb_getecho: get the static print_chars variable */
+bool kb_getecho(void) {
+    return print_chars;
+}
+
 /* kb_setlayout: set the current active layout to the specified Layout pointer */
 void kb_setlayout(const Layout* ptr) {
     cur_layout = ptr;

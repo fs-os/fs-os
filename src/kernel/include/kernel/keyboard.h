@@ -68,6 +68,9 @@ void kb_noecho(void);
 /* kb_echo: enable char printing on key press */
 void kb_echo(void);
 
+/* kb_getecho: get the static print_chars variable */
+bool kb_getecho(void);
+
 /* kb_setlayout: set the current active layout to the specified Layout pointer */
 void kb_setlayout(const Layout* ptr);
 
