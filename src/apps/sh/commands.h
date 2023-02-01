@@ -2,6 +2,7 @@
 #include <kernel/framebuffer_console.h> /* fbc_setfore */
 #include <kernel/heap.h>                /* heap_dump_headers */
 #include <kernel/rtc.h>                 /* rtc_get_datetime */
+#include <kernel/pcspkr.h>              /* pcspkr_beep */
 
 #include "sh.h"
 
@@ -29,6 +30,7 @@ static void cmd_unk(void);
 static void cmd_help(void);
 static void cmd_quit(void);
 static void cmd_ping(void);
+static void cmd_beep(void);
 static void cmd_date(void);
 static void cmd_heap_headers(void);
 static void cmd_test_libk(void);
@@ -47,6 +49,7 @@ static Command cmd_list[] = {
     { "quit", "Permanently exit the shell", &cmd_quit },
     { "date", "Display current date and time", &cmd_date },
     { "ping", "Simple test command", &cmd_ping },
+    { "beep", "Beep through the pc speaker", &cmd_beep },
     { "piano", "Play the piano through the pc speaker", &piano_main },
     { "heap_headers", "Dump the alloc headers", &cmd_heap_headers },
     { "test_libk", "Test the kernel standard lib", &cmd_test_libk },
@@ -81,6 +84,10 @@ static void cmd_quit(void) {
 
 static void cmd_ping(void) {
     puts("pong");
+}
+
+static void cmd_beep(void) {
+    pcspkr_beep();
 }
 
 static void cmd_date(void) {
