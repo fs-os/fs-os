@@ -1,4 +1,10 @@
 
+#include <stdlib.h>
+#include <stdio.h>
+#include <stdbool.h>
+#include <string.h>
+#include <time.h> /* sleep */
+
 #include <kernel/framebuffer_console.h> /* fbc_setfore, fbc_clear */
 #include <kernel/heap.h>                /* heap_dump_headers */
 #include <kernel/rtc.h>                 /* rtc_get_datetime */
@@ -23,21 +29,22 @@
 
 /* Used in sh_main and cmd_quit */
 static bool quit_sh = false;
+static int last_ret = 0;
 
 /* Need to declare them here because the array needs the functions, but the functions
  * also need the array */
-static void cmd_unk(void);
-static void cmd_help(void);
-static void cmd_quit(void);
-static void cmd_ping(void);
-static void cmd_beep(void);
-static void cmd_clear(void);
-static void cmd_ref(void);
-static void cmd_date(void);
-static void cmd_heap_headers(void);
-static void cmd_test_libk(void);
-static void cmd_play_soviet(void);
-static void cmd_play_thunder(void);
+static int cmd_unk();
+static int cmd_help();
+static int cmd_quit();
+static int cmd_ping();
+static int cmd_beep(int argc, char** argv);
+static int cmd_clear();
+static int cmd_ref();
+static int cmd_date();
+static int cmd_heap_headers();
+static int cmd_test_libk();
+static int cmd_play_soviet();
+static int cmd_play_thunder();
 
 /*
  * Structure of the array:
@@ -64,11 +71,12 @@ static Command cmd_list[] = {
 
 /* ------------------------------------------------------------------------------- */
 
-static void cmd_unk(void) {
+static int cmd_unk() {
     puts("Unknown command... See \"help\" for more details.");
+    return 1;
 }
 
-static void cmd_help(void) {
+static int cmd_help() {
     fbc_setfore(COLOR_WHITE_B);
     puts("Command list:");
 
@@ -80,30 +88,64 @@ static void cmd_help(void) {
     }
 
     fbc_setfore(COLOR_WHITE);
+
+    return 0;
 }
 
-static void cmd_quit(void) {
+static int cmd_quit() {
     quit_sh = true;
+    return 0;
 }
 
-static void cmd_ping(void) {
+static int cmd_ping() {
     puts("pong");
+    return 0;
 }
 
-static void cmd_beep(void) {
-    pcspkr_beep();
+static int cmd_beep(int argc, char** argv) {
+    /* Default beep */
+    Beep beep_info = {
+        1000,
+        20,
+    };
+
+    if (argc <= 1) {
+        pcspkr_beep_custom(beep_info);
+        return 0;
+    }
+    /* 1st arg, freq */
+    beep_info.freq = atoi(argv[1]);
+
+    /* 2nd arg, duration (optional) */
+    if (argc > 2)
+        beep_info.ms_len = atoi(argv[2]);
+
+    if (beep_info.freq == 0 || beep_info.ms_len == 0) {
+        printf("Invalid parameters.\n"
+               "Usage:\n"
+               "\t%s [ms frequency] [ms duration]\n",
+               argv[0]);
+        return 1;
+    }
+
+    pcspkr_beep_custom(beep_info);
+
+    return 0;
 }
 
-static void cmd_clear(void) {
+static int cmd_clear() {
     fbc_clear();
     fbc_refresh();
+
+    return 0;
 }
 
-static void cmd_ref(void) {
+static int cmd_ref() {
     fbc_refresh();
+    return 0;
 }
 
-static void cmd_date(void) {
+static int cmd_date() {
     const DateTime now = rtc_get_datetime();
 
     fbc_setfore(COLOR_WHITE_B);
@@ -112,13 +154,16 @@ static void cmd_date(void) {
     printf("%2d/%2d/%2d - %2d:%2d:%2d\n", now.date.d, now.date.m, now.date.y,
            now.time.h, now.time.m, now.time.s);
     fbc_setfore(COLOR_WHITE);
+
+    return 0;
 }
 
-static void cmd_heap_headers(void) {
+static int cmd_heap_headers() {
     heap_dump_headers();
+    return 0;
 }
 
-static void cmd_test_libk(void) {
+static int cmd_test_libk() {
     TEST_TITLE("\nTesting stdlib.h, string.h and stdio.h functions");
 
     char buf[255] = { 0 };
@@ -143,13 +188,17 @@ static void cmd_test_libk(void) {
     printf("Hello, ");
     sleep(2);
     printf("world!\n");
+
+    return 0;
 }
 
-static void cmd_play_soviet(void) {
+static int cmd_play_soviet() {
     play_soviet_anthem();
+    return 0;
 }
 
-static void cmd_play_thunder(void) {
+static int cmd_play_thunder() {
     play_thunderstruck();
+    return 0;
 }
 

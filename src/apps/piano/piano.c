@@ -56,7 +56,7 @@ static piano_key piano_keys[] = {
 };
 
 /* piano_main: main piano function */
-void piano_main(void) {
+int piano_main() {
     const bool restore_echo = kb_getecho();
 
     kb_noecho();
@@ -130,5 +130,7 @@ void piano_main(void) {
     /* If we were echoing the keyboard before the program, restore it */
     if (restore_echo)
         kb_echo();
+
+    return 0;
 }
 

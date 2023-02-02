@@ -14,7 +14,7 @@ typedef struct {
 } piano_key;
 
 /* piano_main: main piano function */
-void piano_main(void);
+int piano_main();
 
 #endif /* _APPS_PIANO_H */
 
