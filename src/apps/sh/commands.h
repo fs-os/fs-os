@@ -43,8 +43,7 @@ static int cmd_ref();
 static int cmd_date();
 static int cmd_heap_headers();
 static int cmd_test_libk();
-static int cmd_play_soviet();
-static int cmd_play_thunder();
+static int cmd_play(int argc, char** argv);
 
 /*
  * Structure of the array:
@@ -54,19 +53,61 @@ static int cmd_play_thunder();
  */
 /* TODO: argc and argv support (+ int return) */
 static Command cmd_list[] = {
-    { "help", "Show a list of commands", &cmd_help },
-    { "quit", "Permanently exit the shell", &cmd_quit },
-    { "ping", "Simple test command", &cmd_ping },
-    { "beep", "Beep through the pc speaker", &cmd_beep },
-    { "clear", "Clear the console", &cmd_clear },
-    { "ref", "Refresh the console", &cmd_ref },
-    { "piano", "Play the piano through the pc speaker", &piano_main },
-    { "date", "Display current date and time", &cmd_date },
-    { "heap_headers", "Dump the alloc headers", &cmd_heap_headers },
-    { "test_libk", "Test the kernel standard lib", &cmd_test_libk },
-    { "play_soviet", "Play the soviet anthem using the pc speaker",
-      &cmd_play_soviet },
-    { "play_thunder", "Play thunderstruck using the pc speaker", &cmd_play_thunder },
+    {
+      "help",
+      "Show a list of commands",
+      &cmd_help,
+    },
+    {
+      "quit",
+      "Permanently exit the shell",
+      &cmd_quit,
+    },
+    {
+      "ping",
+      "Simple test command",
+      &cmd_ping,
+    },
+    {
+      "beep",
+      "Beep through the pc speaker (optional frequency and duration)",
+      &cmd_beep,
+    },
+    {
+      "clear",
+      "Clear the console",
+      &cmd_clear,
+    },
+    {
+      "ref",
+      "Refresh the console",
+      &cmd_ref,
+    },
+    {
+      "piano",
+      "Play the piano through the pc speaker",
+      &piano_main,
+    },
+    {
+      "date",
+      "Display current date and time",
+      &cmd_date,
+    },
+    {
+      "heap_headers",
+      "Dump the alloc headers",
+      &cmd_heap_headers,
+    },
+    {
+      "test_libk",
+      "Test the kernel standard lib",
+      &cmd_test_libk,
+    },
+    {
+      "play",
+      "Play a song using the pc speaker",
+      &cmd_play,
+    },
 };
 
 /* ------------------------------------------------------------------------------- */
@@ -192,13 +233,25 @@ static int cmd_test_libk() {
     return 0;
 }
 
-static int cmd_play_soviet() {
-    play_soviet_anthem();
-    return 0;
-}
+static int cmd_play(int argc, char** argv) {
+    if (argc < 2) {
+        printf("Invalid parameters.\n"
+               "Usage:\n"
+               "\t%s <song name>\n",
+               argv[0]);
+        return 1;
+    }
 
-static int cmd_play_thunder() {
-    play_thunderstruck();
+    if (strcmp(argv[1], "soviet") == 0) {
+        play_soviet_anthem();
+    } else if (strcmp(argv[1], "thunder") == 0 ||
+               strcmp(argv[1], "thunderstruck") == 0) {
+        play_thunderstruck();
+    } else {
+        printf("Invalid song name: \"%s\"\n", argv[1]);
+        return 1;
+    }
+
     return 0;
 }
 
