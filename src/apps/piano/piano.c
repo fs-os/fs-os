@@ -13,13 +13,13 @@
 
 static inline void print_piano(void) {
     const char* piano_layout[] = {
-        "\xC9\xCD\xCD\xCB\xCD\xCB\xCD\xCB\xCD\xCB\xCD\xCD\xCB\xCD\xCD\xCB\xCD\xCB"
+        "\xC9\xCD\xCD\xCB\xCD\xCB\xCD\xCB\xCD\xCB\xCD\xCB\xCD\xCB\xCD\xCD\xCB\xCD"
         "\xCD\xCB\xCD\xCB\xCD\xCB\xCD\xCB\xCD\xCD\xCB\xCD\xCD\xBB",
 
         "\xBA  \xBA"
-        "E\xBA \xBAR\xBA  \xBA  \xBAY\xBA \xBAU\xBA \xBAI\xBA  \xBA  \xBA",
+        "E\xBA \xBAR\xBA \xBAT\xBA  \xBA  \xBAU\xBA \xBAI\xBA  \xBA  \xBA",
 
-        "\xBA  \xC8\xCB\xBC \xC8\xCB\xBC  \xBA  \xC8\xCB\xBC \xC8\xCB\xBC "
+        "\xBA  \xC8\xCB\xBC \xC8\xCB\xBC \xC8\xCB\xBC  \xBA  \xC8\xCB\xBC "
         "\xC8\xCB\xBC  \xBA  \xC8\xBB",
 
         "\xBA S \xBA D \xBA F \xBA G \xBA H \xBA J \xBA K \xBA L \xBA",
@@ -40,20 +40,19 @@ static inline void print_piano(void) {
 
 static piano_key piano_keys[] = {
     /* char, freq, pressed, held */
-    { 's', "C ", 261, false, false }, /* C  | freq: .6 */
-    { 'e', "C#", 277, false, false }, /* C# | freq: .2 */
-    { 'd', "D ", 293, false, false }, /* D  | freq: .7 */
-    { 'r', "D#", 311, false, false }, /* D# | freq: .1 */
-    { 'f', "E ", 329, false, false }, /* E  | freq: .6 */
-    { 'g', "F ", 349, false, false }, /* F  | freq: .2 */
-    { 'y', "F#", 370, false, false }, /* F# | freq: .0 */
-    { 'h', "G ", 392, false, false }, /* G  | freq: .0 */
-    { 'u', "G#", 415, false, false }, /* G# | freq: .3 */
-    { 'j', "A ", 440, false, false }, /* A  | freq: .0 */
-    { 'i', "A#", 466, false, false }, /* A# | freq: .2 */
-    { 'k', "B ", 493, false, false }, /* B  | freq: .9 */
-    { 'l', "C ", 523, false, false }, /* C  | freq: .2 */
-
+    { 's', "F ", 174, false, false }, /* F  */
+    { 'e', "F#", 184, false, false }, /* F# */
+    { 'd', "G ", 195, false, false }, /* G  */
+    { 'r', "G#", 207, false, false }, /* G# */
+    { 'f', "A ", 220, false, false }, /* A  */
+    { 't', "A#", 233, false, false }, /* A# */
+    { 'g', "B ", 246, false, false }, /* B  */
+    { 'h', "C ", 261, false, false }, /* C  */
+    { 'u', "C#", 277, false, false }, /* C# */
+    { 'j', "D ", 293, false, false }, /* D  */
+    { 'i', "D#", 311, false, false }, /* D# */
+    { 'k', "E ", 329, false, false }, /* E  */
+    { 'l', "F ", 349, false, false }, /* F  */
 };
 
 /* piano_main: main piano function */
