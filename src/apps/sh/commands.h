@@ -36,6 +36,7 @@ static int last_ret = 0;
 static int cmd_unk();
 static int cmd_help();
 static int cmd_quit();
+static int cmd_last();
 static int cmd_ping();
 static int cmd_beep(int argc, char** argv);
 static int cmd_clear();
@@ -62,6 +63,11 @@ static Command cmd_list[] = {
       "quit",
       "Permanently exit the shell",
       &cmd_quit,
+    },
+    {
+      "last",
+      "Print the exit code of the last command",
+      &cmd_last,
     },
     {
       "ping",
@@ -136,6 +142,11 @@ static int cmd_help() {
 static int cmd_quit() {
     quit_sh = true;
     return 0;
+}
+
+static int cmd_last() {
+    printf("Last exit code: %d\n", last_ret);
+    return last_ret; /* Keep the same exit code in case we want to call it twice */
 }
 
 static int cmd_ping() {
