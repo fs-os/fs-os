@@ -9,8 +9,8 @@
 #define DEFAULT_BG COLOR_BLACK
 
 /* Converts a char position in the fbc to a pixel position (top left corner) */
-#define CHAR_Y_TO_PX(y) (g_y + ((y) * g_font->h))
-#define CHAR_X_TO_PX(x) (g_x + ((x) * g_font->w))
+#define CHAR_Y_TO_PX(y) (g_y + ((y)*g_font->h))
+#define CHAR_X_TO_PX(x) (g_x + ((x)*g_font->w))
 
 /* Global framebuffer console. Allocated in fbc_init(). The framebuffer console array
  * won't be used for displaying (outside of fbc_refresh), but for keeping track of
@@ -200,7 +200,15 @@ void fbc_place_str(uint32_t y, uint32_t x, const char* str) {
                 const uint32_t fill_w = CHAR_X_TO_PX(x) - fill_x;
                 fb_drawrect_fast(fill_y, fill_x, fill_h, fill_w, cur_cols.bg);
 
-                cur_x = 0;
+                for (uint32_t tmp_x = 0; tmp_x < x; tmp_x++) {
+                    g_fbc[y * g_cw + tmp_x] = (fbc_entry){
+                        ' ',
+                        cur_cols.fg,
+                        cur_cols.bg,
+                    };
+                }
+
+                x = 0;
                 return;
             default:
                 break;
@@ -293,6 +301,14 @@ void fbc_putchar(char c) {
             const uint32_t fill_h = g_font->h;
             const uint32_t fill_w = CHAR_X_TO_PX(cur_x) - fill_x;
             fb_drawrect_fast(fill_y, fill_x, fill_h, fill_w, cur_cols.bg);
+
+            for (uint32_t tmp_x = 0; tmp_x < cur_x; tmp_x++) {
+                g_fbc[cur_y * g_cw + tmp_x] = (fbc_entry){
+                    ' ',
+                    cur_cols.fg,
+                    cur_cols.bg,
+                };
+            }
 
             cur_x = 0;
             return;
