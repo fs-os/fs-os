@@ -1,6 +1,8 @@
 
-#include <stdio.h>
 #include <stddef.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include <kernel/keyboard.h> /* kb_noecho, kb_held */
 #include <kernel/pcspkr.h>   /* pcspkr_play, pcspkr_clear */
@@ -39,7 +41,7 @@ static inline void print_piano(void) {
 }
 
 /* Default piano notes in octave 3 */
-static Piano_note piano_notes[] = {
+static const Piano_note piano_notes_original[] = {
     /* char, note, freq, pressed, held */
     { 's', "F ", 174, false, false }, /* F  */
     { 'e', "F#", 184, false, false }, /* F# */
@@ -57,7 +59,52 @@ static Piano_note piano_notes[] = {
 };
 
 /* piano_main: main piano function */
-int piano_main() {
+int piano_main(int argc, char** argv) {
+    /* Make a copy of piano_notes_original so we can edit the octaves there */
+    Piano_note piano_notes[LENGTH(piano_notes_original)];
+    memcpy(piano_notes, piano_notes_original, sizeof(piano_notes_original));
+
+    /* Arguments */
+    if (argc > 1) {
+        int octave_arg;
+        if ((octave_arg = atoi(argv[1])) == 0) {
+            printf("Invalid arguments.\n"
+                   "Usage:\n"
+                   "\t%s           - Run with default octave (3)\n"
+                   "\t%s [octave]  - Run with specific octave (1-5)\n",
+                   argv[0], argv[0]);
+            return 1;
+        }
+
+        switch (octave_arg) {
+            case 1:
+                for (size_t i = 0; i < LENGTH(piano_notes); i++)
+                    piano_notes[i].freq /= 4;
+                break;
+            case 2:
+                for (size_t i = 0; i < LENGTH(piano_notes); i++)
+                    piano_notes[i].freq /= 2;
+                break;
+            case 3:
+                break;
+            case 4:
+                for (size_t i = 0; i < LENGTH(piano_notes); i++)
+                    piano_notes[i].freq *= 2;
+                break;
+            case 5:
+                for (size_t i = 0; i < LENGTH(piano_notes); i++)
+                    piano_notes[i].freq *= 4;
+                break;
+            default:
+                printf("Invalid octave range.\n"
+                       "Usage:\n"
+                       "\t%s           - Run with default octave (3)\n"
+                       "\t%s [octave]  - Run with specific octave (1-5)\n",
+                       argv[0], argv[0]);
+                return 1;
+        }
+    }
+
     const bool restore_echo = kb_getecho();
 
     kb_noecho();
