@@ -17,6 +17,7 @@ Some interesting resources that influenced the project's philosophy:
 - [GNU philosophy](https://www.gnu.org/philosophy) (See [free](https://www.gnu.org/philosophy/free-sw.html)).
 - [Suckless philosophy](https://suckless.org/philosophy).
 - [cat-v.org](http://cat-v.org) and their [list of harmful stuff](http://harmful.cat-v.org).
+- [TempleOS](https://templeos.org/) and Terry A. Davis.
 
 ### Building from source
 #### Requisites
