@@ -52,7 +52,6 @@ static int cmd_play(int argc, char** argv);
  * For adding commands, see:
  *   https://github.com/fs-os/fs-os/commit/b61e2b7d7934d1f0f58442152bd0563c91439a52
  */
-/* TODO: argc and argv support (+ int return) */
 static Command cmd_list[] = {
     {
       "help",
