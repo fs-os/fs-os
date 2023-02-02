@@ -50,6 +50,31 @@ void itoa(char* str, int64_t num) {
     }
 }
 
+/* atoi: convert the digits of "str" to an integer, and return it */
+int atoi(const char* str) {
+    int ret = 0;
+
+    /* Go to the first digit of the string */
+    while (*str != '-' && (*str < '0' || *str > '9'))
+        str++;
+
+    int sign = 1;
+    if (*str == '-') {
+        sign = -1;
+        str++;
+    }
+
+    /* We assume that if we encounter a '-', the number is inmediately after */
+    while (*str >= '0' && *str <= '9') {
+        ret *= 10;
+        ret += *str - '0';
+        str++;
+    }
+
+    /* Make negative if needed and return */
+    return ret * sign;
+}
+
 /* ipow: integer power. Returns b^e */
 int ipow(int b, int e) {
     int ret = 1;

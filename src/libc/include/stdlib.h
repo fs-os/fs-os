@@ -14,6 +14,9 @@ int count_digits(int64_t num) __attribute__((pure));
 /* itoa: write the digits of "num" into "str". "str" needs to have enough space */
 void itoa(char* str, int64_t num);
 
+/* atoi: convert the digits of "str" to an integer, and return it */
+int atoi(const char* str);
+
 /* ipow: integer power. Returns b^e */
 int ipow(int b, int e) __attribute__((pure));
 
