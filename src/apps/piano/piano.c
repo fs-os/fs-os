@@ -95,6 +95,8 @@ int piano_main() {
             }
         }
 
+        /* If we didn't find a new pressed key, but the one we were playing is still
+         * being held, we keep using that one */
         if (playing_note != NULL && playing_note->held)
             playing = true;
 
@@ -114,16 +116,32 @@ int piano_main() {
             }
         }
 
+#ifdef DEBUG
+        for (size_t i = 0; i < LENGTH(piano_notes); i++) {
+            if (piano_notes[i].pressed)
+                printf("# ");
+            else if (piano_notes[i].held)
+                printf(". ");
+            else
+                printf("  ");
+        }
+        putchar('\n');
+#endif
+
         /* If we are not playing any note, stop the pc speaker */
         if (!playing) {
             if (pcspkr_get_freq() != 0) {
                 pcspkr_clear();
+#ifndef DEBUG
                 printf("\r\tCurrent note:");
+#endif
             }
         } else if (pcspkr_get_freq() != playing_note->freq) {
             pcspkr_play(playing_note->freq);
+#ifndef DEBUG
             printf("\r\tCurrent note: %s (%ld)", playing_note->note_name,
                    playing_note->freq);
+#endif
         }
     }
 
