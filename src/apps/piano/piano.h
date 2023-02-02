@@ -11,7 +11,7 @@ typedef struct {
     uint32_t freq;   /* Frequency of the pc speaker for this key */
     bool pressed;    /* The key was pressed in the current iteration */
     bool held;       /* The key is being held since the last iteration */
-} piano_key;
+} Piano_note;
 
 /* piano_main: main piano function */
 int piano_main();

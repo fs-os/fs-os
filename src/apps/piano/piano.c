@@ -38,8 +38,9 @@ static inline void print_piano(void) {
     putchar('\n');
 }
 
-static piano_key piano_keys[] = {
-    /* char, freq, pressed, held */
+/* Default piano notes in octave 3 */
+static Piano_note piano_notes[] = {
+    /* char, note, freq, pressed, held */
     { 's', "F ", 174, false, false }, /* F  */
     { 'e', "F#", 184, false, false }, /* F# */
     { 'd', "G ", 195, false, false }, /* G  */
@@ -64,32 +65,33 @@ int piano_main() {
     print_piano();
 
     /* Store the frequency of the current playing note */
-    piano_key* playing_note = NULL;
+    Piano_note* playing_note = NULL;
 
     /* Main piano loop */
     while (!kb_held(EXIT_CH)) {
         /* Used to check if we are playing a note at all */
         bool playing = false;
 
-        /* Store which keys are being pressed and held */
-        for (size_t i = 0; i < LENGTH(piano_keys); i++) {
-            const bool keyboard_held = kb_held(piano_keys[i].ch);
+        /* Store which keys are being pressed (pressed means held for the first time)
+         * and held */
+        for (size_t i = 0; i < LENGTH(piano_notes); i++) {
+            const bool keyboard_held = kb_held(piano_notes[i].ch);
 
-            if (keyboard_held && !piano_keys[i].held) {
+            if (keyboard_held && !piano_notes[i].held) {
                 /* The key was just pressed */
-                piano_keys[i].pressed = true;
-                piano_keys[i].held    = true;
+                piano_notes[i].pressed = true;
+                piano_notes[i].held    = true;
 
-                /* If we just pressed a key, give that key priority */
-                playing_note = &piano_keys[i];
+                /* If we just pressed a key, give that note priority */
+                playing_note = &piano_notes[i];
                 playing      = true;
-            } else if (piano_keys[i].held) {
+            } else {
                 /* The key is being held (or not) but not for the first time */
-                piano_keys[i].pressed = false;
+                piano_notes[i].pressed = false;
 
                 /* The key just released */
                 if (!keyboard_held)
-                    piano_keys[i].held = false;
+                    piano_notes[i].held = false;
             }
         }
 
@@ -99,14 +101,14 @@ int piano_main() {
         /* If the key that we were holding was released, iterate again to find
          * another held key */
         if (!playing) {
-            for (size_t i = 0; i < LENGTH(piano_keys); i++) {
-                if (piano_keys[i].held) {
+            for (size_t i = 0; i < LENGTH(piano_notes); i++) {
+                if (piano_notes[i].held) {
                     /* If we didn't press a key this iteration, but we are still
                      * holding a key, change the frequency and don't stop the
                      * speaker. We overwrite the freq even before checking the whole
                      * array for pressed keys because we would break inmediately
                      * after we find a pressed key. */
-                    playing_note = &piano_keys[i];
+                    playing_note = &piano_notes[i];
                     playing      = true;
                 }
             }
