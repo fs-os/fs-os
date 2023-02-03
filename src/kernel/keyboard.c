@@ -121,15 +121,10 @@ void kb_handler(void) {
         if (final_key == 0)
             continue;
 
-        /* Check if we are pressing a key (not releasing) and if the current layout
-         * has a char to display, and print it */
-        /* TODO: When printing '\b', check if we put the char so we can't delete
-         * strings printed by other programs */
-        if (print_chars)
-            putchar(final_key);
-
         /* If a program called kb_getchar */
         if (getting_char) {
+            /* Check if we are pressing a key (not releasing) and if the current
+             * layout has a char to display, and print it */
             if (getchar_line_buf_pos >= KB_GETCHAR_BUFSZ)
                 panic_line("getchar buffer out of bounds");
 
@@ -147,15 +142,26 @@ void kb_handler(void) {
 
                 getchar_buf_pos      = 0; /* Not needed */
                 getchar_line_buf_pos = 0;
+
+                putchar(final_key);
             } else if (final_key == '\b') {
                 /* Delete last char from line buffer if we detect '\b' */
 
                 /* Remove the '\b' we just added */
                 getchar_line_buf[--getchar_line_buf_pos] = EOF;
 
-                /* Delete the last char */
-                if (getchar_line_buf_pos > 0)
+                /* Delete the last char and print '\b', only if we have something to
+                 * delete */
+                if (getchar_line_buf_pos > 0) {
                     getchar_line_buf[--getchar_line_buf_pos] = EOF;
+                    putchar(final_key);
+                }
+            } else if (print_chars) {
+                /* We print the typed char here for:
+                 *   - Only printing keyboard input when a program asks for it
+                 *   - Handle special chars like '\n' (not needed) or '\b' (only
+                 *     print if we have something to delete) */
+                putchar(final_key);
             }
         }
     }
