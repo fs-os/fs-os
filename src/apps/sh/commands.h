@@ -94,6 +94,11 @@ static Command cmd_list[] = {
       &piano_main,
     },
     {
+      "piano_random",
+      "Random piano through the pc speaker",
+      &piano_random,
+    },
+    {
       "date",
       "Display current date and time",
       &cmd_date,

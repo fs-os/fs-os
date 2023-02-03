@@ -16,5 +16,8 @@ typedef struct {
 /* piano_main: main piano function */
 int piano_main(int argc, char** argv);
 
+/* piano_random: play a random song using the specified octave */
+int piano_random(int argc, char** argv);
+
 #endif /* _APPS_PIANO_H */
 
