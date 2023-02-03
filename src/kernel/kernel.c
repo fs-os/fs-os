@@ -19,6 +19,7 @@
 #include <kernel/framebuffer_console.h> /* fbc_init */
 #include <kernel/idt.h>                 /* idt_init */
 #include <kernel/pit.h>                 /* pit_init */
+#include <kernel/rand.h>                /* check_rand */
 #include <kernel/rtc.h>                 /* rtc_get_datetime */
 #include <kernel/pcspkr.h>              /* pcspkr_beep */
 #include <kernel/keyboard.h>            /* kb_setlayout, kb_getchar_init */
@@ -55,6 +56,23 @@
         fbc_setfore(COLOR_MAGENTA);   \
         puts(s);                      \
         fbc_setfore(COLOR_WHITE);     \
+    }
+
+#define LOAD_IGNORE(s)              \
+    {                               \
+        fbc_setfore(COLOR_GRAY_B);  \
+        printf(" * ");              \
+        puts(s);                    \
+        fbc_setfore(COLOR_WHITE);   \
+    }
+
+#define LOAD_ERROR(s)             \
+    {                             \
+        fbc_setfore(COLOR_RED_B); \
+        printf(" * ");            \
+        fbc_setfore(COLOR_RED);   \
+        puts(s);                  \
+        fbc_setfore(COLOR_WHITE); \
     }
 
 #define SYSTEM_INFO(s1, s2fmt, ...) \
@@ -161,6 +179,18 @@ void kernel_main(Multiboot* mb_info) {
     /* Init PIT with 1ms interval (1/1000 of a sec) */
     pit_init(1000);
     LOAD_INFO("PIT initialized.");
+
+    if (check_rdseed()) {
+        LOAD_INFO("RDSEED supported.");
+    } else {
+        LOAD_IGNORE("RDSEED not supported.");
+    }
+
+    if (check_rdrand()) {
+        LOAD_INFO("RDRAND supported.");
+    } else {
+        LOAD_IGNORE("RDRAND not supported.");
+    }
 
     kb_setlayout(&us_layout);
     kb_getchar_init();
