@@ -235,6 +235,11 @@ static int cmd_test_libk() {
     buf[10] = '\0';
     puts(buf);
 
+    printf("srand(1337)\n");
+    srand(1337);
+    printf("rand() -> %d\n", rand());
+    printf("rand() -> %d\n", rand());
+
     TEST_TITLE("\nTesting time.h functions");
     printf("Hello, ");
     sleep(2);

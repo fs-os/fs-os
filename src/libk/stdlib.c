@@ -182,3 +182,17 @@ void free(void* ptr) {
     heap_free(ptr);
 }
 
+/* rand_next: used by the rand and srand functions */
+static uint32_t rand_next = 1;
+
+/* rand: returns a pseudo-random number from 0 to RAND_MAX */
+int rand(void) {
+    rand_next = (rand_next * 1103515245) + 12345;
+    return (unsigned int) (rand_next / 65536) % RAND_MAX;
+}
+
+/* srand: sets the seed for the rand function */
+void srand(unsigned int seed) {
+    rand_next = seed;
+}
+

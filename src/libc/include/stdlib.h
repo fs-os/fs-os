@@ -5,6 +5,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#define RAND_MAX 32768
+
 #define panic_line(...) panic(__func__, __LINE__, __VA_ARGS__)
 
 /* count_digits: returns the number of digits of a positive num. Will not count "-"
@@ -42,6 +44,12 @@ void* calloc(size_t item_n, size_t item_sz) __attribute__((warn_unused_result));
 
 /* free: free a previously allocated ptr */
 void free(void* ptr);
+
+/* rand: returns a pseudo-random number from 0 to RAND_MAX */
+int rand(void);
+
+/* srand: sets the seed for the rand function */
+void srand(unsigned int seed);
 
 #endif /* _STDLIB_H */
 
