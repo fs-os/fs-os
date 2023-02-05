@@ -6,7 +6,6 @@ section .text
     global check_rdrand:function
     global cpu_rand:function
 
-
 ; bool check_rdseed(void);
 ; Check if the CPU supports the "rdseed" instruction. For more information, see:
 ;   https://en.wikipedia.org/wiki/CPUID#EAX=1:_Processor_Info_and_Feature_Bits

@@ -9,6 +9,7 @@
 #include <kernel/heap.h>                /* heap_dump_headers */
 #include <kernel/rtc.h>                 /* rtc_get_datetime */
 #include <kernel/pcspkr.h>              /* pcspkr_beep */
+#include <kernel/rand.h>                /* check_rdseed, check_rdrand, cpu_rand */
 
 #include "sh.h"
 
@@ -244,6 +245,15 @@ static int cmd_test_libk() {
     srand(1337);
     printf("rand() -> %d\n", rand());
     printf("rand() -> %d\n", rand());
+
+    if (!check_rdseed() && !check_rdrand()) {
+        fbc_setfore(COLOR_RED);
+        puts("rdseed and rdrand not supported, skipping...");
+        fbc_setfore(COLOR_GRAY);
+    } else {
+        printf("cpu_rand() -> %ld\n", cpu_rand());
+        printf("cpu_rand() -> %ld\n", cpu_rand());
+    }
 
     TEST_TITLE("\nTesting time.h functions");
     printf("Hello, ");
