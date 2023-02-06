@@ -15,6 +15,8 @@ qemu: all
 		-rtc base=localtime            \
 		-audiodev pa,id=audio0         \
 		-machine pcspk-audiodev=audio0 \
+		--enable-kvm                   \
+		-cpu host                      \
 		-boot d                        \
 		-cdrom $(ISO)
 
@@ -32,6 +34,8 @@ qemu-debug: debug_flags clean all
 		-rtc base=localtime            \
 		-audiodev pa,id=audio0         \
 		-machine pcspk-audiodev=audio0 \
+		--enable-kvm                   \
+		-cpu host                      \
 		-boot d                        \
 		-cdrom $(ISO)
 
