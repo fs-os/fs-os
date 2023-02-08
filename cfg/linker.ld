@@ -4,35 +4,47 @@
 ENTRY(_start)
 
 SECTIONS {
-    /*
-     * Start sections at 1MiB, a common place for kernels to be loaded by the
-     * bootloader
-     */
+    /* Start sections at 1MiB, a common place for kernels to be loaded by the
+     * bootloader */
     . = 1M;
 
-    /*
-     * First the multiboot header from boot.asm (magic values for multiboot, etc.),
-     * next the .text section
-     */
+    /* First the multiboot header from boot.asm (magic values for multiboot, etc.),
+     * next the .text section.
+     * _text_start is used to know the physical address of each section from C code
+     * See the wiki for more info. */
+    _text_start = .;
     .text BLOCK(4K) : ALIGN(4K) {
         *(.multiboot)
         *(.text)
     }
+    _text_end = .;
 
-    /* Read-only data */
+    /* Read-only data, like string literals */
+    _rodata_start = .;
     .rodata BLOCK(4K) : ALIGN(4K) {
         *(.rodata)
     }
+    _rodata_end = .;
 
     /* Read-write data (initialized) */
+    _data_start = .;
     .data BLOCK(4K) : ALIGN(4K) {
         *(.data)
     }
+    _data_end = .;
 
     /* Read-write data (uninitialized) and stack from boot.asm */
+    _bss_start = .;
     .bss BLOCK(4K) : ALIGN(4K) {
         *(COMMON)
         *(.bss)
     }
+    _bss_end = .;
+
+    /* Sizes of each section will be used from the C code as well */
+    _text_size = _text_start - _text_end;
+    _rodata_size = _rodata_start - _rodata_end;
+    _data_size = _data_start - _data_end;
+    _bss_size = _bss_start - _bss_end;
 }
 
