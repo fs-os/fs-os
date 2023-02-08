@@ -22,7 +22,7 @@ SECTIONS {
     /* Read-only data, like string literals */
     _rodata_start = .;
     .rodata BLOCK(4K) : ALIGN(4K) {
-        *(.rodata)
+        *(.rodata*)
     }
     _rodata_end = .;
 
