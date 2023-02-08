@@ -7,6 +7,16 @@
 #define TABLE_ENTRIES 1024
 #define PAGE_SIZE     4096 /* KiB */
 
+/* Symbols from linker script */
+extern unsigned char _text_start;
+extern unsigned char _text_end;
+extern unsigned char _rodata_start;
+extern unsigned char _rodata_end;
+extern unsigned char _data_start;
+extern unsigned char _data_end;
+extern unsigned char _bss_start;
+extern unsigned char _bss_end;
+
 enum page_dir_flags {
     PAGEDIR_PRESENT   = 0x1, /* 00000001 */
     PAGEDIR_READWRITE = 0x2, /* 00000010 */
@@ -52,12 +62,24 @@ void paging_init(void) {
         page_directory[i] = PAGEDIR_READWRITE;
     }
 
-    /* Initialize empty page table */
+    /* Initialize page table by doing a 1:1 mapping */
     for (int i = 0; i < TABLE_ENTRIES; i++) {
-        /* Increase the bit 12 of the table entry each iteration (lowest bit of the
-         * address) */
+        /* For each entry of the table (i), map a new 4096 (PAGE_SIZE) page. We only
+         * care about storing bits 12..31 of the address. */
         first_page_table[i] = (i * PAGE_SIZE) | PAGETAB_PRESENT | PAGETAB_READWRITE;
     }
+
+    /* Frame number where the .rodata section starts */
+    const uint32_t rodata_start_frame = (uint32_t)&_rodata_start / PAGE_SIZE;
+
+    /* Frame number where the .rodata section ends. Minus 1 because it should be the
+     * start of the next section. */
+    const uint32_t rodata_end_frame = (uint32_t)&_rodata_end / PAGE_SIZE - 1;
+
+    /* Remove write permissions from the page frame where .rodata start to the page
+     * frame where it ends (included) */
+    for (uint32_t i = rodata_start_frame; i <= rodata_end_frame; i++)
+        first_page_table[i] &= ~PAGETAB_READWRITE;
 
     /* Bits 31..12 of the entry are bits 31..12 of the address, no need to shift */
     page_directory[0] =
