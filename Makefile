@@ -17,6 +17,7 @@ qemu: all
 		-machine pcspk-audiodev=audio0 \
 		--enable-kvm                   \
 		-cpu host                      \
+		-monitor stdio                 \
 		-boot d                        \
 		-cdrom $(ISO)
 
@@ -36,6 +37,7 @@ qemu-debug: debug_flags clean all
 		-machine pcspk-audiodev=audio0 \
 		--enable-kvm                   \
 		-cpu host                      \
+		-monitor stdio                 \
 		-boot d                        \
 		-cdrom $(ISO)
 
