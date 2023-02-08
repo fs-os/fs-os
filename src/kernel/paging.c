@@ -2,6 +2,11 @@
 #include <stdint.h>
 #include <kernel/paging.h>
 
+/* For readability */
+#define DIR_ENTRIES   1024
+#define TABLE_ENTRIES 1024
+#define PAGE_SIZE     4096 /* KiB */
+
 enum page_dir_flags {
     PAGEDIR_PRESENT   = 0x1, /* 00000001 */
     PAGEDIR_READWRITE = 0x2, /* 00000010 */
@@ -37,7 +42,7 @@ uint32_t first_page_table[1024] __attribute__((aligned(4096)));
  * directory and enable paging */
 void paging_init(void) {
     /* Initialize empty page directory */
-    for (int i = 0; i < 1024; i++) {
+    for (int i = 0; i < DIR_ENTRIES; i++) {
         /*
          * Present bit not set
          * Read and write enabled
@@ -48,10 +53,10 @@ void paging_init(void) {
     }
 
     /* Initialize empty page table */
-    for (int i = 0; i < 1024; i++) {
+    for (int i = 0; i < TABLE_ENTRIES; i++) {
         /* Increase the bit 12 of the table entry each iteration (lowest bit of the
          * address) */
-        first_page_table[i] = (i * 0x1000) | PAGETAB_PRESENT | PAGETAB_READWRITE;
+        first_page_table[i] = (i * PAGE_SIZE) | PAGETAB_PRESENT | PAGETAB_READWRITE;
     }
 
     /* Bits 31..12 of the entry are bits 31..12 of the address, no need to shift */
