@@ -15,7 +15,7 @@ qemu: all
 		-rtc base=localtime            \
 		-audiodev pa,id=audio0         \
 		-machine pcspk-audiodev=audio0 \
-		--enable-kvm                   \
+		-enable-kvm                    \
 		-cpu host                      \
 		-monitor stdio                 \
 		-boot d                        \
@@ -35,7 +35,7 @@ qemu-debug: debug_flags clean all
 		-rtc base=localtime            \
 		-audiodev pa,id=audio0         \
 		-machine pcspk-audiodev=audio0 \
-		--enable-kvm                   \
+		-enable-kvm                    \
 		-cpu host                      \
 		-monitor stdio                 \
 		-boot d                        \
