@@ -7,15 +7,19 @@
 #define TABLE_ENTRIES 1024
 #define PAGE_SIZE     4096 /* KiB */
 
+/* For example 128 tables mapped would map 512MiB of ram:
+ *   512 MiB / 4 MiB (Memory mapped per table) = 128 filled table entries */
+#define TABLES_MAPPED DIR_ENTRIES
+
 /* Symbols from linker script */
-extern unsigned char _text_start;
-extern unsigned char _text_end;
-extern unsigned char _rodata_start;
-extern unsigned char _rodata_end;
-extern unsigned char _data_start;
-extern unsigned char _data_end;
-extern unsigned char _bss_start;
-extern unsigned char _bss_end;
+extern uint8_t _text_start;
+extern uint8_t _text_end;
+extern uint8_t _rodata_start;
+extern uint8_t _rodata_end;
+extern uint8_t _data_start;
+extern uint8_t _data_end;
+extern uint8_t _bss_start;
+extern uint8_t _bss_end;
 
 enum page_dir_flags {
     PAGEDIR_PRESENT   = 0x1, /* 00000001 */
@@ -45,8 +49,8 @@ enum page_tab_flags {
     /* 12..31 Bits 12..31 of the page address */
 };
 
-uint32_t page_directory[1024] __attribute__((aligned(4096)));
-uint32_t first_page_table[1024] __attribute__((aligned(4096)));
+uint32_t page_tables[DIR_ENTRIES][TABLE_ENTRIES] __attribute__((aligned(4096)));
+uint32_t page_directory[DIR_ENTRIES] __attribute__((aligned(4096)));
 
 /* paging_init: initialize the page directory and first table, load the page
  * directory and enable paging */
@@ -62,30 +66,47 @@ void paging_init(void) {
         page_directory[i] = PAGEDIR_READWRITE;
     }
 
-    /* Initialize page table by doing a 1:1 mapping */
-    for (int i = 0; i < TABLE_ENTRIES; i++) {
-        /* For each entry of the table (i), map a new 4096 (PAGE_SIZE) page. We only
-         * care about storing bits 12..31 of the address. */
-        first_page_table[i] = (i * PAGE_SIZE) | PAGETAB_PRESENT | PAGETAB_READWRITE;
+    /* Initialize the page tables by doing a 1:1 mapping */
+    for (uint32_t i = 0; i < TABLES_MAPPED; i++) {
+        for (uint32_t j = 0; j < TABLE_ENTRIES; j++) {
+            /* For each entry of the table (i), map a new 4096 (PAGE_SIZE) page. We
+             * only care about storing bits 12..31 of the address. */
+            page_tables[i][j] = (i * TABLE_ENTRIES * PAGE_SIZE + j * PAGE_SIZE) |
+                                PAGETAB_PRESENT | PAGETAB_READWRITE;
+        }
+
+        /* Bits 31..12 of the entry are bits 31..12 of the address, no need to shift
+         */
+        page_directory[i] =
+          ((uint32_t)&page_tables[i][0]) | PAGEDIR_PRESENT | PAGEDIR_READWRITE;
     }
 
     /* Frame number where the .rodata section starts */
-    const uint32_t rodata_start_frame = (uint32_t)&_rodata_start / PAGE_SIZE;
+    const uint32_t rodata_start_idx = (uint32_t)&_rodata_start >> 12;
 
     /* Frame number where the .rodata section ends. Minus 1 because it should be the
      * start of the next section. */
-    const uint32_t rodata_end_frame = (uint32_t)&_rodata_end / PAGE_SIZE - 1;
+    const uint32_t rodata_end_idx = ((uint32_t)&_rodata_end >> 12) - 1;
 
     /* Remove write permissions from the page frame where .rodata start to the page
      * frame where it ends (included) */
-    for (uint32_t i = rodata_start_frame; i <= rodata_end_frame; i++)
-        first_page_table[i] &= ~PAGETAB_READWRITE;
-
-    /* Bits 31..12 of the entry are bits 31..12 of the address, no need to shift */
-    page_directory[0] =
-      ((uint32_t)&first_page_table[0]) | PAGEDIR_PRESENT | PAGEDIR_READWRITE;
+    for (uint32_t i = rodata_start_idx; i <= rodata_end_idx; i++)
+        ((uint32_t*)page_tables)[i] &= ~PAGETAB_READWRITE;
 
     load_page_dir(page_directory);
     enable_paging();
 }
 
+#if 0
+/* paging_map: simply map the "vaddr" virtual address to the "paddr" physical address
+ * with the specified "flags". Both addresses should be page-aligned. */
+void paging_map(void* paddr, void* vaddr, uint16_t flags) {
+    /* Last 10 bits, page dir index */
+    uint32_t pd_idx = (uint32_t)vaddr >> 22;
+
+    /* Bits 12..20, page table index */
+    uint32_t pt_idx = (uint32_t)vaddr >> 12 & 0x03FF;
+
+    /* TODO */
+}
+#endif
