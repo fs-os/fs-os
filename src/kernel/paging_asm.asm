@@ -21,8 +21,10 @@ enable_paging:
     mov     ebp, esp
 
     mov     eax, cr0            ; We can't work directly with cr0
-    or      eax, 0x80010000     ; Set the paging (31) and write protect (16) bits in
-                                ; eax.
+    or      eax, 0x80010001     ; Set the following bits:
+                                ;   - Paging (31)
+                                ;   - Write protect (16). See wiki
+                                ;   - Protected mode (1). Should be 1 already
     mov     cr0, eax            ; And move back to cr0
 
     mov     esp, ebp
