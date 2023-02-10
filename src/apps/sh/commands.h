@@ -6,6 +6,7 @@
 #include <time.h> /* sleep */
 
 #include <kernel/framebuffer_console.h> /* fbc_setfore, fbc_clear */
+#include <kernel/paging.h>              /* paging_show_map */
 #include <kernel/heap.h>                /* heap_dump_headers */
 #include <kernel/rtc.h>                 /* rtc_get_datetime */
 #include <kernel/pcspkr.h>              /* pcspkr_beep */
@@ -43,6 +44,7 @@ static int cmd_beep(int argc, char** argv);
 static int cmd_clear();
 static int cmd_ref();
 static int cmd_date();
+static int cmd_page_map();
 static int cmd_heap_headers();
 static int cmd_test_libk();
 static int cmd_play(int argc, char** argv);
@@ -103,6 +105,11 @@ static Command cmd_list[] = {
       "date",
       "Display current date and time",
       &cmd_date,
+    },
+    {
+      "page_map",
+      "Display the page director and page table layout",
+      &cmd_page_map,
     },
     {
       "heap_headers",
@@ -212,6 +219,11 @@ static int cmd_date() {
            now.time.h, now.time.m, now.time.s);
     fbc_setfore(COLOR_WHITE);
 
+    return 0;
+}
+
+static int cmd_page_map() {
+    paging_show_map();
     return 0;
 }
 

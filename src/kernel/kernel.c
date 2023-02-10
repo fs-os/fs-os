@@ -13,6 +13,7 @@
 #include <stdio.h>
 #include <time.h>
 
+#include <kernel/paging.h>              /* paging_init */
 #include <kernel/heap.h>                /* heap_init */
 #include <kernel/vga.h>                 /* term_init */
 #include <kernel/framebuffer.h>         /* fb_init, fb_setpx */
@@ -58,12 +59,12 @@
         fbc_setfore(COLOR_WHITE);     \
     }
 
-#define LOAD_IGNORE(s)              \
-    {                               \
-        fbc_setfore(COLOR_GRAY_B);  \
-        printf(" * ");              \
-        puts(s);                    \
-        fbc_setfore(COLOR_WHITE);   \
+#define LOAD_IGNORE(s)             \
+    {                              \
+        fbc_setfore(COLOR_GRAY_B); \
+        printf(" * ");             \
+        puts(s);                   \
+        fbc_setfore(COLOR_WHITE);  \
     }
 
 #define LOAD_ERROR(s)             \
@@ -146,7 +147,7 @@ void print_logo(unsigned int ypad, unsigned int xpad) {
 /* kernel_main: Called by boot.asm */
 void kernel_main(Multiboot* mb_info) {
     idt_init();
-
+    paging_init();
     heap_init();
 
     /* Currently unused */
@@ -172,6 +173,7 @@ void kernel_main(Multiboot* mb_info) {
 
     /* Once we have a framebuffer terminal, print previous messages too */
     LOAD_INFO("IDT initialized.");
+    LOAD_INFO("Paging initialized.");
     LOAD_INFO("Heap initialized.");
     LOAD_INFO("Framebuffer initialized.");
     LOAD_INFO("Framebuffer console initialized.");
