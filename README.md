@@ -73,3 +73,6 @@ See [todo.md](TODO.md).
 - [bdf2c](https://github.com/pixelmatix/bdf2c)
 - [This repo](https://github.com/ShaneMcC/beeps) for the beep frequencies and
   timings.
+- [heatd](https://github.com/heatd) for helping me understand some important concepts.
+- [zid](https://github.com/zid) for helping me understand some important concepts.
+

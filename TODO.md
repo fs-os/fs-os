@@ -15,11 +15,15 @@ Stuff that needs to be/has been done.
 - [X] Keyboard.
     - [X] Getchar system.
     - [X] Control backspace in getchar.
-    - [ ] Control backspace so you can only delete what you wrote.
+    - [X] Control backspace so you can only delete what you wrote.
+- [X] Paging
+    - [X] 4GiB identity map.
+    - [ ] Improve (Add map functions, allocate pages, etc.).
+- [ ] Filesystems.
+    - [ ] FAT
+    - [ ] Ext2
+- [ ] Userspace (ring3).
 - [ ] PCI devices.
-- [ ] Userspace (ring0? ring3?)
-- [ ] Ext2.
-- [ ] Paging?
 
 ### Misc
 - [X] Repace sysroot rules (not necesarily targets) with files, so it doesn't compile everytime.
