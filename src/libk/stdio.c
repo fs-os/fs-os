@@ -32,7 +32,7 @@ static void prints_n(const char* str, uint32_t pad) {
     print(str);
 }
 
-/* printi: similar to stdlib's itoan, but instead of writting to buffer, prints. Used
+/* printi: similar to stdlib's itoan, but instead of writing to buffer, prints. Used
  * by printf's "%i". */
 static void printi(int64_t num) {
     /* Write '-' for negative numbers and convert number to positive */
@@ -216,7 +216,7 @@ int vprintf(const char* fmt, va_list va) {
                     }
 
                     break;
-                case '0': /* Not necesary */
+                case '0': /* Not necessary */
                 case '1':
                 case '2':
                 case '3':

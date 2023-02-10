@@ -7,9 +7,9 @@
 /* TODO: Timer */
 
 /* pit_init: initialize the programmable interval timer with the specified frequency
- * in interrupts per seccond (freq 1000 would mean 1000 ticks in 1 sec) */
+ * in interrupts per second (freq 1000 would mean 1000 ticks in 1 sec) */
 void pit_init(uint32_t freq) {
-    /* freq should be how many HZs it should wait bewteen sending interrupt. We pass
+    /* freq should be how many HZs it should wait between sending interrupt. We pass
      * the frequency per second to convert it to HZ (by dividing how many HZs are in
      * a sec) */
     freq = PIT_INTERVAL_TO_FREQ(freq);
@@ -54,7 +54,7 @@ void pit_dec(void) {
 }
 
 /* pit_set_ticks: sets the current PIT tick count. Called from the sleep functions
- * for setting the ammount of time we want to wait (src/libk/time.c) */
+ * for setting the amount of time we want to wait (src/libk/time.c) */
 void pit_set_ticks(uint64_t num) {
     ticks = num;
 }

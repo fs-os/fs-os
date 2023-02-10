@@ -237,7 +237,7 @@ void fbc_place_str(uint32_t y, uint32_t x, const char* str) {
 /* fbc_putchar: prints "c" to the framebuffer console */
 void fbc_putchar(char c) {
     /* First of all, check if we need to shift the array. We need this kind of
-     * "queue" system so the array doesn't inmediately shift when a line ends with
+     * "queue" system so the array doesn't immediately shift when a line ends with
      * '\n', for example */
     if (should_shift) {
         fbc_shift_rows(1);
@@ -338,7 +338,7 @@ void fbc_putchar(char c) {
 }
 
 /* fbc_refresh: updates each pixel of the framebuffer with the real one in g_fbc.
- * Calling this function everytime we update g_fbc would be slow. Insead call this
+ * Calling this function everytime we update g_fbc would be slow. Instead call this
  * function on specific situations and we refresh the entries we need when updating
  * g_fbc (e.g. when calling fbc_putchar) */
 void fbc_refresh(void) {

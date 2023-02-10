@@ -1,6 +1,4 @@
 
-/* TODO: Remove unused functions from libk? */
-
 #include <stddef.h>
 #include <string.h>
 

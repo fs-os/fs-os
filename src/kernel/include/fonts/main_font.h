@@ -21,7 +21,7 @@
  *          ........ ,
  *      }
  * Where each item of idx 'a' is a byte, and each # is a bit set to 1 of that byte,
- * and each . is a bit set to 0.
+ * and each '.' is a bit set to 0.
  * Because it is a 3d array in 1d format, to access a px of a char we use:
  *      Font->font['C' * Font->h + y] & (1 << x)
  * (See src/kernel/include/kernel/font.h)

@@ -17,7 +17,7 @@ MB_CHECKSUM equ -(MB_MAGIC + MB_FLAGS)  ; Checksum of above to prove we are mult
 ; boundary.
 ; Here we ask for graphics mode type 0, which is linear type. We use 0 as width and
 ; height because in this case we don't care about a "default resolution", we want to
-; use what the bootloader gives us. Depth will be the ammount of bytes per pixel.
+; use what the bootloader gives us. Depth will be the amount of bytes per pixel.
 ;
 ; More information on alignment:
 ;   https://stackoverflow.com/questions/19608845/understanding-assembly-mips-align-and-memory-addressing
@@ -100,7 +100,7 @@ _start:
     ; We should not reach here. If the system has nothing more to do, put the
     ; computer into an infinite loop:
     ;   - Disable interrupts with cli (clear interrupt enable in eflags). This is not
-    ;     necesary here because they are already disabled by the bootloader. Keep in
+    ;     necessary here because they are already disabled by the bootloader. Keep in
     ;     mind that we might enable them later and return from kernel_main (which is
     ;     sort of nonsensical to do).
     ;   - Wait for the next interrupt to arrive with hlt (Halt instruction). Since

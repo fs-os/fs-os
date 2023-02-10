@@ -15,7 +15,7 @@ void pcspkr_play(uint32_t freq) {
     /* Save the current frequency */
     current_freq = freq;
 
-    /* freq should be how many HZs it should wait bewteen sending interrupt. We pass
+    /* freq should be how many HZs it should wait between sending interrupt. We pass
      * the frequency per second to convert it to HZ (by dividing how many HZs are in
      * a sec) */
     freq = PIT_INTERVAL_TO_FREQ(freq);

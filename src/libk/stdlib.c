@@ -4,8 +4,8 @@
 #include <stdlib.h>
 
 #include <kernel/heap.h>
-#include <kernel/framebuffer_console.h> /* Color to panic() */
-#include <kernel/color.h>               /* Color to panit() */
+#include <kernel/framebuffer_console.h> /* Color for panic() */
+#include <kernel/color.h>               /* Color for panic() */
 
 /* count_digits: returns the number of digits of a positive num. Will not count "-"
  * for negative numbers */
@@ -64,7 +64,7 @@ int atoi(const char* str) {
         str++;
     }
 
-    /* We assume that if we encounter a '-', the number is inmediately after */
+    /* We assume that if we encounter a '-', the number is immediately after */
     while (*str >= '0' && *str <= '9') {
         ret *= 10;
         ret += *str - '0';

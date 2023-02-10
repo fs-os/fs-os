@@ -35,11 +35,11 @@ static void register_isr(uint16_t idx, uint32_t func) {
     };
 }
 
-/* pic_remap: remap the programable interrupt controllers so the interrupt numbers of
+/* pic_remap: remap the programmable interrupt controllers so the interrupt numbers of
  * the master PIC don't overlap with the CPU exceptions */
 static inline void pic_remap(void) {
     /*
-     * Modern computers have 2 PICs (Programable Interrupt Controller), the master
+     * Modern computers have 2 PICs (Programmable Interrupt Controller), the master
      * and the slave. One line of the master PIC is used to signal the slave PIC.
      * We are going to change the PIC interrupt numbers because by default, the
      * ranges are:
@@ -47,7 +47,7 @@ static inline void pic_remap(void) {
      *   IRQ 8..15 -> INT 0x70..0x77
      * The first 8 overlap with the CPU's exceptions (src/kernel/exceptions.c), so we
      * need to move them.
-     * We comunicate through the IO bus. Similar to the RTC, each PIC has a command
+     * We communicate through the IO bus. Similar to the RTC, each PIC has a command
      * port and a data port:
      *   Master -> cmd: 0x20, data: 0x21
      *   Slave  -> cmd: 0xA0, data: 0xA1
@@ -78,7 +78,7 @@ static inline void pic_remap(void) {
 
 /* idt_init: initialize the idt and the idt descriptor */
 void idt_init(void) {
-    /* Descritor */
+    /* Descriptor */
     descriptor.limit = (IDT_SZ * sizeof(idt_entry)) - 1;
     descriptor.base  = &idt[0];
 
@@ -110,7 +110,7 @@ void idt_init(void) {
     register_isr(30, (uint32_t)&exc_30);
 
     /* IRQs. See src/kernel/idt_asm.asm */
-    register_isr(32, (uint32_t)&irq_pit); /* Programable interrupt timer. IRQ 0 */
+    register_isr(32, (uint32_t)&irq_pit); /* Programmable interrupt timer. IRQ 0 */
     register_isr(33, (uint32_t)&irq_kb);  /* Keyboard. IRQ 1 */
 
     /* Unused IRQs, just ignore. See src/kernel/idt_asm.asm */
