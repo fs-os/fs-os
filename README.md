@@ -36,7 +36,7 @@ $ make
 ...
 ```
 
-Which would be the same as the following.
+Which would be the same as the following:
 ```console
 $ make limine   # Clone and build the bootloader inside ./limine/, you only need to do this once
 ...
@@ -49,13 +49,9 @@ $ make fs-os.iso
 ```
 
 > **Note**
-> Keep in mind that `fs-os.iso` requires the kernel binary, and the kernel
-> binary requires the headers and libs that `sysroot` copies, so make sure you don't
-> build the iso without the sysroot ready.
-```console
-$ make fs-os.iso    # If you haven't built sysroot before, it will fail
-Error.
-```
+> For more information about the building process and target dependencies, see the
+> [compiling](https://github.com/fs-os/fs-os/wiki/Compiling#makefile-structure)
+> section of the [wiki](https://github.com/fs-os/fs-os/wiki).
 
 Or for testing it directly with qemu:
 ```console
