@@ -38,7 +38,7 @@ void fbc_place_str(uint32_t y, uint32_t x, const char* str);
 void fbc_putchar(char c);
 
 /* fbc_refresh: updates each pixel of the framebuffer with the real one in g_fbc.
- * Calling this function everytime we update g_fbc would be slow. Insead call this
+ * Calling this function everytime we update g_fbc would be slow. Instead call this
  * function on specific situations and we refresh the entries we need when updating
  * g_fbc (e.g. when calling fbc_putchar) */
 void fbc_refresh(void);

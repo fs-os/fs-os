@@ -41,7 +41,7 @@ enum kb_flags {
 /* Pointer to the current Layout struct being used */
 static const Layout* cur_layout = &us_layout;
 
-/* Array of bytes contaning information about each key state. Each bit gives
+/* Array of bytes containing information about each key state. Each bit gives
  * information about the key corresponding to its index. For example: bit 0 of
  * key_flags['c'] will be 1 if that key is pressed. */
 static uint8_t key_flags[128] = { 0 };
@@ -49,7 +49,7 @@ static uint8_t key_flags[128] = { 0 };
 /* Store if we should use caps */
 static bool capslock_on = false, shift_held = false;
 
-/* Store if we should print the characters to screen when recieving them */
+/* Store if we should print the characters to screen when receiving them */
 static bool print_chars = true;
 
 /* True if a program is waiting for kb_getchar */
@@ -77,7 +77,7 @@ static inline void check_special(uint8_t released, uint8_t key) {
 }
 
 /* check_layout: return lang_layout.shift if the shift is pressed, or to
- * lang_layout.def when shift is not being usd */
+ * lang_layout.def when shift is not being used */
 static inline unsigned char* get_layout(void) {
     /* TODO: We should only change letters with caps lock, special chars like '#'
      * should only be changed with shift. */
@@ -86,7 +86,7 @@ static inline unsigned char* get_layout(void) {
 
 /* ------------------------------------------------------------------------------- */
 
-/* kb_handler: actual C handler for the keyboard exceptions recieved from "irq_kb".
+/* kb_handler: actual C handler for the keyboard exceptions received from "irq_kb".
  * See src/kernel/idt_asm.asm */
 void kb_handler(void) {
     /* The ps2 controller wiki page says (at the bottom, interrupts) that you don't

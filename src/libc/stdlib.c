@@ -61,7 +61,7 @@ int atoi(const char* str) {
         str++;
     }
 
-    /* We assume that if we encounter a '-', the number is inmediately after */
+    /* We assume that if we encounter a '-', the number is immediately after */
     while (*str >= '0' && *str <= '9') {
         ret *= 10;
         ret += *str - '0';

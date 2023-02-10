@@ -47,7 +47,7 @@ void* heap_alloc(size_t sz) {
             (void*)((uint32_t)new_blk + sizeof(Block)),
             blk->next,                    /* Next block is the old next block */
             blk->sz - sz - sizeof(Block), /* Shrink the allocated size and the new
-                                             header isze from the old blk size */
+                                             header size from the old blk size */
             1,
         };
 

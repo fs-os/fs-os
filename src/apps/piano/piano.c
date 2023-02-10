@@ -165,7 +165,7 @@ int piano_main(int argc, char** argv) {
                     /* If we didn't press a key this iteration, but we are still
                      * holding a key, change the frequency and don't stop the
                      * speaker. We overwrite the freq even before checking the whole
-                     * array for pressed keys because we would break inmediately
+                     * array for pressed keys because we would break immediately
                      * after we find a pressed key. */
                     playing_note = &piano_notes[i];
                     playing      = true;

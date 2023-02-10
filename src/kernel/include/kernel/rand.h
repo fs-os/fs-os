@@ -5,8 +5,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-/* TODO: Move to stdlib? */
-
 /* check_rdseed: returns true if the CPU supports the "rdseed" instruction. For more
  * information, see:
  *   src/kernel/rand.asm

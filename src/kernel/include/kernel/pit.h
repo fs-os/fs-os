@@ -42,7 +42,7 @@ enum pit_cmd_flags {
 };
 
 /* pit_init: initialize the programmable interval timer with the specified frequency
- * in interrupts per seccond (freq 1000 would mean 1000 ticks in 1 sec) */
+ * in interrupts per second (freq 1000 would mean 1000 ticks in 1 sec) */
 void pit_init(uint32_t freq);
 
 /* pit_read_freq: read the current count from the specified channel.
@@ -55,7 +55,7 @@ uint16_t pit_read_count(enum pit_io_ports channel_port,
 void pit_dec(void);
 
 /* pit_set_ticks: sets the current PIT tick count. Called from the sleep functions
- * for setting the ammount of time we want to wait (src/libk/time.c) */
+ * for setting the amount of time we want to wait (src/libk/time.c) */
 void pit_set_ticks(uint64_t num);
 
 /* pit_get_ticks: returns the current PIT tick count. Called from the sleep functions
