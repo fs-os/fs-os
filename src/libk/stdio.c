@@ -340,7 +340,7 @@ int putchar(int c) {
     const char tmp = (char)c;
 
 #ifdef USE_VGA
-    term_putchar(tmp);
+    vga_putchar(tmp);
 #else /* Framebuffer console */
     fbc_putchar(tmp);
 #endif

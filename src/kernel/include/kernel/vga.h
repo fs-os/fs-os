@@ -29,11 +29,6 @@ enum vga_color {
 extern const size_t VGA_WIDTH;
 extern const size_t VGA_HEIGHT;
 
-extern size_t term_y;
-extern size_t term_x;
-extern uint8_t term_col;   /* Color */
-extern uint16_t* term_buf; /* Buffer of vga_entries */
-
 /* vga_entry_color: get vga color pair from foreground and background colors */
 static inline uint8_t vga_entry_color(enum vga_color fg, enum vga_color bg) {
     /*
@@ -61,28 +56,28 @@ static inline uint16_t vga_entry(unsigned char uc, uint8_t color) {
 }
 
 /* Inits the terminal x, y, color and sets the term buffer to grey spaces */
-void term_init(void);
+void vga_init(void);
 
-/* term_setcol_entry: changes the current color for the terminal from a vga entry */
-void term_setcol_entry(uint8_t col);
+/* vga_setcol_entry: changes the current color for the terminal from a vga entry */
+void vga_setcol_entry(uint8_t col);
 
-/* term_setcol: changes the current color for the terminal from 2 color codes */
-void term_setcol(enum vga_color fg, enum vga_color bg);
+/* vga_setcol: changes the current color for the terminal from 2 color codes */
+void vga_setcol(enum vga_color fg, enum vga_color bg);
 
-/* term_put_at: writes "c" with the color "col" at "x" and "y" in the vga terminal */
-void term_put_at(size_t y, size_t x, uint8_t col, char c);
+/* vga_put_at: writes "c" with the color "col" at "x" and "y" in the vga terminal */
+void vga_put_at(size_t y, size_t x, uint8_t col, char c);
 
-/* term_shift_rows: scrolls the terminal n rows */
-void term_shift_rows(int n);
+/* vga_shift_rows: scrolls the terminal n rows */
+void vga_shift_rows(int n);
 
-/* term_putchar: prints 'c' to the vga terminal */
-void term_putchar(char c);
+/* vga_putchar: prints 'c' to the vga terminal */
+void vga_putchar(char c);
 
-/* term_write: prints 'len' bytes of 's' to the vga terminal */
-void term_write(const char* s, size_t len);
+/* vga_write: prints 'len' bytes of 's' to the vga terminal */
+void vga_write(const char* s, size_t len);
 
-/* term_sprint: prints zero-terminated string to the vga terminal using term_write */
-void term_sprint(const char* s);
+/* vga_sprint: prints zero-terminated string to the vga terminal using vga_write */
+void vga_sprint(const char* s);
 
 #endif /* _KERNEL_VGA_H */
 

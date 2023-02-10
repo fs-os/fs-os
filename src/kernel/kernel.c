@@ -15,7 +15,7 @@
 
 #include <kernel/paging.h>              /* paging_init */
 #include <kernel/heap.h>                /* heap_init */
-#include <kernel/vga.h>                 /* term_init */
+#include <kernel/vga.h>                 /* vga_init, vga_sprint */
 #include <kernel/framebuffer.h>         /* fb_init, fb_setpx */
 #include <kernel/framebuffer_console.h> /* fbc_init */
 #include <kernel/idt.h>                 /* idt_init */
@@ -151,18 +151,18 @@ void kernel_main(Multiboot* mb_info) {
     heap_init();
 
     /* Currently unused */
-    term_init();
-    term_sprint("VGA terminal initialized.\n");
+    vga_init();
+    vga_sprint("VGA terminal initialized.\n");
 
     if (mb_info->framebuffer_type != FB_TYPE_RGB) {
-        term_sprint("Could not initialize framebuffer on RGB mode.\n");
+        vga_sprint("Could not initialize framebuffer on RGB mode.\n");
         abort();
     }
 
     fb_init((uint32_t*)(uint32_t)mb_info->framebuffer_addr,
             mb_info->framebuffer_pitch, mb_info->framebuffer_width,
             mb_info->framebuffer_height, mb_info->framebuffer_bpp);
-    term_sprint("Framebuffer initialized.\n");
+    vga_sprint("Framebuffer initialized.\n");
 
     print_logo(5, 0);
     print_logo(5, 100);
