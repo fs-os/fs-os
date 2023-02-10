@@ -1,6 +1,7 @@
 
 #include <stdarg.h>
 #include <limits.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -92,6 +93,39 @@ static void printx(int64_t num) {
     print(hex_str);
 }
 
+/* printx_n: similar to printi, but adds digits("num") - "pad" zeros before "num".
+ * Used for "%123x", "%123X", "%123lx", "%123lX" */
+static void printx_n(int64_t num, uint32_t pad, bool uppercase) {
+    const char upper_c = uppercase ? 'A' : 'a';
+
+    /* max digits of an unsigned long */
+    char hex_str[12] = { 0 };
+
+    int tmp = 0;
+    size_t i;
+    for (i = 0; num > 0 && i < sizeof(hex_str) - 1; i++) {
+        tmp = num % 16;
+        num /= 16;
+
+        /* Convert to char */
+        tmp += (tmp < 10) ? '0' : upper_c - 10;
+
+        hex_str[i] = tmp;
+    }
+
+    hex_str[i] = '\0';
+
+    /* Reverse string and print */
+    strrev(hex_str);
+
+    /* i is now the length of the final str */
+    int final_pad = pad - i;
+    while (final_pad-- > 0)
+        putchar('0');
+
+    print(hex_str);
+}
+
 /* printX: print "num" in hexadecimal format (uppercase). Does not support sign */
 static void printX(int64_t num) {
     if (num <= 0)
@@ -148,8 +182,9 @@ int printf(const char* fmt, ...) {
  * supported:
  *   - "%c"
  *   - "%s", "%25s"
- *   - "%d", "%l", "%ll", "%ld", "%lld", "%25d"
- *   - "%x", "%lx", "%llx", "%X", "%lX", "%llX"
+ *   - "%d", "%l", "%ll", "%ld", "%lld", "%25d", "%25l", "%25ld"
+ *   - "%x", "%lx", "%llx", "%25x", "%25lx"
+ *   - "%X", "%lX", "%llX", "%25X", "%25lX"
  *   - "%p"
  *   - "%%"
  */
@@ -246,6 +281,29 @@ int vprintf(const char* fmt, va_list va) {
                     switch (*fmt) {
                         case 'd': /* "%123d" */
                             printi_n(va_arg(va, int), fmt_num);
+                            break;
+                        case 'x':
+                            printx_n(va_arg(va, int), fmt_num, false);
+                            break;
+                        case 'X':
+                            printx_n(va_arg(va, int), fmt_num, true);
+                            break;
+                        case 'l': /* "%123ld", "%123lx", ... */
+                            fmt++;
+
+                            /* TODO: 123lld (long long) */
+                            switch (*fmt) {
+                                default:
+                                case 'd':
+                                    printi_n(va_arg(va, long int), fmt_num);
+                                    break;
+                                case 'x':
+                                    printx_n(va_arg(va, long int), fmt_num, false);
+                                    break;
+                                case 'X':
+                                    printx_n(va_arg(va, long int), fmt_num, true);
+                                    break;
+                            }
                             break;
                         case 's': /* "%132s" */
                             prints_n(va_arg(va, const char*), fmt_num);

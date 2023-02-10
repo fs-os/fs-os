@@ -16,8 +16,9 @@ int printf(const char* fmt, ...) __attribute__((format(printf, 1, 2)));
  * supported:
  *   - "%c"
  *   - "%s", "%25s"
- *   - "%d", "%l", "%ll", "%ld", "%lld", "%25d"
- *   - "%x", "%lx", "%llx", "%X", "%lX", "%llX"
+ *   - "%d", "%l", "%ll", "%ld", "%lld", "%25d", "%25l", "%25ld"
+ *   - "%x", "%lx", "%llx", "%25x", "%25lx"
+ *   - "%X", "%lX", "%llX", "%25X", "%25lX"
  *   - "%p"
  *   - "%%"
  */
