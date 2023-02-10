@@ -8,6 +8,9 @@
  * directory and enable paging */
 void paging_init(void);
 
+/* paging_show_map: display layout of current pages in memory */
+void paging_show_map(void);
+
 /* load_page_dir: load the page directory. See:
  * src/kernel/paging_asm.asm */
 void load_page_dir(uint32_t* page_dir);

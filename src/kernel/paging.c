@@ -1,5 +1,7 @@
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdio.h>
 #include <kernel/paging.h>
 
 /* For readability */
@@ -110,3 +112,80 @@ void paging_map(void* paddr, void* vaddr, uint16_t flags) {
     /* TODO */
 }
 #endif
+
+/* paging_show_map: display layout of current pages in memory */
+void paging_show_map(void) {
+    typedef struct {
+        uint32_t dir_i, tab_i;
+        uint32_t paddr;
+        uint32_t vaddr;
+        uint16_t flags;
+    } table_entry;
+
+    /* Used to compare the current and last address' flags */
+    table_entry last_entry = { 0, 0, 0, 0, 0 };
+
+    /* Used to print "..." only once per group of entries with the same flags */
+    bool printed_dots = false;
+
+    table_entry e = { 0, 0, 0, 0, 0 };
+
+    /* Iterate page_tables array */
+    for (e.dir_i = 0; e.dir_i < DIR_ENTRIES; e.dir_i++) {
+        for (e.tab_i = 0; e.tab_i < TABLE_ENTRIES; e.tab_i++) {
+            /* Get address stored at current pos and remove flag bits*/
+            e.paddr = page_tables[e.dir_i][e.tab_i] & 0xFFFFF000;
+
+            /* Same operation we use for identity mapping (1:1)*/
+            e.vaddr = e.dir_i * TABLE_ENTRIES * PAGE_SIZE + e.tab_i * PAGE_SIZE;
+
+            /* Get flag bits from current entry */
+            e.flags = page_tables[e.dir_i][e.tab_i] & 0x00000FFF;
+
+            /* If we have the same 2 flags in a row, display "..." */
+            if (e.flags == last_entry.flags) {
+                if (!printed_dots)
+                    puts("...");
+
+                last_entry   = e;
+                printed_dots = true;
+
+                continue;
+            }
+
+            /* If we found a different entry, and we just printed dots, print the
+             * last one as well */
+            if (printed_dots) {
+                printf(
+                  "[%4ld, %4ld] paddr: 0x%6lX | vaddr: 0x%6lX | flags: ", last_entry.dir_i,
+                  last_entry.tab_i, last_entry.paddr, last_entry.vaddr);
+
+                /* Display flags */
+                for (int k = 11; k >= 0; k--) {
+                    if ((last_entry.flags >> k) & 1)
+                        putchar('1');
+                    else
+                        putchar('-');
+                }
+
+                putchar('\n');
+            }
+
+            last_entry   = e;
+            printed_dots = false;
+
+            printf("[%4ld, %4ld] paddr: 0x%6lX | vaddr: 0x%6lX | flags: ", e.dir_i,
+                   e.tab_i, e.paddr, e.vaddr);
+
+            /* Display flags */
+            for (int k = 11; k >= 0; k--) {
+                if ((e.flags >> k) & 1)
+                    putchar('1');
+                else
+                    putchar('-');
+            }
+
+            putchar('\n');
+        }
+    }
+}
