@@ -10,28 +10,45 @@ gdt_start:
     .null_descriptor:           ; First segment is the null descriptor, where the
         dd      0x00000000      ; base, limit, access bytes, and flags are set to 0
         dd      0x00000000      ; We declare 2 double words (2 * 32 bits)
-    .code_descriptor:
+    .kernel_code:
         dw      0xffff          ; Define the first 16 bits of the limit
         dw      0x0000          ; First 24 bits of the base (16 + 8)
         db      0x00
         db      10011010b       ; ppt flags (4 bits) + type flags (4 bits). Note 1*
         db      11001111b       ; Other flags + last 4 bits of the limit. Note 2*
         db      0x00            ; Last 8 bits of the base
-    .data_descriptor:
+    .kernel_data:
         dw      0xffff          ; Same limit as code
         dw      0x0000          ; Same base as code
         db      0x00
         db      10010010b       ; Same ppt flags as code, but new type. Note 3*
         db      11001111b       ; Same "Other flags", same limit as code
         db      0x00            ; Same base as code
+    .user_code:
+        dw      0xffff          ; Same limit and base as kernel (start to end)
+        dw      0x0000
+        db      0x00
+        db      11111010b       ; Same as kenel but in ring 3 (11 -> ring 3)
+        db      11001111b       ; Same as kernel
+        db      0x00
+    .user_data:
+        dw      0xffff
+        dw      0x0000
+        db      0x00
+        db      10010010b       ; Same as kernel data but ring 3 (11 -> ring 3)
+        db      11001111b
+        db      0x00
+    ; TODO: tss
 gdt_end:
 
 gdt_descriptor:
     dw      gdt_end - gdt_start - 1     ; Size of the gdt, word
     dd      gdt_start                   ; Pointer to the gdt
 
-CODE_SEG equ gdt_start.code_descriptor - gdt_start  ; Constants for descriptor offsets
-DATA_SEG equ gdt_start.data_descriptor - gdt_start
+KERNEL_CODE_SEG equ gdt_start.kernel_code - gdt_start   ; Constants for descriptor
+KERNEL_DATA_SEG equ gdt_start.kernel_data - gdt_start   ; offsets.
+USER_CODE_SEG   equ gdt_start.user_code   - gdt_start   ; User segs currently unused.
+USER_DATA_SEG   equ gdt_start.user_data   - gdt_start
 
 ; Note 1: The first 4 bits of that byte correspond to the "Present", "Privilege" and
 ;         "Type" flags. The first Present byte is 1 if the segment is used. The
@@ -71,9 +88,9 @@ gdt_init:
     mov     cr0, eax            ; modified register to cr0. We are in 32bit mode now
     pop     eax
 
-    jmp     CODE_SEG:gdt_done   ; Now we do a far jump (jump to another segment) with
-                                ; the "gdt_done" offset. Just return to _start at
-                                ; src/kernel/boot.asm
+    jmp     KERNEL_CODE_SEG:gdt_done    ; Now we do a far jump (jump to another
+                                        ; segment) with the "gdt_done" offset. Just
+                                        ; return to _start at src/kernel/boot.asm
 
 gdt_done:
     ret
