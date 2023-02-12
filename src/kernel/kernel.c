@@ -225,7 +225,7 @@ void kernel_main(Multiboot* mb_info) {
     sh_main();
 
     for (;;)
-        ;
+        asm("hlt");
 
     __builtin_unreachable();
 }

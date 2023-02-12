@@ -152,6 +152,7 @@ static int cmd_help() {
 }
 
 static int cmd_quit() {
+    puts("Goodbye.");
     quit_sh = true;
     return 0;
 }
