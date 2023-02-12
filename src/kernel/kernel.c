@@ -29,7 +29,7 @@
 #include <fonts/main_font.h>
 #include <layouts/us.h>
 
-#include "../apps/sh/sh.h"
+#include "../apps/sh/sh.h" /* sh_main */
 
 #include "media/logo_small.h"
 
