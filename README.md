@@ -48,7 +48,7 @@ $ make fs-os.iso
 ...
 ```
 
-> **Note**
+> **Note**  
 > For more information about the building process and target dependencies, see the
 > [compiling](https://github.com/fs-os/fs-os/wiki/Compiling#makefile-structure)
 > section of the [wiki](https://github.com/fs-os/fs-os/wiki).
