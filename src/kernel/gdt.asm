@@ -3,7 +3,7 @@
 ;   https://wiki.osdev.org/GDT_Tutorial
 ;   https://www.youtube.com/watch?v=Wh5nPn2U_1w
 
-%include "tss_struc.asm"    ; tss_t, gdt_entry_t
+%include "structs.asm"      ; tss_t, gdt_entry_t
 
 section .text
 
@@ -94,7 +94,7 @@ gdt_start:
         db      11001111b
         db      0x00
     .tss:
-        istruc gdt_entry_t                          ; See src/kernel/tss_struc.asm
+        istruc gdt_entry_t                          ; See src/kernel/structs.asm
             at gdt_entry_t.limit0,  dw 0x0000       ; First 16 bits of limit
             at gdt_entry_t.base0,   dw 0x0000       ; First 16 bits of base
             at gdt_entry_t.base1,   db 0x00         ; Mid 8 bits of base

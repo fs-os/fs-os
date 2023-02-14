@@ -1,8 +1,10 @@
 
-; Included by src/kernel/gdt.asm
+; Included by:
+;   src/kernel/gdt.asm
+;   src/kernel/multitask.asm
 
-%ifndef TSS_STRUC_ASM
-%define TSS_STRUC_ASM
+%ifndef STRUCTS_ASM
+%define STRUCTS_ASM
 
 struc tss_t
     .link:      resw 1
@@ -61,4 +63,4 @@ struc gdt_entry_t
     .base2:     resb 1          ; Last 8 bits of base
 endstruc
 
-%endif ; TSS_STRUC_ASM
+%endif ; STRUCTS_ASM
