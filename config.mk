@@ -1,7 +1,7 @@
 
 # For compiling the bootstrap assembly
 ASM=nasm
-ASM_FLAGS=-f elf32
+ASM_FLAGS=-f elf32 -isrc/kernel -isrc/kernel/include/kernel
 
 # i686 cross-compiler. See https://github.com/fs-os/cross-compiler
 CC=/usr/local/cross/bin/i686-elf-gcc
