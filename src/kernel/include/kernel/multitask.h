@@ -10,8 +10,8 @@ struct Ctx {
 };
 
 /* Task state segment, loaded to the GDT */
-typedef struct Tss Tss;
-struct Tss {
+typedef struct tss_t Tss;
+struct tss_t {
     uint16_t link;
     uint16_t pad0; /* Padding */
 
@@ -50,12 +50,16 @@ struct Tss {
     uint16_t pad8; /* Padding */
     uint16_t gs;
     uint16_t pad9; /* Padding */
+
     uint16_t ldtr;
     uint16_t pad10; /* Padding */
     uint16_t pad11; /* Padding (before iobp) */
     uint16_t iobp;
     uint32_t ssp;  /* 0x68 (0x68 - 0x6C) */
 } __attribute__((packed));
+
+/* tss_getptr: returns a pointer to a Tss struct. Defined in: src/kenrel/gdt.asm */
+Tss* tss_getptr(void);
 
 #endif /* _KERNEL_MULTITASK_H */
 

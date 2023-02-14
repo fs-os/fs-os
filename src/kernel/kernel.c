@@ -24,6 +24,7 @@
 #include <kernel/rtc.h>                 /* rtc_get_datetime */
 #include <kernel/pcspkr.h>              /* pcspkr_beep */
 #include <kernel/keyboard.h>            /* kb_setlayout, kb_getchar_init */
+#include <kernel/multitask.h>           /* Ctx, Tss */
 
 #include <kernel/multiboot.h> /* multiboot info structure */
 #include <fonts/main_font.h>
