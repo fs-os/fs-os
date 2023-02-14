@@ -150,30 +150,25 @@ gdt_init:
 
 .fill_tss:
     mov     eax, TSS_SIZE
-    and     eax, 0xFFFF
-    mov     [gdt_start.tss + gdt_entry_t.limit0], eax   ; First 16 bits of tss limit
+    mov     [gdt_start.tss + gdt_entry_t.limit0], ax    ; First 16 bits of tss limit
 
     mov     eax, tss_start
-    and     eax, 0xFFFF
-    mov     [gdt_start.tss + gdt_entry_t.base0], eax    ; First 16 bits of tss base
+    mov     [gdt_start.tss + gdt_entry_t.base0], ax     ; First 16 bits of tss base
 
     mov     eax, tss_start
     shr     eax, 8
-    and     eax, 0xFF
-    mov     [gdt_start.tss + gdt_entry_t.base1], eax    ; Mid 8 bits of tss base
+    mov     [gdt_start.tss + gdt_entry_t.base1], ax     ; Mid 8 bits of tss base
 
     ; (flags are known at compile time)
 
     mov     eax, TSS_SIZE
     shr     eax, 16
-    and     eax, 0xF
-    mov     [gdt_start.tss + gdt_entry_t.limit1], eax   ; Last 4 bits of limit (+ no
+    mov     [gdt_start.tss + gdt_entry_t.limit1], al    ; Last 4 bits of limit (+ no
                                                         ; flags)
 
     mov     eax, tss_start
     shr     eax, 16
-    and     eax, 0xFF
-    mov     [gdt_start.tss + gdt_entry_t.base2], eax    ; Last 8 bits of tss base
+    mov     [gdt_start.tss + gdt_entry_t.base2], ax     ; Last 8 bits of tss base
 
 .fill_tss_done:
     lgdt    [gdt_descriptor]    ; Load the gdt descriptor, containing the gdt size
