@@ -94,13 +94,14 @@ gdt_start:
         db      11001111b
         db      0x00
     .tss:
-        istruc gdt_entry_t                      ; See src/kernel/tss_struc.asm
-            at gdt_entry_t.limit0,  dw 0x0000   ; First 16 bits of limit
-            at gdt_entry_t.base0,   dw 0x0000   ; First 16 bits of base
-            at gdt_entry_t.base1,   db 0x00     ; Mid 8 bits of base
-            at gdt_entry_t.flags,   db 0x00     ; ppt flags + type flags
-            at gdt_entry_t.limit1,  db 0x00     ; no other flags + last 4 bits of limit
-            at gdt_entry_t.base2,   db 0x00     ; Last 8 bits of the base
+        istruc gdt_entry_t                          ; See src/kernel/tss_struc.asm
+            at gdt_entry_t.limit0,  dw 0x0000       ; First 16 bits of limit
+            at gdt_entry_t.base0,   dw 0x0000       ; First 16 bits of base
+            at gdt_entry_t.base1,   db 0x00         ; Mid 8 bits of base
+            at gdt_entry_t.flags,   db 10001001b    ; ppt flags + type flags
+            at gdt_entry_t.limit1,  db 0x00         ; no other flags + last 4 bits
+                                                    ; of limit
+            at gdt_entry_t.base2,   db 0x00         ; Last 8 bits of the base
         iend
 gdt_end:
 
@@ -161,7 +162,7 @@ gdt_init:
     and     eax, 0xFF
     mov     [gdt_start.tss + gdt_entry_t.base1], eax    ; Mid 8 bits of tss base
 
-    mov     [gdt_start.tss + gdt_entry_t.flags], byte 10001001b
+    ; (flags are known at compile time)
 
     mov     eax, TSS_SIZE
     shr     eax, 16
