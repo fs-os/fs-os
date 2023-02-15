@@ -24,7 +24,7 @@
 #include <kernel/rtc.h>                 /* rtc_get_datetime */
 #include <kernel/pcspkr.h>              /* pcspkr_beep */
 #include <kernel/keyboard.h>            /* kb_setlayout, kb_getchar_init */
-#include <kernel/multitask.h>           /* Ctx, Tss */
+#include <kernel/multitask.h>           /* mt_init */
 
 #include <kernel/multiboot.h> /* multiboot info structure */
 #include <fonts/main_font.h>
@@ -160,6 +160,8 @@ void kernel_main(Multiboot* mb_info) {
         abort();
     }
 
+    mt_init();
+
     fb_init((uint32_t*)(uint32_t)mb_info->framebuffer_addr,
             mb_info->framebuffer_pitch, mb_info->framebuffer_width,
             mb_info->framebuffer_height, mb_info->framebuffer_bpp);
@@ -176,6 +178,7 @@ void kernel_main(Multiboot* mb_info) {
     LOAD_INFO("IDT initialized.");
     LOAD_INFO("Paging initialized.");
     LOAD_INFO("Heap initialized.");
+    LOAD_INFO("Multitasking initialized.");
     LOAD_INFO("Framebuffer initialized.");
     LOAD_INFO("Framebuffer console initialized.");
 
