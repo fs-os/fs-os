@@ -63,4 +63,14 @@ struc gdt_entry_t
     .base2:     resb 1          ; Last 8 bits of base
 endstruc
 
+; See src/kernel/include/kernel/multitask.h
+struc ctx_t
+    .next:      resd 1          ; Pointer to next task
+    .esp:       resd 1          ; Top of the current task's stack
+    .cr3:       resd 1          ; cr3 register for the current stack (virtual address
+                                ; space/page directory)
+    .state:     resd 1
+    .name:      resd 1          ; char* to the task name
+endstruc
+
 %endif ; STRUCTS_ASM

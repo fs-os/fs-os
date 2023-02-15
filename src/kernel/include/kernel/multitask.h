@@ -5,8 +5,13 @@
 /* Task context struct */
 typedef struct Ctx Ctx;
 struct Ctx {
-    Ctx* next;
-    /* TODO */
+    Ctx* next;    /* Pointer to next task */
+    uint32_t esp; /* Stack top */
+    uint32_t cr3; /* cr3 register (page directory) */
+    uint32_t state;
+    char* name; /* Task name */
+
+    /* We could add more stuff like parent task and priority */
 };
 
 /* Task state segment, loaded to the GDT */
@@ -55,11 +60,22 @@ struct tss_t {
     uint16_t pad10; /* Padding */
     uint16_t pad11; /* Padding (before iobp) */
     uint16_t iobp;
-    uint32_t ssp;  /* 0x68 (0x68 - 0x6C) */
+    uint32_t ssp; /* 0x68 (0x68 - 0x6C) */
 } __attribute__((packed));
 
-/* tss_getptr: returns a pointer to a Tss struct. Defined in: src/kenrel/gdt.asm */
+/* Pointer to the current task (context) being used. Defined in:
+ * src/kernel/multitask.h */
+extern Ctx* mt_current_task;
+
+/* tss_getptr: returns a pointer to a Tss struct. Defined in: src/kernel/gdt.asm */
 Tss* tss_getptr(void);
+
+/* mt_init: initialize multitasking. Creates the first task for the kernel. Defined
+ * in src/kernel/multitask.asm */
+void mt_init(void);
+
+/* mt_init: switch to task "next". Defined in src/kernel/multitask.asm */
+void mt_switch(Ctx* next);
 
 #endif /* _KERNEL_MULTITASK_H */
 
