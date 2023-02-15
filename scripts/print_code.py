@@ -12,7 +12,11 @@ def print_comments(path):
 def main():
     for root, dirs, files in os.walk(SRC_PATH):
         for f in files:
-            if f.endswith('.h') or f.endswith('.c'):
+            if (f.endswith('.h') or
+                f.endswith('.c') or
+                f.endswith('.asm') or
+                f.endswith('.s')):
+
                 rel_path = os.path.join(root, f)
 
                 print("\n=========================================================")
