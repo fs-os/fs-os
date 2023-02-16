@@ -54,7 +54,7 @@ section .multiboot
 ; failure to align the stack will result in undefined behavior.
 section .bss
     align   16
-stack_bottom:       ; Items pushed to the stack will get 'closer' to this label (in x86)
+stack_bottom:       ; Items pushed to the stack will get 'closer' to this label (x86)
     resb    16384   ; 16 KiB
 stack_top:
 
