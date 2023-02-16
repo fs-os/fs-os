@@ -145,6 +145,16 @@ void print_logo(unsigned int ypad, unsigned int xpad) {
     }
 }
 
+// DELME
+void multitask_test(void) {
+    // FIXME
+    for (int i = 0; i < 100; i++) {
+        printf("mt_test: %d\n", i);
+        sleep(1);
+        mt_switch(mt_gettask()->next);
+    }
+}
+
 /* kernel_main: Called by boot.asm */
 void kernel_main(Multiboot* mb_info) {
     idt_init();
@@ -224,6 +234,14 @@ void kernel_main(Multiboot* mb_info) {
     fbc_setfore(COLOR_GREEN);
     puts("https://github.com/fs-os/fs-os");
     fbc_setfore(COLOR_WHITE);
+
+    mt_newtask("test", (void*)multitask_test);
+
+    for (int i = 0; i < 100; i++) {
+        printf("main: %d\n", i);
+        sleep(1);
+        mt_switch(mt_gettask()->next);
+    }
 
     /* Main shell */
     sh_main();

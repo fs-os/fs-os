@@ -74,8 +74,16 @@ Tss* tss_getptr(void);
  * in src/kernel/multitask.asm */
 void mt_init(void);
 
+/* mt_newtask: creates a new task named "name", and with the entry point "entry".
+ * Defined in src/kernel/multitask.asm */
+void mt_newtask(const char* name, void* entry);
+
 /* mt_init: switch to task "next". Defined in src/kernel/multitask.asm */
 void mt_switch(Ctx* next);
+
+/* mt_gettask: returns a pointer to the current task context struct being used.
+ * Defined in src/kernel/multitask.asm */
+Ctx* mt_gettask(void);
 
 #endif /* _KERNEL_MULTITASK_H */
 
