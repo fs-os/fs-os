@@ -93,6 +93,10 @@ mt_newtask:
     mov     [edx], dword 0x00000000     ; *stack_ptr = edi;
     sub     edx, 4                      ; stack_ptr--;
     mov     [edx], dword 0x00000000     ; *stack_ptr = esi;
+    sub     edx, 4                      ; stack_ptr--;
+    mov     [edx], dword 0x00000000     ; *stack_ptr = ebp;
+    sub     edx, 4                      ; stack_ptr--;
+    mov     [edx], dword 0x00000000     ; *stack_ptr = ebx;
 
     mov     [eax + ctx_t.esp], edx      ; Save the address at the top of the
                                         ; allocated stack
@@ -110,6 +114,9 @@ mt_switch:
 
     push    edi     ; edi will be the current task
     push    esi     ; esi will be the first argument (new ctx)
+    push    ebp     ; ebp and ebx are unused in mt_swtich, we still need to save them
+    push    ebx     ; because the called function should preserve them acording to
+                    ; the System V ABI.
 
     ; Dereference the label to get the address stored in the pointer:
     ;   mt_current_task     = &mt_current_task = 0x10050 (addr of label)
@@ -121,7 +128,7 @@ mt_switch:
     mov     edi, [mt_current_task]
     mov     [edi + ctx_t.esp], esp
 
-    mov     esi, [esp + 3 * 4]      ; First argument. We pushed 2 elements + return
+    mov     esi, [esp + 5 * 4]      ; First argument. We pushed 4 elements + return
                                     ; address, of size 4 (dword).
     mov     [mt_current_task], esi  ; Save the function argument as the current ctx
 
@@ -135,6 +142,8 @@ mt_switch:
     mov     cr3, eax                ; If the don't match, load cr3 from new task
 
 .pd_loaded:
+    pop     ebx     ; Restore registers from caller function
+    pop     ebp
     pop     esi
     pop     edi
 
