@@ -8,6 +8,7 @@
 #include <kernel/framebuffer_console.h> /* fbc_setfore, fbc_clear */
 #include <kernel/paging.h>              /* paging_show_map */
 #include <kernel/heap.h>                /* heap_dump_headers */
+#include <kernel/pit.h>                 /* pit_get_ticks */
 #include <kernel/rtc.h>                 /* rtc_get_datetime */
 #include <kernel/pcspkr.h>              /* pcspkr_beep */
 #include <kernel/rand.h>                /* check_rdseed, check_rdrand, cpu_rand */
@@ -39,7 +40,7 @@ static int cmd_unk();
 static int cmd_help();
 static int cmd_quit();
 static int cmd_last();
-static int cmd_ping();
+static int cmd_ticks();
 static int cmd_beep(int argc, char** argv);
 static int cmd_clear();
 static int cmd_ref();
@@ -72,9 +73,9 @@ static Command cmd_list[] = {
       &cmd_last,
     },
     {
-      "ping",
-      "Simple test command",
-      &cmd_ping,
+      "ticks",
+      "Print the current tick count since boot (ms)",
+      &cmd_ticks,
     },
     {
       "beep",
@@ -162,8 +163,9 @@ static int cmd_last() {
     return last_ret; /* Keep the same exit code in case we want to call it twice */
 }
 
-static int cmd_ping() {
-    puts("pong");
+static int cmd_ticks() {
+    const uint64_t t = pit_get_ticks();
+    printf("%lld (%llds)\n", t, t / 1000);
     return 0;
 }
 

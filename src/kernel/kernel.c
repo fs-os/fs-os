@@ -148,9 +148,9 @@ void print_logo(unsigned int ypad, unsigned int xpad) {
 // DELME
 void multitask_test(void) {
     // FIXME
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < 50; i++) {
         printf("mt_test: %d\n", i);
-        sleep(1);
+        sleep_ms(50);
         mt_switch(mt_gettask()->next);
     }
 }
@@ -237,9 +237,9 @@ void kernel_main(Multiboot* mb_info) {
 
     mt_newtask("test", (void*)multitask_test);
 
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < 50; i++) {
         printf("main: %d\n", i);
-        sleep(1);
+        sleep_ms(50);
         mt_switch(mt_gettask()->next);
     }
 
