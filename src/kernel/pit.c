@@ -42,11 +42,20 @@ uint16_t pit_read_count(enum pit_io_ports channel_port,
  * ms. */
 static volatile uint64_t ticks = 0;
 
-/* pit_dec: decrease the current tick count. Called from the PIT interrupt, on:
- * src/kernel/idt_asm.asm */
+/* pit_dec: decrease the current tick count. Currently unused. */
 void pit_dec(void) {
     if (ticks > 0)
         ticks--;
+
+    /* Tell CPU that it's okay to resume interrupts. See:
+     * https://wiki.osdev.org/Interrupts#From_the_OS.27s_perspective */
+    io_outb(0x20, 0x20);
+}
+
+/* pit_inc: increase the current tick count. Called from the PIT interrupt, on:
+ * src/kernel/idt_asm.asm */
+void pit_inc(void) {
+    ticks++;
 
     /* Tell CPU that it's okay to resume interrupts. See:
      * https://wiki.osdev.org/Interrupts#From_the_OS.27s_perspective */

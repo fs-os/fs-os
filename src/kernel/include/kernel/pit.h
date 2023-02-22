@@ -50,9 +50,12 @@ void pit_init(uint32_t freq);
 uint16_t pit_read_count(enum pit_io_ports channel_port,
                         enum pit_cmd_flags channel_flag);
 
-/* pit_dec: decrease the current tick count. Called from the PIT interrupt, on:
- * src/kernel/idt_asm.asm */
+/* pit_dec: decrease the current tick count. Currently unused. */
 void pit_dec(void);
+
+/* pit_inc: increase the current tick count. Called from the PIT interrupt, on:
+ * src/kernel/idt_asm.asm */
+void pit_inc(void);
 
 /* pit_set_ticks: sets the current PIT tick count. Called from the sleep functions
  * for setting the amount of time we want to wait (src/libk/time.c) */

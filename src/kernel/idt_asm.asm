@@ -12,7 +12,7 @@ bits 32
 section .text
     align 8
     extern handle_exception     ; src/kernel/exceptions.c
-    extern pit_dec              ; src/kernel/idt.c
+    extern pit_inc              ; src/kernel/idt.c
     extern kb_handler           ; src/kernel/keyboard.c
 
 ; void idt_load(void* idt_desc)
@@ -52,12 +52,12 @@ EXC_WRAPPER 20
 EXC_WRAPPER 30
 
 ; void irq_pit(void)
-; First IRQ we remapped to 0x20. Calls the pit_dec C function, located in:
+; First IRQ we remapped to 0x20. Calls the pit_inc C function, located in:
 ; src/kernel/pit.c
 global irq_pit:function
 irq_pit:
     pusha
-    call    pit_dec     ; Decrement the static counter from src/kernel/idt.c
+    call    pit_inc     ; Increment the static counter from src/kernel/idt.c
     popa
     iretd
 

@@ -11,8 +11,9 @@ void sleep(uint32_t sec) {
 
 /* sleep_ms: sleep "ms" milliseconds */
 void sleep_ms(uint64_t ms) {
-    pit_set_ticks(ms);
-    while (pit_get_ticks() > 0)
+    /* No need to translate ms to ticks because 1 tick is 1 ms */
+    const uint64_t cur_ticks = pit_get_ticks();
+    while (pit_get_ticks() < cur_ticks + ms)
         asm("hlt");
 }
 
