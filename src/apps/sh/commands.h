@@ -41,6 +41,7 @@ static int cmd_help();
 static int cmd_quit();
 static int cmd_last();
 static int cmd_ticks();
+static int cmd_timer(int argc, char** argv);
 static int cmd_beep(int argc, char** argv);
 static int cmd_clear();
 static int cmd_ref();
@@ -76,6 +77,11 @@ static Command cmd_list[] = {
       "ticks",
       "Print the current tick count since boot (ms)",
       &cmd_ticks,
+    },
+    {
+      "timer",
+      "Simple timer command (Wrapper for time.h functions)",
+      &cmd_timer,
     },
     {
       "beep",
@@ -166,6 +172,33 @@ static int cmd_last() {
 static int cmd_ticks() {
     const uint64_t t = pit_get_ticks();
     printf("%lld (%llds)\n", t, t / 1000);
+    return 0;
+}
+
+static int cmd_timer(int argc, char** argv) {
+    if (argc <= 1 || !strcmp(argv[1], "-h") || !strcmp(argv[1], "--help")) {
+        printf("Usage:\n"
+               "\t%s --help  - Show this help\n"
+               "\t%s start   - Start the timer\n"
+               "\t%s stop    - Print the time since we started the timer\n",
+               argv[0], argv[0], argv[0]);
+        return 1;
+    }
+
+    if (strcmp(argv[1], "start") == 0) {
+        timer_start();
+    } else if (strcmp(argv[1], "stop") == 0) {
+        printf("%lldms\n", timer_stop());
+    } else {
+        printf("Invalid option \"%s\"\n"
+               "Usage:\n"
+               "\t%s --help  - Show this help\n"
+               "\t%s start   - Start the timer\n"
+               "\t%s stop    - Print the time since we started the timer\n",
+               argv[1], argv[0], argv[0], argv[0]);
+        return 1;
+    }
+
     return 0;
 }
 
