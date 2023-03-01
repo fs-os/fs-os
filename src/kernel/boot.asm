@@ -53,13 +53,15 @@ section .multiboot
 ; de-facto extensions. The compiler will assume the stack is properly aligned and
 ; failure to align the stack will result in undefined behavior.
 section .bss
+    global stack_bottom     ; Global used in src/kernel/multitask.asm
+    global stack_top
+
     align   16
-stack_bottom:       ; Items pushed to the stack will get 'closer' to this label (x86)
-    resb    16384   ; 16 KiB
-stack_top:
+    stack_bottom:       ; Items pushed to the stack will get 'closer' to this label (x86)
+        resb    16384   ; 16 KiB
+    stack_top:
 
 ; Declare the kernel entry point.
-; TODO: What is :funtion (...) for?
 section .text
     global _start:function (_start.end - _start)    ; Size of the _start section
     extern gdt_init                                 ; /src/kernel/gdt.asm
