@@ -117,8 +117,8 @@ void paging_map(void* paddr, void* vaddr, uint16_t flags) {
 void paging_show_map(void) {
     typedef struct {
         uint32_t dir_i, tab_i;
-        uint32_t paddr;
-        uint32_t vaddr;
+        uint64_t paddr;
+        uint64_t vaddr;
         uint16_t flags;
     } table_entry;
 
@@ -136,7 +136,7 @@ void paging_show_map(void) {
             /* Get address stored at current pos and remove flag bits*/
             e.paddr = page_tables[e.dir_i][e.tab_i] & 0xFFFFF000;
 
-            /* Same operation we use for identity mapping (1:1)*/
+            /* Same operation we use for identity mapping (1:1) */
             e.vaddr = e.dir_i * TABLE_ENTRIES * PAGE_SIZE + e.tab_i * PAGE_SIZE;
 
             /* Get flag bits from current entry */
@@ -156,9 +156,9 @@ void paging_show_map(void) {
             /* If we found a different entry, and we just printed dots, print the
              * last one as well */
             if (printed_dots) {
-                printf(
-                  "[%4ld, %4ld] paddr: 0x%6lX | vaddr: 0x%6lX | flags: ", last_entry.dir_i,
-                  last_entry.tab_i, last_entry.paddr, last_entry.vaddr);
+                printf("[%4ld, %4ld] paddr: 0x%8llX | vaddr: 0x%8llX | flags: ",
+                       last_entry.dir_i, last_entry.tab_i, last_entry.paddr,
+                       last_entry.vaddr);
 
                 /* Display flags */
                 for (int k = 11; k >= 0; k--) {
@@ -174,7 +174,7 @@ void paging_show_map(void) {
             last_entry   = e;
             printed_dots = false;
 
-            printf("[%4ld, %4ld] paddr: 0x%6lX | vaddr: 0x%6lX | flags: ", e.dir_i,
+            printf("[%4ld, %4ld] paddr: 0x%8llX | vaddr: 0x%8llX | flags: ", e.dir_i,
                    e.tab_i, e.paddr, e.vaddr);
 
             /* Display flags */

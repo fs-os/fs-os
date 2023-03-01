@@ -72,7 +72,7 @@ static void printx(int64_t num) {
         print("0");
 
     /* max digits of an unsigned long */
-    char hex_str[12] = { 0 };
+    char hex_str[17] = { 0 };
 
     int tmp = 0;
     size_t i;
@@ -99,7 +99,7 @@ static void printx_n(int64_t num, uint32_t pad, bool uppercase) {
     const char upper_c = uppercase ? 'A' : 'a';
 
     /* max digits of an unsigned long */
-    char hex_str[12] = { 0 };
+    char hex_str[17] = { 0 };
 
     int tmp = 0;
     size_t i;
@@ -132,7 +132,7 @@ static void printX(int64_t num) {
         print("0");
 
     /* max digits of an unsigned long */
-    char hex_str[12] = { 0 };
+    char hex_str[17] = { 0 };
 
     int tmp = 0;
     size_t i;
@@ -182,9 +182,10 @@ int printf(const char* fmt, ...) {
  * supported:
  *   - "%c"
  *   - "%s", "%25s"
- *   - "%d", "%l", "%ll", "%ld", "%lld", "%25d", "%25l", "%25ld"
- *   - "%x", "%lx", "%llx", "%25x", "%25lx"
- *   - "%X", "%lX", "%llX", "%25X", "%25lX"
+ *   - "%d", "%l", "%ll", "%ld", "%lld"
+ *   - "%25d", "%25l", "%25ll", "%25ld", "%25lld"
+ *   - "%x", "%lx", "%llx", "%25x", "%25lx", "%25llx"
+ *   - "%X", "%lX", "%llX", "%25X", "%25lX", "%25llX"
  *   - "%p"
  *   - "%%"
  */
@@ -288,10 +289,10 @@ int vprintf(const char* fmt, va_list va) {
                         case 'X':
                             printx_n(va_arg(va, int), fmt_num, true);
                             break;
-                        case 'l': /* "%123ld", "%123lx", ... */
+                        case 'l': /* "%123ld", "%123llx", ... */
                             fmt++;
 
-                            /* TODO: 123lld (long long) */
+                            /* 123ld (long) */
                             switch (*fmt) {
                                 default:
                                 case 'd':
@@ -302,6 +303,26 @@ int vprintf(const char* fmt, va_list va) {
                                     break;
                                 case 'X':
                                     printx_n(va_arg(va, long int), fmt_num, true);
+                                    break;
+                                case 'l':
+                                    fmt++;
+
+                                    /* 123lld (long long) */
+                                    switch (*fmt) {
+                                        default:
+                                        case 'd':
+                                            printi_n(va_arg(va, long long int),
+                                                     fmt_num);
+                                            break;
+                                        case 'x':
+                                            printx_n(va_arg(va, long long int),
+                                                     fmt_num, false);
+                                            break;
+                                        case 'X':
+                                            printx_n(va_arg(va, long long int),
+                                                     fmt_num, true);
+                                            break;
+                                    }
                                     break;
                             }
                             break;
