@@ -122,6 +122,10 @@ void paging_show_map(void) {
         uint16_t flags;
     } table_entry;
 
+    /* AVL, Global, Page atribute table, Dirty, Accessed, Cache disable,
+     * Write-through, User (0 means supervisor), Writable, Present */
+    const char* flags_str = "---GPDACWUWP";
+
     /* Used to compare the current and last address' flags */
     table_entry last_entry = { 0, 0, 0, 0, 0 };
 
@@ -163,7 +167,7 @@ void paging_show_map(void) {
                 /* Display flags */
                 for (int k = 11; k >= 0; k--) {
                     if ((last_entry.flags >> k) & 1)
-                        putchar('1');
+                        putchar(flags_str[11 - k]);
                     else
                         putchar('-');
                 }
@@ -180,7 +184,7 @@ void paging_show_map(void) {
             /* Display flags */
             for (int k = 11; k >= 0; k--) {
                 if ((e.flags >> k) & 1)
-                    putchar('1');
+                    putchar(flags_str[11 - k]);
                 else
                     putchar('-');
             }
