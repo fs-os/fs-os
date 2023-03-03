@@ -69,22 +69,23 @@ struct tss_t {
  * src/kernel/multitask.h */
 extern Ctx* mt_current_task;
 
-/* tss_getptr: returns a pointer to a Tss struct. Defined in: src/kernel/gdt.asm */
+/* tss_getptr: returns a pointer to a Tss struct. Defined in:
+ * src/kernel/gdt.asm */
 Tss* tss_getptr(void);
 
-/* mt_init: initialize multitasking. Creates the first task for the kernel. Defined
- * in src/kernel/multitask.asm */
+/* mt_init: initialize multitasking. Creates the first task for the kernel.
+ * Defined in src/kernel/multitask.asm */
 void mt_init(void);
 
-/* mt_newtask: creates a new task named "name", and with the entry point "entry".
- * Defined in src/kernel/multitask.asm */
+/* mt_newtask: creates a new task named "name", and with the entry point
+ * "entry". Defined in src/kernel/multitask.asm */
 Ctx* mt_newtask(const char* name, void* entry);
 
 /* mt_init: switch to task "next". Defined in src/kernel/multitask.asm */
 void mt_switch(Ctx* next);
 
-/* mt_endtask: frees the stack and ends the task passed as parameter. The task should
- * not be the current working task.*/
+/* mt_endtask: frees the stack and ends the task passed as parameter. The task
+ * should not be the current working task.*/
 void mt_endtask(Ctx* task);
 
 /* mt_gettask: returns a pointer to the current task context struct being used.

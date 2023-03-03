@@ -8,7 +8,8 @@
 #define HEAP_START ((void*)0xA00000) /* Bytes. 10MB */
 #define HEAP_SIZE  (0x3200000)       /* Bytes. 50MB */
 
-/* Block header struct. The block ptr should point to (header_ptr + sizeof(Block)) */
+/* Block header struct. The block ptr should point to (header_ptr +
+ * sizeof(Block)) */
 typedef struct Block Block;
 struct Block {
     Block* prev; /* Pointer to prev header. Begining of heap if NULL */
@@ -23,7 +24,8 @@ extern Block* blk_cursor;
 /* init_heap: initializes the heap headers for the allocation functions. */
 void heap_init(void);
 
-/* heap_alloc: allocate "sz" bytes of memory from the heap and return the address */
+/* heap_alloc: allocate "sz" bytes of memory from the heap and return the
+ * address */
 void* heap_alloc(size_t sz);
 
 /* heap_free: free a previously allocated ptr */

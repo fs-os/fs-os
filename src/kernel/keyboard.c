@@ -23,8 +23,9 @@ enum kb_status_flags {
     KB_STATUS_BUFFER_OUT = 0x1, /* 00000001. Output buffer status. 1 if full */
     KB_STATUS_BUFFER_IN  = 0x2, /* 00000010. Input buffer status. 1 if full */
     KB_STATUS_SYSTEM     = 0x4, /* 00000100. Should be cleared by firmware */
-    KB_STATUS_CMD_DATA   = 0x8, /* 00001000. If 0, data written to buffer is for the
-                                   PS2 device, if 1, it's for the controller cmd */
+    KB_STATUS_CMD_DATA   = 0x8, /* 00001000. If 0, data written to buffer is for
+                                 * the PS2 device, if 1, it's for the controller
+                                 * cmd. */
     KB_STATUS_UNK_0   = 0x10,   /* 00010000. Chipset specific */
     KB_STATUS_UNK_1   = 0x20,   /* 00100000. Chipset specific */
     KB_STATUS_TIMEOUT = 0x40,   /* 01000000. If 1, timeout error */
@@ -33,10 +34,11 @@ enum kb_status_flags {
 
 /* Flags for each bit of the key_flags array */
 enum kb_flags {
-    KB_FLAG_PRESSED = 0x1, /* 00000001. Will be 1 if the key is currently pressed */
+    KB_FLAG_PRESSED = 0x1, /* 00000001. Will be 1 if the key is currently
+                              pressed */
 };
 
-/* ------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 /* Pointer to the current Layout struct being used */
 static const Layout* cur_layout = &us_layout;
@@ -55,8 +57,9 @@ static bool print_chars = true;
 /* True if a program is waiting for kb_getchar */
 static volatile bool getting_char = false;
 
-/* Buffers for the getchar functions. Since kb_handler only reads 8 bit chars, we
- * don't need bigger arrays. We need to use signed chars because of EOF, though */
+/* Buffers for the getchar functions. Since kb_handler only reads 8 bit chars,
+ * we don't need bigger arrays. We need to use signed chars because of EOF,
+ * though */
 static int8_t getchar_buf[KB_GETCHAR_BUFSZ]      = { EOF };
 static uint16_t getchar_buf_pos                  = 0;
 static int8_t getchar_line_buf[KB_GETCHAR_BUFSZ] = { EOF };
@@ -64,7 +67,8 @@ static uint16_t getchar_line_buf_pos             = 0;
 
 /* check_special: toggle variables like capslock_on or shift_held if needed */
 static inline void check_special(uint8_t released, uint8_t key) {
-    /* We can't use a case because they indexes are not constant at compile time */
+    /* We can't use a case because they indexes are not constant at compile time
+     */
     if (key == cur_layout->special[KB_SPECIAL_IDX_LSHIFT] ||
         key == cur_layout->special[KB_SPECIAL_IDX_RSHIFT]) {
         /* Store that shift is being held */
@@ -79,35 +83,38 @@ static inline void check_special(uint8_t released, uint8_t key) {
 /* check_layout: return lang_layout.shift if the shift is pressed, or to
  * lang_layout.def when shift is not being used */
 static inline unsigned char* get_layout(void) {
-    /* TODO: We should only change letters with caps lock, special chars like '#'
-     * should only be changed with shift. */
+    /* TODO: We should only change letters with caps lock, special chars like
+     * '#' should only be changed with shift. */
     return (capslock_on || shift_held) ? cur_layout->shift : cur_layout->def;
 }
 
-/* ------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
-/* kb_handler: actual C handler for the keyboard exceptions received from "irq_kb".
- * See src/kernel/idt_asm.asm */
+/* kb_handler: actual C handler for the keyboard exceptions received from
+ * "irq_kb". See src/kernel/idt_asm.asm */
 void kb_handler(void) {
-    /* The ps2 controller wiki page says (at the bottom, interrupts) that you don't
-     * really need to read the bit 0 of the status byte when reading port 0x60, but
-     * I have seen it in other projects so I am going to do it. */
+    /* The ps2 controller wiki page says (at the bottom, interrupts) that you
+     * don't really need to read the bit 0 of the status byte when reading port
+     * 0x60, but I have seen it in other projects so I am going to do it. */
     for (uint8_t status = io_inb(KB_PORT_STATUS); status & KB_STATUS_BUFFER_OUT;
          status         = io_inb(KB_PORT_STATUS)) {
         uint8_t key = io_inb(KB_PORT_DATA);
 
-        /* Highest bit is 1 if the key is released, store it and clear it from key */
+        /* Highest bit is 1 if the key is released, store it and clear it from
+         * key */
         uint8_t released = (key >> 7) & 1;
         key &= 0x7f;
 
         /* Check if we should toggle global variables for caps, etc. */
         check_special(released, key);
 
-        /* Check if we need to use an alternative layout when using shift, etc. */
+        /* Check if we need to use an alternative layout when using shift, ctrl,
+         * etc. */
         const unsigned char* final_layout = get_layout();
         const unsigned char final_key     = final_layout[key];
 
-        /* Store the current key as pressed or released in the key_flags array */
+        /* Store the current key as pressed or released in the key_flags
+         * array */
         if (released) {
             key_flags[final_key] &= ~KB_FLAG_PRESSED;
 
@@ -128,12 +135,13 @@ void kb_handler(void) {
             if (getchar_line_buf_pos >= KB_GETCHAR_BUFSZ)
                 panic_line("getchar buffer out of bounds");
 
-            /* Store the current char to the getchar line buffer (if the char can be
-             * displayed with the current font) */
+            /* Store the current char to the getchar line buffer (if the char
+             * can be displayed with the current font) */
             getchar_line_buf[getchar_line_buf_pos++] = final_key;
 
-            /* Check if the key we just saved is '\n'. If it is, the user is done
-             * with the input line so we can move the chars to the final buffer */
+            /* Check if the key we just saved is '\n'. If it is, the user is
+             * done with the input line so we can move the chars to the final
+             * buffer */
             if (final_key == '\n') {
                 for (int i = 0; i < getchar_line_buf_pos; i++) {
                     getchar_buf[i]      = getchar_line_buf[i];
@@ -150,8 +158,8 @@ void kb_handler(void) {
                 /* Remove the '\b' we just added */
                 getchar_line_buf[--getchar_line_buf_pos] = EOF;
 
-                /* Delete the last char and print '\b', only if we have something to
-                 * delete */
+                /* Delete the last char and print '\b', only if we have
+                 * something to delete */
                 if (getchar_line_buf_pos > 0) {
                     getchar_line_buf[--getchar_line_buf_pos] = EOF;
                     putchar(final_key);
@@ -171,8 +179,8 @@ void kb_handler(void) {
     io_outb(0x20, 0x20);
 }
 
-/* kb_held: check if "c" is being held. Returns 1 if the first bit of key_flags[c] is
- * set. */
+/* kb_held: check if "c" is being held. Returns 1 if the first bit of
+ * key_flags[c] is set. */
 bool kb_held(unsigned char c) {
     if (c >= 128)
         return 0;
@@ -195,7 +203,7 @@ bool kb_getecho(void) {
     return print_chars;
 }
 
-/* kb_setlayout: set the current active layout to the specified Layout pointer */
+/* kb_setlayout: set the current active layout to the specified Layout ptr */
 void kb_setlayout(const Layout* ptr) {
     cur_layout = ptr;
 }
@@ -222,12 +230,13 @@ int kb_getchar(void) {
     int c                        = getchar_buf[getchar_buf_pos];
     getchar_buf[getchar_buf_pos] = EOF;
 
-    /* Try to increase the buffer position. If the next char is EOF, reset the pos to
-     * 0 */
+    /* Try to increase the buffer position. If the next char is EOF, reset the
+     * pos to 0 */
     if (getchar_buf[++getchar_buf_pos] == EOF)
         getchar_buf_pos = 0;
 
-    /* We don't want to read keys anymore (if we do, enable in next getchar call) */
+    /* We don't want to read keys anymore (if we do, enable in next getchar
+     * call) */
     getting_char = false;
 
     return c;

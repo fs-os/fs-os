@@ -10,14 +10,15 @@
 /* Current frequency used by the pc speaker. 0 if disabled */
 static uint32_t current_freq = 0;
 
-/* pcspkr_play: play pc speaker with "freq" frequency (1s format). freq can't be 0 */
+/* pcspkr_play: play pc speaker with "freq" frequency (1s format). freq can't be
+ * 0 */
 void pcspkr_play(uint32_t freq) {
     /* Save the current frequency */
     current_freq = freq;
 
-    /* freq should be how many HZs it should wait between sending interrupt. We pass
-     * the frequency per second to convert it to HZ (by dividing how many HZs are in
-     * a sec) */
+    /* freq should be how many HZs it should wait between sending interrupt. We
+     * pass the frequency per second to convert it to HZ (by dividing how many
+     * HZs are in a sec) */
     freq = PIT_INTERVAL_TO_FREQ(freq);
 
     /* Set up the PIT */
@@ -30,8 +31,8 @@ void pcspkr_play(uint32_t freq) {
 
     /* This is not the same as (!(tmp & 3)) */
     if (tmp != (tmp | 3))
-        /* Tell the PC speaker to listen PIT channel 2 for freq. If one of the last 2
-         * bits is 0, set them to 1. */
+        /* Tell the PC speaker to listen PIT channel 2 for freq. If one of the
+         * last 2 bits is 0, set them to 1. */
         io_outb(PCSPKR_PORT, tmp | 0x3);
 }
 
@@ -51,14 +52,15 @@ uint32_t pcspkr_get_freq(void) {
     return current_freq;
 }
 
-/* pcspkr_beep: simple beep using the pc speaker (wrapper for pcspkr_beep_custom) */
-/* pcspkr_beep_custom: custom beep with freq and duration using the pc speaker */
+/* pcspkr_beep: simple beep using the pc speaker (wrapper for custom beep) */
+/* pcspkr_beep_custom: custom beep with freq and duration using the pc
+ * speaker */
 void pcspkr_beep_custom(Beep info) {
     pcspkr_play(info.freq);
     sleep_ms(info.ms_len);
     pcspkr_clear();
 
-    /* TODO: Reset old frequency of PIT channel 2. Not needed for now since we don't
-     * use channel 2. */
+    /* TODO: Reset old frequency of PIT channel 2. Not needed for now since we
+     * don't use channel 2. */
 }
 

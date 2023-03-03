@@ -53,7 +53,8 @@ typedef struct {
 /* idt_init: initialize the idt and the idt descriptor */
 void idt_init(void);
 
-/* idt_load: loads the idt descriptor from the assembly using the lidt instruction */
+/* idt_load: loads the idt descriptor from the assembly using the lidt
+ * instruction */
 void idt_load(void* idt_desc);
 
 #endif /* _KERNEL_IDT_H */

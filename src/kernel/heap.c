@@ -16,32 +16,35 @@ void heap_init(void) {
     *(Block*)first_blk = (Block){
         NULL,                      /* First block */
         NULL,                      /* And last block */
-        HEAP_SIZE - sizeof(Block), /* Size of block is size of heap - this block */
+        HEAP_SIZE - sizeof(Block), /* Size of block is size of heap - this block
+                                    */
         1,                         /* Start free */
     };
 }
 
-/* heap_alloc: allocate "sz" bytes of memory from the heap and return the address */
+/* heap_alloc: allocate "sz" bytes of memory from the heap and return the
+ * address */
 void* heap_alloc(size_t sz) {
     /* First, make sure the size is aligned to 8 bytes */
     const size_t align_diff = sz % 8;
     if (align_diff != 0)
         sz += 8 - align_diff;
 
-    /* From block cursor (last allocation/free), traverse blocks until we find one
-     * free or until we loop back to the original cursor. */
+    /* From block cursor (last allocation/free), traverse blocks until we find
+     * one free or until we loop back to the original cursor. */
     for (Block* blk = blk_cursor;; blk = blk->next) {
         /* Invalid block, check next */
         if (!blk->free || blk->sz < sz + sizeof(Block)) {
-            /* If we are back to where we started, there is no block left. Break */
+            /* If we are back to where we started, there is no block left. Break
+             */
             if (blk->next == blk_cursor)
                 break;
             else
                 continue;
         }
 
-        /* Location of the new block we will add after the size we are allocating:
-         *   (current Block ptr + size of current block + sz to alloc)
+        /* Location of the new block we will add after the size we are
+         * allocating: (current Block ptr + size of current block + sz to alloc)
          * Similar to the HEADER_TO_PTR macro. The pointer is const. */
         Block* const new_blk = (Block*)((uint32_t)blk + sizeof(Block) + sz);
 
@@ -49,8 +52,9 @@ void* heap_alloc(size_t sz) {
         *new_blk = (Block){
             blk,       /* Prev block is the old block */
             blk->next, /* Next block is ".next" of the old block */
-            blk->sz - sz - sizeof(Block), /* Shrink the allocated size and the new
-                                             header size from the old blk size */
+            blk->sz - sz - sizeof(Block), /* Shrink the allocated size and the
+                                             new header size from the old blk
+                                             size */
             1,
         };
 
@@ -61,7 +65,8 @@ void* heap_alloc(size_t sz) {
         blk->sz   = sz;
         blk->free = 0;
 
-        /* Return the pointer to the actual usable memory (blk + sizeof(Block)) */
+        /* Return the pointer to the actual usable memory (blk + sizeof(Block))
+         */
         return HEADER_TO_PTR(blk);
     }
 
@@ -85,9 +90,9 @@ void heap_free(void* ptr) {
         blk->sz += sizeof(Block) + blk->next->sz;
 
         /*
-         * If the next block isn't the last one, make the "next" of that one point to
-         * us.
-         * Then make the current "next" point to the next's "next", even if null:
+         * If the next block isn't the last one, make the "next" of that one
+         * point to us. Then make the current "next" point to the next's "next",
+         * even if null:
          *
          *  [blk] -> [blk->next] -> [blk->next->next]
          *   | ^                         | ^
@@ -106,10 +111,9 @@ void heap_free(void* ptr) {
         blk->prev->sz += sizeof(Block) + blk->sz;
 
         /*
-         * If the current block isn't the last one, make the previous block's "next"
-         * point to that.
-         * Then make the "next" pointer of the "prev" block point to the current
-         * block's "next", even if null:
+         * If the current block isn't the last one, make the previous block's
+         * "next" point to that. Then make the "next" pointer of the "prev"
+         * block point to the current block's "next", even if null:
          *
          *  [blk->prev] -> [blk] -> [blk->next]
          *      | ^                     | ^
@@ -157,7 +161,8 @@ static inline void print_header(enum header_mod mod, Block* blk) {
             break;
     }
 
-    printf("Header: %p | Blk: %p | Prev: %p | Next: %p | Sz: 0x%lX | Free: %d\n",
+    printf("Header: %p | Blk: %p | Prev: %p | Next: %p | Sz: 0x%lX | Free: "
+           "%d\n",
            blk, HEADER_TO_PTR(blk), blk->prev, blk->next, blk->sz, blk->free);
 }
 

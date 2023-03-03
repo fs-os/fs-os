@@ -2,12 +2,12 @@
 #ifndef _KERNEL_EXCEPTIONS_H
 #define _KERNEL_EXCEPTIONS_H
 
-/* handle_exception: disables interrupts and panics with the specified exception.
- * Defined in src/kernel/exceptions.c */
+/* handle_exception: disables interrupts and panics with the specified
+ * exception. Defined in src/kernel/exceptions.c */
 void handle_exception(int exc);
 
-/* exc_X: call the exception handler with the specified IRQ. Used as ISR offsets for
- * the idt.
+/* exc_X: call the exception handler with the specified IRQ. Used as ISR offsets
+ * for the idt.
  * Defined in src/kernel/exceptions_asm.asm */
 void exc_0(void);
 void exc_1(void);
@@ -36,8 +36,8 @@ void exc_30(void);
 void irq_pit(void);
 void irq_kb(void);
 
-/* Generic handlers for ignoring all IRQs we don't want from master and slave PIC.
- * Defined in src/kernel/idt_asm.asm */
+/* Generic handlers for ignoring all IRQs we don't want from master and slave
+ * PIC. Defined in src/kernel/idt_asm.asm */
 void irq_default_master(void);
 void irq_default_slave(void);
 

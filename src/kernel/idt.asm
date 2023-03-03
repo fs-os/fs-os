@@ -20,15 +20,15 @@ global idt_load:function
 idt_load:
     push    eax
 
-    mov     eax, [esp + 8]      ; First arg, pointer to the idt descriptor. (pushed
-                                ; eax (4) + return addr (4))
+    mov     eax, [esp + 8]      ; First arg, pointer to the idt descriptor.
+                                ; (pushed eax (4) + return addr (4))
     lidt    [eax]
 
     pop     eax
     ret
 
-; exc_X: call the exception handler with the specified IRQ. Used as ISR offsets for
-; the idt.
+; exc_X: call the exception handler with the specified IRQ. Used as ISR offsets
+; for the idt.
 EXC_WRAPPER 0
 EXC_WRAPPER 1
 EXC_WRAPPER 2
@@ -68,9 +68,9 @@ global irq_kb:function
 irq_kb:
     pusha
     cld                 ; Clear direction flag. The flag is used to specify the
-                        ; string order for operations that use the 'edi' and 'esi'
-                        ; registers. Tells the CPU that it should increase or
-                        ; decrease the pointer for strings.
+                        ; string order for operations that use the 'edi' and
+                        ; 'esi' registers. Tells the CPU that it should increase
+                        ; or decrease the pointer for strings.
     call    kb_handler  ; src/kernel/keyboard.c
     popa
     iretd

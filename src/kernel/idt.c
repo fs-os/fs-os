@@ -19,15 +19,16 @@ idt_entry idt[IDT_SZ] = { 0 };
 /* The descriptor containing the idt size and ptr. Initialized in idt_init */
 idt_descriptor descriptor;
 
-/* register_isr: registers an interrupt service routine in the selected idt idx */
+/* register_isr: registers an interrupt service routine in the selected idt
+ * idx */
 static void register_isr(uint16_t idx, uint32_t func) {
     if (idx >= IDT_SZ)
         panic_line("Idx out of bounds when registering ISR.");
 
     idt[idx] = (idt_entry){
-        .selector = 0x8, /* 00000000 00001000. Last 3 bits of the selector are TI and
-                            RPL. We only want to set the idx to 1 (first idx is the
-                            null gdt entry) */
+        .selector = 0x8, /* 00000000 00001000. Last 3 bits of the selector are
+                            TI and RPL. We only want to set the idx to 1 (first
+                            idx is the null gdt entry) */
         .offset_l = ((uint32_t)func) & 0xFFFF,
         .offset_h = (((uint32_t)func) >> 16) & 0xFFFF,
         .type     = P_BIT | DPL_NONE | IDT_GATE_32BIT_INT,
@@ -35,20 +36,20 @@ static void register_isr(uint16_t idx, uint32_t func) {
     };
 }
 
-/* pic_remap: remap the programmable interrupt controllers so the interrupt numbers of
- * the master PIC don't overlap with the CPU exceptions */
+/* pic_remap: remap the programmable interrupt controllers so the interrupt
+ * numbers of the master PIC don't overlap with the CPU exceptions */
 static inline void pic_remap(void) {
     /*
-     * Modern computers have 2 PICs (Programmable Interrupt Controller), the master
-     * and the slave. One line of the master PIC is used to signal the slave PIC.
-     * We are going to change the PIC interrupt numbers because by default, the
-     * ranges are:
+     * Modern computers have 2 PICs (Programmable Interrupt Controller), the
+     * master and the slave. One line of the master PIC is used to signal the
+     * slave PIC. We are going to change the PIC interrupt numbers because by
+     * default, the ranges are:
      *   IRQ 0..7  -> INT 0x08..0x0F
      *   IRQ 8..15 -> INT 0x70..0x77
-     * The first 8 overlap with the CPU's exceptions (src/kernel/exceptions.c), so we
-     * need to move them.
-     * We communicate through the IO bus. Similar to the RTC, each PIC has a command
-     * port and a data port:
+     * The first 8 overlap with the CPU's exceptions (src/kernel/exceptions.c),
+     * so we need to move them.
+     * We communicate through the IO bus. Similar to the RTC, each PIC has a
+     * command port and a data port:
      *   Master -> cmd: 0x20, data: 0x21
      *   Slave  -> cmd: 0xA0, data: 0xA1
      * TODO: The flags need comments with explanation.
@@ -82,8 +83,8 @@ void idt_init(void) {
     descriptor.limit = (IDT_SZ * sizeof(idt_entry)) - 1;
     descriptor.base  = &idt[0];
 
-    /* Remap the PICs so the interrupt numbers of the master PIC don't overlap with
-     * the CPU exceptions. See comment inside function. */
+    /* Remap the PICs so the interrupt numbers of the master PIC don't overlap
+     * with the CPU exceptions. See comment inside function. */
     pic_remap();
 
     /* Exception Handling. exc_* defined in src/kernel/idt_asm.asm */
@@ -110,7 +111,7 @@ void idt_init(void) {
     register_isr(30, (uint32_t)&exc_30);
 
     /* IRQs. See src/kernel/idt_asm.asm */
-    register_isr(32, (uint32_t)&irq_pit); /* Programmable interrupt timer. IRQ 0 */
+    register_isr(32, (uint32_t)&irq_pit); /* PIT. IRQ 0 */
     register_isr(33, (uint32_t)&irq_kb);  /* Keyboard. IRQ 1 */
 
     /* Unused IRQs, just ignore. See src/kernel/idt_asm.asm */
@@ -122,7 +123,7 @@ void idt_init(void) {
     /* src/kernel/idt_asm.asm */
     idt_load(&descriptor);
 
-    /* Enable interrupts (afaik sti is the opposite of cli) */
+    /* Enable interrupts (opposite of cli) */
     asm("sti");
 }
 

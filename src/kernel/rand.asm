@@ -17,10 +17,11 @@ check_rdseed:
     mov     eax, 7      ; Request function 7
     mov     ecx, 0      ; Request subfunction 0
     cpuid
-    shr     ebx, 18     ; (ebx >> 18) Acording to the CPUID table, bit 18 (19th) is
-                        ;             1 if the RDSEED instruction is supported by the
-                        ;             CPU.
-    and     ebx, 1      ; (ebx & 1) We only care about that 19th bit we just shifted
+    shr     ebx, 18     ; (ebx >> 18) Acording to the CPUID table, bit 18 (19th)
+                        ;             is 1 if the RDSEED instruction is
+                        ;             supported by the CPU.
+    and     ebx, 1      ; (ebx & 1) We only care about that 19th bit we just
+                        ; shifted
 
     mov     eax, ebx    ; Save the value to eax for returning
 
@@ -41,10 +42,11 @@ check_rdrand:
     mov     eax, 1      ; Request function 7
     mov     ecx, 0      ; Request subfunction 0
     cpuid
-    shr     ecx, 30     ; (ecx >> 30) Acording to the CPUID table, bit 30 (31st) is
-                        ;             1 if the RDRAND instruction is supported by the
-                        ;             CPU.
-    and     ecx, 1      ; (ecx & 1) We only care about that 31st bit we just shifted
+    shr     ecx, 30     ; (ecx >> 30) Acording to the CPUID table, bit 30 (31st)
+                        ;             is 1 if the RDRAND instruction is
+                        ;             supported by the CPU.
+    and     ecx, 1      ; (ecx & 1) We only care about that 31st bit we just
+                        ; shifted
 
     mov     eax, ecx    ; Save the value to eax for returning
 

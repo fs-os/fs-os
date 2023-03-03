@@ -28,7 +28,8 @@ void vga_init(void) {
     }
 }
 
-/* vga_setcol_entry: changes the current color for the terminal from a vga entry */
+/* vga_setcol_entry: changes the current color for the terminal from a vga
+ * entry */
 void vga_setcol_entry(uint8_t col) {
     term_col = col;
 }
@@ -38,7 +39,8 @@ void vga_setcol(enum vga_color fg, enum vga_color bg) {
     term_col = vga_entry_color(fg, bg);
 }
 
-/* vga_put_at: writes "c" with the color "col" at "x" and "y" in the vga terminal */
+/* vga_put_at: writes "c" with the color "col" at "x" and "y" in the vga
+ * terminal */
 void vga_put_at(size_t y, size_t x, uint8_t col, char c) {
     term_buf[y * VGA_WIDTH + x] = vga_entry(c, col);
 }
@@ -58,10 +60,11 @@ void vga_shift_rows(int n) {
 
 /* vga_putchar: prints 'c' to the vga terminal */
 void vga_putchar(char c) {
-    /* If we try to put a newline, go to the next line without putting any char */
+    /* If we try to put a newline, go to the next line without putting any
+     * char */
     if (c == '\n') {
-        /* If we have rows left on the terminal, go down, if we are on the last one,
-         * shift 1 up, but stay on that last row */
+        /* If we have rows left on the terminal, go down, if we are on the last
+         * one, shift 1 up, but stay on that last row */
         if (term_y + 1 < VGA_HEIGHT)
             term_y++;
         else
@@ -88,14 +91,16 @@ void vga_putchar(char c) {
 
 /* vga_write: prints 'len' bytes of 's' to the vga terminal */
 void vga_write(const char* s, size_t len) {
-    /* No need to create a variable for iteration when we can increment the ptr */
+    /* No need to create a variable for iteration when we can increment the
+     * ptr */
     while (len-- > 0)
         vga_putchar(*s++);
 }
 
-/* vga_sprint: prints zero-terminated string to the vga terminal using vga_write */
-/* TODO: If we actually used vga, it would be better to write until '\0' instead of
- * calling strlen */
+/* vga_sprint: prints zero-terminated string to the vga terminal using
+ * vga_write */
+/* TODO: If we actually used vga, it would be better to write until '\0' instead
+ * of calling strlen */
 void vga_sprint(const char* s) {
     vga_write(s, strlen(s));
 }
