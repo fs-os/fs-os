@@ -5,9 +5,11 @@
 /* Task context struct */
 typedef struct Ctx Ctx;
 struct Ctx {
-    Ctx* next;    /* Pointer to next task */
-    uint32_t esp; /* Stack top */
-    uint32_t cr3; /* cr3 register (page directory) */
+    Ctx* next;      /* Pointer to next task */
+    Ctx* prev;      /* Pointer to next task */
+    uint32_t stack; /* Pointer to the allocated stack for the task */
+    uint32_t esp;   /* Stack top */
+    uint32_t cr3;   /* cr3 register (page directory) */
     uint32_t state;
     char* name; /* Task name */
 
@@ -76,10 +78,14 @@ void mt_init(void);
 
 /* mt_newtask: creates a new task named "name", and with the entry point "entry".
  * Defined in src/kernel/multitask.asm */
-void mt_newtask(const char* name, void* entry);
+Ctx* mt_newtask(const char* name, void* entry);
 
 /* mt_init: switch to task "next". Defined in src/kernel/multitask.asm */
 void mt_switch(Ctx* next);
+
+/* mt_endtask: frees the stack and ends the task passed as parameter. The task should
+ * not be the current working task.*/
+void mt_endtask(Ctx* task);
 
 /* mt_gettask: returns a pointer to the current task context struct being used.
  * Defined in src/kernel/multitask.asm */

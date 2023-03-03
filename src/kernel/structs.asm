@@ -66,6 +66,8 @@ endstruc
 ; See src/kernel/include/kernel/multitask.h
 struc ctx_t
     .next:      resd 1          ; Pointer to next task
+    .prev:      resd 1          ; Pointer to previous task
+    .stack:     resd 1          ; Address of the allocated stack. Used for free()
     .esp:       resd 1          ; Top of the current task's stack
     .cr3:       resd 1          ; cr3 register for the current stack (virtual address
                                 ; space/page directory)
