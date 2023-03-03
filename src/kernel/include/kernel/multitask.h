@@ -2,6 +2,8 @@
 #ifndef _KERNEL_MULTITASK_H
 #define _KERNEL_MULTITASK_H
 
+#include <stdint.h>
+
 /* Task context struct */
 typedef struct Ctx Ctx;
 struct Ctx {
@@ -91,6 +93,10 @@ void mt_endtask(Ctx* task);
 /* mt_gettask: returns a pointer to the current task context struct being used.
  * Defined in src/kernel/multitask.asm */
 Ctx* mt_gettask(void);
+
+/* dump_task_list: print the list of tasks starting with the current one.
+ * Defined in src/kernel/multitask.c */
+void dump_task_list(void);
 
 #endif /* _KERNEL_MULTITASK_H */
 
