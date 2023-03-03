@@ -15,11 +15,9 @@ section .bss
             at ctx_t.state, resd 1
             at ctx_t.name,  resd 1
         iend
-    ctx_t_end:
 
 section .data
     first_task_name db 'kernel_main', 0x0
-    ctx_t_sz dd ctx_t_end - first_ctx       ; TODO: use ctx_t_size
 
 section .text
     extern stack_bottom         ; src/kernel/boot.asm
@@ -63,7 +61,7 @@ mt_newtask:
     push    ebp
     mov     ebp, esp
 
-    push    dword [ctx_t_sz]    ; Size of the ctx_t struct
+    push    dword [ctx_t_size]  ; Size of the ctx_t struct
     call    malloc              ; Allocate a ctx_t struct on the heap
     add     esp, 4              ; Remove dword we just pushed
 
