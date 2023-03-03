@@ -100,18 +100,18 @@ limine:
 $(KERNEL_BIN): cfg/linker.ld $(ASM_OBJS) $(KERNEL_OBJS) $(LIBK_OBJS) $(APP_OBJS)
 	$(CC) --sysroot=sysroot -isystem=/usr/include -T cfg/linker.ld -o $@ -ffreestanding -nostdlib $(CFLAGS) $(ASM_OBJS) $(KERNEL_OBJS) $(LIBK_OBJS) $(APP_OBJS) -lgcc
 
-$(ASM_OBJS): obj/kernel/%.o: src/kernel/%.asm
+$(ASM_OBJS): obj/kernel/%.o: src/kernel/%
 	@mkdir -p $(dir $@)
 	$(ASM) $(ASM_FLAGS) $< -o $@
 
 # We need the sysroot with the includes and the static lib for building the kernel,
 # framebuffer, etc. We called 'make sysroot' in the 'all' target so we should be
 # fine.
-$(KERNEL_OBJS): obj/kernel/%.o: src/kernel/%.c
+$(KERNEL_OBJS): obj/kernel/%.o: src/kernel/%
 	@mkdir -p $(dir $@)
 	$(CC) --sysroot=sysroot -isystem=/usr/include -c $< -o $@ -ffreestanding -std=gnu11 $(CFLAGS) -Iinclude
 
-$(APP_OBJS): obj/apps/%.o: src/apps/%.c
+$(APP_OBJS): obj/apps/%.o: src/apps/%
 	@mkdir -p $(dir $@)
 	$(CC) --sysroot=sysroot -isystem=/usr/include -c $< -o $@ -ffreestanding -std=gnu11 $(CFLAGS) -Iinclude
 
@@ -120,11 +120,11 @@ $(APP_OBJS): obj/apps/%.o: src/apps/%.c
 # TODO: Doesn't have its own include folder, so it uses the same headers as libc. If
 # some function parameters need to change, or we need to add a custom function for
 # the kernel, make libk header folder in sysroot.
-$(LIBK_OBJS): obj/libk/%.o : src/libk/%.c
+$(LIBK_OBJS): obj/libk/%.o : src/libk/%
 	@mkdir -p $(dir $@)
 	$(CC) --sysroot=sysroot -isystem=/usr/include -c $< -o $@ -ffreestanding -std=gnu11 $(CFLAGS) -Iinclude
 
-$(LIBC_OBJS): obj/libc/%.o : src/libc/%.c
+$(LIBC_OBJS): obj/libc/%.o : src/libc/%
 	@mkdir -p $(dir $@)
 	$(CC) --sysroot=sysroot -isystem=/usr/include -c $< -o $@ -ffreestanding -std=gnu11 $(CFLAGS) -Iinclude
 

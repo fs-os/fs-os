@@ -18,21 +18,21 @@ ISO=$(KERNEL_BIN:.bin=.iso)
 
 # List of object files to be linked with the kernel. Same for asm_objs but with
 # different compilation method.
-KERNEL_OBJS=obj/kernel/kernel.o obj/kernel/vga.o obj/kernel/paging.o obj/kernel/heap.o obj/kernel/framebuffer.o obj/kernel/framebuffer_console.o obj/kernel/idt.o obj/kernel/exceptions.o obj/kernel/rtc.o obj/kernel/pit.o obj/kernel/pcspkr.o obj/kernel/keyboard.o
-ASM_OBJS=obj/kernel/boot.o obj/kernel/io.o obj/kernel/gdt.o obj/kernel/idt_asm.o obj/kernel/paging_asm.o obj/kernel/multitask.o obj/kernel/rand.o obj/kernel/asm_util.o
+KERNEL_OBJS=obj/kernel/kernel.c.o obj/kernel/vga.c.o obj/kernel/paging.c.o obj/kernel/heap.c.o obj/kernel/framebuffer.c.o obj/kernel/framebuffer_console.c.o obj/kernel/idt.c.o obj/kernel/exceptions.c.o obj/kernel/rtc.c.o obj/kernel/pit.c.o obj/kernel/pcspkr.c.o obj/kernel/keyboard.c.o
+ASM_OBJS=obj/kernel/boot.asm.o obj/kernel/io.asm.o obj/kernel/gdt.asm.o obj/kernel/idt.asm.o obj/kernel/paging.asm.o obj/kernel/multitask.asm.o obj/kernel/rand.asm.o obj/kernel/asm_util.asm.o
 
 # List of object files containing the app functions. For now built into the kernel
 # until we have a proper userspace.
-# sh means src/apps/sh/sh.c will be compiled to obj/apps/sh.o
-APP_OBJS=obj/apps/sh/sh.o obj/apps/piano/piano.o
+# sh means src/apps/sh/sh.c will be compiled to obj/apps/sh.c.o
+APP_OBJS=obj/apps/sh/sh.c.o obj/apps/piano/piano.c.o
 
 # Libk is the libc version (with some changes) that the kernel uses for building. We
 # don't need a static lib, because we can just link the kernel with these objs
 # instead.
-LIBK_OBJS=obj/libk/string.o obj/libk/stdlib.o obj/libk/stdio.o obj/libk/time.o
+LIBK_OBJS=obj/libk/string.c.o obj/libk/stdlib.c.o obj/libk/stdio.c.o obj/libk/time.c.o
 
 # List of object files of our standard library, and the final static library
-LIBC_OBJS=obj/libc/string.o obj/libc/stdlib.o obj/libc/stdio.o obj/libc/time.o
+LIBC_OBJS=obj/libc/string.c.o obj/libc/stdlib.c.o obj/libc/stdio.c.o obj/libc/time.c.o
 LIBC=obj/libc.a
 
 # sysroot paths
