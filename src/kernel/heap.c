@@ -4,19 +4,20 @@
 #include <stdio.h>
 #include <kernel/heap.h>
 
+/* HEADER_TO_PTR: returns the pointer to the actual usable memory of a Block */
+#define HEADER_TO_PTR(blk) ((void*)((uint32_t)blk + sizeof(Block)))
+
 Block* blk_cursor = (Block*)HEAP_START;
 
 /* init_heap: initializes the heap headers for the allocation functions. */
 void heap_init(void) {
     void* first_blk = HEAP_START;
 
-    /* Set the next block ptr to NULL (End of memory) and the block size to the
-     * HEAP_SIZE minus the block we just wrote. */
     *(Block*)first_blk = (Block){
-        (void*)(first_blk + sizeof(Block)),
-        NULL,
-        HEAP_SIZE - sizeof(Block),
-        1,
+        NULL,                      /* First block */
+        NULL,                      /* And last block */
+        HEAP_SIZE - sizeof(Block), /* Size of block is size of heap - this block */
+        1,                         /* Start free */
     };
 }
 
@@ -39,13 +40,15 @@ void* heap_alloc(size_t sz) {
                 continue;
         }
 
-        /* Current block ptr + current alloc sz. The pointer is const */
-        Block* const new_blk = (Block*)((uint32_t)blk->ptr + sz);
+        /* Location of the new block we will add after the size we are allocating:
+         *   (current Block ptr + size of current block + sz to alloc)
+         * Similar to the HEADER_TO_PTR macro. The pointer is const. */
+        Block* const new_blk = (Block*)((uint32_t)blk + sizeof(Block) + sz);
 
         /* Place the new block header */
         *new_blk = (Block){
-            (void*)((uint32_t)new_blk + sizeof(Block)),
-            blk->next,                    /* Next block is the old next block */
+            blk,       /* Prev block is the old block */
+            blk->next, /* Next block is ".next" of the old block */
             blk->sz - sz - sizeof(Block), /* Shrink the allocated size and the new
                                              header size from the old blk size */
             1,
@@ -58,7 +61,8 @@ void* heap_alloc(size_t sz) {
         blk->sz   = sz;
         blk->free = 0;
 
-        return blk->ptr;
+        /* Return the pointer to the actual usable memory (blk + sizeof(Block)) */
+        return HEADER_TO_PTR(blk);
     }
 
     /* No block available */
@@ -75,11 +79,47 @@ void heap_free(void* ptr) {
 
     Block* blk = (Block*)(ptr - sizeof(Block));
 
-    /* If the next block is free, merge */
-    if (blk->next->free) {
+    /* If this is not the last block, and the next block is free, merge */
+    if (blk->next != NULL && blk->next->free) {
         /* Add deleted header size and size of old block */
         blk->sz += sizeof(Block) + blk->next->sz;
+
+        /*
+         * If the next block isn't the last one, make the "next" of that one point to
+         * us.
+         * Then make the current "next" point to the next's "next", even if null:
+         *
+         *  [blk] -> [blk->next] -> [blk->next->next]
+         *   | ^                         | ^
+         *   | |----------(prev)---------| |
+         *   |------------(next)-----------|
+         */
+        if (blk->next->next != NULL)
+            blk->next->next->prev = blk;
+
         blk->next = blk->next->next;
+    }
+
+    /* If this is not the first block, and the prev block is free, merge */
+    if (blk->prev != NULL && blk->prev->free) {
+        /* Add deleted header size and size of old block */
+        blk->prev->sz += sizeof(Block) + blk->sz;
+
+        /*
+         * If the current block isn't the last one, make the previous block's "next"
+         * point to that.
+         * Then make the "next" pointer of the "prev" block point to the current
+         * block's "next", even if null:
+         *
+         *  [blk->prev] -> [blk] -> [blk->next]
+         *      | ^                     | ^
+         *      | |--------(prev)-------| |
+         *      |----------(next)---------|
+         */
+        if (blk->next != NULL)
+            blk->next->prev = blk->prev;
+
+        blk->prev->next = blk->next;
     }
 
     /* If the next block is being used, just set this one free */
@@ -117,8 +157,8 @@ static inline void print_header(enum header_mod mod, Block* blk) {
             break;
     }
 
-    printf("Header: %p | Blk: %p | Next: %p | Sz: 0x%lX | Free: %d\n", blk, blk->ptr,
-           blk->next, blk->sz, blk->free);
+    printf("Header: %p | Blk: %p | Prev: %p | Next: %p | Sz: 0x%lX | Free: %d\n",
+           blk, HEADER_TO_PTR(blk), blk->prev, blk->next, blk->sz, blk->free);
 }
 
 /* print_header_id: wrapper for print_header for adding a block id */

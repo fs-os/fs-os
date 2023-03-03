@@ -9,12 +9,13 @@
 #define HEAP_SIZE  (0x3200000)       /* Bytes. 50MB */
 
 /* Block header struct. The block ptr should point to (header_ptr + sizeof(Block)) */
-typedef struct Block {
-    void* ptr;          /* Pointer to block memory. */
-    struct Block* next; /* Pointer to next header. End of memory if NULL */
-    uint32_t sz;        /* Bytes */
-    bool free;          /* 1 or 0 */
-} Block;
+typedef struct Block Block;
+struct Block {
+    Block* prev; /* Pointer to prev header. Begining of heap if NULL */
+    Block* next; /* Pointer to next header. End of heap if NULL */
+    uint32_t sz; /* Bytes */
+    bool free;   /* 1 or 0 */
+};
 
 /* Initialized in src/kernel/alloc.c */
 extern Block* blk_cursor;
