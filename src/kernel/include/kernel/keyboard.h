@@ -53,8 +53,8 @@ enum kb_special_indexes {
 typedef struct {
     unsigned char* def;   /* Chars to display for each key code */
     unsigned char* shift; /* Same as .def but when holding shift */
-    uint16_t* special; /* Array containing the indexes of special chars for the
-                        * current layout */
+    uint16_t* special;    /* Array containing the indexes of special chars for
+                           * the current layout */
 } Layout;
 
 /* kb_handler: actual C handler for the keyboard exceptions received from

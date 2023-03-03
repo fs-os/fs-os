@@ -16,8 +16,8 @@ void heap_init(void) {
     *(Block*)first_blk = (Block){
         NULL,                      /* First block */
         NULL,                      /* And last block */
-        HEAP_SIZE - sizeof(Block), /* Size of block is size of heap - this block
-                                    */
+        HEAP_SIZE - sizeof(Block), /* Size of block is size of heap - this
+                                    * block */
         1,                         /* Start free */
     };
 }
@@ -35,8 +35,7 @@ void* heap_alloc(size_t sz) {
     for (Block* blk = blk_cursor;; blk = blk->next) {
         /* Invalid block, check next */
         if (!blk->free || blk->sz < sz + sizeof(Block)) {
-            /* If we are back to where we started, there is no block left. Break
-             */
+            /* If we are back to where we started, there is no block left */
             if (blk->next == blk_cursor)
                 break;
             else
@@ -65,8 +64,8 @@ void* heap_alloc(size_t sz) {
         blk->sz   = sz;
         blk->free = 0;
 
-        /* Return the pointer to the actual usable memory (blk + sizeof(Block))
-         */
+        /* Return the pointer to the actual usable memory:
+         * (blk + sizeof(Block)) */
         return HEADER_TO_PTR(blk);
     }
 

@@ -67,8 +67,8 @@ static uint16_t getchar_line_buf_pos             = 0;
 
 /* check_special: toggle variables like capslock_on or shift_held if needed */
 static inline void check_special(uint8_t released, uint8_t key) {
-    /* We can't use a case because they indexes are not constant at compile time
-     */
+    /* We can't use a case because they indexes are not constant at compile
+     * time */
     if (key == cur_layout->special[KB_SPECIAL_IDX_LSHIFT] ||
         key == cur_layout->special[KB_SPECIAL_IDX_RSHIFT]) {
         /* Store that shift is being held */

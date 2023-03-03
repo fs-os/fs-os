@@ -95,8 +95,8 @@ void fbc_init(uint32_t y, uint32_t x, uint32_t h, uint32_t w, Font* font) {
     fbc_refresh();
 }
 
-/* fbc_clear: clears the framebuffer console and moves cursor to the first char
- */
+/* fbc_clear: clears the framebuffer console and moves cursor to the first
+ * char */
 void fbc_clear(void) {
     cur_x = 0;
     cur_y = 0;
@@ -120,8 +120,8 @@ void fbc_clear(void) {
     }
 }
 
-/* fbc_write: prints "len" of "s" to the framebuffer console using fbc_putchar
- */
+/* fbc_write: prints "len" of "s" to the framebuffer console using
+ * fbc_putchar */
 void fbc_write(const char* s, size_t len) {
     while (len-- > 0)
         fbc_putchar(*s++);
@@ -386,8 +386,8 @@ void fbc_shift_rows(uint8_t n) {
         char_count = 0;
     }
 
-    /* Clear last n rows with clean entries. Only change the ones that were full
-     */
+    /* Clear last n rows with clean entries. Only change the ones that were
+     * full */
     for (uint32_t y = g_ch - n; y < g_ch; y++) {
         /* First entry is newline, rest spaces. We dont need to call
          * fbc_refresh_entry because we know the whole line is empty */

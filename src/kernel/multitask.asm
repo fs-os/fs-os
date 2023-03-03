@@ -104,9 +104,9 @@ mt_newtask:
                                         ; Stored so we can free it once the task
                                         ; ends.
 
-    add     edx, 16384          ; Now edx points to the end of the allocated
-                                ; memory, which is the bottom of the stack in
-                                ; x86 (pushed items are in lower addresses).
+    add     edx, 16384      ; Now edx points to the end of the allocated memory,
+                            ; which is the bottom of the stack in x86 (pushed
+                            ; items are in lower addresses).
 
     ; Fill new allocated stack for new task. From bottom to top, needed by
     ; mt_switch and System V ABI:
