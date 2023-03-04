@@ -12,7 +12,7 @@ bits 32
 section .text
     align 8
     extern handle_exception     ; src/kernel/exceptions.c
-    extern pit_dec              ; src/kernel/idt.c
+    extern pit_inc              ; src/kernel/idt.c
     extern kb_handler           ; src/kernel/keyboard.c
 
 ; void idt_load(void* idt_desc)
@@ -20,15 +20,15 @@ global idt_load:function
 idt_load:
     push    eax
 
-    mov     eax, [esp + 8]      ; First arg, pointer to the idt descriptor. (pushed
-                                ; eax (4) + return addr (4))
+    mov     eax, [esp + 8]      ; First arg, pointer to the idt descriptor.
+                                ; (pushed eax (4) + return addr (4))
     lidt    [eax]
 
     pop     eax
     ret
 
-; exc_X: call the exception handler with the specified IRQ. Used as ISR offsets for
-; the idt.
+; exc_X: call the exception handler with the specified IRQ. Used as ISR offsets
+; for the idt.
 EXC_WRAPPER 0
 EXC_WRAPPER 1
 EXC_WRAPPER 2
@@ -52,12 +52,12 @@ EXC_WRAPPER 20
 EXC_WRAPPER 30
 
 ; void irq_pit(void)
-; First IRQ we remapped to 0x20. Calls the pit_dec C function, located in:
+; First IRQ we remapped to 0x20. Calls the pit_inc C function, located in:
 ; src/kernel/pit.c
 global irq_pit:function
 irq_pit:
     pusha
-    call    pit_dec     ; Decrement the static counter from src/kernel/idt.c
+    call    pit_inc     ; Increment the static counter from src/kernel/idt.c
     popa
     iretd
 
@@ -68,9 +68,9 @@ global irq_kb:function
 irq_kb:
     pusha
     cld                 ; Clear direction flag. The flag is used to specify the
-                        ; string order for operations that use the 'edi' and 'esi'
-                        ; registers. Tells the CPU that it should increase or
-                        ; decrease the pointer for strings.
+                        ; string order for operations that use the 'edi' and
+                        ; 'esi' registers. Tells the CPU that it should increase
+                        ; or decrease the pointer for strings.
     call    kb_handler  ; src/kernel/keyboard.c
     popa
     iretd

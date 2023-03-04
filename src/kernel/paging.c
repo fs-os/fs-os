@@ -26,8 +26,8 @@ extern uint8_t _bss_end;
 enum page_dir_flags {
     PAGEDIR_PRESENT   = 0x1, /* 00000001 */
     PAGEDIR_READWRITE = 0x2, /* 00000010 */
-    PAGEDIR_USER      = 0x4, /* 00000100. If 1, everybody can access it, if 0, only
-                                supervisor */
+    PAGEDIR_USER      = 0x4, /* 00000100. If 1, everybody can access it, if 0,
+                              * only supervisor */
     PAGEDIR_PWT      = 0x8,  /* 00001000 */
     PAGEDIR_PCD      = 0x10, /* 00010000 */
     PAGEDIR_ACCESSED = 0x20, /* 00100000 */
@@ -71,14 +71,15 @@ void paging_init(void) {
     /* Initialize the page tables by doing a 1:1 mapping */
     for (uint32_t i = 0; i < TABLES_MAPPED; i++) {
         for (uint32_t j = 0; j < TABLE_ENTRIES; j++) {
-            /* For each entry of the table (i), map a new 4096 (PAGE_SIZE) page. We
-             * only care about storing bits 12..31 of the address. */
-            page_tables[i][j] = (i * TABLE_ENTRIES * PAGE_SIZE + j * PAGE_SIZE) |
-                                PAGETAB_PRESENT | PAGETAB_READWRITE;
+            /* For each entry of the table (i), map a new 4096 (PAGE_SIZE) page.
+             * We only care about storing bits 12..31 of the address. */
+            page_tables[i][j] =
+              (i * TABLE_ENTRIES * PAGE_SIZE + j * PAGE_SIZE) |
+              PAGETAB_PRESENT | PAGETAB_READWRITE;
         }
 
-        /* Bits 31..12 of the entry are bits 31..12 of the address, no need to shift
-         */
+        /* Bits 31..12 of the entry are bits 31..12 of the address, no need to
+         * shift */
         page_directory[i] =
           ((uint32_t)&page_tables[i][0]) | PAGEDIR_PRESENT | PAGEDIR_READWRITE;
     }
@@ -86,12 +87,12 @@ void paging_init(void) {
     /* Frame number where the .rodata section starts */
     const uint32_t rodata_start_idx = (uint32_t)&_rodata_start >> 12;
 
-    /* Frame number where the .rodata section ends. Minus 1 because it should be the
-     * start of the next section. */
+    /* Frame number where the .rodata section ends. Minus 1 because it should be
+     * the start of the next section. */
     const uint32_t rodata_end_idx = ((uint32_t)&_rodata_end >> 12) - 1;
 
-    /* Remove write permissions from the page frame where .rodata start to the page
-     * frame where it ends (included) */
+    /* Remove write permissions from the page frame where .rodata start to the
+     * page frame where it ends (included) */
     for (uint32_t i = rodata_start_idx; i <= rodata_end_idx; i++)
         ((uint32_t*)page_tables)[i] &= ~PAGETAB_READWRITE;
 
@@ -117,10 +118,14 @@ void paging_map(void* paddr, void* vaddr, uint16_t flags) {
 void paging_show_map(void) {
     typedef struct {
         uint32_t dir_i, tab_i;
-        uint32_t paddr;
-        uint32_t vaddr;
+        uint64_t paddr;
+        uint64_t vaddr;
         uint16_t flags;
     } table_entry;
+
+    /* AVL, Global, Page atribute table, Dirty, Accessed, Cache disable,
+     * Write-through, User (0 means supervisor), Writable, Present */
+    const char* flags_str = "---GPDACWUWP";
 
     /* Used to compare the current and last address' flags */
     table_entry last_entry = { 0, 0, 0, 0, 0 };
@@ -136,7 +141,7 @@ void paging_show_map(void) {
             /* Get address stored at current pos and remove flag bits*/
             e.paddr = page_tables[e.dir_i][e.tab_i] & 0xFFFFF000;
 
-            /* Same operation we use for identity mapping (1:1)*/
+            /* Same operation we use for identity mapping (1:1) */
             e.vaddr = e.dir_i * TABLE_ENTRIES * PAGE_SIZE + e.tab_i * PAGE_SIZE;
 
             /* Get flag bits from current entry */
@@ -153,17 +158,17 @@ void paging_show_map(void) {
                 continue;
             }
 
-            /* If we found a different entry, and we just printed dots, print the
-             * last one as well */
+            /* If we found a different entry, and we just printed dots, print
+             * the last one as well */
             if (printed_dots) {
-                printf(
-                  "[%4ld, %4ld] paddr: 0x%6lX | vaddr: 0x%6lX | flags: ", last_entry.dir_i,
-                  last_entry.tab_i, last_entry.paddr, last_entry.vaddr);
+                printf("[%4ld, %4ld] paddr: 0x%8llX | vaddr: 0x%8llX | flags: ",
+                       last_entry.dir_i, last_entry.tab_i, last_entry.paddr,
+                       last_entry.vaddr);
 
                 /* Display flags */
                 for (int k = 11; k >= 0; k--) {
                     if ((last_entry.flags >> k) & 1)
-                        putchar('1');
+                        putchar(flags_str[11 - k]);
                     else
                         putchar('-');
                 }
@@ -174,13 +179,13 @@ void paging_show_map(void) {
             last_entry   = e;
             printed_dots = false;
 
-            printf("[%4ld, %4ld] paddr: 0x%6lX | vaddr: 0x%6lX | flags: ", e.dir_i,
-                   e.tab_i, e.paddr, e.vaddr);
+            printf("[%4ld, %4ld] paddr: 0x%8llX | vaddr: 0x%8llX | flags: ",
+                   e.dir_i, e.tab_i, e.paddr, e.vaddr);
 
             /* Display flags */
             for (int k = 11; k >= 0; k--) {
                 if ((e.flags >> k) & 1)
-                    putchar('1');
+                    putchar(flags_str[12 - k]);
                 else
                     putchar('-');
             }
@@ -189,3 +194,4 @@ void paging_show_map(void) {
         }
     }
 }
+

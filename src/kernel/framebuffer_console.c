@@ -12,9 +12,9 @@
 #define CHAR_Y_TO_PX(y) (g_y + ((y)*g_font->h))
 #define CHAR_X_TO_PX(x) (g_x + ((x)*g_font->w))
 
-/* Global framebuffer console. Allocated in fbc_init(). The framebuffer console array
- * won't be used for displaying (outside of fbc_refresh), but for keeping track of
- * where is each char on the console. */
+/* Global framebuffer console. Allocated in fbc_init(). The framebuffer console
+ * array won't be used for displaying (outside of fbc_refresh), but for keeping
+ * track of where is each char on the console. */
 static fbc_entry* g_fbc;
 
 /* Global size in px of the framebuffer console */
@@ -36,10 +36,10 @@ static uint32_t cur_y, cur_x;
  * framebuffer console wiki page */
 static uint8_t should_shift;
 
-/* ------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
-/* fbc_refresh_entry: refreshes the pixels on the screen corresponding to g_fbc's
- * entry at (cy, cx) */
+/* fbc_refresh_entry: refreshes the pixels on the screen corresponding to
+ * g_fbc's entry at (cy, cx) */
 static inline void fbc_refresh_entry(uint32_t cy, uint32_t cx) {
     /* Get the current fbc_entry */
     const fbc_entry cur_entry = g_fbc[cy * g_cw + cx];
@@ -49,8 +49,8 @@ static inline void fbc_refresh_entry(uint32_t cy, uint32_t cx) {
     /* Then iterate each pixel that forms the font char */
     for (uint8_t fy = 0; fy < g_font->h; fy++) {
         for (uint8_t fx = 0; fx < g_font->w; fx++) {
-            /* Get real screen position from the char offset on the screen and the
-             * pixel font offset on the char */
+            /* Get real screen position from the char offset on the screen and
+             * the pixel font offset on the char */
             const uint32_t final_y = CHAR_Y_TO_PX(cy) + fy;
             const uint32_t final_x = CHAR_X_TO_PX(cx) + fx;
 
@@ -64,11 +64,11 @@ static inline void fbc_refresh_entry(uint32_t cy, uint32_t cx) {
     }
 }
 
-/* ------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
-/* fbc_init: initialize the framebuffer console. First 4 parameters are position and
- * size in pixels of the console and the last one is the font. The font ptr is stored
- * and used to get the height and width of each char. */
+/* fbc_init: initialize the framebuffer console. First 4 parameters are position
+ * and size in pixels of the console and the last one is the font. The font ptr
+ * is stored and used to get the height and width of each char. */
 void fbc_init(uint32_t y, uint32_t x, uint32_t h, uint32_t w, Font* font) {
     g_y = y;
     g_x = x;
@@ -95,7 +95,8 @@ void fbc_init(uint32_t y, uint32_t x, uint32_t h, uint32_t w, Font* font) {
     fbc_refresh();
 }
 
-/* fbc_clear: clears the framebuffer console and moves cursor to the first char */
+/* fbc_clear: clears the framebuffer console and moves cursor to the first
+ * char */
 void fbc_clear(void) {
     cur_x = 0;
     cur_y = 0;
@@ -119,7 +120,8 @@ void fbc_clear(void) {
     }
 }
 
-/* fbc_write: prints "len" of "s" to the framebuffer console using fbc_putchar */
+/* fbc_write: prints "len" of "s" to the framebuffer console using
+ * fbc_putchar */
 void fbc_write(const char* s, size_t len) {
     while (len-- > 0)
         fbc_putchar(*s++);
@@ -151,9 +153,9 @@ void fbc_place_str(uint32_t y, uint32_t x, const char* str) {
                     DEFAULT_BG,
                 };
 
-                /* If we have rows left on the terminal, go down, if we are on the
-                 * last one, store that we need to shift 1 up, but stay on that last
-                 * row. */
+                /* If we have rows left on the terminal, go down, if we are on
+                 * the last one, store that we need to shift 1 up, but stay on
+                 * that last row. */
                 if (y + 1 < g_ch)
                     y++;
                 else
@@ -237,7 +239,8 @@ void fbc_place_str(uint32_t y, uint32_t x, const char* str) {
 /* fbc_putchar: prints "c" to the framebuffer console */
 void fbc_putchar(char c) {
     /* First of all, check if we need to shift the array. We need this kind of
-     * "queue" system so the array doesn't immediately shift when a line ends with
+     * "queue" system so the array doesn't immediately shift when a line ends
+     * with
      * '\n', for example */
     if (should_shift) {
         fbc_shift_rows(1);
@@ -254,9 +257,9 @@ void fbc_putchar(char c) {
                 DEFAULT_BG,
             };
 
-            /* If we have rows left on the terminal, go down, if we are on the last
-             * one, store that we need to shift 1 up, but stay on that last row.
-             * See comment on top of this function */
+            /* If we have rows left on the terminal, go down, if we are on the
+             * last one, store that we need to shift 1 up, but stay on that last
+             * row. See comment on top of this function */
             if (cur_y + 1 < g_ch)
                 cur_y++;
             else
@@ -337,10 +340,10 @@ void fbc_putchar(char c) {
     }
 }
 
-/* fbc_refresh: updates each pixel of the framebuffer with the real one in g_fbc.
- * Calling this function everytime we update g_fbc would be slow. Instead call this
- * function on specific situations and we refresh the entries we need when updating
- * g_fbc (e.g. when calling fbc_putchar) */
+/* fbc_refresh: updates each pixel of the framebuffer with the real one in
+ * g_fbc. Calling this function everytime we update g_fbc would be slow. Instead
+ * call this function on specific situations and we refresh the entries we need
+ * when updating g_fbc (e.g. when calling fbc_putchar) */
 void fbc_refresh(void) {
     /* First iterate each char of the framebuffer console */
     for (uint32_t cy = 0; cy < g_ch; cy++)
@@ -354,17 +357,17 @@ void fbc_shift_rows(uint8_t n) {
     /* Used to count the position of the last valid char in the line */
     uint32_t char_count = 0;
 
-    /* Shift n rows. We go to the newline instead of always g_cw because that will be
-     * the last valid char we care about. We can fill the rest faster with
-     * fb_drawrect_fast */
+    /* Shift n rows. We go to the newline instead of always g_cw because that
+     * will be the last valid char we care about. We can fill the rest faster
+     * with fb_drawrect_fast */
     for (uint32_t y = 0; y < g_ch - n; y++) {
-        /* Update valid entries until we encounter a null byte. '\0' denotes the end
-         * of the valid line. */
+        /* Update valid entries until we encounter a null byte. '\0' denotes the
+         * end of the valid line. */
         for (uint32_t x = 0; x < g_cw; x++) {
             g_fbc[y * g_cw + x] = g_fbc[(y + n) * g_cw + x];
 
-            /* We need to check after the assignment and not in the for because we
-             * want to also copy the null byte to keep where the line ends */
+            /* We need to check after the assignment and not in the for because
+             * we want to also copy the null byte to keep where the line ends */
             if (g_fbc[(y + n) * g_cw + x].c == '\0')
                 break;
 
@@ -383,7 +386,8 @@ void fbc_shift_rows(uint8_t n) {
         char_count = 0;
     }
 
-    /* Clear last n rows with clean entries. Only change the ones that were full */
+    /* Clear last n rows with clean entries. Only change the ones that were
+     * full */
     for (uint32_t y = g_ch - n; y < g_ch; y++) {
         /* First entry is newline, rest spaces. We dont need to call
          * fbc_refresh_entry because we know the whole line is empty */
@@ -410,7 +414,7 @@ void fbc_shift_rows(uint8_t n) {
     fb_drawrect_fast(fill_y, fill_x, fill_h, fill_w, DEFAULT_BG);
 }
 
-/* ------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 /* fbc_getcols: writes the current colors of the terminal to "fg" and "bg" */
 void fbc_getcols(uint32_t* fg, uint32_t* bg) {
@@ -434,9 +438,10 @@ void fbc_setback(uint32_t bg) {
     cur_cols.bg = bg;
 }
 
-/* fbc_setcol_rgb: sets the current foreground and background colors in rgb format */
-void fbc_setcol_rgb(uint8_t fore_r, uint8_t fore_g, uint8_t fore_b, uint8_t back_r,
-                    uint8_t back_g, uint8_t back_b) {
+/* fbc_setcol_rgb: sets the current foreground and background colors in rgb
+ * format */
+void fbc_setcol_rgb(uint8_t fore_r, uint8_t fore_g, uint8_t fore_b,
+                    uint8_t back_r, uint8_t back_g, uint8_t back_b) {
     cur_cols.fg = rgb2col(fore_r, fore_g, fore_b);
     cur_cols.bg = rgb2col(back_r, back_g, back_b);
 }

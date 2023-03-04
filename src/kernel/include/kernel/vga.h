@@ -58,13 +58,15 @@ static inline uint16_t vga_entry(unsigned char uc, uint8_t color) {
 /* Inits the terminal x, y, color and sets the term buffer to grey spaces */
 void vga_init(void);
 
-/* vga_setcol_entry: changes the current color for the terminal from a vga entry */
+/* vga_setcol_entry: changes the current color for the terminal from a vga
+ * entry */
 void vga_setcol_entry(uint8_t col);
 
 /* vga_setcol: changes the current color for the terminal from 2 color codes */
 void vga_setcol(enum vga_color fg, enum vga_color bg);
 
-/* vga_put_at: writes "c" with the color "col" at "x" and "y" in the vga terminal */
+/* vga_put_at: writes "c" with the color "col" at "x" and "y" in the vga
+ * terminal */
 void vga_put_at(size_t y, size_t x, uint8_t col, char c);
 
 /* vga_shift_rows: scrolls the terminal n rows */
@@ -76,7 +78,8 @@ void vga_putchar(char c);
 /* vga_write: prints 'len' bytes of 's' to the vga terminal */
 void vga_write(const char* s, size_t len);
 
-/* vga_sprint: prints zero-terminated string to the vga terminal using vga_write */
+/* vga_sprint: prints zero-terminated string to the vga terminal using
+ * vga_write */
 void vga_sprint(const char* s);
 
 #endif /* _KERNEL_VGA_H */

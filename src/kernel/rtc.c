@@ -5,8 +5,8 @@
 
 #define CENTURY 21
 
-/* For accessing a register, we will need to write the register number we want to
- * "cmos_address" and then write or read from "cmos_data". For more info see:
+/* For accessing a register, we will need to write the register number we want
+ * to "cmos_address" and then write or read from "cmos_data". For more info see:
  *   https://wiki.osdev.org/CMOS#Accessing_CMOS_Registers */
 enum cmos_addrs {
     cmos_address = 0x70,
@@ -25,8 +25,8 @@ enum rtc_regs {
     reg_b       = 0x0B,
 };
 
-/* is_updating: check if the "Update in progress" flag (bit 7 of register 0x0A) is
- * enabled */
+/* is_updating: check if the "Update in progress" flag (bit 7 of register 0x0A)
+ * is enabled */
 static uint8_t is_updating(void) {
     io_outb(cmos_address, reg_a);
     return (io_inb(cmos_data) & 0x80);
@@ -42,12 +42,13 @@ static uint8_t get_reg(enum rtc_regs reg) {
     return io_inb(cmos_data);
 }
 
-/* rtc_get_data: get data (seconds, minutes, ...) from the specified register of the
- * Real Time Clock */
+/* rtc_get_data: get data (seconds, minutes, ...) from the specified register of
+ * the Real Time Clock */
 uint8_t rtc_get_data(enum rtc_regs reg) {
     uint8_t data = 0, last_data = 0;
 
-    /* Loop to validate the value. Make sure we get the same values twice in a row */
+    /* Loop to validate the value. Make sure we get the same values twice in a
+     * row */
     do {
         last_data = data;
         data      = get_reg(reg);
@@ -60,8 +61,8 @@ uint8_t rtc_get_data(enum rtc_regs reg) {
     return data;
 }
 
-/* rtc_get_time: get a filled "Time" struct with the current hour, minute, and second
- * from the RTC */
+/* rtc_get_time: get a filled "Time" struct with the current hour, minute, and
+ * second from the RTC */
 Time rtc_get_time(void) {
     return (Time){
         rtc_get_data(reg_hour),
@@ -70,8 +71,8 @@ Time rtc_get_time(void) {
     };
 }
 
-/* rtc_get_date: get a filled "Date" struct with the current day, month, and year
- * (century empty for now) from the RTC */
+/* rtc_get_date: get a filled "Date" struct with the current day, month, and
+ * year (century empty for now) from the RTC */
 Date rtc_get_date(void) {
     /* TODO: Century from acpi */
     return (Date){

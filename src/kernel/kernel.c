@@ -209,14 +209,14 @@ void kernel_main(Multiboot* mb_info) {
                 mb_info->framebuffer_height);
     SYSTEM_INFO("Font:\t\t", "%s", main_font.name);
     DateTime now = rtc_get_datetime();
-    SYSTEM_INFO("Time:\t\t", "%2d/%2d/%2d - %2d:%2d:%2d", now.date.d, now.date.m,
-                now.date.y, now.time.h, now.time.m, now.time.s);
+    SYSTEM_INFO("Time:\t\t", "%2d/%2d/%2d - %2d:%2d:%2d", now.date.d,
+                now.date.m, now.date.y, now.time.h, now.time.m, now.time.s);
     putchar('\n');
 
     LOAD_INFO("Color palette:");
     test_colors();
 
-    /* --------------------------------------------------------------------------- */
+    /* ---------------------------------------------------------------------- */
 
     fbc_setfore(COLOR_MAGENTA);
     puts("\nHello, welcome to the Free and Simple Operating System!\n"

@@ -8,9 +8,11 @@
 #include <kernel/framebuffer_console.h> /* fbc_setfore, fbc_clear */
 #include <kernel/paging.h>              /* paging_show_map */
 #include <kernel/heap.h>                /* heap_dump_headers */
+#include <kernel/pit.h>                 /* pit_get_ticks */
 #include <kernel/rtc.h>                 /* rtc_get_datetime */
 #include <kernel/pcspkr.h>              /* pcspkr_beep */
 #include <kernel/rand.h>                /* check_rdseed, check_rdrand, cpu_rand */
+#include <kernel/multitask.h>           /* mt_newtask, mt_endtask */
 
 #include "sh.h"
 
@@ -39,7 +41,8 @@ static int cmd_unk();
 static int cmd_help();
 static int cmd_quit();
 static int cmd_last();
-static int cmd_ping();
+static int cmd_ticks();
+static int cmd_timer(int argc, char** argv);
 static int cmd_beep(int argc, char** argv);
 static int cmd_clear();
 static int cmd_ref();
@@ -47,6 +50,7 @@ static int cmd_date();
 static int cmd_page_map();
 static int cmd_heap_headers();
 static int cmd_test_libk();
+static int cmd_test_multitask();
 static int cmd_play(int argc, char** argv);
 
 /*
@@ -72,9 +76,14 @@ static Command cmd_list[] = {
       &cmd_last,
     },
     {
-      "ping",
-      "Simple test command",
-      &cmd_ping,
+      "ticks",
+      "Print the current tick count since boot (ms)",
+      &cmd_ticks,
+    },
+    {
+      "timer",
+      "Simple timer command (Wrapper for time.h functions)",
+      &cmd_timer,
     },
     {
       "beep",
@@ -122,6 +131,11 @@ static Command cmd_list[] = {
       &cmd_test_libk,
     },
     {
+      "test_multitask",
+      "Test multitasking with 3 threads",
+      &cmd_test_multitask,
+    },
+    {
       "play",
       "Play a song using the pc speaker",
       &cmd_play,
@@ -162,8 +176,36 @@ static int cmd_last() {
     return last_ret; /* Keep the same exit code in case we want to call it twice */
 }
 
-static int cmd_ping() {
-    puts("pong");
+static int cmd_ticks() {
+    const uint64_t t = pit_get_ticks();
+    printf("%lld (%llds)\n", t, t / 1000);
+    return 0;
+}
+
+static int cmd_timer(int argc, char** argv) {
+    if (argc <= 1 || !strcmp(argv[1], "-h") || !strcmp(argv[1], "--help")) {
+        printf("Usage:\n"
+               "\t%s --help  - Show this help\n"
+               "\t%s start   - Start the timer\n"
+               "\t%s stop    - Print the time since we started the timer\n",
+               argv[0], argv[0], argv[0]);
+        return 1;
+    }
+
+    if (strcmp(argv[1], "start") == 0) {
+        timer_start();
+    } else if (strcmp(argv[1], "stop") == 0) {
+        printf("%lldms\n", timer_stop());
+    } else {
+        printf("Invalid option \"%s\"\n"
+               "Usage:\n"
+               "\t%s --help  - Show this help\n"
+               "\t%s start   - Start the timer\n"
+               "\t%s stop    - Print the time since we started the timer\n",
+               argv[1], argv[0], argv[0], argv[0]);
+        return 1;
+    }
+
     return 0;
 }
 
@@ -272,6 +314,65 @@ static int cmd_test_libk() {
     printf("Hello, ");
     sleep(2);
     printf("world!\n");
+
+    return 0;
+}
+
+static void multitask_test0(void) {
+    for (int i = 0; i <= 5; i++) {
+        printf("%s: %d\n", mt_gettask()->name, i);
+        sleep_ms(100);
+        mt_switch(mt_gettask()->next);
+    }
+}
+
+static void multitask_test1(void) {
+    for (int i = 0; i <= 5; i++) {
+        printf("%s: %d\n", mt_gettask()->name, i);
+        sleep_ms(100);
+        mt_switch(mt_gettask()->next);
+    }
+}
+
+static void multitask_test2(void) {
+    for (int i = 0; i <= 5; i++) {
+        printf("%s: %d\n", mt_gettask()->name, i);
+        sleep_ms(100);
+        mt_switch(mt_gettask()->next);
+    }
+}
+
+static int cmd_test_multitask() {
+    TEST_TITLE("Testing multitasking");
+
+    /*
+     * When creating more than 1 task, the last tasks added will be placed after the
+     * current task:
+     *   - First, task2 will be placed after the current task
+     *   - Second, task1 will be placed after the current task, so between the
+     *     current task and task2
+     *   - Third, task0 will be placed after the current task, so between the current
+     *     task and task1
+     *
+     * So in the end:
+     *     [cur_task] -> [task0] -> [task1] -> [task2]
+     *
+     * For more information, call dump_task_list() after creating the tasks.
+     */
+    Ctx* task2 = mt_newtask("task2", (void*)multitask_test2);
+    Ctx* task1 = mt_newtask("task1", (void*)multitask_test1);
+    Ctx* task0 = mt_newtask("task0", (void*)multitask_test0);
+
+    for (int i = 0; i <= 5; i++) {
+        printf("%s: %d\n", mt_gettask()->name, i);
+        sleep_ms(100);
+        mt_switch(mt_gettask()->next);
+    }
+
+    /* Order does not matter */
+    mt_endtask(task0);
+    mt_endtask(task1);
+    mt_endtask(task2);
 
     return 0;
 }

@@ -15,8 +15,8 @@ io_inb:
     mov     ebp, esp
 
     ; First arg, port (uint16_t)
-    ; [esp + 8] -> esp + ebp we just pushed (4b) + return address (4b) = first arg
-    ;              of the function, last pushed to the stack by the caller
+    ; [esp + 8] -> esp + ebp we just pushed (4b) + return address (4b) = first
+    ;              arg of the function, last pushed to the stack by the caller
     mov     edx, [esp + 8]
 
     ; Copy to al because we want the byte
@@ -49,7 +49,7 @@ io_outb:
     mov     edx, [esp + 8]
 
     ; Second arg, data (uint8_t)
-    ; [esp + 12] -> first arg + second arg (4 bytes even if the arg is short int)
+    ; [esp + 12] -> first arg + second arg (4 bytes even if the arg is 16 bits)
     mov     eax, [esp + 12]
 
     ; Copy from al because we want the byte
@@ -66,7 +66,7 @@ io_outl:
     ; First arg, port (uint16_t)
     mov     edx, [esp + 8]
 
-    ; [esp + 12] -> first arg + second arg (4 bytes even if the arg is short int)
+    ; [esp + 12] -> first arg + second arg (4 bytes even if the arg is 16 bits)
     mov     eax, [esp + 12]
 
     ; Copy from eax because we want the dword

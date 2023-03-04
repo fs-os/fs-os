@@ -25,9 +25,13 @@ static char* exceptions[] = {
     [30] = "security exception",
 };
 
-/* handle_exception: disables interrupts and panics with the specified exception. */
+/* handle_exception: disables interrupts and panics with the specified
+ * exception. */
 void handle_exception(int exc) {
-    /* See https://gcc.gnu.org/onlinedocs/gcc/Using-Assembly-Language-with-C.html */
+    /*
+     * See:
+     *   https://gcc.gnu.org/onlinedocs/gcc/Using-Assembly-Language-with-C.html
+     */
     asm("cli");
 
     panic_line("exception: %s\n", exceptions[exc]);

@@ -8,11 +8,13 @@
 /* Max length of an input line */
 #define KB_GETCHAR_BUFSZ 1000
 
-/* Indexes of the layout.special array. For example:
+/*
+ * Indexes of the layout.special array. For example:
  *   - us_layout.special will contain the key codes for special chars like shift
- *   - KB_SPECIAL_IDX_LSHIFT is 2 because the second item of the .special array will
- *     be the key code of the left shift key
- *   - us_layout.special[2] is 0x2A because 0x2A is the key code for left shift */
+ *   - KB_SPECIAL_IDX_LSHIFT is 2 because the second item of the .special array
+ *     will be the key code of the left shift key
+ *   - us_layout.special[2] is 0x2A because 0x2A is the key code for left shift
+ */
 enum kb_special_indexes {
     KB_SPECIAL_IDX_ESC = 0,
     KB_SPECIAL_IDX_LCTRL,
@@ -46,20 +48,21 @@ enum kb_special_indexes {
     KB_SPECIAL_IDX_F12,
 };
 
-/* Layout: struct containing a pointer to the default and shift layouts for a lang */
+/* Layout: struct containing a pointer to the default and shift layouts for a
+ * lang */
 typedef struct {
     unsigned char* def;   /* Chars to display for each key code */
     unsigned char* shift; /* Same as .def but when holding shift */
-    uint16_t* special;    /* Array containing the indexes of special chars for the
-                           * current layout */
+    uint16_t* special;    /* Array containing the indexes of special chars for
+                           * the current layout */
 } Layout;
 
-/* kb_handler: actual C handler for the keyboard exceptions received from "irq_kb".
- * See src/kernel/idt_asm.asm */
+/* kb_handler: actual C handler for the keyboard exceptions received from
+ * "irq_kb". See src/kernel/idt_asm.asm */
 void kb_handler(void);
 
-/* kb_held: check if "c" is being held. Returns 1 if the first bit of key_flags[c] is
- * set. */
+/* kb_held: check if "c" is being held. Returns 1 if the first bit of
+ * key_flags[c] is set. */
 bool kb_held(unsigned char c);
 
 /* kb_noecho: disable char printing on key press */
@@ -71,7 +74,7 @@ void kb_echo(void);
 /* kb_getecho: get the static print_chars variable */
 bool kb_getecho(void);
 
-/* kb_setlayout: set the current active layout to the specified Layout pointer */
+/* kb_setlayout: set the current active layout to the specified Layout ptr */
 void kb_setlayout(const Layout* ptr);
 
 /* kb_getchar_init: initialize the static getchar arrays to EOF */

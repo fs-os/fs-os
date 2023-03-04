@@ -32,9 +32,11 @@ dump_stack:
     push    eax                 ; Registers that should be preserved by the caller
     push    ecx
     push    edx
+
     push    dword open_br
     call    puts
-    pop     ebx                 ; Remove char* we just pushed
+    add     esp, 4              ; Remove char* we just pushed
+
     pop     edx                 ; Restore caller registers
     pop     ecx
     pop     eax
