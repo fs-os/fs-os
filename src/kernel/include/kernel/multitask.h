@@ -83,7 +83,7 @@ void mt_init(void);
  * "entry". Defined in src/kernel/multitask.asm */
 Ctx* mt_newtask(const char* name, void* entry);
 
-/* mt_init: switch to task "next". Defined in src/kernel/multitask.asm */
+/* mt_switch: switch to task "next". Defined in src/kernel/multitask.asm */
 void mt_switch(Ctx* next);
 
 /* mt_endtask: frees the stack and ends the task passed as parameter. The task
