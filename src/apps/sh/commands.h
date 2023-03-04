@@ -227,12 +227,12 @@ static int cmd_loadkeys(int argc, char** argv) {
         puts("Available layouts:");
         fbc_setfore(COLOR_WHITE);
 
-        for (size_t i = 0; i< LENGTH(layouts); i++)
+        for (size_t i = 0; i < LENGTH(layouts); i++)
             printf("- %s\n", layouts[i].name);
 
         return 0;
     } else {
-        for (size_t i = 0; i< LENGTH(layouts); i++) {
+        for (size_t i = 0; i < LENGTH(layouts); i++) {
             if (strcmp(argv[1], layouts[i].name) == 0) {
                 kb_setlayout(layouts[i].layout);
                 return 0;
@@ -440,26 +440,47 @@ static int cmd_test_multitask() {
 }
 
 static int cmd_play(int argc, char** argv) {
-    if (argc < 2) {
-        printf("Invalid parameters.\n"
-               "Usage:\n"
-               "\t%s <song name>\n",
-               argv[0]);
+    if (argc <= 1 || !strcmp(argv[1], "-h") || !strcmp(argv[1], "--help")) {
+        printf("Usage:\n"
+               "\t%s --help       - Show this help\n"
+               "\t%s --list       - List the available songs\n"
+               "\t%s <song name>  - Play the specified song\n",
+               argv[0], argv[0], argv[0]);
         return 1;
     }
 
-    /* TODO: List similar to loadkeys */
+    typedef struct {
+        const char* name;
+        void (*func)(void);
+    } song_pair_t;
 
-    if (strcmp(argv[1], "soviet") == 0) {
-        play_soviet_anthem();
-    } else if (strcmp(argv[1], "thunder") == 0 || strcmp(argv[1], "thunderstruc"
-                                                                  "k") == 0) {
-        play_thunderstruck();
+    song_pair_t songs[] = {
+        { "soviet", &play_soviet_anthem },
+        { "thunder", &play_thunderstruck },
+        { "thunderstruck", &play_thunderstruck },
+    };
+
+    if (strcmp(argv[1], "--list") == 0) {
+        fbc_setfore(COLOR_WHITE_B);
+        puts("Available songs:");
+        fbc_setfore(COLOR_WHITE);
+
+        for (size_t i = 0; i < LENGTH(songs); i++)
+            printf("- %s\n", songs[i].name);
+
+        return 0;
     } else {
-        printf("Invalid song name: \"%s\"\n", argv[1]);
-        return 1;
+        for (size_t i = 0; i < LENGTH(songs); i++) {
+            if (strcmp(argv[1], songs[i].name) == 0) {
+                /* Call the function */
+                (*songs[i].func)();
+
+                return 0;
+            }
+        }
     }
 
-    return 0;
+    printf("Invalid song name: \"%s\"\n", argv[1]);
+    return 1;
 }
 

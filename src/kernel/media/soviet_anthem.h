@@ -42,3 +42,4 @@ static inline void play_soviet_anthem(void) {
 
     putchar('\n');
 }
+

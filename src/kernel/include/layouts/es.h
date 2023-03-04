@@ -4,6 +4,8 @@
 
 #include <kernel/keyboard.h> /* Layout */
 
+/* TODO: Fix some keys */
+
 const Layout es_layout = {
     .def =
       (unsigned char[]){
