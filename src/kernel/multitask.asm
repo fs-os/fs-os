@@ -61,7 +61,7 @@ mt_newtask:
     push    ebp
     mov     ebp, esp
 
-    push    dword [ctx_t_size]  ; Size of the ctx_t struct
+    push    dword ctx_t_size    ; Size of the ctx_t struct
     call    malloc              ; Allocate a ctx_t struct on the heap
     add     esp, 4              ; Remove dword we just pushed
 
@@ -77,15 +77,30 @@ mt_newtask:
                                     ; tasks
 
     ; Insert new task next to the current one in the list.
-    ; First, move the current task's address to the new task's "prev" pointer,
-    ; then move the current task's "next" pointer to the new task's "next"
-    ; pointer, and overwrite the current task's "next" with the pointer of this
-    ; new task.
-    mov     edx, [mt_current_task]
+    ;   0. We are going to use ecx so we preserve it.
+    ;   1. Move the current task's address (edx) to the new task's (eax) "prev"
+    ;      pointer.
+    ;   2. Move the current task's "next" pointer (ecx) to the new task's "next"
+    ;      pointer.
+    ;   3. Overwrite the current task's "next" with the pointer of this new
+    ;      task.
+    ;   4. Overwrite the "prev" pointer of the current task's "next" (ecx) with
+    ;      the new task's address (eax).
+    ;   5. Restore ecx.
+    ;
+    ;      [cur_task] -> [new_task] -> [cur_task.next]
+    ;         | ^         | ^  ^ |         ^ |
+    ;         | |---(1)---| |  | |---(2)---| |
+    ;         |-----(3)-----|  |-----(4)-----|
+    ;
+    push    ecx                             ; Preserve 2nd arg
+    mov     edx, [mt_current_task]          ; edx = &cur
     mov     [eax + ctx_t.prev], edx         ; new.prev = &cur
-    mov     edx, [edx + ctx_t.next]
-    mov     [eax + ctx_t.next], edx         ; new.next = cur.next
+    mov     ecx, [edx + ctx_t.next]         ; ecx = cur.next
+    mov     [eax + ctx_t.next], ecx         ; new.next = cur.next
     mov     [edx + ctx_t.next], eax         ; cur.next = &new
+    mov     [ecx + ctx_t.prev], eax         ; cur.next.prev = &new
+    pop     ecx                             ; Restore 2nd arg
 
     push    eax             ; Push eax (allocated Ctx*) because of next malloc
     push    ecx             ; Push second arg because caller must preserve
