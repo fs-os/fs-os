@@ -28,7 +28,6 @@
 
 #include <kernel/multiboot.h> /* multiboot info structure */
 #include <fonts/main_font.h>
-#include <layouts/us.h>
 
 #include "../apps/sh/sh.h" /* sh_main */
 
@@ -85,6 +84,8 @@
         printf(s2fmt, __VA_ARGS__); \
         putchar('\n');              \
     }
+
+extern Layout us_layout;
 
 static inline void test_colors(void) {
     printf("\n\t");

@@ -6,7 +6,10 @@
 #include <kernel/keyboard.h>
 #include <kernel/io.h>
 
+/* Filled layouts should be included here, other sources should declare them
+ * extern. */
 #include <layouts/us.h>
+#include <layouts/es.h>
 
 #define LENGTH(arr) (sizeof(arr) / sizeof(arr[0]))
 
