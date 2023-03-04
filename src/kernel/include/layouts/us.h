@@ -1,7 +1,10 @@
 
+#ifndef _LAYOUTS_US_H
+#define _LAYOUTS_US_H
+
 #include <kernel/keyboard.h> /* Layout */
 
-static const Layout us_layout = {
+const Layout us_layout = {
     .def =
       (unsigned char[]){
         0,                                                             /**/
@@ -110,3 +113,6 @@ static const Layout us_layout = {
         [KB_SPECIAL_IDX_F12]         = 0x58, /**/
       },
 };
+
+#endif /* _LAYOUTS_US_H */
+
