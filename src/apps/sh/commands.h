@@ -11,7 +11,8 @@
 #include <kernel/pit.h>                 /* pit_get_ticks */
 #include <kernel/rtc.h>                 /* rtc_get_datetime */
 #include <kernel/pcspkr.h>              /* pcspkr_beep */
-#include <kernel/rand.h>                /* check_rdseed, check_rdrand, cpu_rand */
+#include <kernel/keyboard.h>            /* kb_setlayout, Layout */
+#include <kernel/rand.h>                /* cpu_rand */
 #include <kernel/multitask.h>           /* mt_newtask, mt_endtask */
 
 #include "sh.h"
@@ -29,24 +30,30 @@
 
 #define LENGTH(arr) (sizeof(arr) / sizeof(arr[0]))
 
-/* ------------------------------------------------------------------------------- */
+extern Layout us_layout;
+extern Layout es_layout;
+
+/* -------------------------------------------------------------------------- */
 
 /* Used in sh_main and cmd_quit */
 static bool quit_sh = false;
 static int last_ret = 0;
 
-/* Need to declare them here because the array needs the functions, but the functions
- * also need the array */
+/* Need to declare them here because the array needs the functions, but the
+ * functions also need the array */
 static int cmd_unk();
 static int cmd_help();
 static int cmd_quit();
 static int cmd_last();
-static int cmd_ticks();
-static int cmd_timer(int argc, char** argv);
-static int cmd_beep(int argc, char** argv);
 static int cmd_clear();
 static int cmd_ref();
+static int cmd_loadkeys(int argc, char** argv);
+static int cmd_ticks();
 static int cmd_date();
+static int cmd_timer(int argc, char** argv);
+static int cmd_beep(int argc, char** argv);
+/* piano */
+/* piano_random */
 static int cmd_page_map();
 static int cmd_heap_headers();
 static int cmd_test_libk();
@@ -76,9 +83,29 @@ static Command cmd_list[] = {
       &cmd_last,
     },
     {
+      "clear",
+      "Clear the console",
+      &cmd_clear,
+    },
+    {
+      "ref",
+      "Refresh the console",
+      &cmd_ref,
+    },
+    {
+      "loadkeys",
+      "Changes the current keyboard layout",
+      &cmd_loadkeys,
+    },
+    {
       "ticks",
       "Print the current tick count since boot (ms)",
       &cmd_ticks,
+    },
+    {
+      "date",
+      "Display current date and time",
+      &cmd_date,
     },
     {
       "timer",
@@ -91,16 +118,6 @@ static Command cmd_list[] = {
       &cmd_beep,
     },
     {
-      "clear",
-      "Clear the console",
-      &cmd_clear,
-    },
-    {
-      "ref",
-      "Refresh the console",
-      &cmd_ref,
-    },
-    {
       "piano",
       "Play the piano through the pc speaker",
       &piano_main,
@@ -109,11 +126,6 @@ static Command cmd_list[] = {
       "piano_random",
       "Random piano through the pc speaker",
       &piano_random,
-    },
-    {
-      "date",
-      "Display current date and time",
-      &cmd_date,
     },
     {
       "page_map",
@@ -142,7 +154,8 @@ static Command cmd_list[] = {
     },
 };
 
-/* ------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------
+ */
 
 static int cmd_unk() {
     puts("Unknown command... See \"help\" for more details.");
@@ -173,12 +186,85 @@ static int cmd_quit() {
 
 static int cmd_last() {
     printf("Last exit code: %d\n", last_ret);
-    return last_ret; /* Keep the same exit code in case we want to call it twice */
+    return last_ret; /* Keep the same exit code in case we want to call it twice
+                      */
+}
+
+static int cmd_clear() {
+    fbc_clear();
+    fbc_refresh();
+
+    return 0;
+}
+
+static int cmd_ref() {
+    fbc_refresh();
+    return 0;
+}
+
+static int cmd_loadkeys(int argc, char** argv) {
+    if (argc <= 1 || !strcmp(argv[1], "-h") || !strcmp(argv[1], "--help")) {
+        printf("Usage:\n"
+               "\t%s --help    - Show this help\n"
+               "\t%s --list    - List the layouts\n"
+               "\t%s [layout]  - Load the specified layout\n",
+               argv[0], argv[0], argv[0]);
+        return 1;
+    }
+
+    typedef struct {
+        const char* name;
+        Layout* layout;
+    } layout_pair_t;
+
+    layout_pair_t layouts[] = {
+        { "us", &us_layout },
+        { "es", &es_layout },
+    };
+
+    if (strcmp(argv[1], "--list") == 0) {
+        fbc_setfore(COLOR_WHITE_B);
+        puts("Available layouts:");
+        fbc_setfore(COLOR_WHITE);
+
+        for (size_t i = 0; i< LENGTH(layouts); i++)
+            printf("- %s\n", layouts[i].name);
+
+        return 0;
+    } else {
+        for (size_t i = 0; i< LENGTH(layouts); i++) {
+            if (strcmp(argv[1], layouts[i].name) == 0) {
+                kb_setlayout(layouts[i].layout);
+                return 0;
+            }
+        }
+    }
+
+    printf("Invalid option \"%s\"\n"
+           "Usage:\n"
+           "\t%s --help    - Show this help\n"
+           "\t%s --list    - List the layouts\n"
+           "\t%s [layout]  - Load the specified layout\n",
+           argv[1], argv[0], argv[0], argv[0]);
+    return 1;
 }
 
 static int cmd_ticks() {
     const uint64_t t = pit_get_ticks();
     printf("%lld (%llds)\n", t, t / 1000);
+    return 0;
+}
+
+static int cmd_date() {
+    const DateTime now = rtc_get_datetime();
+
+    fbc_setfore(COLOR_WHITE_B);
+    printf("Date: ");
+    fbc_setfore(COLOR_GRAY);
+    printf("%2d/%2d/%2d - %2d:%2d:%2d\n", now.date.d, now.date.m, now.date.y,
+           now.time.h, now.time.m, now.time.s);
+    fbc_setfore(COLOR_WHITE);
+
     return 0;
 }
 
@@ -240,31 +326,6 @@ static int cmd_beep(int argc, char** argv) {
     return 0;
 }
 
-static int cmd_clear() {
-    fbc_clear();
-    fbc_refresh();
-
-    return 0;
-}
-
-static int cmd_ref() {
-    fbc_refresh();
-    return 0;
-}
-
-static int cmd_date() {
-    const DateTime now = rtc_get_datetime();
-
-    fbc_setfore(COLOR_WHITE_B);
-    printf("Date: ");
-    fbc_setfore(COLOR_GRAY);
-    printf("%2d/%2d/%2d - %2d:%2d:%2d\n", now.date.d, now.date.m, now.date.y,
-           now.time.h, now.time.m, now.time.s);
-    fbc_setfore(COLOR_WHITE);
-
-    return 0;
-}
-
 static int cmd_page_map() {
     paging_show_map();
     return 0;
@@ -283,7 +344,8 @@ static int cmd_test_libk() {
     printf("strlen(\"abcd\") -> %ld\n", strlen("abcd"));
     printf("memcmp(\"abcd\", \"abca\", 4) -> %d\n", memcmp("abcd", "abc1", 4));
     printf("memcmp(\"abcd\", \"abce\", 4) -> %d\n", memcmp("abcd", "abce", 4));
-    printf("memcmp(\"12345\", \"12345\", 5) -> %d\n", memcmp("12345", "12345", 5));
+    printf("memcmp(\"12345\", \"12345\", 5) -> %d\n",
+           memcmp("12345", "12345", 5));
 
     /* More than one line for the null terminator */
     printf("memset(buf, 'h', 5) -> ");
@@ -346,13 +408,13 @@ static int cmd_test_multitask() {
     TEST_TITLE("Testing multitasking");
 
     /*
-     * When creating more than 1 task, the last tasks added will be placed after the
-     * current task:
+     * When creating more than 1 task, the last tasks added will be placed after
+     * the current task:
      *   - First, task2 will be placed after the current task
      *   - Second, task1 will be placed after the current task, so between the
      *     current task and task2
-     *   - Third, task0 will be placed after the current task, so between the current
-     *     task and task1
+     *   - Third, task0 will be placed after the current task, so between the
+     *     current task and task1
      *
      * So in the end:
      *     [cur_task] -> [task0] -> [task1] -> [task2]
@@ -386,10 +448,12 @@ static int cmd_play(int argc, char** argv) {
         return 1;
     }
 
+    /* TODO: List similar to loadkeys */
+
     if (strcmp(argv[1], "soviet") == 0) {
         play_soviet_anthem();
-    } else if (strcmp(argv[1], "thunder") == 0 ||
-               strcmp(argv[1], "thunderstruck") == 0) {
+    } else if (strcmp(argv[1], "thunder") == 0 || strcmp(argv[1], "thunderstruc"
+                                                                  "k") == 0) {
         play_thunderstruck();
     } else {
         printf("Invalid song name: \"%s\"\n", argv[1]);
