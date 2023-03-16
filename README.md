@@ -62,6 +62,13 @@ $ make qemu
 ### Todo
 See [todo.md](TODO.md).
 
+### Screenshots
+> **Note**  
+> Some screenshots might be a bit outdated.
+
+![fs-os0](https://user-images.githubusercontent.com/29655971/225747442-1821fdeb-4eba-44b9-98aa-35c65b797e64.png)
+![fs-os1](https://user-images.githubusercontent.com/29655971/225747462-00290292-4d12-4f64-97ff-9c6f04e5713c.png)
+
 ### Credits
 - [OSDev wiki](https://wiki.osdev.org)
 - [The limine bootloader](https://github.com/limine-bootloader/limine)
