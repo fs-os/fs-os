@@ -11,6 +11,8 @@ if you have any improvements to the OS.
 - [X] Multitasking.
     - [X] Non-preemptive with no priority.
     - [ ] Improve. Add priority, etc.
+- [ ] Port ncurses lib to framebuffer console.
+    - [ ] Port [minesweeper](https://github.com/8dcc/minesweeper).
 - [ ] Devices (Framebuffer, disks, etc.).
     - [ ] `stdin`, `stdout`, `stderr`.
         - [ ] Per process.
