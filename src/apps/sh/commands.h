@@ -19,8 +19,8 @@
 
 #include "../piano/piano.h"
 #include "../minesweeper/minesweeper.h"
-#include "../../kernel/media/soviet_anthem.h"
-#include "../../kernel/media/thunderstruck.h"
+#include "../../media/soviet_anthem.h"
+#include "../../media/thunderstruck.h"
 
 #define TEST_TITLE(s)               \
     {                               \

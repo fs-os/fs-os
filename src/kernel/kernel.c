@@ -31,7 +31,7 @@
 
 #include "../apps/sh/sh.h" /* sh_main */
 
-#include "media/logo_small.h"
+#include "../media/logo_small.h"
 
 #if defined(__linux__)
 #error "You are not using a cross compiler." \
