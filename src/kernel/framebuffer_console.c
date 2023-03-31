@@ -53,7 +53,7 @@ static inline void fbc_refresh_entry(uint32_t cy, uint32_t cx) {
              * more information see: src/kernel/include/kernel/font.h */
             fb_ptr[final_y * fb_w + final_x] =
               (get_font_bit(ctx.font, cur_entry.c, fy, fx)) ? cur_entry.fg
-                                                          : cur_entry.bg;
+                                                            : cur_entry.bg;
         }
     }
 }
@@ -194,7 +194,8 @@ void fbc_place_str(uint32_t y, uint32_t x, const char* str) {
                 const uint32_t fill_x = CHAR_X_TO_PX(x);
                 const uint32_t fill_h = ctx.font->h;
                 const uint32_t fill_w = CHAR_X_TO_PX(x) - fill_x;
-                fb_drawrect_fast(fill_y, fill_x, fill_h, fill_w, ctx.cur_cols.bg);
+                fb_drawrect_fast(fill_y, fill_x, fill_h, fill_w,
+                                 ctx.cur_cols.bg);
 
                 for (uint32_t tmp_x = 0; tmp_x < x; tmp_x++) {
                     ctx.fbc[y * ctx.ch_w + tmp_x] = (fbc_entry){
@@ -335,9 +336,9 @@ void fbc_putchar(char c) {
 }
 
 /* fbc_refresh: updates each pixel of the framebuffer with the real one in
- * ctx.fbc. Calling this function everytime we update ctx.fbc would be slow. Instead
- * call this function on specific situations and we refresh the entries we need
- * when updating ctx.fbc (e.g. when calling fbc_putchar) */
+ * ctx.fbc. Calling this function everytime we update ctx.fbc would be slow.
+ * Instead call this function on specific situations and we refresh the entries
+ * we need when updating ctx.fbc (e.g. when calling fbc_putchar) */
 void fbc_refresh(void) {
     /* First iterate each char of the framebuffer console */
     for (uint32_t cy = 0; cy < ctx.ch_h; cy++)
@@ -351,9 +352,9 @@ void fbc_shift_rows(uint8_t n) {
     /* Used to count the position of the last valid char in the line */
     uint32_t char_count = 0;
 
-    /* Shift n rows. We go to the newline instead of always ctx.ch_w because that
-     * will be the last valid char we care about. We can fill the rest faster
-     * with fb_drawrect_fast */
+    /* Shift n rows. We go to the newline instead of always ctx.ch_w because
+     * that will be the last valid char we care about. We can fill the rest
+     * faster with fb_drawrect_fast */
     for (uint32_t y = 0; y < ctx.ch_h - n; y++) {
         /* Update valid entries until we encounter a null byte. '\0' denotes the
          * end of the valid line. */
