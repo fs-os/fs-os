@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <kernel/font.h>
+#include <kernel/color.h> /* color_pair */
 
 #define FBC_TABSIZE 4
 
@@ -14,6 +15,22 @@ typedef struct {
     uint32_t fg;
     uint32_t bg;
 } fbc_entry;
+
+/* Framebuffer console context. Used for example by ncurses. */
+typedef struct {
+    /* Global framebuffer console. Main fbc_entry array */
+    fbc_entry* fbc;
+    /* Global size in px of the framebuffer console */
+    uint32_t y, x, h, w;
+    /* Global number of entry rows and cols that form the console (chars) */
+    uint32_t ch_h, ch_w;
+    /* Global pointer to the font the framebufer console is using */
+    Font* font;
+    /* Current color we are using when printing. Foreground and background */
+    color_pair cur_cols;
+    /* Current position on the console */
+    uint32_t cur_y, cur_x;
+} fbc_ctx;
 
 /* fbc_init: initialize the framebuffer console. First 4 parameters are position
  * and size in pixels of the console and the last one is the font. The font ptr
@@ -40,9 +57,9 @@ void fbc_place_str(uint32_t y, uint32_t x, const char* str);
 void fbc_putchar(char c);
 
 /* fbc_refresh: updates each pixel of the framebuffer with the real one in
- * g_fbc. Calling this function everytime we update g_fbc would be slow. Instead
- * call this function on specific situations and we refresh the entries we need
- * when updating g_fbc (e.g. when calling fbc_putchar) */
+ * ctx.fbc. Calling this function everytime we update ctx.fbc would be slow.
+ * Instead call this function on specific situations and we refresh the entries
+ * we need when updating ctx.fbc (e.g. when calling fbc_putchar) */
 void fbc_refresh(void);
 
 /* fbc_shift_rows: scrolls the framebuffer terminal "n" rows (fbc_entry's) */
