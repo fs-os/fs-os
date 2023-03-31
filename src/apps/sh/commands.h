@@ -18,6 +18,7 @@
 #include "sh.h"
 
 #include "../piano/piano.h"
+#include "../minesweeper/minesweeper.h"
 #include "../../kernel/media/soviet_anthem.h"
 #include "../../kernel/media/thunderstruck.h"
 
@@ -52,8 +53,9 @@ static int cmd_ticks();
 static int cmd_date();
 static int cmd_timer(int argc, char** argv);
 static int cmd_beep(int argc, char** argv);
-/* piano */
+/* piano_main */
 /* piano_random */
+/* minesweeper_main */
 static int cmd_page_map();
 static int cmd_heap_headers();
 static int cmd_test_libk();
@@ -126,6 +128,11 @@ static Command cmd_list[] = {
       "piano_random",
       "Random piano through the pc speaker",
       &piano_random,
+    },
+    {
+      "minesweeper",
+      "Simple terminal minesweeper",
+      &minesweeper_main,
     },
     {
       "page_map",
