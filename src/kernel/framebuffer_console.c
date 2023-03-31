@@ -1,4 +1,5 @@
 
+#include <stdbool.h>
 #include <stdlib.h>
 #include <kernel/color.h>
 #include <kernel/vga.h> /* VGA_CONSOLE_ADDR */
@@ -34,7 +35,7 @@ static uint32_t cur_y, cur_x;
 
 /* Bool that will be set to 1 if we know we are going to shift the console. See
  * framebuffer console wiki page */
-static uint8_t should_shift;
+static bool should_shift;
 
 /* -------------------------------------------------------------------------- */
 
@@ -86,7 +87,7 @@ void fbc_init(uint32_t y, uint32_t x, uint32_t h, uint32_t w, Font* font) {
     cur_y = 0;
     cur_x = 0;
 
-    should_shift = 0;
+    should_shift = false;
 
     /* Allocate the number of fbc_entry's. Rows and cols of the console */
     g_fbc = malloc(g_ch * g_cw * sizeof(fbc_entry));
@@ -141,7 +142,7 @@ void fbc_place_str(uint32_t y, uint32_t x, const char* str) {
         /* See fbc_putchar comment */
         if (should_shift) {
             fbc_shift_rows(1);
-            should_shift = 0;
+            should_shift = false;
         }
 
         switch (*str) {
@@ -159,7 +160,7 @@ void fbc_place_str(uint32_t y, uint32_t x, const char* str) {
                 if (y + 1 < g_ch)
                     y++;
                 else
-                    should_shift = 1;
+                    should_shift = true;
 
                 x = 0;
 
@@ -231,7 +232,7 @@ void fbc_place_str(uint32_t y, uint32_t x, const char* str) {
             if (y + 1 < g_ch)
                 y++;
             else
-                should_shift = 1;
+                should_shift = true;
         }
     }
 }
@@ -244,7 +245,7 @@ void fbc_putchar(char c) {
      * '\n', for example */
     if (should_shift) {
         fbc_shift_rows(1);
-        should_shift = 0;
+        should_shift = false;
     }
 
     /* Check for special chars like newlines, tabs, backspaces, etc. */
@@ -263,7 +264,7 @@ void fbc_putchar(char c) {
             if (cur_y + 1 < g_ch)
                 cur_y++;
             else
-                should_shift = 1;
+                should_shift = true;
 
             cur_x = 0;
 
@@ -336,7 +337,7 @@ void fbc_putchar(char c) {
         if (cur_y + 1 < g_ch)
             cur_y++;
         else
-            should_shift = 1;
+            should_shift = true;
     }
 }
 
