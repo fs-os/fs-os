@@ -1,4 +1,5 @@
 
+#include <kernel/keyboard.h> /* kb_held */
 #include <kernel/pcspkr.h>
 #include <kernel/framebuffer_console.h>
 #include <kernel/color.h>
@@ -22,9 +23,9 @@ Beep soviet_anthem[] = {
 
 static inline void play_soviet_anthem(void) {
     fbc_setfore(COLOR_GREEN_B);
-    printf("Playing soviet anthem...\n");
+    printf("Playing soviet anthem... Press \'q\' to stop.\n");
 
-    for (unsigned long i = 0; i < LENGTH(soviet_anthem); i++) {
+    for (unsigned long i = 0; i < LENGTH(soviet_anthem) && !kb_held('q'); i++) {
         putchar('\r');
 
         fbc_setfore(COLOR_WHITE_B);

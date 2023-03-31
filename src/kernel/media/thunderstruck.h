@@ -1,9 +1,10 @@
 
+#include <kernel/keyboard.h> /* kb_held */
 #include <kernel/pcspkr.h>
 #include <kernel/framebuffer_console.h>
 #include <kernel/color.h>
 
-#define THUNDERSTRUCK_DELAY 100
+#define THUNDERSTRUCK_DELAY 120
 
 Beep thunderstruck[] = {
     { .freq = 493, .ms_len = THUNDERSTRUCK_DELAY },
@@ -273,9 +274,9 @@ Beep thunderstruck[] = {
 
 static inline void play_thunderstruck(void) {
     fbc_setfore(COLOR_GREEN_B);
-    printf("Playing thunderstruck...\n");
+    printf("Playing thunderstruck... Press \'q\' to stop.\n");
 
-    for (unsigned long i = 0; i < LENGTH(thunderstruck); i++) {
+    for (unsigned long i = 0; i < LENGTH(thunderstruck) && !kb_held('q'); i++) {
         putchar('\r');
 
         fbc_setfore(COLOR_WHITE_B);
