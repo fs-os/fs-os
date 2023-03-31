@@ -1,13 +1,28 @@
 
-#ifndef _NCURSES_H
-#define _NCURSES_H 1
+#ifndef _CURSES_H
+#define _CURSES_H 1
+
+#include <kernel/framebuffer_console.h>
+
+typedef struct {
+    fbc_ctx* old_ctx; /* Last ctx */
+    fbc_ctx* ctx;     /* Framebuffer console context */
+} WINDOW;
+
+/* initsrc: allocate and fill a new curses window, and return it */
+WINDOW* initscr(void);
+
+/* endwin: switch to the old fbc context and free the allocated window */
+int endwin(WINDOW* win);
 
 /*
- * TODO:
+ * DONE:
  *  - initscr
+ *  - endwin
+ *
+ * TODO:
  *  - raw       (add kb_raw)
  *  - noecho    (kb_noecho)
- *  - endwin
  *  - refresh   (fbc_refresh, no ncurses buffer)
  *  - move
  *  - getyx     (2 arg version and with no macro)
