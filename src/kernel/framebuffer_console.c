@@ -83,10 +83,20 @@ void fbc_init(uint32_t y, uint32_t x, uint32_t h, uint32_t w, Font* font) {
     should_shift = false;
 
     /* Allocate the number of fbc_entry's. Rows and cols of the console */
-    ctx.fbc = malloc(h * w * sizeof(fbc_entry));
+    ctx.fbc = malloc(ctx.ch_h * ctx.ch_w * sizeof(fbc_entry));
 
     fbc_clear();
     fbc_refresh();
+}
+
+/* fbc_change_ctx: switches to the specified framebuffer console context */
+void fbc_change_ctx(fbc_ctx* new_ctx) {
+    ctx = *new_ctx;
+}
+
+/* fbc_get_ctx: returns the current framebuffer console context */
+fbc_ctx* fbc_get_ctx(void) {
+    return &ctx;
 }
 
 /* fbc_clear: clears the framebuffer console and moves cursor to the first
