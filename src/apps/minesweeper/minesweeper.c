@@ -8,16 +8,25 @@ int minesweeper_main(int argc, char** argv) {
     (void)argc;
     (void)argv;
 
-    puts("start");
+    puts("Starting curses...");
     WINDOW* stdscr = initscr();
 
-    puts("Hello, curses window!\nPress any key to continue...");
+    puts("Hello, curses window!");
 
+    printf("Input: ")
     while (getchar() != '\n')
         ;
+    puts("Got normal str. Enabling raw and noecho");
+
+    raw();
+    noecho();
+
+    char c;
+    while ((c = getchar()) != '\n') 
+        printf("(%c)\n", c);
 
     endwin(stdscr);
-    puts("done");
+    puts("Done!");
 
     return 0;
 }
