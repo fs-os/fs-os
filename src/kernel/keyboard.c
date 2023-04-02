@@ -101,9 +101,9 @@ static inline unsigned char* get_layout(void) {
 /* kb_handler: actual C handler for the keyboard exceptions received from
  * "irq_kb". See src/kernel/idt_asm.asm */
 void kb_handler(void) {
-    /* The ps2 controller wiki page says (at the bottom, interrupts) that you
-     * don't really need to read the bit 0 of the status byte when reading port
-     * 0x60, but I have seen it in other projects so I am going to do it. */
+    /* You don't really need to read the bit 0 of the status byte when reading
+     * port 0x60, but I have seen it in other projects so I am doing it.
+     * TODO: macro for doing last outb + return, replace loop and continues */
     for (uint8_t status = io_inb(KB_PORT_STATUS); status & KB_STATUS_BUFFER_OUT;
          status         = io_inb(KB_PORT_STATUS)) {
         uint8_t key = io_inb(KB_PORT_DATA);
@@ -138,8 +138,6 @@ void kb_handler(void) {
 
         /* If a program called kb_getchar */
         if (getting_char) {
-            /* Check if we are pressing a key (not releasing) and if the current
-             * layout has a char to display, and print it */
             if (getchar_line_buf_pos >= KB_GETCHAR_BUFSZ)
                 panic_line("getchar buffer out of bounds");
 
@@ -147,9 +145,7 @@ void kb_handler(void) {
              * will need to return each character inmediately, so we don't use
              * the line buffer. */
             if (!wait_for_eol) {
-                /* We increase getchar_buf_pos, but because kb_getchar will
-                 * return the char inmediately, and the next char is EOF, it
-                 * will always be reset to 0. See kb_getchar comment */
+                /* getchar_buf_pos will always be 0. See kb_getchar comment */
                 getchar_buf[getchar_buf_pos++] = final_key;
 
                 /* We don't use line buffer, we just print here and continue */
@@ -159,13 +155,11 @@ void kb_handler(void) {
                 continue;
             }
 
-            /* Store the current char to the getchar line buffer (if the char
-             * can be displayed with the current font) */
+            /* Store the current char to the getchar line buffer */
             getchar_line_buf[getchar_line_buf_pos++] = final_key;
 
-            /* Check if the key we just saved is '\n'. If it is, the user is
-             * done with the input line so we can move the chars to the final
-             * buffer */
+            /* If the key we just saved is '\n', the user is done with the
+             * input line so we can move the chars to the final buffer */
             if (final_key == '\n') {
                 for (int i = 0; i < getchar_line_buf_pos; i++) {
                     getchar_buf[i]      = getchar_line_buf[i];
@@ -267,7 +261,8 @@ int kb_getchar(void) {
     getchar_buf[getchar_buf_pos] = EOF;
 
     /* Try to increase the buffer position. If the next char is EOF, reset the
-     * pos to 0. If wait_for_eol is false, getchar_buf_pos will always be 0 */
+     * pos to 0. If wait_for_eol is false, getchar_buf_pos will always be 0
+     * because the next char will always be EOF. */
     if (getchar_buf[++getchar_buf_pos] == EOF)
         getchar_buf_pos = 0;
 
