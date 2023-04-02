@@ -54,8 +54,13 @@ static uint8_t key_flags[128] = { 0 };
 /* Store if we should use caps */
 static bool capslock_on = false, shift_held = false;
 
-/* Store if we should print the characters to screen when receiving them */
+/* Store if we should print the characters to screen when receiving them.
+ * Modified by kb_echo and kb_noecho */
 static bool print_chars = true;
+
+/* If true, kb_getchar will wait for the user to input newline instead of
+ * instantly returning each char. Modified by kb_raw and kb_noraw */
+static bool wait_for_eol = true;
 
 /* True if a program is waiting for kb_getchar */
 static volatile bool getting_char = false;
@@ -138,6 +143,22 @@ void kb_handler(void) {
             if (getchar_line_buf_pos >= KB_GETCHAR_BUFSZ)
                 panic_line("getchar buffer out of bounds");
 
+            /* If this variable is not set, kb_raw has been called. kb_getchar
+             * will need to return each character inmediately, so we don't use
+             * the line buffer. */
+            if (!wait_for_eol) {
+                /* We increase getchar_buf_pos, but because kb_getchar will
+                 * return the char inmediately, and the next char is EOF, it
+                 * will always be reset to 0. See kb_getchar comment */
+                getchar_buf[getchar_buf_pos++] = final_key;
+
+                /* We don't use line buffer, we just print here and continue */
+                if (print_chars)
+                    putchar(final_key);
+
+                continue;
+            }
+
             /* Store the current char to the getchar line buffer (if the char
              * can be displayed with the current font) */
             getchar_line_buf[getchar_line_buf_pos++] = final_key;
@@ -170,8 +191,10 @@ void kb_handler(void) {
             } else if (print_chars) {
                 /* We print the typed char here for:
                  *   - Only printing keyboard input when a program asks for it
-                 *   - Handle special chars like '\n' (not needed) or '\b' (only
-                 *     print if we have something to delete) */
+                 *   - Handle special cases like:
+                 *     - '\n': Just print
+                 *     - '\b': Only print if we have something to delete
+                 *   - In those special cases, print them inside that block */
                 putchar(final_key);
             }
         }
@@ -206,6 +229,16 @@ bool kb_getecho(void) {
     return print_chars;
 }
 
+/* kb_raw: don't wait for newline when getting chars */
+void kb_raw(void) {
+    wait_for_eol = false;
+}
+
+/* kb_raw: wait for newline when getting chars */
+void kb_noraw(void) {
+    wait_for_eol = true;
+}
+
 /* kb_setlayout: set the current active layout to the specified Layout ptr */
 void kb_setlayout(const Layout* ptr) {
     cur_layout = ptr;
@@ -234,7 +267,7 @@ int kb_getchar(void) {
     getchar_buf[getchar_buf_pos] = EOF;
 
     /* Try to increase the buffer position. If the next char is EOF, reset the
-     * pos to 0 */
+     * pos to 0. If wait_for_eol is false, getchar_buf_pos will always be 0 */
     if (getchar_buf[++getchar_buf_pos] == EOF)
         getchar_buf_pos = 0;
 

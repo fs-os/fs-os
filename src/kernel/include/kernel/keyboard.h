@@ -74,6 +74,12 @@ void kb_echo(void);
 /* kb_getecho: get the static print_chars variable */
 bool kb_getecho(void);
 
+/* kb_raw: don't wait for newline when getting chars */
+void kb_raw(void);
+
+/* kb_raw: wait for newline when getting chars */
+void kb_noraw(void);
+
 /* kb_setlayout: set the current active layout to the specified Layout ptr */
 void kb_setlayout(const Layout* ptr);
 
