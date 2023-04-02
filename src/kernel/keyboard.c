@@ -138,9 +138,6 @@ void kb_handler(void) {
 
         /* If a program called kb_getchar */
         if (getting_char) {
-            if (getchar_line_buf_pos >= KB_GETCHAR_BUFSZ)
-                panic_line("getchar buffer out of bounds");
-
             /* If this variable is not set, kb_raw has been called. kb_getchar
              * will need to return each character inmediately, so we don't use
              * the line buffer. */
@@ -154,6 +151,9 @@ void kb_handler(void) {
 
                 continue;
             }
+
+            if (getchar_line_buf_pos >= KB_GETCHAR_BUFSZ)
+                panic_line("getchar buffer out of bounds");
 
             /* Store the current char to the getchar line buffer */
             getchar_line_buf[getchar_line_buf_pos++] = final_key;
