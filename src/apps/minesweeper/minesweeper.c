@@ -11,19 +11,32 @@ int minesweeper_main(int argc, char** argv) {
     puts("Starting curses...");
     WINDOW* stdscr = initscr();
 
-    puts("Hello, curses window!");
+    printw("Hello, curses window!\n");
 
-    printf("Input: ")
-    while (getchar() != '\n')
+    move(5, 10);
+    printw("Moved!\n");
+    mvprintw(6, 10, "Moved... again!\n");
+    move(7, 10);
+    addch('A');
+    mvaddch(8, 10, 'B');
+
+    move(6, 16);
+    clrtoeol();
+
+    mvprintw(1, 0, "Input: ");
+    while (getch() != '\n')
         ;
-    puts("Got normal str. Enabling raw and noecho");
+    printw("Got normal str. Enabling raw and noecho\n");
 
     raw();
     noecho();
 
     char c;
-    while ((c = getchar()) != '\n') 
-        printf("(%c)\n", c);
+    while ((c = getch()) != '\n')
+        if (c == 'c')
+            clear();
+        else
+            printw("(%c)\n", c);
 
     endwin(stdscr);
     puts("Done!");
