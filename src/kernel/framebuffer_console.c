@@ -54,7 +54,7 @@ static inline void fbc_refresh_entry(uint32_t cy, uint32_t cx) {
              * more information see: src/kernel/include/kernel/font.h */
             fb_ptr[final_y * fb_w + final_x] =
               (get_font_bit(ctx->font, cur_entry.c, fy, fx)) ? cur_entry.fg
-                                                            : cur_entry.bg;
+                                                             : cur_entry.bg;
         }
     }
 }
@@ -122,6 +122,27 @@ void fbc_clear(void) {
                 DEFAULT_BG,
             };
         }
+    }
+}
+
+/* fbc_clrtoeol: clear to end of line. Does not change cursor position */
+void fbc_clrtoeol(void) {
+    /* Current position will be the end of the current line */
+    ctx->fbc[ctx->cur_y * ctx->ch_w + ctx->cur_x] = (fbc_entry){
+        '\n',
+        DEFAULT_FG,
+        DEFAULT_BG,
+    };
+    fbc_refresh_entry(ctx->cur_y, ctx->cur_x);
+
+    /* Rest of them as '\0' */
+    for (uint32_t cx = ctx->cur_x + 1; cx < ctx->ch_w; cx++) {
+        ctx->fbc[ctx->cur_y * ctx->ch_w + cx] = (fbc_entry){
+            '\0',
+            DEFAULT_FG,
+            DEFAULT_BG,
+        };
+        fbc_refresh_entry(ctx->cur_y, cx);
     }
 }
 

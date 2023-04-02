@@ -47,6 +47,9 @@ fbc_ctx* fbc_get_ctx(void);
  * char */
 void fbc_clear(void);
 
+/* fbc_clrtoeol: clear to end of line. Does not change cursor position */
+void fbc_clrtoeol(void);
+
 /* fbc_write: prints "len" of "s" to the framebuffer console using
  * fbc_putchar */
 void fbc_write(const char* s, size_t len);
