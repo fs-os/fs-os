@@ -1,6 +1,8 @@
 
 #include <curses.h>
+#include <stdarg.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <kernel/color.h>
 #include <kernel/framebuffer_console.h>
 #include <kernel/keyboard.h>
@@ -97,6 +99,118 @@ int wrefresh(WINDOW* win) {
     fbc_ctx* old_ctx = fbc_get_ctx();
 
     fbc_change_ctx(win->ctx);
+    fbc_refresh();
+
+    fbc_change_ctx(old_ctx);
+    return 0;
+}
+
+/* move: change cursor position of the current window */
+int move(int y, int x) {
+    fbc_ctx* ctx = fbc_get_ctx();
+    ctx->cur_y = y;
+    ctx->cur_x = x;
+    return 0;
+}
+
+/* wmove: change cursor position of the specified window */
+int wmove(WINDOW* win, int y, int x) {
+    win->ctx->cur_y = y;
+    win->ctx->cur_x = x;
+    return 0;
+}
+
+/* getyx: write the current cursor position to the y and x pointers */
+void getyx(int* y, int* x) {
+    fbc_ctx* ctx = fbc_get_ctx();
+    *y = ctx->cur_y;
+    *x = ctx->cur_x;
+}
+
+/* printw: prints with format "fmt" */
+int printw(const char* fmt, ...) {
+    va_list va;
+    va_start(va, fmt);
+
+    /* Just call vprintf instead of vprintw */
+    int ret = vprintf(fmt, va);
+
+    va_end(va);
+    return ret;
+}
+
+/* vprintw: prints with format "fmt" using a va list */
+int vprintw(const char* fmt, va_list va) {
+    return vprintf(fmt, va);
+}
+
+/* mvprintw: move to (y,x) and print with format "fmt" */
+int mvprintw(int y, int x, const char* fmt, ...) {
+    /* Just move, dont call the func */
+    fbc_ctx* ctx = fbc_get_ctx();
+    ctx->cur_y = y;
+    ctx->cur_x = x;
+
+    va_list va;
+    va_start(va, fmt);
+
+    /* Just call vprintf instead of vprintw */
+    int ret = vprintf(fmt, va);
+
+    va_end(va);
+    return ret;
+}
+
+/* addch: print the specified character */
+int addch(int ch) {
+    return putchar(ch);
+}
+
+/* mvaddch: move to (y,x) and print the specified character */
+int mvaddch(int y, int x, int ch) {
+    /* Just move, dont call the func */
+    fbc_ctx* ctx = fbc_get_ctx();
+    ctx->cur_y = y;
+    ctx->cur_x = x;
+
+    return putchar(ch);
+}
+
+/* clrtoeol: clear to end of line */
+int clrtoeol(void) {
+    fbc_clrtoeol();
+    return 0;
+}
+
+/* wclrtoeol: clear to end of line in the specified window */
+int wclrtoeol(WINDOW* win) {
+    fbc_ctx* old_ctx = fbc_get_ctx();
+
+    fbc_change_ctx(win->ctx);
+    fbc_clrtoeol();
+
+    fbc_change_ctx(old_ctx);
+    return 0;
+}
+
+/* getch: get input character */
+int getch(void) {
+    return getchar();
+}
+
+/* clear: clear the current window */
+int clear(void) {
+    fbc_clear();
+    fbc_refresh();
+    return 0;
+}
+
+/* wclear: clear the specified window */
+int wclear(WINDOW* win) {
+    fbc_ctx* old_ctx = fbc_get_ctx();
+
+    fbc_change_ctx(win->ctx);
+    fbc_clear();
     fbc_refresh();
 
     fbc_change_ctx(old_ctx);

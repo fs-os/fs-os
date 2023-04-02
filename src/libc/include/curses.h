@@ -2,12 +2,52 @@
 #ifndef _CURSES_H
 #define _CURSES_H 1
 
+#include <stdarg.h>
 #include <kernel/framebuffer_console.h>
 
 typedef struct {
     fbc_ctx* old_ctx; /* Last ctx */
     fbc_ctx* ctx;     /* Framebuffer console context */
 } WINDOW;
+
+/*
+ * DONE:
+ *  - initscr
+ *  - endwin
+ *  - raw       (kb_raw)
+ *  - noraw     (kb_noraw)
+ *  - echo      (kb_echo)
+ *  - noecho    (kb_noecho)
+ *  - refresh   (fbc_refresh)
+ *  - wrefresh  (switch ctx & fbc_refresh)
+ *  - move
+ *  - wmove     (window move)
+ *  - getyx     (2 arg ptr version, not a macro)
+ *  - printw    (printf)
+ *  - vprintw   (vprintf)
+ *  - mvprintw  (move (no call) & printf)
+ *  - addch     (putchar)
+ *  - mvaddch   (move (no call) & putchar)
+ *  - clrtoeol  (clear to end of line)
+ *  - wclrtoeol (window clear to end of line)
+ *  - getch     (getchar)
+ *  - clear     (fbc_clear)
+ *  - wclear    (window clear)
+ *
+ * TODO:
+ *  - wprintw   (window printf)
+ *  - mvwprintw (move & window printf)
+ *  - waddch    (window putchar)
+ *  - mvwaddch  (move & window putchar)
+ *
+ * ERROR:
+ *  - keypad    (arrow keys, numpad)
+ *  - mousemask (cursor)
+ *  - getmouse
+ *  - has_colors
+ *  - start_color
+ *  - init_pair
+ */
 
 /* initsrc: allocate and fill a new curses window, and return it */
 WINDOW* initscr(void);
@@ -33,40 +73,44 @@ int refresh(void);
 /* wrefresh: refreshes the specified window */
 int wrefresh(WINDOW* win);
 
-/*
- * DONE:
- *  - initscr
- *  - endwin
- *  - raw       (kb_raw)
- *  - noraw     (kb_noraw)
- *  - echo      (kb_echo)
- *  - noecho    (kb_noecho)
- *  - refresh   (fbc_refresh)
- *  - wrefresh  (switch ctx & fbc_refresh)
- *
- * TODO:
- *  - move
- *  - getyx     (2 arg version, not a macro)
- *  - printw    (printf)
- *  - mvprintw  (move (no call) & printf)
- *  - vprintw   (vprintf)
- *  - addch     (putchar)
- *  - mvaddch   (move (no call) & putchar)
- *  - clrtoeol  (clear to end of line)
- *  - getch     (getchar)
- *
- * ERROR:
- *  - wprintw   (window printf)
- *  - mvwprintw (move & window printf)
- *  - waddch    (window putchar)
- *  - mvwaddch  (move & window putchar)
- *  - keypad    (arrow keys, numpad)
- *  - mousemask (cursor)
- *  - getmouse
- *  - has_colors
- *  - start_color
- *  - init_pair
- */
+/* move: change cursor position of the current window */
+int move(int y, int x);
+
+/* wmove: change cursor position of the specified window */
+int wmove(WINDOW* win, int y, int x);
+
+/* getyx: write the current cursor position to the y and x pointers */
+void getyx(int* y, int* x);
+
+/* printw: prints with format "fmt" */
+int printw(const char* fmt, ...);
+
+/* vprintw: prints with format "fmt" using a va list */
+int vprintw(const char* fmt, va_list va);
+
+/* mvprintw: move to (y,x) and print with format "fmt" */
+int mvprintw(int y, int x, const char* fmt, ...);
+
+/* addch: print the specified character */
+int addch(int ch);
+
+/* mvaddch: move to (y,x) and print the specified character */
+int mvaddch(int y, int x, int ch);
+
+/* clrtoeol: clear to end of line */
+int clrtoeol(void);
+
+/* wclrtoeol: clear to end of line in the specified window */
+int wclrtoeol(WINDOW* win);
+
+/* getch: get input character */
+int getch(void);
+
+/* clear: clear the current window */
+int clear(void);
+
+/* wclear: clear the specified window */
+int wclear(WINDOW* win);
 
 #endif /* _CURSES_H */
 
