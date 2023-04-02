@@ -23,14 +23,14 @@ int endwin(WINDOW* win);
  * TODO:
  *  - raw       (add kb_raw)
  *  - noecho    (kb_noecho)
- *  - refresh   (fbc_refresh, no ncurses buffer)
+ *  - refresh   (fbc_refresh)
  *  - move
- *  - getyx     (2 arg version and with no macro)
+ *  - getyx     (2 arg version, not a macro)
  *  - printw    (printf)
- *  - mvprintw  (move & printf)
+ *  - mvprintw  (move (no call) & printf)
  *  - vprintw   (vprintf)
  *  - addch     (putchar)
- *  - mvaddch   (move & putchar)
+ *  - mvaddch   (move (no call) & putchar)
  *  - clrtoeol  (clear to end of line)
  *  - getch     (getchar)
  *
@@ -47,5 +47,5 @@ int endwin(WINDOW* win);
  *  - init_pair
  */
 
-#endif /* _NCURSES_H */
+#endif /* _CURSES_H */
 
