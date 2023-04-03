@@ -2,6 +2,18 @@
 #include <stdint.h>
 #include <time.h>
 #include <kernel/pit.h>
+#include <kernel/rtc.h>
+
+/* time: return seconds since epoch time (1-1-1970) */
+uint32_t time(void* tloc) {
+    (void)tloc; /* Unused */
+
+    DateTime now = rtc_get_datetime();
+    /* TODO: Search mktime function from glibc or something:
+     * https://www.epochconverter.com/programming/c
+     */
+    return 0;
+}
 
 /* sleep: sleep "sec" seconds */
 void sleep(uint32_t sec) {

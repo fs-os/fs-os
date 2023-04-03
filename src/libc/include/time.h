@@ -4,6 +4,9 @@
 
 #include <stdint.h>
 
+/* time: return seconds since epoch time (1-1-1970) */
+uint32_t time(void* tloc);
+
 /* sleep: sleep "sec" seconds */
 void sleep(uint32_t sec);
 
