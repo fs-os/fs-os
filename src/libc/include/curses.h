@@ -22,7 +22,7 @@ typedef struct {
  *  - wrefresh  (switch ctx & fbc_refresh)
  *  - move
  *  - wmove     (window move)
- *  - getyx     (not a macro)
+ *  - getyx
  *  - printw    (printf)
  *  - vprintw   (vprintf)
  *  - mvprintw  (move (no call) & printf)
@@ -79,9 +79,12 @@ int move(int y, int x);
 /* wmove: change cursor position of the specified window */
 int wmove(WINDOW* win, int y, int x);
 
-/* getyx: write the cursor position of the specified window to the y and x
+/* getyx: ncurses macro to avoid & */
+#define getyx(win, y, x) _getyx(win, &y, &x)
+
+/* _getyx: write the cursor position of the specified window to the y and x
  * pointers */
-void getyx(WINDOW* win, int* y, int* x);
+void _getyx(WINDOW* win, int* y, int* x);
 
 /* printw: prints with format "fmt" */
 int printw(const char* fmt, ...);

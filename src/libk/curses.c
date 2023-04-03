@@ -120,9 +120,9 @@ int wmove(WINDOW* win, int y, int x) {
     return 0;
 }
 
-/* getyx: write the cursor position of the specified window to the y and x
+/* _getyx: write the cursor position of the specified window to the y and x
  * pointers */
-void getyx(WINDOW* win, int* y, int* x) {
+void _getyx(WINDOW* win, int* y, int* x) {
     *y = win->ctx->cur_y;
     *x = win->ctx->cur_x;
 }
