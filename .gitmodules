@@ -1,0 +1,3 @@
+[submodule "src/apps/minesweeper"]
+	path = src/apps/minesweeper
+	url = https://github.com/fs-os/minesweeper
