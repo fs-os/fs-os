@@ -120,11 +120,11 @@ int wmove(WINDOW* win, int y, int x) {
     return 0;
 }
 
-/* getyx: write the current cursor position to the y and x pointers */
-void getyx(int* y, int* x) {
-    fbc_ctx* ctx = fbc_get_ctx();
-    *y = ctx->cur_y;
-    *x = ctx->cur_x;
+/* getyx: write the cursor position of the specified window to the y and x
+ * pointers */
+void getyx(WINDOW* win, int* y, int* x) {
+    *y = win->ctx->cur_y;
+    *x = win->ctx->cur_x;
 }
 
 /* printw: prints with format "fmt" */
