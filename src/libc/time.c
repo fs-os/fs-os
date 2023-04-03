@@ -12,7 +12,7 @@ uint32_t time(void* tloc) {
     /* TODO: Search mktime function from glibc or something:
      * https://www.epochconverter.com/programming/c
      */
-    return 0;
+    return now.time.s;
 }
 
 /* sleep: sleep "sec" seconds */
