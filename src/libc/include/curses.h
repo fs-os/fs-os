@@ -10,6 +10,15 @@ typedef struct {
     fbc_ctx* ctx;     /* Framebuffer console context */
 } WINDOW;
 
+#if defined(_IN_CURSES_LIB) /* We included from curses.c */
+extern WINDOW* stdscr;
+extern int COLOR_PAIRS;
+#elif !defined(_HAS_CURSES_GLOBALS) /* We included from other source */
+#define _HAS_CURSES_GLOBALS 1
+WINDOW* stdscr  = NULL;
+int COLOR_PAIRS = 0;
+#endif /* _IN_CURSES_LIB */
+
 /*
  * DONE:
  *  - initscr
@@ -49,11 +58,12 @@ typedef struct {
  *  - init_pair
  */
 
-/* initsrc: allocate and fill a new curses window, and return it */
+/* initsrc: allocate and fill a new curses window, and returns it. It will use
+ * stdscr the first time */
 WINDOW* initscr(void);
 
 /* endwin: switch to the old fbc context and free the allocated window */
-int endwin(WINDOW* win);
+int endwin(void);
 
 /* raw: disable keyboard line buffer (getchar returns user input inmediately) */
 int raw(void);
