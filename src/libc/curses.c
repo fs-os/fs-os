@@ -4,14 +4,12 @@
 
 #include <curses.h>
 #include <stdarg.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <kernel/color.h>
 #include <kernel/framebuffer_console.h>
 #include <kernel/keyboard.h>
-
-#define DEFAULT_FG COLOR_WHITE
-#define DEFAULT_BG COLOR_BLACK
 
 /* initsrc: allocate and fill a new curses window, and returns it. It will use
  * stdscr the first time */
@@ -26,6 +24,7 @@ WINDOW* initscr(void) {
     /* Fill the curses window with the new and old contexts */
     win->old_ctx = cur;
     win->ctx     = malloc(sizeof(fbc_ctx));
+    win->pairs   = NULL; /* Initialized by start_color */
 
     /* Fill the new framebuffer console context */
     win->ctx->fbc = malloc(cur->ch_h * cur->ch_w * sizeof(fbc_entry));
@@ -64,6 +63,10 @@ int endwin(void) {
      * can have process-specific settings for keyboard, terminal, etc. */
     kb_echo();
     kb_noraw();
+
+    /* We called start_color, free the allocated array */
+    if (COLOR_PAIRS > 0)
+        free(stdscr->pairs);
 
     free(stdscr->ctx->fbc); /* Free the framebuffer console array */
     free(stdscr->ctx);      /* Free the framebuffer console context */
@@ -233,7 +236,40 @@ bool has_colors(void) {
 
 /* start_color: start color mode in the current window */
 int start_color(void) {
-    COLOR_PAIRS = 16;
+    /* Allocate the color pairs array */
+    stdscr->pairs = calloc(CURSES_MAX_PAIRS, sizeof(color_pair));
+
+    COLOR_PAIRS = CURSES_MAX_PAIRS;
+    return 0;
+}
+
+/* init_pair: assigns the specifed foreground and background to the specified
+ * pair index. start_color needs to be called first */
+int init_pair(uint16_t pair, uint32_t fg, uint32_t bg) {
+    if (pair < COLOR_PAIRS)
+        return 1;
+
+    stdscr->pairs[pair].fg = fg;
+    stdscr->pairs[pair].bg = bg;
+
+    return 0;
+}
+
+/* use_pair: changes the current terminal colors to the fg and bg of the
+ * specified pair index. This function will not check if the color pair has been
+ * Initialized, and start_color needs to be called first */
+int use_pair(uint16_t pair) {
+    if (pair < COLOR_PAIRS)
+        return 1;
+
+    fbc_setcol(stdscr->pairs[pair].fg, stdscr->pairs[pair].bg);
+
+    return 0;
+}
+
+/* reset_pair: reset to the default terminal colors */
+int reset_pair(void) {
+    fbc_setcol(DEFAULT_FG, DEFAULT_BG);
     return 0;
 }
 

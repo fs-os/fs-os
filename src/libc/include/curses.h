@@ -3,11 +3,16 @@
 #define _CURSES_H 1
 
 #include <stdarg.h>
+#include <stdbool.h>
+#include <kernel/color.h>
 #include <kernel/framebuffer_console.h>
 
+#define CURSES_MAX_PAIRS 16
+
 typedef struct {
-    fbc_ctx* old_ctx; /* Last ctx */
-    fbc_ctx* ctx;     /* Framebuffer console context */
+    fbc_ctx* old_ctx;  /* Last ctx */
+    fbc_ctx* ctx;      /* Framebuffer console context */
+    color_pair* pairs; /* Array of color pairs */
 } WINDOW;
 
 #if defined(_IN_CURSES_LIB) /* We included from curses.c */
@@ -15,8 +20,8 @@ extern WINDOW* stdscr;
 extern int COLOR_PAIRS;
 #elif !defined(_HAS_CURSES_GLOBALS) /* We included from other source */
 #define _HAS_CURSES_GLOBALS 1
-WINDOW* stdscr  = NULL;
-int COLOR_PAIRS = 0;
+WINDOW* stdscr       = NULL;
+uint16_t COLOR_PAIRS = 0;
 #endif /* _IN_CURSES_LIB */
 
 /*
@@ -125,6 +130,24 @@ int clear(void);
 
 /* wclear: clear the specified window */
 int wclear(WINDOW* win);
+
+/* has_colors: returns true if the terminal supports color. Useless */
+bool has_colors(void);
+
+/* start_color: start color mode in the current window */
+int start_color(void);
+
+/* init_pair: assigns the specifed foreground and background to the specified
+ * pair index. start_color needs to be called first */
+int init_pair(uint16_t pair, uint32_t fg, uint32_t bg);
+
+/* use_pair: changes the current terminal colors to the fg and bg of the
+ * specified pair index. This function will not check if the color pair has been
+ * Initialized, and start_color needs to be called first */
+int use_pair(uint16_t pair);
+
+/* reset_pair: reset to the default terminal colors */
+int reset_pair(void);
 
 #endif /* _CURSES_H */
 
