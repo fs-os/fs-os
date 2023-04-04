@@ -50,17 +50,9 @@ void fbc_clear(void);
 /* fbc_clrtoeol: clear to end of line. Does not change cursor position */
 void fbc_clrtoeol(void);
 
-/* fbc_write: prints "len" of "s" to the framebuffer console using
- * fbc_putchar */
-void fbc_write(const char* s, size_t len);
-
 /* fbc_sprint: prints zero-terminated string to the framebuffer console using
  * fbc_putchar */
 void fbc_sprint(const char* s);
-
-/* fbc_pace_str: place "str" with current colors at positions (y, x) of the
- * framebuffer console array. Warning: Overwrites! */
-void fbc_place_str(uint32_t y, uint32_t x, const char* str);
 
 /* fbc_putchar: prints "c" to the framebuffer console */
 void fbc_putchar(char c);
