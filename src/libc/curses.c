@@ -278,3 +278,17 @@ int reset_pair(void) {
     return 0;
 }
 
+/* invert_pair: toggles the foreground/background order in the specified pair */
+int invert_pair(uint16_t pair) {
+    /* Pair index out of bounds */
+    if (pair >= COLOR_PAIRS)
+        return 1;
+
+    /* Swap */
+    const uint32_t tmp     = stdscr->pairs[pair].fg;
+    stdscr->pairs[pair].fg = stdscr->pairs[pair].bg;
+    stdscr->pairs[pair].bg = tmp;
+
+    return 0;
+}
+

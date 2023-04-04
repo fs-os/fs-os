@@ -24,29 +24,6 @@ extern int COLOR_PAIRS;
 #endif /* _IN_CURSES_LIB */
 
 /*
- * DONE:
- *  - initscr
- *  - endwin
- *  - raw       (kb_raw)
- *  - noraw     (kb_noraw)
- *  - echo      (kb_echo)
- *  - noecho    (kb_noecho)
- *  - refresh   (fbc_refresh)
- *  - wrefresh  (switch ctx & fbc_refresh)
- *  - move
- *  - wmove     (window move)
- *  - getyx
- *  - printw    (printf)
- *  - vprintw   (vprintf)
- *  - mvprintw  (move (no call) & printf)
- *  - addch     (putchar)
- *  - mvaddch   (move (no call) & putchar)
- *  - clrtoeol  (clear to end of line)
- *  - wclrtoeol (window clear to end of line)
- *  - getch     (getchar)
- *  - clear     (fbc_clear)
- *  - wclear    (window clear)
- *
  * TODO:
  *  - wprintw   (window printf)
  *  - mvwprintw (move & window printf)
@@ -57,9 +34,6 @@ extern int COLOR_PAIRS;
  *  - keypad    (arrow keys, numpad)
  *  - mousemask (cursor)
  *  - getmouse
- *  - has_colors
- *  - start_color
- *  - init_pair
  */
 
 /* initsrc: allocate and fill a new curses window, and returns it. It will use
@@ -147,6 +121,9 @@ int use_pair(uint16_t pair);
 
 /* reset_pair: reset to the default terminal colors */
 int reset_pair(void);
+
+/* invert_pair: toggles the foreground/background order in the specified pair */
+int invert_pair(uint16_t pair);
 
 #endif /* _CURSES_H */
 
