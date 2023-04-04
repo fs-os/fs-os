@@ -249,7 +249,8 @@ int start_color(void) {
 /* init_pair: assigns the specifed foreground and background to the specified
  * pair index. start_color needs to be called first */
 int init_pair(uint16_t pair, uint32_t fg, uint32_t bg) {
-    if (pair < COLOR_PAIRS)
+    /* Pair index out of bounds */
+    if (pair >= COLOR_PAIRS)
         return 1;
 
     stdscr->pairs[pair].fg = fg;
@@ -262,7 +263,8 @@ int init_pair(uint16_t pair, uint32_t fg, uint32_t bg) {
  * specified pair index. This function will not check if the color pair has been
  * Initialized, and start_color needs to be called first */
 int use_pair(uint16_t pair) {
-    if (pair < COLOR_PAIRS)
+    /* Pair index out of bounds */
+    if (pair >= COLOR_PAIRS)
         return 1;
 
     fbc_setcol(stdscr->pairs[pair].fg, stdscr->pairs[pair].bg);
