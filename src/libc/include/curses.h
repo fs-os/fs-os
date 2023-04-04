@@ -16,12 +16,11 @@ typedef struct {
 } WINDOW;
 
 #if defined(_IN_CURSES_LIB) /* We included from curses.c */
-extern WINDOW* stdscr;
-extern int COLOR_PAIRS;
-#elif !defined(_HAS_CURSES_GLOBALS) /* We included from other source */
-#define _HAS_CURSES_GLOBALS 1
 WINDOW* stdscr       = NULL;
 uint16_t COLOR_PAIRS = 0;
+#else  /* We included from other source */
+extern WINDOW* stdscr;
+extern int COLOR_PAIRS;
 #endif /* _IN_CURSES_LIB */
 
 /*

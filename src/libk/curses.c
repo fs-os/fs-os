@@ -72,6 +72,9 @@ int endwin(void) {
     free(stdscr->ctx);      /* Free the framebuffer console context */
     free(stdscr);           /* Free the curses window struct */
 
+    /* So next call to initscr uses stdscr */
+    stdscr = NULL;
+
     return 0;
 }
 
