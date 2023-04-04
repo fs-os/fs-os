@@ -101,5 +101,14 @@ static inline void col2rgb(uint8_t* r, uint8_t* g, uint8_t* b, uint32_t col) {
 #define COLOR_WHITE_B 0xffffff
 #endif
 
+/* Default foreground and background colors for terminals, etc */
+#ifndef DEFAULT_FG
+#define DEFAULT_FG COLOR_WHITE
+#endif
+
+#ifndef DEFAULT_BG
+#define DEFAULT_BG COLOR_BLACK
+#endif
+
 #endif /* _KERNEL_COLOR_H */
 

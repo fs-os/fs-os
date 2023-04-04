@@ -6,9 +6,6 @@
 #include <kernel/framebuffer.h>
 #include <kernel/framebuffer_console.h>
 
-#define DEFAULT_FG COLOR_WHITE
-#define DEFAULT_BG COLOR_BLACK
-
 /* Converts a char position in the fbc to a pixel position (top left corner) */
 #define CHAR_Y_TO_PX(fy) (ctx->y + ((fy)*ctx->font->h))
 #define CHAR_X_TO_PX(fx) (ctx->x + ((fx)*ctx->font->w))
