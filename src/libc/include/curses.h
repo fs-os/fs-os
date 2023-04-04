@@ -62,10 +62,10 @@ int refresh(void);
 int wrefresh(WINDOW* win);
 
 /* move: change cursor position of the current window */
-int move(int y, int x);
+int move(uint32_t y, uint32_t x);
 
 /* wmove: change cursor position of the specified window */
-int wmove(WINDOW* win, int y, int x);
+int wmove(WINDOW* win, uint32_t y, uint32_t x);
 
 /* getyx: ncurses macro to avoid & */
 #define getyx(win, y, x) _getyx(win, &y, &x)

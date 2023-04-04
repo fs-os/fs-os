@@ -85,6 +85,7 @@
         putchar('\n');              \
     }
 
+/* Default layout, declared in keyboard.c */
 extern Layout us_layout;
 
 static inline void test_colors(void) {

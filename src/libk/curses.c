@@ -120,17 +120,32 @@ int wrefresh(WINDOW* win) {
 }
 
 /* move: change cursor position of the current window */
-int move(int y, int x) {
+int move(uint32_t y, uint32_t x) {
     fbc_ctx* ctx = fbc_get_ctx();
-    ctx->cur_y   = y;
-    ctx->cur_x   = x;
+
+    if (y >= ctx->ch_h)
+        y = ctx->ch_h - 1;
+
+    if (x >= ctx->ch_w)
+        x = ctx->ch_w - 1;
+
+    ctx->cur_y = y;
+    ctx->cur_x = x;
+
     return 0;
 }
 
 /* wmove: change cursor position of the specified window */
-int wmove(WINDOW* win, int y, int x) {
+int wmove(WINDOW* win, uint32_t y, uint32_t x) {
+    if (y >= win->ctx->ch_h)
+        y = win->ctx->ch_h - 1;
+
+    if (x >= win->ctx->ch_w)
+        x = win->ctx->ch_w - 1;
+
     win->ctx->cur_y = y;
     win->ctx->cur_x = x;
+
     return 0;
 }
 
@@ -160,10 +175,7 @@ int vprintw(const char* fmt, va_list va) {
 
 /* mvprintw: move to (y,x) and print with format "fmt" */
 int mvprintw(int y, int x, const char* fmt, ...) {
-    /* Just move, dont call the func */
-    fbc_ctx* ctx = fbc_get_ctx();
-    ctx->cur_y   = y;
-    ctx->cur_x   = x;
+    move(y, x);
 
     va_list va;
     va_start(va, fmt);
@@ -182,11 +194,7 @@ int addch(int ch) {
 
 /* mvaddch: move to (y,x) and print the specified character */
 int mvaddch(int y, int x, int ch) {
-    /* Just move, dont call the func */
-    fbc_ctx* ctx = fbc_get_ctx();
-    ctx->cur_y   = y;
-    ctx->cur_x   = x;
-
+    move(y, x);
     return putchar(ch);
 }
 
