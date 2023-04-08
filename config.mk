@@ -32,7 +32,7 @@ APP_OBJS=obj/apps/sh/sh.c.o obj/apps/piano/piano.c.o obj/apps/minesweeper/minesw
 LIBK_OBJS=obj/libk/string.c.o obj/libk/stdlib.c.o obj/libk/stdio.c.o obj/libk/ctype.c.o obj/libk/time.c.o obj/libk/curses.c.o
 
 # List of object files of our standard library, and the final static library
-LIBC_OBJS=obj/libc/string.c.o obj/libc/stdlib.c.o obj/libc/stdio.c.o obj/libk/ctype.c.o obj/libc/time.c.o obj/libc/curses.c.o
+LIBC_OBJS=obj/libc/string.c.o obj/libc/stdlib.c.o obj/libc/stdio.c.o obj/libc/ctype.c.o obj/libc/time.c.o obj/libc/curses.c.o
 LIBC=obj/libc.a
 
 # sysroot paths
