@@ -2,7 +2,10 @@
 #ifndef _KERNEL_RTC_H
 #define _KERNEL_RTC_H
 
+#include <stdint.h>
 #include <kernel/datetime.h>
+
+/** @todo Continue with doxygen */
 
 /* rtc_get_data: get data (seconds, minutes, ...) from the specified register of
  * the Real Time Clock */
@@ -21,4 +24,3 @@ Date rtc_get_date(void);
 DateTime rtc_get_datetime(void);
 
 #endif /* _KERNEL_RTC_H */
-
