@@ -4,6 +4,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stddef.h>
 
 #define HEAP_START ((void*)0xA00000) /* Bytes. 10MB */
 #define HEAP_SIZE  (0x3200000)       /* Bytes. 50MB */
