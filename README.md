@@ -20,7 +20,7 @@ Some interesting resources that influenced the project's philosophy:
 - [TempleOS](https://templeos.org/) and Terry A. Davis.
 
 ### Building from source
-#### Requisites
+#### Requirements
 - i686-elf cross compiler from [here](https://github.com/fs-os/cross-compiler).
 - [nasm](https://nasm.us) for compiling the assembly used in the project.
 - The [limine](https://github.com/limine-bootloader/limine) dependencies, including
@@ -28,7 +28,7 @@ Some interesting resources that influenced the project's philosophy:
 - (Optional) [qemu](https://www.qemu.org) for testing the ISO on a VM.
 
 #### Building
-Once you have all the requisites, simply run:
+Once you have all the requirements, simply run:
 ```console
 $ git clone https://github.com/fs-os/fs-os
 $ cd fs-os
