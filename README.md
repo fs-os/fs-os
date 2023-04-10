@@ -81,11 +81,14 @@ $ doxygen
 
 $ firefox doc/html/index.html
 ...
+```
 
-# LaTeX to PDF (Optional)
+Generate PDF from LaTeX (Optional):
+```console
 $ cd doc/latex
 $ make pdf
 ...
+
 $ firefox refman.pdf
 ...
 ```
