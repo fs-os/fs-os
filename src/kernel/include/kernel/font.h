@@ -3,18 +3,28 @@
 #define _KERNEL_FONT_H
 
 #include <stdint.h>
+#include <stdbool.h>
 
 typedef struct {
-    uint8_t w;     /* Width */
-    uint8_t h;     /* Height */
-    uint8_t* name; /* Font name */
-    uint8_t* font; /* Bitmap ptr. Size must be (256 * w) */
+    uint8_t w;     /**< @brief Width */
+    uint8_t h;     /**< @brief Height */
+    uint8_t* name; /**< @brief Font name */
+    uint8_t* font; /**< @brief Bitmap ptr. Size must be (256 * w) */
 } Font;
 
-/* get_font_bit: Gets the bit at pos (y, x) of the char "c" from the Font
- * "font". Would be the same as font->font[c][y][x] if it was a 3d array. For
- * more info see: src/kernel/include/fonts/main_font.h */
-static inline uint8_t get_font_bit(Font* font, uint8_t c, uint8_t y,
+/**
+ * @brief Gets the bit at pos \p y, \p x of the char \p c from the Font \p font.
+ *
+ * Would be the same as `font->font[c][y][x]` if it was a 3d array.
+ * For more info see: src/kernel/include/fonts/main_font.h
+ *
+ * @param font Pointer to the current Font struct.
+ * @param c Current char containing the bit.
+ * @param y Y position in px inside the character that we want to get.
+ * @param x X position in px inside the character that we want to get.
+ * @return True if the specified font bit should be displayed.
+ */
+static inline bool get_font_bit(Font* font, uint8_t c, uint8_t y,
                                    uint8_t x) {
     if (y > font->h)
         y = font->h;

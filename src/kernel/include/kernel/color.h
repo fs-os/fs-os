@@ -4,22 +4,41 @@
 
 #include <stdint.h>
 
+/**
+ * @brief Color pair structure with foreground and background
+ */
 typedef struct {
-    uint32_t fg;
-    uint32_t bg;
+    uint32_t fg; /**< @brief Foreground */
+    uint32_t bg; /**< @brief Background */
 } color_pair;
 
+/**
+ * @brief Convert rgb values to 32 bit color.
+ * @param r Red color. 0-255.
+ * @param g Green color. 0-255.
+ * @param b Blue color. 0-255.
+ * @return 32 bit color (0xRRGGBB)
+ */
 static inline uint32_t rgb2col(uint8_t r, uint8_t g, uint8_t b) {
     return (r << 16 | g << 8 | b);
 }
 
+/**
+ * @brief Convert 32 bit color to rgb values.
+ * @param r[out] Red color pointer.
+ * @param g[out] Green color pointer.
+ * @param b[out] Blue color pointer.
+ * @param col[in] 32 bit color.
+ */
 static inline void col2rgb(uint8_t* r, uint8_t* g, uint8_t* b, uint32_t col) {
     *r = (col >> 16) & 0xff;
     *g = (col >> 8) & 0xff;
     *b = col & 0xff;
 }
 
-/* Color palette */
+/**
+ * @name Color palette
+ * @{ */
 #ifndef COLOR_BLACK
 #define COLOR_BLACK 0x000000
 #endif
@@ -41,7 +60,7 @@ static inline void col2rgb(uint8_t* r, uint8_t* g, uint8_t* b, uint32_t col) {
 #endif
 
 #ifndef COLOR_MAGENTA
-#define COLOR_MAGENTA 0x7547b2 /* 0x7852a9 */
+#define COLOR_MAGENTA 0x7547b2
 #endif
 
 #ifndef COLOR_PURPLE
@@ -100,8 +119,13 @@ static inline void col2rgb(uint8_t* r, uint8_t* g, uint8_t* b, uint32_t col) {
 #ifndef COLOR_WHITE_B
 #define COLOR_WHITE_B 0xffffff
 #endif
+/**  @} */
 
-/* Default foreground and background colors for terminals, etc */
+/**
+ * @name Default foreground and background colors
+ *
+ * For terminals, curses, etc
+ * @{ */
 #ifndef DEFAULT_FG
 #define DEFAULT_FG COLOR_WHITE
 #endif
@@ -109,6 +133,7 @@ static inline void col2rgb(uint8_t* r, uint8_t* g, uint8_t* b, uint32_t col) {
 #ifndef DEFAULT_BG
 #define DEFAULT_BG COLOR_BLACK
 #endif
+/**  @} */
 
 #endif /* _KERNEL_COLOR_H */
 

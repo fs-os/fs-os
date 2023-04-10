@@ -4,12 +4,13 @@
 #include <stdio.h>
 #include <kernel/heap.h>
 
-/* HEADER_TO_PTR: returns the pointer to the actual usable memory of a Block */
+/**
+ * @brief Returns the pointer to the actual usable memory of a Block
+ */
 #define HEADER_TO_PTR(blk) ((void*)((uint32_t)blk + sizeof(Block)))
 
 Block* blk_cursor = (Block*)HEAP_START;
 
-/* init_heap: initializes the heap headers for the allocation functions. */
 void heap_init(void) {
     void* first_blk = HEAP_START;
 
@@ -22,8 +23,6 @@ void heap_init(void) {
     };
 }
 
-/* heap_alloc: allocate "sz" bytes of memory from the heap and return the
- * address */
 void* heap_alloc(size_t sz) {
     /* First, make sure the size is aligned to 8 bytes */
     const size_t align_diff = sz % 8;
@@ -76,7 +75,6 @@ void* heap_alloc(size_t sz) {
     return NULL;
 }
 
-/* heap_free: free a previously allocated ptr */
 void heap_free(void* ptr) {
     if (!ptr)
         return;
@@ -134,8 +132,6 @@ void heap_free(void* ptr) {
         blk_cursor = blk;
 }
 
-/* For debugging */
-
 enum header_mod {
     NEW_HEADER = 0,
     MOD_HEADER = 1,
@@ -143,35 +139,18 @@ enum header_mod {
     UNK_HEADER = 3,
 };
 
-/* print_header: prints information about a single alloc block header */
-static inline void print_header(enum header_mod mod, Block* blk) {
-    switch (mod) {
-        case NEW_HEADER:
-            printf("+ ");
-            break;
-        case MOD_HEADER:
-            printf("* ");
-            break;
-        case DEL_HEADER:
-            printf("- ");
-            break;
-        case UNK_HEADER:
-        default:
-            break;
-    }
-
+/**
+ * @brief Prints information about a single alloc block header
+ * @param blk_id The current block number
+ * @param blk Pointer to the Block structure we want to print
+ */
+static inline void print_header_id(int blk_id, Block* blk) {
+    printf("[%d] ", blk_id);
     printf("Header: %p | Blk: %p | Prev: %p | Next: %p | Sz: 0x%lX | Free: "
            "%d\n",
            blk, HEADER_TO_PTR(blk), blk->prev, blk->next, blk->sz, blk->free);
 }
 
-/* print_header_id: wrapper for print_header for adding a block id */
-static inline void print_header_id(int blk_id, Block* blk) {
-    printf("[%d] ", blk_id);
-    print_header(UNK_HEADER, blk);
-}
-
-/* heap_dump_headers: prints the information for all the alloc block headers */
 void heap_dump_headers(void) {
     printf("Cursor: %p\n"
            "Dumping heap block headers:\n",

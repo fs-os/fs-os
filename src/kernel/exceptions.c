@@ -25,8 +25,6 @@ static char* exceptions[] = {
     [30] = "security exception",
 };
 
-/* handle_exception: disables interrupts and panics with the specified
- * exception. */
 void handle_exception(int exc) {
     /*
      * See:

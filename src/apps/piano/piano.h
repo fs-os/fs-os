@@ -5,18 +5,38 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+/**
+ * @brief Information about each piano note.
+ */
 typedef struct {
-    uint8_t ch;      /* Key on the user's keyboard */
-    char* note_name; /* String containing the note name, used for displaying only */
-    uint32_t freq;   /* Frequency of the pc speaker for this key */
-    bool pressed;    /* The key was pressed in the current iteration */
-    bool held;       /* The key is being held since the last iteration */
+    /** @brief Key on the user's keyboard */
+    uint8_t ch;
+
+    /** @brief String containing the note name, used for displaying only */
+    char* note_name;
+
+    /** @brief Frequency of the pc speaker for this key */
+    uint32_t freq;
+
+    /** @brief The key was pressed in the current iteration */
+    bool pressed;
+
+    /** @brief The key is being held since the last iteration */
+    bool held;
 } Piano_note;
 
-/* piano_main: main piano function */
+/**
+ * @brief Main piano function
+ * @param argc, argv Shell arguments
+ * @return Exit code
+ */
 int piano_main(int argc, char** argv);
 
-/* piano_random: play a random song using the specified octave */
+/**
+ * @brief Play a random song using the specified octave
+ * @param argc, argv Shell arguments
+ * @return Exit code
+ */
 int piano_random(int argc, char** argv);
 
 #endif /* _APPS_PIANO_H */

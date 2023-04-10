@@ -8,6 +8,8 @@
 #define HEAP_START ((void*)0xA00000) /* Bytes. 10MB */
 #define HEAP_SIZE  (0x3200000)       /* Bytes. 50MB */
 
+/** @todo Continue with doxygen format */
+
 /* Block header struct. The block ptr should point to (header_ptr +
  * sizeof(Block)) */
 typedef struct Block Block;

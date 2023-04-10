@@ -5,9 +5,13 @@
 #include <kernel/font.h>
 #include "font_defines.h"
 
-/*
- * Each item of the char idx is a 8px row of that char, represented by each bit of
- * the byte. Example:
+/**
+ * @brief Main font used by the framebuffer console.
+ * @author Cozette, bdf2c
+ *
+ * Each item of the char idx is a 8px row of that char, represented by each bit
+ * of the byte. Example:
+ * ```c
  *      *.font['a'] = {
  *          ........ ,
  *          ..####.. ,
@@ -20,10 +24,15 @@
  *          ........ ,
  *          ........ ,
  *      }
- * Where each item of idx 'a' is a byte, and each # is a bit set to 1 of that byte,
- * and each '.' is a bit set to 0.
+ * ```
+ *
+ * Where each item of idx 'a' is a byte, and each '#' is a bit set to 1 of that
+ * byte, and each '.' is a bit set to 0.
+ *
  * Because it is a 3d array in 1d format, to access a px of a char we use:
- *      Font->font['C' * Font->h + y] & (1 << x)
+ * ```c
+ *      Font->font['C' * Font->h + y] & (0x80 >> x)
+ * ```
  * (See src/kernel/include/kernel/font.h)
  *
  * For more information see:
