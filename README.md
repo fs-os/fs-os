@@ -66,7 +66,7 @@ generate its documentation.
 #### Requirements
 Package name (gentoo)            | Description
 ---------------------------------|----------------------------------------------
-`doxygen`                        | Doxygen for building the documentation
+`app-doc/doxygen`                | Doxygen for building the documentation
 `app-text/texlive`               | For building the documentation in LaTeX format (for pdf)
 `media-gfx/graphviz`             | (Optional\*) For the graphs
 `dev-texlive/texlive-latexextra` | (Optional) Only needed for building the documentation in pdf format
