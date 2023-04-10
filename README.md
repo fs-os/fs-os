@@ -59,8 +59,39 @@ $ make qemu
 ...
 ```
 
+### Documentation
+This project uses the [doxygen](https://github.com/doxygen/doxygen) tool to
+generate its documentation.
+
+#### Requirements
+Package name (gentoo)            | Description
+---------------------------------|----------------------------------------------
+`doxygen`                        | Doxygen for building the documentation
+`app-text/texlive`               | For building the documentation in LaTeX format (for pdf)
+`media-gfx/graphviz`             | (Optional\*) For the graphs
+`dev-texlive/texlive-latexextra` | (Optional) Only needed for building the documentation in pdf format
+
+\* Needed if `HAVE_DOT=YES` in [Doxyfile](Doxyfile) (The default).
+
+#### Building the documentation
+Simply run:
+```console
+$ doxygen
+...
+
+$ firefox doc/html/index.html
+...
+
+# LaTeX to PDF (Optional)
+$ cd doc/latex
+$ make pdf
+...
+$ firefox refman.pdf
+...
+```
+
 ### Todo
-See [todo.md](TODO.md).
+See [todo.md](TODO.md) or the todo list of the doxygen documentation.
 
 ### Screenshots
 > **Note**  
