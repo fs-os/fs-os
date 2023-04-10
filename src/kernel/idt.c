@@ -79,7 +79,7 @@ void idt_init(void) {
      * with the CPU exceptions. See comment inside function. */
     pic_remap();
 
-    /* Exception Handling. exc_* defined in src/kernel/idt_asm.asm */
+    /* Exception Handling. exc_* defined in src/kernel/idt.asm */
     register_isr(0, (uint32_t)&exc_0);
     register_isr(1, (uint32_t)&exc_1);
     register_isr(2, (uint32_t)&exc_2);
@@ -102,20 +102,19 @@ void idt_init(void) {
     register_isr(20, (uint32_t)&exc_20);
     register_isr(30, (uint32_t)&exc_30);
 
-    /* IRQs. See src/kernel/idt_asm.asm */
+    /* IRQs. See src/kernel/idt.asm */
     register_isr(32, (uint32_t)&irq_pit); /* PIT. IRQ 0 */
     register_isr(33, (uint32_t)&irq_kb);  /* Keyboard. IRQ 1 */
 
-    /* Unused IRQs, just ignore. See src/kernel/idt_asm.asm */
+    /* Unused IRQs, just ignore. See src/kernel/idt.asm */
     for (int i = 34; i < 40; i++)
         register_isr(i, (uint32_t)&irq_default_master);
     for (int i = 40; i < 48; i++)
         register_isr(i, (uint32_t)&irq_default_slave);
 
-    /* src/kernel/idt_asm.asm */
+    /* See src/kernel/idt.asm */
     idt_load(&descriptor);
 
     /* Enable interrupts (opposite of cli) */
     asm("sti");
 }
-
