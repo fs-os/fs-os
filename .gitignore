@@ -4,6 +4,7 @@
 /iso/
 /sysroot/
 /limine/
+/doc/
 
 # Prerequisites
 *.d
