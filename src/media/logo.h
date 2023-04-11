@@ -1,9 +1,21 @@
-/* GIMP header image file format (RGB): fs-os-logo.h */
+/**
+ * @file  logo.h
+ * @brief GIMP header image file format (RGB): fs-os-logo.h
+ */
 
-static unsigned int fsos_logo_w = 250;
-static unsigned int fsos_logo_h = 250;
+/**
+ * @name Logo size
+ * @{ */
+static unsigned int fsos_logo_w = 250; /**< @brief Width */
+static unsigned int fsos_logo_h = 250; /**< @brief Height */
+/** @} */
 
-/* Call this macro repeatedly. After each use, the pixel data can be extracted */
+/**
+ * @def HEADER_PIXEL
+ * @brief Call this macro repeatedly. After each use, the pixel data can be
+ * extracted
+ * @details GIMP macro.
+ */
 #define HEADER_PIXEL(data, pixel)                                           \
     {                                                                       \
         pixel[0] = (((data[0] - 33) << 2) | ((data[1] - 33) >> 4));         \
@@ -754,7 +766,8 @@ static char* fsos_logo =
   "\\Q$G\\A$G\\A$G\\A$G\\1$H\\1$G\\1$G[Q$G\\!$H[Q$GW&$3MY'IBJ^R>K:;>;::>;::"
   ">;::>;::>;::>;::>;::>;::>;::>;::>;::>;::>;::>;::>;::>;::>*Z6=Y>*"
   "=I:*=IB+=9F,=IN,=IV-=9^.=:&.=**/=*20<Z61>;29>[B<?KJ?@+VB@K^D@[^E"
-  "A,\"EA,\"EA,\"EA,\"EA,\"EA,\"EA,\"EA,\"EA,\"EA,\"EA,\"EA,\"EA,\"EA,\"E@\\&C@,.9"
+  "A,\"EA,\"EA,\"EA,\"EA,\"EA,\"EA,\"EA,\"EA,\"EA,\"EA,\"EA,\"EA,\"EA,\"E@\\&C@"
+  ",.9"
   ">;R5<;20;[*/;[*/;[*/;[*/<+./<+./<;.0=KB5AL:GE=.XF=>^F=>_F=>^E]6Z"
   "CLZNA<>@?+F;>;69=JJ2;8AZ9VQG:W9N=)*!=9>$=9B%=IF&=IJ'=IN'=IV(=IZ)"
   "=I^*=J\"+=J&+=Z*,=Z.-=Z6.=Z:/=Z>/=ZB1>*J2>*Z4>+*7>;69>;::>;::>;::"
@@ -785,7 +798,8 @@ static char* fsos_logo =
   "\\Q$F\\Q$G\\Q$F\\A$G\\A$G\\1$G\\1$G\\!$G\\!$G\\!$GVV41GZ/->K:;>;::>;::>;::"
   ">;::>;::>;::>;::>;::>;::>;::>;::>;::>;::>;::>;::>;::>;::>;::>;::"
   ">;::>;::>;::>;6:>+\"7=9^.=)R,=)Z-=**/=*20<Z62<Z62<Z62<Z:2=ZN6@+RA"
-  "@[^DA,\"EA,\"EA,\"EA,\"EA,\"EA,\"EA,\"EA,\"EA,\"EA,\"EA,\"EA,\"EA,\"EA,\"EA,\"E"
+  "@[^DA,\"EA,\"EA,\"EA,\"EA,\"EA,\"EA,\"EA,\"EA,\"EA,\"EA,\"EA,\"EA,\"EA,\"EA,"
+  "\"E"
   "A,\"EA,\"EA,\"E@<.:>[Z6<[:1<;./<+./<;.0<;20<;20<;20<;20=+:3@,&@D=\"T"
   "F-:]F=>_F=>_F->]D].VBLNG?;>6:'=O969C:6EE:VYH<H=Y=9*!=92\"=96#=9:$"
   "=9>$=9B%=IF&=IN'=IR(=IV(=IZ)=I^*=J\"+=Z*,=Z.-=Z:.>*R3>+*8>;6:>;::"
@@ -801,7 +815,8 @@ static char* fsos_logo =
   "\\!$G\\!$GZC`@LY7D?+6?>;::>;::>;::>;::>;::>;::>;::>;::>;::>;::>;::"
   ">;::>;::>;::>;::>;::>;::>;::>;::>;::>;::>;::>;::>;::>;::>;::>+*8"
   "=*.0<9J+<9R-<:\"/<J*1<Z21<Z62<Z:2=JF5?KB?@[^DA,\"EA,\"EA,\"EA,\"EA,\"E"
-  "A,\"EA,\"EA,\"EA,\"EA,\"EA,\"EA,\"EA,\"EA,\"EA,\"EA,\"EA,\"EA,\"E@<.<?+^7=+>2"
+  "A,\"EA,\"EA,\"EA,\"EA,\"EA,\"EA,\"EA,\"EA,\"EA,\"EA,\"EA,\"EA,\"E@<.<?+^7=+>"
+  "2"
   "<;20<;20<;20<K20<K20<K60<K60<[:2?K^=C\\ZQE]:\\F=>^F=>^F=>]E=2XC,VK"
   "@+N8965B:&EE:FMF;71M<XQ]=)%`=9*!=9.\"=92#=9:#=9>$=9B%=IF&=IJ'=IN'"
   "=IV(=IZ)=I^*=J\"+=Z.->*J2>;*7>;6:>;::>;::>;::>;::>;::>;::>;::>;::"
@@ -832,7 +847,8 @@ static char* fsos_logo =
   "\\A$G\\1$H\\1$G[R,FP(GS?K2A>;::>;::>;::>;::>;::>;::>;::>;::>;::>;::"
   ">;::>;::>;::>;::>;::>;::>;::>;::>;::>;::>;::>;::>;::>;::>;::>;::"
   ">;::>;::>;::>;::>;::>;6:=[\"7<:\".;9*';(^&;)&';I6)<)N-=*.2?+2<@+RA"
-  "@KZD@[^D@\\\"EA,\"EA,\"EA,\"EA,\"EA,\"EA,\"EA,\"EA,\"EA,\"EA,\"EA,\"EA,\"EA,\"E"
+  "@KZD@[^D@\\\"EA,\"EA,\"EA,\"EA,\"EA,\"EA,\"EA,\"EA,\"EA,\"EA,\"EA,\"EA,\"EA,"
+  "\"E"
   "A,\"E@<*>?<\"7=;B3<K61<K61<K61<K61<K:1<[:1<[:1<[>2>KR9BLJJE=.XF-:["
   "F-:[F-6[EM2ZD=\"RB,FD<XM[;&UG;&]I<8-V=(Q]=(Y^=(]_=)!`=9%`=9*!=9.\""
   "=96#=9:$=9>$=9B%=IF&=IN'=IR(=J&,>*V4>;69>;::>;::>;::>;::>;::>;::"
@@ -955,7 +971,8 @@ static char* fsos_logo =
   "^A$E^A$E^1$E^1$F^!$F^!$E^!$F^!$F^!$F]Q$F]A$F]A$F]A$F]A$F]1$F]1$F"
   "]1$F]!$G]!$G]!$G\\Q$G\\A$G\\A$G\\A$G\\1$H\\1$G\\1$G\\!$GUVT,?+6?>;::>;::"
   ">;::>;::>;::>;::>;::>;::>;::>;::>K::?;F=A<\"DB\\:JCLFLC\\FMC\\FMC\\FM"
-  "C\\FMC\\FMC\\FMC\\FMC\\FMC\\FMC\\FMC\\FMC\\FMC\\FMCLBLC<>KB\\:JB\\6IBL2IC\\FY"
+  "C\\FMC\\FMC\\FMC\\FMC\\FMC\\FMC\\FMC\\FMC\\FMC\\FMCLBLC<>KB\\:"
+  "JB\\6IBL2IC\\FY"
   "FM7:G-??G-;?G-;?G-;?G-;?G-;>F];>F];>F-/8AL*T>;>:>+:9>+69=:R4:8V#"
   "5VYP4VAM5FMO66]Q7G5U8GEX9'IY9'IY9'EY97EY9GQ[:X2!<8Z)=9:.=IB0>)J1"
   "?*28@;N;?<\"8>+N4=KJ3=[J4=[J4=[J4=[J4=[J4>+N4>+N4>;R5?\\*<BLNHD-\"P"
@@ -1002,7 +1019,8 @@ static char* fsos_logo =
   "^!$F^!$E^!$F^!$F]Q$F]Q$F]A$F]A$F]A$F]1$F]1$G]1$G]!$G]!$F]!$G\\Q$G"
   "\\A$G\\A$G\\A(G\\A$G\\1$G\\1$H\\!$G\\!$GTG4'>;::>;::>;>:>K>;>[B;?+F<?;J="
   "?KN=?KN>?KR>?KN>?KN=?;J=>[F<>KB;>K>;>K>;?+B<?[N?A+^CB<2GC,:JCLBL"
-  "C\\FMC\\FMC\\FMC\\FMC\\FMC\\FMC\\FMC\\FMC\\FMC\\FMC\\FMC\\FMC\\FMC\\FMC\\FMC\\FN"
+  "C\\FMC\\FMC\\FMC\\FMC\\FMC\\FMC\\FMC\\FMC\\FMC\\FMC\\FMC\\FMC\\FMC\\FMC\\FMC"
+  "\\FN"
   "D,JQD<NUD\\R[D\\W#E,W-D\\S6D\\O9D<G8C<34BL'2BL'1AK_&?+FC>+28:I:'4VEM"
   "3F%H3F!G3F!G3E]G35]G35YG3EYG3U]H4V-J66AO7VUS8G%U9GEY:'Q\\;(6!?L\"8"
   ">[Z6>;R5>+N5>;N5>;R5>;R5>;R5>;R5>;R5>;R5>KV6@,.<B<JFC<ZMC\\^OCL^O"
@@ -1018,7 +1036,8 @@ static char* fsos_logo =
   "]A$F]1$F]1$F]1$F]1$F]!$F\\Q$G\\Q$G\\Q$G\\A$G\\A$G\\A$G\\A$G\\1$G\\1$H\\!$G"
   "\\!$GZCPABZZS>;::>K>;>[B;?+F<?;N=?[R>@+V?@+Z@@;^@@;^@@;^@@+Z@@+V?"
   "?KR>?;J=>[B;>K>;>K>;>K>;?+F<?[R?A+^CB,.GB\\:JC<BLCLFLC\\FMC\\FMC\\FM"
-  "C\\FMC\\FMC\\FMC\\FMC\\FMC\\FMC\\FMC\\FMC\\FMC\\FMC\\FMCLBTC,7$B\\+.BL+2B\\+2"
+  "C\\FMC\\FMC\\FMC\\FMC\\FMC\\FMC\\FMC\\FMC\\FMC\\FMC\\FMCLBTC,7$B\\+.BL+2B\\+"
+  "2"
   "BL+2BL'2BL'2BL'2BL'2BL'2A+Z^>;::<J:07'EV3V)H3F!G3E]G3V)H4VEK6G-P"
   "87YU87YU6'!O3UYG4V)I:8=Z;I%^9WYX;9&#?\\&8>KV6>;R5>;R5>;R5>;R5>;R5"
   ">;R5>KV5>KV5>KV6>[Z7@,.<B,JEC<VLCLZMCLZMCLZMCLZMCLZMC<ZMC<VL@+6:"
@@ -1240,7 +1259,8 @@ static char* fsos_logo =
   ">+69>+29=J^6<:>1;)Z,:IJ*:9J):IR+:Z\"-;JJ3<;69<;::<K>;<;B<<;B<<+F<"
   "<+B<<+B<;[B<;[B<<+B<;[B;;;29;+\"7:[\"6;+\"6;;&6;;.7;K.6<;*6=[*6?[6:"
   "BKVEELFRFLVVA;6=<Z*%<J&$=JF*@,\"8@<2:@<2:@<2:@<2:@<2:@<2:@L2;@\\6<"
-  "@\\:=@\\:=@\\:=@\\6=@\\:=@\\:=@\\6=@\\:=@\\6=@\\6=@\\6<@\\6<@\\6<@L6<@L6<@L6<"
+  "@\\:=@\\:=@\\:=@\\6=@\\:=@\\:=@\\6=@\\:=@\\6=@\\6=@\\6<@\\6<@\\6<@L6<@L6<@"
+  "L6<"
   "@L2;=ZZ,;YZ\";YZ\";YZ\"<J&$?:V/CL\"BE,>GE,>GE,:GB[R>>*B*;YZ!;IU`=8!R"
   ">VIG?7!J?H!T?9%_?9N&?:&*?*:->ZN1>K\"5>;27>+69>+:9>+:9>+:9>+:9>+:9"
   ">+:9>+:9>+:9>+:9>;::>;::>;::>;::>;::>;::>;::>;::>;::>;::>;::>;::"
@@ -1548,7 +1568,8 @@ static char* fsos_logo =
   "\\1$H\\!$G\\1$G\\!$H[Q$H\\!$G[Q$H[A$G[A$G[1$H[1$H[1$H[!$H[!$H[!$I[!$H"
   "ZQ$HZQ$IZQ$HZQ$HZA$HZ1$IZ1$IZ1$IZ1$IF7O(;8R$;9*&7HI]!!!!!!!!!!!!"
   "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!8Y>,=K\";=K\";=K\";"
-  "=K\";=K\";=K\";=K\";=K\";=K\";=K\";=K\";=K\";=[\";=K\";=K\";=[\":=[\":=[&:=[&:"
+  "=K\";=K\";=K\";=K\";=K\";=K\";=K\";=K\";=K\";=[\";=K\";=K\";=[\":=[\":=[&:=["
+  "&:"
   "=K&:=[&:=[&;=[&;=[&:=K&:=K&:=K&:=K&:=K*9=K*9=[*9=K.9=[28=[68=[68"
   "=[68=K.7<[\"4;ZR1:ZB.:*6,9J.*9:*)9:*)9:*)9:*)9:*)9:*)9:*)9:*)9Z2*"
   ":JB-;ZV2=+*6>+6:?+B@A+ZLCL6[E\\S*G]+7I]KDK^#RN.;_O^H)P^T/QNX2QN\\3"
@@ -1579,7 +1600,8 @@ static char* fsos_logo =
   "\\A$G\\1$G\\1$H\\1$H\\!$G\\!$G\\!$G[Q$H[Q$G[Q$H[A$H[1$H[A$H[1$H[1$H[1$H"
   "[!$I[!$IZQ$IZQ$HZQ$HZA$IZA$IZ1$HZA$IZ1$IZ1$IM!#T!!!!!!!!!!!!!!!!"
   ".%5B;)Z*:J2*:JB*;*R+;K\"-;[\"/<*^2<:V4<JR5=*V8=K\";=K\";=K\";=K\";=K\";"
-  "=K\";=K\";=J^;=J^;=K\";=K\";=K\";=K\";=K\";=K\";=K\";=K\";=K\";=J^;=K\";=K\";"
+  "=K\";=K\";=J^;=J^;=K\";=K\";=K\";=K\";=K\";=K\";=K\";=K\";=K\";=J^;=K\";="
+  "K\";"
   "=K\";=K\";=[\";=K\";=[\":=[\":=[&:=[&:=K&:=K&:=K&:=K&:=K&9=K&:=K*9=K*9"
   "=K.9=[.8=K.8=;.7<K\"4;JR1:J>-:*2+9J.)9:*)9:*)9:*)9:*)9:*)9:*)9:*)"
   "9:*)9J.):*2+;*F.<*Z3=;.7>+6:?;FAAK^OD,>_F<[-G]+7I=;@KMWNN>7_P>L+"
@@ -1595,7 +1617,8 @@ static char* fsos_logo =
   "[Q$H[Q$G[Q$H[A$H[1$H[1$H[1$H[1$H[!$I[!$IZQ$HZQ$HZQ$HZQ$HZA$IZA$I"
   "Z1$IZ1$IZ1$IZ!$IZ!$IM!#T!!!!!!!!!!!!!!!!.%1C;9N+:Z*+:Z>*:ZN+;:Z-"
   ";[\"/<*Z1<:V3<JR5=*N7=:Z:=K\";=K\";=K\";=K\";=K\";=K\";=K\";=J^;=J^;=J^;"
-  "=K\";=K\";=K\";=K\";=K\";=J^;=K\";=K\";=J^;=J^;=K\";=K\";=K\";=K\";=K\";=K\";"
+  "=K\";=K\";=K\";=K\";=K\";=J^;=K\";=K\";=J^;=J^;=K\";=K\";=K\";=K\";=K\";="
+  "K\";"
   "=K\";=K\":=K\":=K&:=K&:=K&:=K&:=K&9=K*9=K*9=K.9=K.8=;*7<Z^5;ZR2:ZB."
   "9Z2+9J.*9:*)9:*)9:*)9:*)9:*)9:*)9:*)9:*)9:*)9Z.*:J>-;ZR1<[&5=[28"
   ">K><@+NFBL.UE<K&G-#2H-/8I-;?K-SKM>/ZO>D&P>P,Q.T0QNX2Q^\\4R.`5R.`6"
@@ -2293,7 +2316,8 @@ static char* fsos_logo =
   "@;F2@;F2@;F2@;F2@;F2@;F2@;F2@;F2@;F2@;F2@;F2@+B2@+B1?[:1?K:0?K60"
   "3WAQ!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
   "!!!!!!!!!!!!!!!!!!!!C!$ME1$[E1$[E!$[E!$[E!$[DQ$[DQ$[DA$\\D1$[DA$["
-  "D1$\\D!$[D1$[D!$\\D!$[D!$\\CQ$\\CQ$\\CA$\\CA$\\C1$\\C1$\\C!$\\C!(\\C!$\\C!$\\"
+  "D1$\\D!$[D1$[D!$\\D!$[D!$\\CQ$\\CQ$\\CA$\\CA$\\C1$\\C1$\\C!$\\C!(\\C!$\\C!$"
+  "\\"
   "BQ$\\BQ$]BQ$]BQ$]Y!$JY!$JXQ$JXQ$JXA$JXQ$JXA$KXA$JXA$KX1$JX!$JX1$K"
   "X!$KWQ$KX!$KWQ$KWQ$KWQ$KW1$KW1$KW1$KW!$KW1$KW!$KVQ$LW!$KVQ$LVQ$L"
   "VA$LV1$LVA$LV1$LV1$LV!$MV!$LUQ$MV!$LUQ$MUQ$LUQ$MUA$MU1$MR3`=;X5_"
@@ -2524,7 +2548,8 @@ static char* fsos_logo =
   ";HIW;8IW;8IW;8IW;8MW;8MW;8MW;8QW;8QW;8QW;HQW;HQX;HUX;HUX;HYX;HYY"
   ";H]Y;Y!Y<)-[<IA_=)^#=Z>(>:V+>K\"->[&.>[*.>[*.>[*.>[*.>[*.>[*.>[*-"
   ">[*->K&->K*->K&->K&->K&->K&->K&->K&->K&->K&->K&,>K&,>K&,>K&,>K&,"
-  ">K\",>K\",>;\",>;\",>;\",>;\",>;\",>;\",>;\",>;\"+>;\"+>;\"+>;\"+>;\"+>:^+>:^+"
+  ">K\",>K\",>;\",>;\",>;\",>;\",>;\",>;\",>;\",>;\"+>;\"+>;\"+>;\"+>;\"+>:^+>:"
+  "^+"
   ">;\"+>:^+>;\"->;*0>+.3>+66>+:8>+:9>;::>;::>;::>;::DDLOE1$ZE1$[E!$Z"
   "E!$[DQ$ZDQ$[DQ$[DA$[DA$[DA$[D1$\\D1$\\D!$[D!$\\D!$[D!$\\CQ$\\CQ$\\CQ$\\"
   "CA$\\C1$\\C1$\\C1$\\C1(]C!$\\C!$]BQ$]C!$]BQ$]BA$]BA$]B1$]B1$\\B1$]B1$]"
@@ -2539,7 +2564,8 @@ static char* fsos_logo =
   ";YF&;YF&;YF&;YF&;YJ';YJ&;YB#;Y-_;HUZ;HMX;HEW;8EW;8EW;8IW;8IX;8MX"
   ";8MX;8MX;8MX;HQX;HQX;HQX;HQX;HUX;HUX;HUY;HYY;XYY<)!Z<91\\<YI_=J*$"
   ">*F(>:Z+>[\"->[&->[&->[&->K&->K&->K&->K&->K&->K&->K&->K&->K&->K&,"
-  ">K&,>K&,>K&,>K\",>K\",>K\",>K\",>;\",>;\",>;\",>;\",>;\",>;\"+>;\"+>;\"+>;\"+"
+  ">K&,>K&,>K&,>K\",>K\",>K\",>K\",>;\",>;\",>;\",>;\",>;\",>;\"+>;\"+>;\"+>;"
+  "\"+"
   ">;\"+>;\"+>:^+>:^+>:^+>:^+>:^+>*^+>*^+>*^+>*^+>+\",>+&/>+.2>+25>+68"
   ">+:9>+:9>;::>;::>;::>[*JDS\\SE1$[E!$[E!$ZDQ$[DQ$[DQ$[DQ$[DA$[DA$["
   "DA$[D1$[D1$\\D1$\\D!$[D!$[CQ$\\CA$\\CA$\\CA$\\CA$\\C1$\\C!$\\C!$]C1$\\C!$]"
@@ -2729,7 +2755,8 @@ static char* fsos_logo =
   "<Y^\"=*6$=:B&=JN'=JR'=JR'=JR'=JR'=:R'=:R'=:R'=:R'=:N'=:N'=:N'=:N&"
   "=:N&=:N&=:N&=:N&=:N&=:N&=:N&=:N&=*N&=*N&=*N&=*N&=:N'=:Z+=K&0=[25"
   ">+68>+:9>+:9>+:9>+:9>;::>;::>;::>;::>;::>;::>;::@9OED1$\\D1$[D!$["
-  "D!$\\D!$\\D!$\\CQ$\\CQ$\\CA(\\CA$\\C1$\\C1$\\C1$\\C!$\\C!$\\C!$\\C!$]BQ$]BQ$]"
+  "D!$\\D!$\\D!$\\CQ$\\CQ$\\CA(\\CA$\\C1$\\C1$\\C1$\\C!$\\C!$\\C!$\\C!$]BQ$]BQ$"
+  "]"
   "BA$]BA$]BA$]B1$]B1$]B1$]B!$]B!$]AQ$^AQ$]AA$^AA$^AA(]A1$^A1$^A1(^"
   "A!$^A!(^A!$_@Q$^@Q$^@Q$_@Q$_@A$^@A$_@1$_@!$_@!$_VQ$LVA(LVA$LVA(L"
   "V1$LV1$MV!$LV!$MV!$MV!$MUQ$LUQ$LUA$MUA$MUA$MU1$NU1$MU!$MU!$MU!$N"
@@ -3207,7 +3234,8 @@ static char* fsos_logo =
   "<%MK<%MK<%MK<%QK<E]M=V=R?F]W@71[@G5[@G1[@7-Z@')Y?G!W>FMT=F5Q<F%N"
   "<6%M<6-N<6=P<FMR<W!T='5V=7MY=H%\\>(A_>8V\">8^$>9\"$>I\"$>I\"$>9\"$>9\"$"
   ">9\"$>(Z\"=(M`<8A^;X9\\;H-[;(%Y:WYX:GYW:7UW:7YX:G]Y:X%Y;X5\\=HR!>H^#"
-  ">I\"$>I\"$>I\"$>I\"$>I\"$>I\"$>I\"$>I\"$>I\"$>I\"$>I\"$>I\"$>I\"$>H^$>8^#>(V\""
+  ">I\"$>I\"$>I\"$>I\"$>I\"$>I\"$>I\"$>I\"$>I\"$>I\"$>I\"$>I\"$>I\"$>H^$>8^#>("
+  "V\""
   ">(A`=H%\\<WIX<G)T<6QQ<&EO<&EO<&EO<&EO<&EO;VAP;VAP;VEP<&EP<&EP<&EP"
   "<&IP<&IP<&IP<&IP<&MP<&QP<&UO<'%Q;WIS;X1W;XMY;X][;Y)\\;I1];I9^;IA^"
   ";II_;IU`;Z*!<*:$<*F$<*J%<:N&<:N%<:N%<:N%<:N%<:J%<*J$<*F#;ZF#;ZB\""
@@ -3725,7 +3753,8 @@ static char* fsos_logo =
   "HQ$XHA$XH1$XH1$XH1$XH!$XH!$XGQ$XGQ$YGQ$XGA$YGA$YGA$YG1$YG1$XG!$Y"
   "G1$YG!$YFQ$YFQ$YFA$ZFA(ZFQ$ZFA$ZF1$YF1$YF!$ZF!$ZF!$ZF!$ZEQ$ZEQ$Z"
   "EA$ZEA$ZEA$ZE1$[E1$ZE!$[E!$[E!$[DQ$[DQ$[DA$[DA$[DA$[D1$[DA$\\D1$\\"
-  "D!$\\D1$[D!$\\CQ$\\CQ$\\CQ$\\CA$\\CA$\\CA$\\C1$\\C1$\\C!$\\C!$\\C!$\\BQ$]BQ$\\"
+  "D!$\\D1$[D!$\\CQ$\\CQ$\\CQ$\\CA$\\CA$\\CA$\\C1$\\C1$\\C!$\\C!$\\C!$\\BQ$]BQ$"
+  "\\"
   "BA$]BA$]BA$]BA$]B1$]B1$]B1$]B!$]B!$^AQ$]B!$]AQ$]AA$^AA$]AA$^A1$^"
   "A1$^A1$^A!$^A!$^A!$^@Q$^@A$^@A$_@A$_@A$^@1$_@1$_@!$_@!$_@!$^@!$_"
   "?Q$_?Q(_?Q$_?A$_?A$_?A$`?1$_?1$`?!$`?!$`>Q$`>Q$`>Q$`>Q$`>Q$`>A$`"
@@ -3803,7 +3832,8 @@ static char* fsos_logo =
   "H1$XH1$XH!$XH!$XH!$XGQ$XGQ$XGQ$YGA$XG1$XGA$YG1$YG1$YG!(YG!$YG!$Y"
   "FQ$YFQ$YFA$ZFA$YFA$YFA$YF1$ZF1$ZF1$ZF!$ZEQ$ZEQ$ZEQ$[EA$[EA$[EA$Z"
   "E1$ZE1$[E1$[E!$[E!$[E!$[DQ$[DQ$[DA$[DQ$[DA$[DA$[D1$\\D1$\\D1$[D!$\\"
-  "D!$\\CQ$\\CQ(\\CQ$\\CA$\\C1$\\C1$\\C1$\\C1$]C!$\\C!$\\BQ$\\C!$\\BQ$]BQ$]BA$\\"
+  "D!$\\CQ$\\CQ(\\CQ$\\CA$\\C1$\\C1$\\C1$\\C1$]C!$\\C!$\\BQ$\\C!$\\BQ$]BQ$]BA$"
+  "\\"
   "BA$]BA$]B1$]B!$]B!$]B!$^B!$]AQ$^AQ$]AQ$]AA$]AA$^AA$]A1$^A1$^A1$^"
   "A!$^A!$^@Q$_@Q$_@Q$_@A$^@1$_@1$_@1$_@1$_@!$_@!$_@!$_?Q$_?Q$_?A$_"
   "?A$`?A$_?1$`?!$`?1$`?1$`?!$`?!$`>Q$`>Q$`>Q$`>Q$`>Q$`>Q$`>Q$`>Q$`"

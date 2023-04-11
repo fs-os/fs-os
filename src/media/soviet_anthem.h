@@ -21,6 +21,9 @@ Beep soviet_anthem[] = {
 
 #define LENGTH(arr) (sizeof(arr) / sizeof(arr[0]))
 
+/**
+ * @brief Play the soviet_anthem Beep array.
+ */
 static inline void play_soviet_anthem(void) {
     fbc_setfore(COLOR_GREEN_B);
     printf("Playing soviet anthem... Press \'q\' to stop.\n");
@@ -43,4 +46,3 @@ static inline void play_soviet_anthem(void) {
 
     putchar('\n');
 }
-
