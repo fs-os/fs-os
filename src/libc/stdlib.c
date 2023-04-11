@@ -4,8 +4,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-/* count_digits: returns the number of digits of a positive num. Will not count "-"
- * for negative numbers */
 int count_digits(int64_t num) {
     int ret = 1;
 
@@ -20,7 +18,6 @@ int count_digits(int64_t num) {
     return ret;
 }
 
-/* itoa: write the digits of "num" into "str". "str" needs to have enough space */
 void itoa(char* str, int64_t num) {
     int sign   = 0;
     int digits = count_digits(num);
@@ -47,7 +44,6 @@ void itoa(char* str, int64_t num) {
     }
 }
 
-/* atoi: convert the digits of "str" to an integer, and return it */
 int atoi(const char* str) {
     int ret = 0;
 
@@ -72,7 +68,6 @@ int atoi(const char* str) {
     return ret * sign;
 }
 
-/* ipow: integer power. Returns b^e */
 int ipow(int b, int e) {
     int ret = 1;
 
@@ -83,9 +78,6 @@ int ipow(int b, int e) {
     return ret;
 }
 
-/* itoan: write the first "max_digits" of "num" (at max) into "str". "str" needs to
- * have enough space. Useful for making sure you won't write out of bounds. Keep in
- * mind that max_digits does not include the null terminator. */
 void itoan(char* str, int64_t num, size_t max_digits) {
     if (max_digits <= 0) {
         str[0] = '\0';
@@ -102,25 +94,23 @@ void itoan(char* str, int64_t num, size_t max_digits) {
     }
 
     /*
-     * cur_digit will count the current number we want to write, starting from the
-     * right, where the last one is 0. So for 354, cur_digit will be 2, and 354 / 100
-     * is 3. If cur_digit is 1, 354 / 10 = 35, and we can extract the last digit by
-     * doing (n%10)
+     * cur_digit will count the current number we want to write, starting from
+     * the right, where the last one is 0. So for 354, cur_digit will be 2, and
+     * 354 / 100 is 3. If cur_digit is 1, 354 / 10 = 35, and we can extract the
+     * last digit by doing (n%10)
      *
-     * Also make sure the string position is not greater than the max we can write.
+     * Also make sure the string position is not greater than the max we can
+     * write.
      */
-    for (int cur_digit = count_digits(num) - 1; cur_digit >= 0 && sp < max_digits;
-         cur_digit--)
+    for (int cur_digit = count_digits(num) - 1;
+         cur_digit >= 0 && sp < max_digits; cur_digit--)
         str[sp++] = (num / ipow(10, cur_digit)) % 10 + '0';
 
     str[sp++] = '\0';
 }
 
-/* panic: "func" should be the __func__ macro and "line" should be the
- * __LINE__ macro. Use the "panic_line" macro for shorter version */
-/* TODO: Move from stdlib? */
 void panic(const char* func, unsigned int line, const char* fmt, ...) {
-    /* TODO: Abnormally terminate the process as if by SIGABRT */
+    /** @todo (libc) Abnormally terminate the process as if by SIGABRT */
 
     if (func == NULL)
         func = "???";
@@ -139,7 +129,6 @@ void panic(const char* func, unsigned int line, const char* fmt, ...) {
     __builtin_unreachable();
 }
 
-/* abort: panic */
 void abort(void) {
     puts("kernel panic: abort");
 
@@ -149,45 +138,41 @@ void abort(void) {
     __builtin_unreachable();
 }
 
-/* malloc: allocate "sz" bytes and return a pointer. Memory is not initialized. If
- "sz" is 0, returns NULL. */
 void* malloc(size_t sz) {
-    sz++;
+    (void)sz;
 
-    /* TODO: syscall wrapper for libk malloc */
+    /** @todo syscall wrapper for libk malloc */
     panic_line("Malloc is not implemented for libc.");
     return NULL;
 }
 
-/* calloc: allocate "item_n" items of size "item_sz" and set them to 0 */
 void* calloc(size_t item_n, size_t item_sz) {
-    item_n++;
-    item_sz++;
+    (void)item_n;
+    (void)item_sz;
 
-    /* TODO: syscall wrapper for libk calloc */
+    /** @todo: syscall wrapper for libk calloc */
     panic_line("Calloc is not implemented for libc.");
     return NULL;
 }
 
-/* free: free a previously allocated ptr */
 void free(void* ptr) {
-    ptr++;
+    (void)ptr;
 
-    /* TODO: syscall wrapper for libk free */
+    /** @todo syscall wrapper for libk free */
     panic_line("Free is not implemented for libc.");
 }
 
-/* rand_next: used by the rand and srand functions */
+/**
+ * @var rand_next
+ * @brief Used by the rand and srand functions
+ */
 static uint32_t rand_next = 1;
 
-/* rand: returns a pseudo-random number from 0 to RAND_MAX */
 int rand(void) {
     rand_next = (rand_next * 1103515245) + 12345;
-    return (unsigned int) (rand_next / 65536) % RAND_MAX;
+    return (unsigned int)(rand_next / 65536) % RAND_MAX;
 }
 
-/* srand: sets the seed for the rand function */
 void srand(unsigned int seed) {
     rand_next = seed;
 }
-

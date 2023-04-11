@@ -7,49 +7,103 @@
 
 #define RAND_MAX 32768
 
+/**
+ * @def panic_line
+ * @brief Macro for calling panic() using the current function and line in the
+ * file.
+ */
 #define panic_line(...) panic(__func__, __LINE__, __VA_ARGS__)
 
-/* count_digits: returns the number of digits of a positive num. Will not count "-"
- * for negative numbers */
+/**
+ * @brief Returns the number of digits of a positive num.
+ * @details Will not count `'-'` for negative numbers.
+ * @param[in] num Number for counting.
+ * @return Digits of num.
+ */
 int count_digits(int64_t num) __attribute__((pure));
 
-/* itoa: write the digits of "num" into "str". "str" needs to have enough space */
+/**
+ * @brief Convert integer to string, write to `str`.
+ * @details The `str` parameter is expected to have enough space for `num`.
+ * @param[out] str Destination for the converted number.
+ * @param[in] num Number to convert.
+ */
 void itoa(char* str, int64_t num);
 
-/* atoi: convert the digits of "str" to an integer, and return it */
+/**
+ * @brief Convert string to integer.
+ * @param[in] str Number in string format.
+ * @return Converted number from string.
+ */
 int atoi(const char* str);
 
-/* ipow: integer power. Returns b^e */
+/**
+ * @brief Integer power.
+ * @param[in] b Base.
+ * @param[in] e Exponent.
+ * @return `b^e`
+ */
 int ipow(int b, int e) __attribute__((pure));
 
-/* itoan: write the first "max_digits" of "num" (at max) into "str". "str" needs to
- * have enough space. Useful for making sure you won't write out of bounds. Keep in
- * mind that max_digits does not include the null terminator. */
+/**
+ * @brief Convert integer to string with digit limit.
+ * @details Will stop when converted `max_digits`. `str` is expected to have
+ * enough space, in this case `max_digits + 1` for the NULL terminator.
+ * @param[out] str Destination.
+ * @param[in] num Number to convert.
+ * @param[in] max_digits The maximum number digits to convert.
+ */
 void itoan(char* str, int64_t num, size_t max_digits);
 
-/* panic: "func" should be the __func__ macro and "line" should be the
- * __LINE__ macro. Use the "panic_line" macro for shorter version */
-/* TODO: Move from stdlib? */
+/**
+ * @brief Panics
+ * @details Use the panic_line() macro for shorter version
+ * @param[in] func The `__func__` macro.
+ * @param[in] line The `__LINE__` macro.
+ * @param[in] fmt Panic message.
+ *
+ * @todo Move from stdlib?
+ */
 void panic(const char* func, unsigned int line, const char* fmt, ...);
 
-/* abort: panic */
+/**
+ * @brief Panic.
+ */
 void abort(void);
 
-/* malloc: allocate "sz" bytes and return a pointer. Memory is not initialized. If
- "sz" is 0, returns NULL. */
+/**
+ * @brief Allocate a block of the specified size in bytes from the heap.
+ * @details Memory is not initialized. If `sz` is 0 returns NULL.
+ * @param[in] sz Size in bytes to allocate.
+ * @return Pointer to the allocated memory block.
+ */
 void* malloc(size_t sz) __attribute__((warn_unused_result));
 
-/* calloc: allocate "item_n" items of size "item_sz" and set them to 0 */
-void* calloc(size_t item_n, size_t item_sz) __attribute__((warn_unused_result));
+/**
+ * @brief Allocate the needed bytes for `n` items of size `sz` and initialize
+ * them as 0.
+ * @param[in] n Number of elements to allocate.
+ * @param[in] sz The size of each element.
+ * @return Pointer to the allocated memory block.
+ */
+void* calloc(size_t n, size_t sz) __attribute__((warn_unused_result));
 
-/* free: free a previously allocated ptr */
+/**
+ * @brief Free a previously allocated memory block.
+ * @param[out] ptr Pointer to the memory block.
+ */
 void free(void* ptr);
 
-/* rand: returns a pseudo-random number from 0 to RAND_MAX */
+/**
+ * @brief Generate a pseudo-random number from 0 to RAND_MAX.
+ * @return Pseudo-random integer.
+ */
 int rand(void);
 
-/* srand: sets the seed for the rand function */
+/**
+ * @brief Set the rand seed.
+ * @param[in] seed New rand seed.
+ */
 void srand(unsigned int seed);
 
 #endif /* _STDLIB_H */
-

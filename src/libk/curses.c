@@ -11,8 +11,6 @@
 #include <kernel/framebuffer_console.h>
 #include <kernel/keyboard.h>
 
-/* initsrc: allocate and fill a new curses window, and returns it. It will use
- * stdscr the first time */
 WINDOW* initscr(void) {
     fbc_ctx* cur = fbc_get_ctx();
     WINDOW* win  = malloc(sizeof(WINDOW));
@@ -53,7 +51,6 @@ WINDOW* initscr(void) {
     return win;
 }
 
-/* endwin: switch to the old fbc context and free the allocated window */
 int endwin(void) {
     /* Switch to old ctx and refresh the screen */
     fbc_change_ctx(stdscr->old_ctx);
@@ -75,40 +72,34 @@ int endwin(void) {
     /* So next call to initscr uses stdscr */
     stdscr = NULL;
 
-    return 0;
+    return OK;
 }
 
-/* raw: disable keyboard line buffer (getchar returns user input inmediately) */
 int raw(void) {
     kb_raw();
-    return 0;
+    return OK;
 }
 
-/* noraw: enable keyboard line buffer (getchar returns user input on newline) */
 int noraw(void) {
     kb_noraw();
-    return 0;
+    return OK;
 }
 
-/* echo: prints characters as the user is typing them */
 int echo(void) {
     kb_echo();
-    return 0;
+    return OK;
 }
 
-/* noecho: disables character printing when the user is typing */
 int noecho(void) {
     kb_noecho();
-    return 0;
+    return OK;
 }
 
-/* refresh: refreshes the current window (fbc context) */
 int refresh(void) {
     fbc_refresh();
-    return 0;
+    return OK;
 }
 
-/* wrefresh: refreshes the specified window */
 int wrefresh(WINDOW* win) {
     fbc_ctx* old_ctx = fbc_get_ctx();
 
@@ -116,10 +107,9 @@ int wrefresh(WINDOW* win) {
     fbc_refresh();
 
     fbc_change_ctx(old_ctx);
-    return 0;
+    return OK;
 }
 
-/* move: change cursor position of the current window */
 int move(uint32_t y, uint32_t x) {
     fbc_ctx* ctx = fbc_get_ctx();
 
@@ -132,10 +122,9 @@ int move(uint32_t y, uint32_t x) {
     ctx->cur_y = y;
     ctx->cur_x = x;
 
-    return 0;
+    return OK;
 }
 
-/* wmove: change cursor position of the specified window */
 int wmove(WINDOW* win, uint32_t y, uint32_t x) {
     if (y >= win->ctx->ch_h)
         y = win->ctx->ch_h - 1;
@@ -146,17 +135,14 @@ int wmove(WINDOW* win, uint32_t y, uint32_t x) {
     win->ctx->cur_y = y;
     win->ctx->cur_x = x;
 
-    return 0;
+    return OK;
 }
 
-/* _getyx: write the cursor position of the specified window to the y and x
- * pointers */
 void _getyx(WINDOW* win, int* y, int* x) {
     *y = win->ctx->cur_y;
     *x = win->ctx->cur_x;
 }
 
-/* printw: prints with format "fmt" */
 int printw(const char* fmt, ...) {
     va_list va;
     va_start(va, fmt);
@@ -168,12 +154,10 @@ int printw(const char* fmt, ...) {
     return ret;
 }
 
-/* vprintw: prints with format "fmt" using a va list */
 int vprintw(const char* fmt, va_list va) {
     return vprintf(fmt, va);
 }
 
-/* mvprintw: move to (y,x) and print with format "fmt" */
 int mvprintw(int y, int x, const char* fmt, ...) {
     move(y, x);
 
@@ -187,24 +171,20 @@ int mvprintw(int y, int x, const char* fmt, ...) {
     return ret;
 }
 
-/* addch: print the specified character */
 int addch(int ch) {
     return putchar(ch);
 }
 
-/* mvaddch: move to (y,x) and print the specified character */
 int mvaddch(int y, int x, int ch) {
     move(y, x);
     return putchar(ch);
 }
 
-/* clrtoeol: clear to end of line */
 int clrtoeol(void) {
     fbc_clrtoeol();
-    return 0;
+    return OK;
 }
 
-/* wclrtoeol: clear to end of line in the specified window */
 int wclrtoeol(WINDOW* win) {
     fbc_ctx* old_ctx = fbc_get_ctx();
 
@@ -212,22 +192,19 @@ int wclrtoeol(WINDOW* win) {
     fbc_clrtoeol();
 
     fbc_change_ctx(old_ctx);
-    return 0;
+    return OK;
 }
 
-/* getch: get input character */
 int getch(void) {
     return getchar();
 }
 
-/* clear: clear the current window */
 int clear(void) {
     fbc_clear();
     fbc_refresh();
-    return 0;
+    return OK;
 }
 
-/* wclear: clear the specified window */
 int wclear(WINDOW* win) {
     fbc_ctx* old_ctx = fbc_get_ctx();
 
@@ -236,67 +213,57 @@ int wclear(WINDOW* win) {
     fbc_refresh();
 
     fbc_change_ctx(old_ctx);
-    return 0;
+    return OK;
 }
 
-/* has_colors: returns true if the terminal supports color. Useless */
 bool has_colors(void) {
     /* Useless, fbc supports color */
     return true;
 }
 
-/* start_color: start color mode in the current window */
 int start_color(void) {
     /* Allocate the color pairs array */
     stdscr->pairs = calloc(CURSES_MAX_PAIRS, sizeof(color_pair));
 
     COLOR_PAIRS = CURSES_MAX_PAIRS;
-    return 0;
+    return OK;
 }
 
-/* init_pair: assigns the specifed foreground and background to the specified
- * pair index. start_color needs to be called first */
 int init_pair(uint16_t pair, uint32_t fg, uint32_t bg) {
     /* Pair index out of bounds */
     if (pair >= COLOR_PAIRS)
-        return 1;
+        return ERR;
 
     stdscr->pairs[pair].fg = fg;
     stdscr->pairs[pair].bg = bg;
 
-    return 0;
+    return OK;
 }
 
-/* use_pair: changes the current terminal colors to the fg and bg of the
- * specified pair index. This function will not check if the color pair has been
- * Initialized, and start_color needs to be called first */
 int use_pair(uint16_t pair) {
     /* Pair index out of bounds */
     if (pair >= COLOR_PAIRS)
-        return 1;
+        return ERR;
 
     fbc_setcol(stdscr->pairs[pair].fg, stdscr->pairs[pair].bg);
 
-    return 0;
+    return OK;
 }
 
-/* reset_pair: reset to the default terminal colors */
 int reset_pair(void) {
     fbc_setcol(DEFAULT_FG, DEFAULT_BG);
-    return 0;
+    return OK;
 }
 
-/* invert_pair: toggles the foreground/background order in the specified pair */
 int invert_pair(uint16_t pair) {
     /* Pair index out of bounds */
     if (pair >= COLOR_PAIRS)
-        return 1;
+        return ERR;
 
     /* Swap */
     const uint32_t tmp     = stdscr->pairs[pair].fg;
     stdscr->pairs[pair].fg = stdscr->pairs[pair].bg;
     stdscr->pairs[pair].bg = tmp;
 
-    return 0;
+    return OK;
 }
-
