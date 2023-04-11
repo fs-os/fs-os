@@ -21,7 +21,7 @@
 #include <kernel/keyboard.h>            /* kb_setlayout, kb_getchar_init */
 #include <kernel/multitask.h>           /* mt_init */
 
-#include <kernel/multiboot.h> /* multiboot info structure */
+#include <kernel/multiboot.h> /* Multiboot info structure */
 #include <fonts/main_font.h>
 
 #include "../apps/sh/sh.h" /* sh_main */
@@ -149,7 +149,7 @@ static void print_logo(unsigned int ypad, unsigned int xpad) {
 /**
  * @brief C entry point of the kernel. Called by boot.asm
  * @param mb_info Pointer to the Multiboot information struct from the
- * booloader.
+ * bootloader.
  */
 void kernel_main(Multiboot* mb_info) {
     idt_init();
@@ -238,4 +238,3 @@ void kernel_main(Multiboot* mb_info) {
 
     __builtin_unreachable();
 }
-
