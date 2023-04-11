@@ -2,6 +2,8 @@
 #ifndef _KERNEL_DATETIME_H
 #define _KERNEL_DATETIME_H
 
+#include <stdint.h>
+
 typedef struct {
     uint8_t h; /**< @brief Hour */
     uint8_t m; /**< @brief Minute */
@@ -16,9 +18,8 @@ typedef struct {
 } Date;
 
 typedef struct {
-    Date date; /**< Not a pointer */
-    Time time; /**< Not a pointer */
+    Date date; /**< @brief Not a pointer */
+    Time time; /**< @brief Not a pointer */
 } DateTime;
 
 #endif /* _KERNEL_DATETIME_H */
-

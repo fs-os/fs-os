@@ -7,8 +7,7 @@
 
 /**
  * @brief Framebuffer types returned by the bootloader
- *
- * See bottom of:
+ * @details See bottom of:
  *   https://www.gnu.org/software/grub/manual/multiboot/html_node/Boot-information-format.html
  */
 enum fb_types {
@@ -19,23 +18,20 @@ enum fb_types {
 
 /**
  * @brief Initialize global framebuffer variables and clear the framebuffer
- *
- * See Multiboot struct for more info
- *
- * @param fb Framebuffer address returned by the bootloader
- * @param pitch Framebuffer pitch
- * @param w Framebuffer width in px
- * @param h Framebuffer height in px
- * @param bpp Framebuffer bits per pixel
+ * @details See Multiboot struct for more info
+ * @param[out] fb Framebuffer address returned by the bootloader
+ * @param[in] pitch Framebuffer pitch
+ * @param[in] w Framebuffer width in px
+ * @param[in] h Framebuffer height in px
+ * @param[in] bpp Framebuffer bits per pixel
  */
 void fb_init(uint32_t* fb, uint32_t pitch, uint32_t w, uint32_t h,
              uint32_t bpp);
 
 /**
  * @brief Get the framebuffer ptr.
- *
- * Used by operations that need high performance like the fbc. Use with caution.
- *
+ * @details Used by operations that need high performance like the fbc. Use with
+ * caution.
  * @return Framebuffer address
  */
 uint32_t* fb_get_ptr(void);
@@ -91,9 +87,7 @@ static inline void fb_drawrect(uint32_t y, uint32_t x, uint32_t h, uint32_t w,
 
 /**
  * @brief Same as fb_drawrect_col() but less secure (no bounds check).
- *
- * Used when we know for sure we can control the parameters.
- *
+ * @details Used when we know for sure we can control the parameters.
  * @param y, x Position in px of the framebuffer
  * @param h, w Height and width of the rectangle
  * @param col New 32 bit color for the rectangle

@@ -2,10 +2,16 @@
 #ifndef _KERNEL_MULTIBOOT_H
 #define _KERNEL_MULTIBOOT_H
 
-/*
- * See:
- *   https://www.gnu.org/software/grub/manual/multiboot/html_node/Boot-information-format.html
- *   https://stackoverflow.com/questions/11770451/what-is-the-meaning-of-attribute-packed-aligned4
+#include <stdint.h>
+
+/**
+ * @struct Multiboot
+ * @brief Multiboot information structure returned by the bootloader.
+ * @details See:
+ * -
+ * https://www.gnu.org/software/grub/manual/multiboot/html_node/Boot-information-format.html
+ * -
+ * https://stackoverflow.com/questions/11770451/what-is-the-meaning-of-attribute-packed-aligned4
  */
 typedef struct {
     uint32_t flags;
@@ -67,4 +73,3 @@ typedef struct {
 } Multiboot __attribute__((packed));
 
 #endif /* _KERNEL_MULTIBOOT_H */
-

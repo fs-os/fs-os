@@ -8,10 +8,8 @@
 
 /**
  * @brief Keyboard source
- *
- * Filled layouts should be included here, other sources should declare them
- * extern.
- *
+ * @details Filled layouts should be included here, other sources should declare
+ * them extern.
  * @file
  */
 #include <layouts/us.h>
@@ -33,7 +31,7 @@ enum kb_io_ports {
 
 /**
  * @brief Flags for the KB_PORT_STATUS information.
- * See: https://wiki.osdev.org/%228042%22_PS/2_Controller
+ * @details See: https://wiki.osdev.org/%228042%22_PS/2_Controller
  */
 enum kb_status_flags {
     KB_STATUS_BUFFER_OUT = 0x1, /**< @brief Output buffer status. 1 if full */
@@ -65,9 +63,8 @@ static const Layout* cur_layout = &us_layout;
 
 /**
  * @brief Array of bytes containing information about each key state.
- *
- * Each bit gives information about the key corresponding to its index. For
- * example: bit 0 of key_flags['c'] will be 1 if that key is pressed.
+ * @details Each bit gives information about the key corresponding to its index.
+ * For example: bit 0 of key_flags['c'] will be 1 if that key is pressed.
  */
 static uint8_t key_flags[128] = { 0 };
 
@@ -78,16 +75,14 @@ static bool capslock_on = false, shift_held = false;
 
 /**
  * @brief Store if we should print the characters to screen when receiving them.
- *
- * Modified by kb_echo() and kb_noecho()
+ * @details Modified by kb_echo() and kb_noecho()
  */
 static bool print_chars = true;
 
 /**
  * @brief If true, kb_getchar() will wait for the user to input newline instead
  * of instantly returning each char.
- *
- * Modified by kb_raw() and kb_noraw()
+ * @details Modified by kb_raw() and kb_noraw()
  */
 static bool wait_for_eol = true;
 
@@ -98,16 +93,14 @@ static volatile bool getting_char = false;
 
 /**
  * @name Buffers for the getchar functions.
- *
- * Since kb_handler only reads 8 bit chars, we don't need bigger arrays. We need
- * to use signed chars because of EOF, though.
+ * @details Since kb_handler only reads 8 bit chars, we don't need bigger
+ * arrays. We need to use signed chars because of EOF, though.
  * @{ */
 static int8_t getchar_buf[KB_GETCHAR_BUFSZ]      = { EOF };
 static uint16_t getchar_buf_pos                  = 0;
 static int8_t getchar_line_buf[KB_GETCHAR_BUFSZ] = { EOF };
 static uint16_t getchar_line_buf_pos             = 0;
 /** @} */
-
 
 /**
  * @brief Toggle variables like capslock_on or shift_held if needed
@@ -143,8 +136,8 @@ static inline unsigned char* get_layout(void) {
 
 void kb_handler(void) {
     /* You don't really need to read the bit 0 of the status byte when reading
-     * port 0x60, but I have seen it in other projects so I am doing it.
-     * TODO: macro for doing last outb + return, replace loop and continues */
+     * port 0x60, but I have seen it in other projects so I am doing it. */
+    /** @todo Macro for doing last outb + return, replace loop and continues */
     for (uint8_t status = io_inb(KB_PORT_STATUS); status & KB_STATUS_BUFFER_OUT;
          status         = io_inb(KB_PORT_STATUS)) {
         uint8_t key = io_inb(KB_PORT_DATA);
@@ -303,4 +296,3 @@ int kb_getchar(void) {
 
     return c;
 }
-

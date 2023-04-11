@@ -14,9 +14,9 @@ typedef struct {
 
 /**
  * @brief Convert rgb values to 32 bit color.
- * @param r Red color. 0-255.
- * @param g Green color. 0-255.
- * @param b Blue color. 0-255.
+ * @param[in] r Red color. 0-255.
+ * @param[in] g Green color. 0-255.
+ * @param[in] b Blue color. 0-255.
  * @return 32 bit color (0xRRGGBB)
  */
 static inline uint32_t rgb2col(uint8_t r, uint8_t g, uint8_t b) {
@@ -25,10 +25,10 @@ static inline uint32_t rgb2col(uint8_t r, uint8_t g, uint8_t b) {
 
 /**
  * @brief Convert 32 bit color to rgb values.
- * @param r[out] Red color pointer.
- * @param g[out] Green color pointer.
- * @param b[out] Blue color pointer.
- * @param col[in] 32 bit color.
+ * @param[out] r Red color pointer.
+ * @param[out] g Green color pointer.
+ * @param[out] b Blue color pointer.
+ * @param[in] col 32 bit color.
  */
 static inline void col2rgb(uint8_t* r, uint8_t* g, uint8_t* b, uint32_t col) {
     *r = (col >> 16) & 0xff;
@@ -136,4 +136,3 @@ static inline void col2rgb(uint8_t* r, uint8_t* g, uint8_t* b, uint32_t col) {
 /**  @} */
 
 #endif /* _KERNEL_COLOR_H */
-

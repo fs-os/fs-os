@@ -4,7 +4,7 @@
 
 #include <kernel/keyboard.h> /* Layout */
 
-/* TODO: Fix some keys */
+/** @todo: Fix some keys */
 
 const Layout es_layout = {
     .def =
@@ -47,12 +47,13 @@ const Layout es_layout = {
       },
     .shift =
       (unsigned char[]){
-        0,                                                            /**/
-        0x1b,                                                         /* esc */
-        '!',  '\"', '#', '$', '%', '&', '/', '(', ')', '=', '?', '¿', /**/
-        '\b', '\t',                                                   /**/
-        'Q',  'W',  'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '^', '*', '\n', /**/
-        0, /* left ctrl */
+        0,                                                             /**/
+        0x1b,                                                          /* esc */
+        '!',  '\"', '#', '$', '%', '&', '/', '(', ')', '=', '?',  '¿', /**/
+        '\b', '\t',                                                    /**/
+        'Q',  'W',  'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '^',  '*',
+        '\n', /**/
+        0,    /* left ctrl */
         'A',  'S',  'D', 'F', 'G', 'H', 'J', 'K', 'L', 'Ñ', '\"', 'ª', /**/
         0, /* left shift */
         'Ç',  'Z',  'X', 'C', 'V', 'B', 'N', 'M', ';', ':', '_', /**/
@@ -118,4 +119,3 @@ const Layout es_layout = {
 };
 
 #endif /* _LAYOUTS_ES_H */
-

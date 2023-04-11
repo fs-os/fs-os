@@ -10,9 +10,11 @@
 #define PAGE_SIZE     4096 /**< @brief In KiB */
 
 /**
- * For example 128 tables mapped would map 512MiB of ram:\n
+ * @def TABLES_MAPPED
+ * @details For example 128 tables mapped would map 512MiB of ram: \n
  *   512 MiB / 4 MiB (Memory mapped per table) = 128 filled table entries
  */
+
 #define TABLES_MAPPED DIR_ENTRIES
 
 /**
@@ -202,4 +204,3 @@ void paging_show_map(void) {
         }
     }
 }
-

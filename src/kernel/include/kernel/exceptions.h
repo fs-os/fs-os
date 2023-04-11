@@ -17,21 +17,17 @@
 
 /**
  * @brief Disables interrupts and panics with the specified exception.
- *
- * Defined in src/kernel/exceptions.c
- *
+ * @details Defined in src/kernel/exceptions.c
  * @param exc Exception code
  */
 void handle_exception(int exc);
 
 /**
  * @name Default exception handlers
- *
  * @brief Call the exception handler with the specified IRQ (number function
  * name).
- *
- * Used as ISR offsets for the idt.
- * Defined in src/kernel/exceptions.asm
+ * @details Used as ISR offsets for the idt. Defined in
+ * src/kernel/exceptions.asm
  * @{ */
 void exc_0(void);
 void exc_1(void);
@@ -58,31 +54,26 @@ void exc_30(void);
 
 /**
  * @brief Assembly wrapper for the PIT IRQ.
- *
- * Defined in src/kernel/idt.asm
+ * @details Defined in src/kernel/idt.asm
  */
 void irq_pit(void);
 
 /**
  * @brief Assembly wrapper for the keyboard IRQ.
- *
- * Defined in src/kernel/idt.asm
+ * @details Defined in src/kernel/idt.asm
  */
 void irq_kb(void);
 
 /**
  * @brief Generic ISR for ignoring all unhandled IRQs from master PIC.
- *
- * Defined in src/kernel/idt.asm
+ * @details Defined in src/kernel/idt.asm
  */
 void irq_default_master(void);
 
 /**
  * @brief Generic ISR for ignoring all unhandled IRQs from slave PIC.
- *
- * Defined in src/kernel/idt.asm
+ * @details Defined in src/kernel/idt.asm
  */
 void irq_default_slave(void);
 
 #endif /* _KERNEL_EXCEPTIONS_H */
-

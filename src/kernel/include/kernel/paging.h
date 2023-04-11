@@ -4,18 +4,28 @@
 
 #include <stdint.h>
 
-/* paging_init: initialize the page directory and first table, load the page
- * directory and enable paging */
+/**
+ * @brief Initialize the page directory and first table, load the page directory
+ * and enable paging
+ */
 void paging_init(void);
 
-/* paging_show_map: display layout of current pages in memory */
+/**
+ * @brief Display layout of current pages in memory.
+ */
 void paging_show_map(void);
 
-/* load_page_dir: load the page directory. See:
- * src/kernel/paging_asm.asm */
+/**
+ * @brief load the page directory.
+ * @details See: src/kernel/paging.asm
+ * @param[inout] page_dir The page directory defined in paging.c
+ */
 void load_page_dir(uint32_t* page_dir);
 
-/* enable_paging: defined in src/kernel/paging_asm.asm */
+/**
+ * @brief Enable paging.
+ * @details Defined in src/kernel/paging.asm
+ */
 void enable_paging(void);
 
 #endif /* _KERNEL_PAGING_H */

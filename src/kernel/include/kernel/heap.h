@@ -13,8 +13,7 @@ typedef struct Block Block;
 /**
  * @struct Block
  * @brief Heap block header.
- *
- * The block ptr should point to (header_ptr + sizeof(Block))
+ * @details The block ptr should point to (header_ptr + sizeof(Block))
  */
 struct Block {
     Block* prev; /** @brief Pointer to prev header. Start of heap means NULL */
@@ -26,8 +25,7 @@ struct Block {
 /**
  * @var blk_cursor
  * @brief First block that heap_alloc will try to allocate.
- *
- * Initialized in src/kernel/alloc.c
+ * @details Initialized in src/kernel/alloc.c
  */
 extern Block* blk_cursor;
 

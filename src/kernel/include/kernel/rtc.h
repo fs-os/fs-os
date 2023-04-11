@@ -5,22 +5,36 @@
 #include <stdint.h>
 #include <kernel/datetime.h>
 
-/** @todo Continue with doxygen */
-
-/* rtc_get_data: get data (seconds, minutes, ...) from the specified register of
- * the Real Time Clock */
+/**
+ * @brief Get data (seconds, minutes, ...) from the specified register of the
+ * Real Time Clock
+ * @param[in] reg Register from the rtc_regs struct.
+ * @return The data from that register.
+ */
 uint8_t rtc_get_data(enum rtc_regs reg);
 
-/* rtc_get_time: get a filled "Time" struct with the current hour, minute, and
- * second from the RTC */
+/**
+ * @brief Get a filled Time struct with the current hour, minute, and second
+ * from the RTC
+ * @return Time struct with the current time.
+ */
 Time rtc_get_time(void);
 
-/* rtc_get_date: get a filled "Date" struct with the current day, month, and
- * year (century empty for now) from the RTC */
+/* rtc_get_date:  */
+
+/**
+ * @brief Get a filled Date struct with the current day, month, and year from
+ * the RTC.
+ * @details Century empty for now.
+ * @return Date struct with the current date.
+ */
 Date rtc_get_date(void);
 
-/* rtc_get_datetime: get a filled "DateTime" struct with the current Date from
- * rtc_get_date and the current Time from rtc_get_time */
+/**
+ * @brief Get a filled DateTime struct with the current Date from rtc_get_date()
+ * and the current Time from rtc_get_time().
+ * @return DateTime struct with the current date and time.
+ */
 DateTime rtc_get_datetime(void);
 
 #endif /* _KERNEL_RTC_H */

@@ -23,8 +23,7 @@ typedef struct {
 
 /**
  * @brief Framebuffer console context.
- *
- * Used for example by ncurses.
+ * @details Used for example by ncurses.
  */
 typedef struct {
     /** @brief Global framebuffer console. Main fbc_entry array */
@@ -57,13 +56,13 @@ typedef struct {
  * @brief Initialize the framebuffer console
  * @param y, x Position of the new console in px
  * @param h, w Size of the new console in px
- * @param font Pointer to the font
+ * @param[in] font Pointer to the font
  */
 void fbc_init(uint32_t y, uint32_t x, uint32_t h, uint32_t w, Font* font);
 
 /**
  * @brief Switches to the specified framebuffer console context
- * @param new_ctx New framebuffer console context
+ * @param[in] new_ctx New framebuffer console context
  */
 void fbc_change_ctx(fbc_ctx* new_ctx);
 
@@ -80,8 +79,7 @@ void fbc_clear(void);
 
 /**
  * @brief Clear to end of line
- *
- * Does not change cursor position
+ * @details Does not change cursor position
  */
 void fbc_clrtoeol(void);
 
@@ -100,10 +98,9 @@ void fbc_putchar(char c);
 
 /**
  * @brief Updates each pixel of the framebuffer with the real one in ctx->fbc.
- *
- * Calling this function everytime we update ctx.fbc would be slow. Instead we
- * call this function on specific situations and we refresh the entries we need
- * when updating ctx->fbc (e.g. when calling fbc_putchar())
+ * @details Calling this function everytime we update ctx.fbc would be slow.
+ * Instead we call this function on specific situations and we refresh the
+ * entries we need when updating ctx->fbc (e.g. when calling fbc_putchar())
  */
 void fbc_refresh(void);
 
@@ -116,27 +113,27 @@ void fbc_shift_rows(uint8_t n);
 /* fbc_getcols:  */
 /**
  * @brief Writes the current colors of the terminal to \p fg and \p bg.
- * @param fg[out] Foreground color dst pointer
- * @param bg[out] Background color dst pointer
+ * @param[out] fg Foreground color dst pointer
+ * @param[out] bg Background color dst pointer
  */
 void fbc_getcols(uint32_t* fg, uint32_t* bg);
 
 /**
  * @brief Sets the specified colors for the terminal.
- * @param fg[in] Foreground color
- * @param bg[in] Background color
+ * @param[in] fg Foreground color
+ * @param[in] bg Background color
  */
 void fbc_setcol(uint32_t fg, uint32_t bg);
 
 /**
  * @brief Sets the specified foreground color for the terminal.
- * @param fg[in] Foreground color
+ * @param[in] fg Foreground color
  */
 void fbc_setfore(uint32_t fg);
 
 /**
  * @brief Sets the specified background color for the terminal.
- * @param bg[in] Background color
+ * @param[in] bg Background color
  */
 void fbc_setback(uint32_t bg);
 
@@ -149,4 +146,3 @@ void fbc_setcol_rgb(uint8_t fore_r, uint8_t fore_g, uint8_t fore_b,
                     uint8_t back_r, uint8_t back_g, uint8_t back_b);
 
 #endif /* _KERNEL_FRAMEBUFFER_CONSOLE_H */
-
