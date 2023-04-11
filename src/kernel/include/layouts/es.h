@@ -4,7 +4,7 @@
 
 #include <kernel/keyboard.h> /* Layout */
 
-/** @todo: Fix some keys */
+/** @todo Fix some keys */
 
 const Layout es_layout = {
     .def =

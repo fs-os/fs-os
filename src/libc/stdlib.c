@@ -150,7 +150,7 @@ void* calloc(size_t item_n, size_t item_sz) {
     (void)item_n;
     (void)item_sz;
 
-    /** @todo: syscall wrapper for libk calloc */
+    /** @todo (libc) syscall wrapper for libk calloc */
     panic_line("Calloc is not implemented for libc.");
     return NULL;
 }

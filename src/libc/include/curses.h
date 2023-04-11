@@ -2,7 +2,7 @@
  * @file        curses.h
  * @brief       Simple curses lib.
  *
- * @todo
+ * @todo Add functions:
  *  - wprintw   (window printf)
  *  - mvwprintw (move & window printf)
  *  - waddch    (window putchar)
