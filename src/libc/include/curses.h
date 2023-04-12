@@ -1,3 +1,20 @@
+/**
+ * @file        curses.h
+ * @brief       Simple curses lib.
+ *
+ * @todo Add functions:
+ *  - wprintw   (window printf)
+ *  - mvwprintw (move & window printf)
+ *  - waddch    (window putchar)
+ *  - mvwaddch  (move & window putchar)
+ *
+ * Error:
+ *  - keypad    (arrow keys, numpad)
+ *  - mousemask (cursor)
+ *  - getmouse
+ *
+ *  @file
+ */
 
 #ifndef _CURSES_H
 #define _CURSES_H 1
@@ -7,123 +24,251 @@
 #include <kernel/color.h>
 #include <kernel/framebuffer_console.h>
 
+#undef ERR
+#define ERR (-1)
+
+#undef OK
+#define OK (0)
+
+/**
+ * @def CURSES_MAX_PAIRS
+ * @brief Maximum color pairs that a WINDOW can support after calling
+ * start_color()
+ */
 #define CURSES_MAX_PAIRS 16
 
+/**
+ * @struct WINDOW
+ * @brief Curses window structure.
+ * @defails Old and new framebuffer contexts + color pairs initialized by the
+ * user.
+ */
 typedef struct {
-    fbc_ctx* old_ctx;  /* Last ctx */
-    fbc_ctx* ctx;      /* Framebuffer console context */
-    color_pair* pairs; /* Array of color pairs */
+    fbc_ctx* old_ctx;  /**< @brief Last ctx */
+    fbc_ctx* ctx;      /**< @brief Framebuffer console context */
+    color_pair* pairs; /**< @brief Array of color pairs */
 } WINDOW;
 
 #if defined(_IN_CURSES_LIB) /* We included from curses.c */
-WINDOW* stdscr       = NULL;
+/**
+ * @var stdscr
+ * @brief Standard curses WINDOW.
+ * @details Declared extern when including the curses header; declared and
+ * initialized when compiling the curses lib source. That way there is only 1
+ * real stdscr per curses project.
+ */
+WINDOW* stdscr = NULL;
+
+/**
+ * @var COLOR_PAIRS
+ * @brief Number of supported color pairs in the current WINDOW.
+ * @details Initialized at runtime by start_color(). Same declaration method as
+ * stdscr.
+ */
 uint16_t COLOR_PAIRS = 0;
 #else  /* We included from other source */
 extern WINDOW* stdscr;
 extern int COLOR_PAIRS;
 #endif /* _IN_CURSES_LIB */
 
-/*
- * TODO:
- *  - wprintw   (window printf)
- *  - mvwprintw (move & window printf)
- *  - waddch    (window putchar)
- *  - mvwaddch  (move & window putchar)
- *
- * ERROR:
- *  - keypad    (arrow keys, numpad)
- *  - mousemask (cursor)
- *  - getmouse
+/**
+ * @brief Allocate and fill a new curses window struct, and return it.
+ * @details It will use stdscr the first time.
+ * @return Allocated WINDOW.
  */
-
-/* initsrc: allocate and fill a new curses window, and returns it. It will use
- * stdscr the first time */
 WINDOW* initscr(void);
 
-/* endwin: switch to the old fbc context and free the allocated window */
+/**
+ * @brief End curses window.
+ * @details Switch to the old fbc context and free the allocated window.
+ * @return OK if success, ERR otherwise.
+ */
 int endwin(void);
 
-/* raw: disable keyboard line buffer (getchar returns user input inmediately) */
+/**
+ * @brief disable keyboard line buffer (getchar() returns user input
+ * inmediately).
+ * @return OK if success, ERR otherwise.
+ */
 int raw(void);
 
-/* noraw: enable keyboard line buffer (getchar returns user input on newline) */
+/**
+ * @brief Enable keyboard line buffer (getchar returns user input on newline).
+ * @return OK if success, ERR otherwise.
+ */
 int noraw(void);
 
-/* echo: prints characters as the user is typing them */
+/**
+ * @brief Prints characters as the user is typing them.
+ * @return OK if success, ERR otherwise.
+ */
 int echo(void);
 
-/* noecho: disables character printing when the user is typing */
+/**
+ * @brief Disables character printing when the user is typing.
+ * @return OK if success, ERR otherwise.
+ */
 int noecho(void);
 
-/* refresh: refreshes the current window (fbc context) */
+/**
+ * @brief refreshes the current WINDOW (fbc context).
+ * @return OK if success, ERR otherwise.
+ */
 int refresh(void);
 
-/* wrefresh: refreshes the specified window */
+/**
+ * @brief Refreshes the specified window
+ * @param[out] win Window to be refreshed.
+ * @return OK if success, ERR otherwise.
+ */
 int wrefresh(WINDOW* win);
 
-/* move: change cursor position of the current window */
+/**
+ * @brief Change cursor position of the current window.
+ * @param[in] y, x New position on the console.
+ * @return OK if success, ERR otherwise.
+ */
 int move(uint32_t y, uint32_t x);
 
-/* wmove: change cursor position of the specified window */
+/**
+ * @brief Change cursor position of the specified window
+ * @param[out] win Window for moving the cursor.
+ * @param[in] y, x New position on the console.
+ * @return OK if success, ERR otherwise.
+ */
 int wmove(WINDOW* win, uint32_t y, uint32_t x);
 
-/* getyx: ncurses macro to avoid & */
+/**
+ * @def getyx
+ * @brief Curses macro to avoid `&`
+ */
 #define getyx(win, y, x) _getyx(win, &y, &x)
 
-/* _getyx: write the cursor position of the specified window to the y and x
- * pointers */
+/**
+ * @brief Write the cursor position of the specified window to the y and x
+ * pointers.
+ * @param[in] win Window for getting the cursor.
+ * @param[out] y Pointer for the Y coordinate.
+ * @param[out] x Pointer for the X coordinate.
+ */
 void _getyx(WINDOW* win, int* y, int* x);
 
-/* printw: prints with format "fmt" */
+/**
+ * @brief Prints with format `fmt` in the current window.
+ * @param[in] fmt Format string.
+ * @return Bytes written.
+ */
 int printw(const char* fmt, ...);
 
-/* vprintw: prints with format "fmt" using a va list */
+/**
+ * @brief Prints with format `fmt` using a va_list
+ * @param[in] fmt Format string.
+ * @param[in] va Variable argument list.
+ * @return Bytes written.
+ */
 int vprintw(const char* fmt, va_list va);
 
-/* mvprintw: move to (y,x) and print with format "fmt" */
+/**
+ * @brief Move to `(y, x)` and print with format `fmt`
+ * @param[in] y, x Position to move.
+ * @param[in] fmt Format string.
+ * @return Bytes written.
+ */
 int mvprintw(int y, int x, const char* fmt, ...);
 
-/* addch: print the specified character */
+/**
+ * @brief Print the specified character.
+ * @param[in] ch Character to print.
+ * @return Character printed.
+ */
 int addch(int ch);
 
-/* mvaddch: move to (y,x) and print the specified character */
+/**
+ * @brief Move to `(y,x)` and print the specified character.
+ * @param[in] y, x Position to move
+ * @param[in] ch Character to print
+ * @return OK if success, ERR otherwise.
+ */
 int mvaddch(int y, int x, int ch);
 
-/* clrtoeol: clear to end of line */
+/**
+ * @brief Clear to end of line.
+ * @return OK if success, ERR otherwise.
+ */
 int clrtoeol(void);
 
-/* wclrtoeol: clear to end of line in the specified window */
+/**
+ * @brief Clear to end of line in the specified window.
+ * @param[out] win Window for clearing the current line.
+ * @return OK if success, ERR otherwise.
+ */
 int wclrtoeol(WINDOW* win);
 
-/* getch: get input character */
+/**
+ * @brief Get character from user input.
+ * @return OK if success, ERR otherwise.
+ */
 int getch(void);
 
-/* clear: clear the current window */
+/**
+ * @brief Clear the current window
+ * @return OK if success, ERR otherwise.
+ */
 int clear(void);
 
-/* wclear: clear the specified window */
+/**
+ * @brief Clear the specified window.
+ * @param[out] win Window to clear.
+ * @return OK if success, ERR otherwise.
+ */
 int wclear(WINDOW* win);
 
-/* has_colors: returns true if the terminal supports color. Useless */
+/**
+ * @brief Returns true if the terminal supports color.
+ * @details For now useless, always returns true.
+ * @return True if the program supports colors.
+ */
 bool has_colors(void);
 
-/* start_color: start color mode in the current window */
+/**
+ * @brief Start color mode in the current window.
+ * @return OK if success, ERR otherwise.
+ */
 int start_color(void);
 
-/* init_pair: assigns the specifed foreground and background to the specified
- * pair index. start_color needs to be called first */
+/**
+ * @brief Assigns the specifed foreground and background to the specified
+ * pair index.
+ * @details start_color() needs to be called first.
+ * @param[in] pair Identificator for the new pair.
+ * @param[in] fg 32 bit foreground color for the pair.
+ * @param[in] bg 32 bit background color for the pair.
+ * @return OK if success, ERR otherwise.
+ */
 int init_pair(uint16_t pair, uint32_t fg, uint32_t bg);
 
-/* use_pair: changes the current terminal colors to the fg and bg of the
- * specified pair index. This function will not check if the color pair has been
- * Initialized, and start_color needs to be called first */
+/**
+ * @brief Changes the current terminal colors to the fg and bg of the
+ * specified pair index.
+ * @details This function will not check if the color pair has been
+ * Initialized, and start_color() needs to be called first.
+ * @param[in] pair Color pair index.
+ * @return OK if success, ERR otherwise.
+ */
 int use_pair(uint16_t pair);
 
-/* reset_pair: reset to the default terminal colors */
+/**
+ * @brief Reset to the default terminal colors.
+ * @return OK if success, ERR otherwise.
+ */
 int reset_pair(void);
 
-/* invert_pair: toggles the foreground/background order in the specified pair */
+/**
+ * @brief Toggles the foreground/background order in the specified pair,
+ * overwriting it.
+ * @param[in] pair Pair index to be inverted.
+ * @return OK if success, ERR otherwise.
+ */
 int invert_pair(uint16_t pair);
 
 #endif /* _CURSES_H */
-

@@ -20,7 +20,7 @@ Some interesting resources that influenced the project's philosophy:
 - [TempleOS](https://templeos.org/) and Terry A. Davis.
 
 ### Building from source
-#### Requisites
+#### Requirements
 - i686-elf cross compiler from [here](https://github.com/fs-os/cross-compiler).
 - [nasm](https://nasm.us) for compiling the assembly used in the project.
 - The [limine](https://github.com/limine-bootloader/limine) dependencies, including
@@ -28,7 +28,7 @@ Some interesting resources that influenced the project's philosophy:
 - (Optional) [qemu](https://www.qemu.org) for testing the ISO on a VM.
 
 #### Building
-Once you have all the requisites, simply run:
+Once you have all the requirements, simply run:
 ```console
 $ git clone https://github.com/fs-os/fs-os
 $ cd fs-os
@@ -59,8 +59,42 @@ $ make qemu
 ...
 ```
 
+### Documentation
+This project uses the [doxygen](https://github.com/doxygen/doxygen) tool to
+generate its documentation.
+
+#### Requirements
+Package name (gentoo)            | Description
+---------------------------------|----------------------------------------------
+`app-doc/doxygen`                | Doxygen for building the documentation
+`app-text/texlive`               | For building the documentation in LaTeX format (for pdf)
+`media-gfx/graphviz`             | (Optional\*) For the graphs
+`dev-texlive/texlive-latexextra` | (Optional) Only needed for building the documentation in pdf format
+
+\* Needed if `HAVE_DOT=YES` in [Doxyfile](Doxyfile) (The default).
+
+#### Building the documentation
+Simply run:
+```console
+$ doxygen
+...
+
+$ firefox doc/html/index.html
+...
+```
+
+Generate PDF from LaTeX (Optional):
+```console
+$ cd doc/latex
+$ make pdf
+...
+
+$ firefox refman.pdf
+...
+```
+
 ### Todo
-See [todo.md](TODO.md).
+See [todo.md](TODO.md) or the todo list of the doxygen documentation.
 
 ### Screenshots
 > **Note**  

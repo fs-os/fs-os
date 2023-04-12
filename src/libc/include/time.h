@@ -4,21 +4,38 @@
 
 #include <stdint.h>
 
-/* time: return seconds since epoch time (1-1-1970) */
+/**
+ * @brief Return seconds since epoch time (1-1-1970)
+ * @param[in] tloc Unused.
+ * @return Seconds since epoch time.
+ */
 uint32_t time(void* tloc);
 
-/* sleep: sleep "sec" seconds */
+/**
+ * @brief Sleep the specified amount of seconds.
+ * @param[in] sec Seconds to sleep.
+ */
 void sleep(uint32_t sec);
 
-/* sleep_ms: sleep "ms" milliseconds */
+/**
+ * @brief Sleep the specified amount of milliseconds.
+ * @param[in] ms Milliseconds to sleep.
+ */
 void sleep_ms(uint64_t ms);
 
-/* timer_start: starts the pit timer. Calling multiple times resets the count */
+/**
+ * @brief Start the PIT timer.
+ * @details Calling multiple times resets the count.
+ */
 void timer_start(void);
 
-/* timer_stop: returns the ms difference from the current tick since the tick we
- * started the timer (time in ms that passed since we called timer_start). */
+/* timer_stop:  (time in ms that passed since we called timer_start). */
+
+/**
+ * @brief Get the ticks (ms) since we called timer_start()
+ * @details Each tick should be 1 ms, see pit_init() call from kernel.c
+ * @return Ticks since we called timer_start()
+ */
 uint64_t timer_stop(void);
 
 #endif /* _TIME_H */
-

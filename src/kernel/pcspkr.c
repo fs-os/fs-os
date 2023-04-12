@@ -1,5 +1,11 @@
 
-/* PC Speaker. See: https://wiki.osdev.org/PC_Speaker */
+/**
+ * @brief PC Speaker.
+ *
+ * See: https://wiki.osdev.org/PC_Speaker
+ *
+ * @file
+ */
 
 #include <stdint.h>
 #include <time.h>
@@ -7,11 +13,13 @@
 #include <kernel/io.h>
 #include <kernel/pcspkr.h>
 
-/* Current frequency used by the pc speaker. 0 if disabled */
+/**
+ * @brief Current frequency used by the pc speaker.
+ *
+ * 0 means disabled.
+ */
 static uint32_t current_freq = 0;
 
-/* pcspkr_play: play pc speaker with "freq" frequency (1s format). freq can't be
- * 0 */
 void pcspkr_play(uint32_t freq) {
     /* Save the current frequency */
     current_freq = freq;
@@ -36,7 +44,6 @@ void pcspkr_play(uint32_t freq) {
         io_outb(PCSPKR_PORT, tmp | 0x3);
 }
 
-/* pcspkr_clear: tell the pc speaker to stop listening from PIT channel 2 */
 void pcspkr_clear(void) {
     /* Set last 2 bits to 0 */
     uint8_t tmp = io_inb(PCSPKR_PORT) & 0xFC;
@@ -46,21 +53,17 @@ void pcspkr_clear(void) {
     current_freq = 0;
 }
 
-/* pcspkr_get_freq: returns the current frequency used by the pc speaker. 0 if
- * disabled */
 uint32_t pcspkr_get_freq(void) {
     return current_freq;
 }
 
-/* pcspkr_beep: simple beep using the pc speaker (wrapper for custom beep) */
-/* pcspkr_beep_custom: custom beep with freq and duration using the pc
- * speaker */
 void pcspkr_beep_custom(Beep info) {
     pcspkr_play(info.freq);
     sleep_ms(info.ms_len);
     pcspkr_clear();
 
-    /* TODO: Reset old frequency of PIT channel 2. Not needed for now since we
+    /**
+     * @todo Reset old frequency of PIT channel 2. Not needed for now since we
      * don't use channel 2. */
 }
 

@@ -4,35 +4,55 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stddef.h>
 
 #define HEAP_START ((void*)0xA00000) /* Bytes. 10MB */
 #define HEAP_SIZE  (0x3200000)       /* Bytes. 50MB */
 
-/* Block header struct. The block ptr should point to (header_ptr +
- * sizeof(Block)) */
 typedef struct Block Block;
+/**
+ * @struct Block
+ * @brief Heap block header.
+ * @details The block ptr should point to (header_ptr + sizeof(Block))
+ */
 struct Block {
-    Block* prev; /* Pointer to prev header. Begining of heap if NULL */
-    Block* next; /* Pointer to next header. End of heap if NULL */
-    uint32_t sz; /* Bytes */
-    bool free;   /* 1 or 0 */
+    Block* prev; /** @brief Pointer to prev header. Start of heap means NULL */
+    Block* next; /** @brief Pointer to next header. End of heap means NULL */
+    uint32_t sz; /** @brief Block size in bytes */
+    bool free;   /** @brief True if the block is not being used */
 };
 
-/* Initialized in src/kernel/alloc.c */
+/**
+ * @var blk_cursor
+ * @brief First block that heap_alloc will try to allocate.
+ * @details Initialized in src/kernel/alloc.c
+ */
 extern Block* blk_cursor;
 
-/* init_heap: initializes the heap headers for the allocation functions. */
+/**
+ * @brief Initializes the heap headers for the allocation functions.
+ */
 void heap_init(void);
 
-/* heap_alloc: allocate "sz" bytes of memory from the heap and return the
- * address */
+/**
+ * @brief Allocate \p sz bytes of memory from the heap and return the address
+ * @details Size will be padded to 8 bytes.
+ * @param[in] sz Size in bytes to allocate
+ * @return Pointer to the allocated block of memory
+ */
 void* heap_alloc(size_t sz);
 
-/* heap_free: free a previously allocated ptr */
+/**
+ * @brief Free a previously allocated ptr.
+ * @details The Block header address will be subtracted from the ptr. Will
+ * ignore NULL.
+ * @param[out] ptr Pointer to the block of allocated heap memory.
+ */
 void heap_free(void* ptr);
 
-/* heap_dump_headers: prints the information for all the alloc block headers */
+/**
+ * @brief Prints the information for all the alloc block headers.
+ */
 void heap_dump_headers(void);
 
 #endif /* _KERNEL_ALLOC_H */
-

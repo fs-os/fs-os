@@ -5,11 +5,16 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-/* Max length of an input line */
+/**
+ * @def KB_GETCHAR_BUFSZ
+ * @brief Max length of an input line
+ */
 #define KB_GETCHAR_BUFSZ 1000
 
-/*
- * Indexes of the layout.special array. For example:
+/**
+ * @enum kb_special_indexes
+ * @brief Indexes of the Layout.special array.
+ * @details For example:
  *   - us_layout.special will contain the key codes for special chars like shift
  *   - KB_SPECIAL_IDX_LSHIFT is 2 because the second item of the .special array
  *     will be the key code of the left shift key
@@ -48,46 +53,84 @@ enum kb_special_indexes {
     KB_SPECIAL_IDX_F12,
 };
 
-/* Layout: struct containing a pointer to the default and shift layouts for a
- * lang */
+/**
+ * @struct Layout
+ * @brief Struct containing a pointer to the default and shift layouts for a
+ * lang, plus an array of kb_special_indexes.
+ */
 typedef struct {
-    unsigned char* def;   /* Chars to display for each key code */
-    unsigned char* shift; /* Same as .def but when holding shift */
-    uint16_t* special;    /* Array containing the indexes of special chars for
-                           * the current layout */
+    unsigned char* def;   /**< @brief Chars to display for each key code */
+    unsigned char* shift; /**< @brief Same as .def but when holding shift */
+    uint16_t* special;    /**< @brief Array containing the indexes of special
+                             chars for the current layout */
 } Layout;
 
-/* kb_handler: actual C handler for the keyboard exceptions received from
- * "irq_kb". See src/kernel/idt_asm.asm */
+/**
+ * @brief Actual C handler for the keyboard exceptions received from irq_kb().
+ * @details See src/kernel/idt.asm
+ */
 void kb_handler(void);
 
-/* kb_held: check if "c" is being held. Returns 1 if the first bit of
- * key_flags[c] is set. */
+/**
+ * @brief Check if \p c is being held.
+ * @details key_flags is a static array defined in keyboard.c
+ * @param[in] c Char to check.
+ * @return True if the first bit of key_flags[c] is set.
+ */
 bool kb_held(unsigned char c);
 
-/* kb_noecho: disable char printing on key press */
+/**
+ * @brief Disable char printing on key press.
+ * @details Sets the print_chars static var declared in keyboard.c
+ */
 void kb_noecho(void);
 
-/* kb_echo: enable char printing on key press */
+/**
+ * @brief Enable char printing on key press.
+ * @details Sets the print_chars static var declared in keyboard.c
+ */
 void kb_echo(void);
 
-/* kb_getecho: get the static print_chars variable */
+/**
+ * @brief Get the static print_chars variable.
+ * @details The print_chars static var is declared in keyboard.c
+ * @return True if we are displaying chars on input.
+ */
 bool kb_getecho(void);
 
-/* kb_raw: don't wait for newline when getting chars */
+/**
+ * @brief Don't wait for newline when getting chars.
+ * @details Sets the wait_for_eol static var declared in keyboard.c
+ */
 void kb_raw(void);
 
-/* kb_raw: wait for newline when getting chars */
+/**
+ * @brief Wait for newline when getting chars.
+ * @details Sets the wait_for_eol static var declared in keyboard.c
+ */
 void kb_noraw(void);
 
-/* kb_setlayout: set the current active layout to the specified Layout ptr */
+/**
+ * @brief Set the current active keyboard layout to the specified Layout ptr
+ * @param[in] ptr Description
+ */
 void kb_setlayout(const Layout* ptr);
 
-/* kb_getchar_init: initialize the static getchar arrays to EOF */
+/**
+ * @brief Initialize the static getchar arrays to EOF.
+ */
 void kb_getchar_init(void);
 
-/* kb_getchar: get input chars from "getchar_buf" once the user wrote a line */
+/**
+ * @brief Get input chars from the keyboard once the user wrote a line
+ * @details First it tells the kb_handler function that we are waiting for
+ * input, then read from the getchar_buf until there is a char. If wait_for_eol
+ * is false, getchar_buf will be filled instantly, otherwise it will wait for
+ * the user to type a full line.
+ *
+ * See the fs-os wiki for more info.
+ * @return Next user input char from the keyboard.
+ */
 int kb_getchar(void);
 
 #endif /* _KERNEL_KEYBOARD_H */
-

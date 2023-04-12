@@ -1,6 +1,4 @@
 
-/* sh: simple shell for the Free and Simple Operating System */
-
 #include <stdio.h>
 #include <stddef.h>
 #include <stdbool.h>
@@ -16,9 +14,6 @@
 
 #define LENGTH(arr) (sizeof(arr) / sizeof(arr[0]))
 
-/* ------------------------------------------------------------------------------- */
-
-/* sh_main: main function of the shell */
 int sh_main(void) {
     int c = 0;
 
@@ -36,13 +31,13 @@ int sh_main(void) {
             cur_cmd[cmd_pos++] = c;
         cur_cmd[cmd_pos] = '\0';
 
-        /* For checking each word of the argv arr. Start as true to store the first
-         * arg (program name) */
+        /* For checking each word of the argv arr. Start as true to store the
+         * first arg (program name) */
         bool was_space = true;
 
         /* Fill the argv array */
-        for (cmd_pos = 0, argc = 0; cur_cmd[cmd_pos] != '\0' && argc < MAX_ARGC - 1;
-             cmd_pos++) {
+        for (cmd_pos = 0, argc = 0;
+             cur_cmd[cmd_pos] != '\0' && argc < MAX_ARGC - 1; cmd_pos++) {
             if (cur_cmd[cmd_pos] == ' ') {
                 /* First space after a word, set to null */
                 if (!was_space)

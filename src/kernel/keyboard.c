@@ -6,75 +6,108 @@
 #include <kernel/keyboard.h>
 #include <kernel/io.h>
 
-/* Filled layouts should be included here, other sources should declare them
- * extern. */
+/**
+ * @brief Keyboard source
+ * @details Filled layouts should be included here, other sources should declare
+ * them extern.
+ * @file
+ */
 #include <layouts/us.h>
 #include <layouts/es.h>
 
+/**
+ * @brief Number of items of an array known at compile-time
+ */
 #define LENGTH(arr) (sizeof(arr) / sizeof(arr[0]))
 
-/* IO ports used by the keyboard */
+/**
+ * @brief IO ports used by the keyboard
+ */
 enum kb_io_ports {
-    KB_PORT_DATA   = 0x60, /* Read/Write. Data port */
-    KB_PORT_STATUS = 0x64, /* Read. Status port */
-    KB_PORT_CMD    = 0x64, /* Write. Command port */
+    KB_PORT_DATA   = 0x60, /**< @brief Read/Write. Data port */
+    KB_PORT_STATUS = 0x64, /**< @brief Read. Status port */
+    KB_PORT_CMD    = 0x64, /**< @brief Write. Kb command port */
 };
 
-/* Flags for the KB_PORT_STATUS information. See:
- * https://wiki.osdev.org/%228042%22_PS/2_Controller */
+/**
+ * @brief Flags for the KB_PORT_STATUS information.
+ * @details See: https://wiki.osdev.org/%228042%22_PS/2_Controller
+ */
 enum kb_status_flags {
-    KB_STATUS_BUFFER_OUT = 0x1, /* 00000001. Output buffer status. 1 if full */
-    KB_STATUS_BUFFER_IN  = 0x2, /* 00000010. Input buffer status. 1 if full */
-    KB_STATUS_SYSTEM     = 0x4, /* 00000100. Should be cleared by firmware */
-    KB_STATUS_CMD_DATA   = 0x8, /* 00001000. If 0, data written to buffer is for
-                                 * the PS2 device, if 1, it's for the controller
-                                 * cmd. */
-    KB_STATUS_UNK_0   = 0x10,   /* 00010000. Chipset specific */
-    KB_STATUS_UNK_1   = 0x20,   /* 00100000. Chipset specific */
-    KB_STATUS_TIMEOUT = 0x40,   /* 01000000. If 1, timeout error */
-    KB_STATUS_PARITY  = 0x80,   /* 10000000. If 1, parity error */
+    KB_STATUS_BUFFER_OUT = 0x1, /**< @brief Output buffer status. 1 if full */
+    KB_STATUS_BUFFER_IN  = 0x2, /**< @brief Input buffer status. 1 if full */
+    KB_STATUS_SYSTEM     = 0x4, /**< @brief Should be cleared by firmware */
+    KB_STATUS_CMD_DATA   = 0x8, /**< @brief If 0, data written to buffer is for
+                                   the PS2 device, if 1, it's for the controller
+                                   cmd. */
+    KB_STATUS_UNK_0   = 0x10,   /**< @brief Chipset specific */
+    KB_STATUS_UNK_1   = 0x20,   /**< @brief Chipset specific */
+    KB_STATUS_TIMEOUT = 0x40,   /**< @brief If 1, timeout error */
+    KB_STATUS_PARITY  = 0x80,   /**< @brief If 1, parity error */
 };
 
-/* Flags for each bit of the key_flags array */
+/**
+ * @brief Flags for each bit of the key_flags array
+ */
 enum kb_flags {
-    KB_FLAG_PRESSED = 0x1, /* 00000001. Will be 1 if the key is currently
-                              pressed */
+    KB_FLAG_PRESSED = 0x1, /**< @brief Will be 1 if the key is currently being
+                             pressed */
 };
 
 /* -------------------------------------------------------------------------- */
 
-/* Pointer to the current Layout struct being used */
+/**
+ * @brief Pointer to the current Layout struct being used.
+ */
 static const Layout* cur_layout = &us_layout;
 
-/* Array of bytes containing information about each key state. Each bit gives
- * information about the key corresponding to its index. For example: bit 0 of
- * key_flags['c'] will be 1 if that key is pressed. */
+/**
+ * @brief Array of bytes containing information about each key state.
+ * @details Each bit gives information about the key corresponding to its index.
+ * For example: bit 0 of key_flags['c'] will be 1 if that key is pressed.
+ */
 static uint8_t key_flags[128] = { 0 };
 
-/* Store if we should use caps */
+/**
+ * @brief Store if we should use caps
+ */
 static bool capslock_on = false, shift_held = false;
 
-/* Store if we should print the characters to screen when receiving them.
- * Modified by kb_echo and kb_noecho */
+/**
+ * @brief Store if we should print the characters to screen when receiving them.
+ * @details Modified by kb_echo() and kb_noecho()
+ */
 static bool print_chars = true;
 
-/* If true, kb_getchar will wait for the user to input newline instead of
- * instantly returning each char. Modified by kb_raw and kb_noraw */
+/**
+ * @brief If true, kb_getchar() will wait for the user to input newline instead
+ * of instantly returning each char.
+ * @details Modified by kb_raw() and kb_noraw()
+ */
 static bool wait_for_eol = true;
 
-/* True if a program is waiting for kb_getchar */
+/**
+ * @brief True if a program is waiting for kb_getchar()
+ */
 static volatile bool getting_char = false;
 
-/* Buffers for the getchar functions. Since kb_handler only reads 8 bit chars,
- * we don't need bigger arrays. We need to use signed chars because of EOF,
- * though */
+/**
+ * @name Buffers for the getchar functions.
+ * @details Since kb_handler only reads 8 bit chars, we don't need bigger
+ * arrays. We need to use signed chars because of EOF, though.
+ * @{ */
 static int8_t getchar_buf[KB_GETCHAR_BUFSZ]      = { EOF };
 static uint16_t getchar_buf_pos                  = 0;
 static int8_t getchar_line_buf[KB_GETCHAR_BUFSZ] = { EOF };
 static uint16_t getchar_line_buf_pos             = 0;
+/** @} */
 
-/* check_special: toggle variables like capslock_on or shift_held if needed */
-static inline void check_special(uint8_t released, uint8_t key) {
+/**
+ * @brief Toggle variables like capslock_on or shift_held if needed
+ * @param released Release bit from kb_handler()
+ * @param key Key to be checked
+ */
+static inline void check_special(bool released, uint8_t key) {
     /* We can't use a case because they indexes are not constant at compile
      * time */
     if (key == cur_layout->special[KB_SPECIAL_IDX_LSHIFT] ||
@@ -88,22 +121,23 @@ static inline void check_special(uint8_t released, uint8_t key) {
     }
 }
 
-/* check_layout: return lang_layout.shift if the shift is pressed, or to
- * lang_layout.def when shift is not being used */
+/**
+ * @brief Returns the shift or normal keyboard layout depending if the shift is
+ * pressed or not.
+ * @return cur_layout->shift or cur_layout->def
+ * @todo Only change letters with caps lock, only change special chars like '#'
+ * with shift held.
+ */
 static inline unsigned char* get_layout(void) {
-    /* TODO: We should only change letters with caps lock, special chars like
-     * '#' should only be changed with shift. */
     return (capslock_on || shift_held) ? cur_layout->shift : cur_layout->def;
 }
 
 /* -------------------------------------------------------------------------- */
 
-/* kb_handler: actual C handler for the keyboard exceptions received from
- * "irq_kb". See src/kernel/idt_asm.asm */
 void kb_handler(void) {
     /* You don't really need to read the bit 0 of the status byte when reading
-     * port 0x60, but I have seen it in other projects so I am doing it.
-     * TODO: macro for doing last outb + return, replace loop and continues */
+     * port 0x60, but I have seen it in other projects so I am doing it. */
+    /** @todo Macro for doing last outb + return, replace loop and continues */
     for (uint8_t status = io_inb(KB_PORT_STATUS); status & KB_STATUS_BUFFER_OUT;
          status         = io_inb(KB_PORT_STATUS)) {
         uint8_t key = io_inb(KB_PORT_DATA);
@@ -199,8 +233,6 @@ void kb_handler(void) {
     io_outb(0x20, 0x20);
 }
 
-/* kb_held: check if "c" is being held. Returns 1 if the first bit of
- * key_flags[c] is set. */
 bool kb_held(unsigned char c) {
     if (c >= 128)
         return 0;
@@ -208,37 +240,30 @@ bool kb_held(unsigned char c) {
     return key_flags[c] & KB_FLAG_PRESSED;
 }
 
-/* kb_noecho: disable char printing on key press */
 void kb_noecho(void) {
     print_chars = false;
 }
 
-/* kb_echo: enable char printing on key press */
 void kb_echo(void) {
     print_chars = true;
 }
 
-/* kb_getecho: get the static print_chars variable */
 bool kb_getecho(void) {
     return print_chars;
 }
 
-/* kb_raw: don't wait for newline when getting chars */
 void kb_raw(void) {
     wait_for_eol = false;
 }
 
-/* kb_raw: wait for newline when getting chars */
 void kb_noraw(void) {
     wait_for_eol = true;
 }
 
-/* kb_setlayout: set the current active layout to the specified Layout ptr */
 void kb_setlayout(const Layout* ptr) {
     cur_layout = ptr;
 }
 
-/* kb_getchar_init: initialize the static getchar arrays to EOF */
 void kb_getchar_init(void) {
     for (size_t i = 0; i < LENGTH(getchar_buf); i++) {
         /* Both buffers should have the same length... */
@@ -247,7 +272,6 @@ void kb_getchar_init(void) {
     }
 }
 
-/* kb_getchar: get input chars from "getchar_buf" once the user wrote a line */
 int kb_getchar(void) {
     /* Tell the keyboard handler to store the key presses */
     getting_char = true;
@@ -272,4 +296,3 @@ int kb_getchar(void) {
 
     return c;
 }
-

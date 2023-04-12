@@ -87,7 +87,6 @@ static const Piano_note piano_notes_original[] = {
     { 'l', "F ", 349, false, false }, /* F  */
 };
 
-/* piano_main: main piano function */
 int piano_main(int argc, char** argv) {
     /* Make a copy of piano_notes_original so we can edit the octaves there */
     Piano_note piano_notes[LENGTH(piano_notes_original)];
@@ -211,7 +210,6 @@ int piano_main(int argc, char** argv) {
     return 0;
 }
 
-/* piano_random: play a random song using the specified octave */
 int piano_random(int argc, char** argv) {
     int note_limit   = 1; /* Max notes the program will play */
     int note_count   = 0; /* Notes we played */

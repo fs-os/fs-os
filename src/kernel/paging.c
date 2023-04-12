@@ -7,13 +7,19 @@
 /* For readability */
 #define DIR_ENTRIES   1024
 #define TABLE_ENTRIES 1024
-#define PAGE_SIZE     4096 /* KiB */
+#define PAGE_SIZE     4096 /**< @brief In KiB */
 
-/* For example 128 tables mapped would map 512MiB of ram:
- *   512 MiB / 4 MiB (Memory mapped per table) = 128 filled table entries */
+/**
+ * @def TABLES_MAPPED
+ * @details For example 128 tables mapped would map 512MiB of ram: \n
+ *   512 MiB / 4 MiB (Memory mapped per table) = 128 filled table entries
+ */
+
 #define TABLES_MAPPED DIR_ENTRIES
 
-/* Symbols from linker script */
+/**
+ * @name Symbols from linker script
+ * @{ */
 extern uint8_t _text_start;
 extern uint8_t _text_end;
 extern uint8_t _rodata_start;
@@ -22,31 +28,38 @@ extern uint8_t _data_start;
 extern uint8_t _data_end;
 extern uint8_t _bss_start;
 extern uint8_t _bss_end;
+/**  @} */
 
+/**
+ * @brief Bits for the page directory entries.
+ */
 enum page_dir_flags {
-    PAGEDIR_PRESENT   = 0x1, /* 00000001 */
-    PAGEDIR_READWRITE = 0x2, /* 00000010 */
-    PAGEDIR_USER      = 0x4, /* 00000100. If 1, everybody can access it, if 0,
-                              * only supervisor */
-    PAGEDIR_PWT      = 0x8,  /* 00001000 */
-    PAGEDIR_PCD      = 0x10, /* 00010000 */
-    PAGEDIR_ACCESSED = 0x20, /* 00100000 */
-    PAGEDIR_AVL0     = 0x40, /* 01000000. Unused */
-    PAGEDIR_PAGESZ   = 0x80, /* 10000000. Pages are 4MiB if this bit is 1 */
+    PAGEDIR_PRESENT   = 0x1,
+    PAGEDIR_READWRITE = 0x2,
+    PAGEDIR_USER      = 0x4, /**< @brief If 1, everybody can access it, if 0,
+                               only supervisor */
+    PAGEDIR_PWT      = 0x8,
+    PAGEDIR_PCD      = 0x10,
+    PAGEDIR_ACCESSED = 0x20,
+    PAGEDIR_AVL0     = 0x40, /**< @brief Unused */
+    PAGEDIR_PAGESZ   = 0x80, /**< @brief Pages are 4MiB if this bit is 1 */
     /*  8..11 Available */
     /* 12..31 Bits 12..31 of the address */
 };
 
+/**
+ * @brief Bits for the page table entries.
+ */
 enum page_tab_flags {
-    PAGETAB_PRESENT   = 0x1,   /* 0000 0000 0001 */
-    PAGETAB_READWRITE = 0x2,   /* 0000 0000 0010 */
-    PAGETAB_USER      = 0x4,   /* 0000 0000 0100 */
-    PAGETAB_PWT       = 0x8,   /* 0000 0000 1000 */
-    PAGETAB_PCD       = 0x10,  /* 0000 0001 0000 */
-    PAGETAB_ACCESSED  = 0x20,  /* 0000 0010 0000 */
-    PAGETAB_DIRTY     = 0x40,  /* 0000 0100 0000. It has been written to */
-    PAGETAB_PAT       = 0x80,  /* 0000 1000 0000. Page attribute table */
-    PAGETAB_GLOBAL    = 0x100, /* 0001 0000 0000 */
+    PAGETAB_PRESENT   = 0x1,
+    PAGETAB_READWRITE = 0x2,
+    PAGETAB_USER      = 0x4,
+    PAGETAB_PWT       = 0x8,
+    PAGETAB_PCD       = 0x10,
+    PAGETAB_ACCESSED  = 0x20,
+    PAGETAB_DIRTY     = 0x40, /**< @brief It has been written to */
+    PAGETAB_PAT       = 0x80, /**< @brief Page attribute table */
+    PAGETAB_GLOBAL    = 0x100,
     /*  9..11 Available */
     /* 12..31 Bits 12..31 of the page address */
 };
@@ -54,8 +67,6 @@ enum page_tab_flags {
 uint32_t page_tables[DIR_ENTRIES][TABLE_ENTRIES] __attribute__((aligned(4096)));
 uint32_t page_directory[DIR_ENTRIES] __attribute__((aligned(4096)));
 
-/* paging_init: initialize the page directory and first table, load the page
- * directory and enable paging */
 void paging_init(void) {
     /* Initialize empty page directory */
     for (int i = 0; i < DIR_ENTRIES; i++) {
@@ -114,7 +125,6 @@ void paging_map(void* paddr, void* vaddr, uint16_t flags) {
 }
 #endif
 
-/* paging_show_map: display layout of current pages in memory */
 void paging_show_map(void) {
     typedef struct {
         uint32_t dir_i, tab_i;
@@ -194,4 +204,3 @@ void paging_show_map(void) {
         }
     }
 }
-

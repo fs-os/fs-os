@@ -13,14 +13,19 @@
 
 #define IDT_SZ 256
 
-/* Interrupt descriptor table itself, 256 entries */
+/** @brief Interrupt descriptor table itself, 256 entries. */
 idt_entry idt[IDT_SZ] = { 0 };
 
-/* The descriptor containing the idt size and ptr. Initialized in idt_init */
+/** @brief The descriptor containing the idt size and ptr. Initialized in
+ * idt_init. */
 idt_descriptor descriptor;
 
-/* register_isr: registers an interrupt service routine in the selected idt
- * idx */
+/**
+ * @brief Registers an interrupt service routine in the selected index of the
+ * idt array.
+ * @param idx Index of the idt array.
+ * @param func Casted pointer to ISR function.
+ */
 static void register_isr(uint16_t idx, uint32_t func) {
     if (idx >= IDT_SZ)
         panic_line("Idx out of bounds when registering ISR.");
@@ -36,25 +41,13 @@ static void register_isr(uint16_t idx, uint32_t func) {
     };
 }
 
-/* pic_remap: remap the programmable interrupt controllers so the interrupt
- * numbers of the master PIC don't overlap with the CPU exceptions */
+/**
+ * @brief Remap the programmable interrupt controllers so the interrupt numbers
+ * of the master PIC don't overlap with the CPU exceptions.
+ *
+ * See wiki for more details.
+ */
 static inline void pic_remap(void) {
-    /*
-     * Modern computers have 2 PICs (Programmable Interrupt Controller), the
-     * master and the slave. One line of the master PIC is used to signal the
-     * slave PIC. We are going to change the PIC interrupt numbers because by
-     * default, the ranges are:
-     *   IRQ 0..7  -> INT 0x08..0x0F
-     *   IRQ 8..15 -> INT 0x70..0x77
-     * The first 8 overlap with the CPU's exceptions (src/kernel/exceptions.c),
-     * so we need to move them.
-     * We communicate through the IO bus. Similar to the RTC, each PIC has a
-     * command port and a data port:
-     *   Master -> cmd: 0x20, data: 0x21
-     *   Slave  -> cmd: 0xA0, data: 0xA1
-     * TODO: The flags need comments with explanation.
-     */
-
     /* Start the initialization sequence in cascade mode */
     io_outb(PIC_MASTER_CMD, ICW1_INIT | ICW1_ICW4);
     io_outb(PIC_SLAVE_CMD, ICW1_INIT | ICW1_ICW4);
@@ -77,7 +70,6 @@ static inline void pic_remap(void) {
     io_outb(PIC_SLAVE_DATA, 0);
 }
 
-/* idt_init: initialize the idt and the idt descriptor */
 void idt_init(void) {
     /* Descriptor */
     descriptor.limit = (IDT_SZ * sizeof(idt_entry)) - 1;
@@ -87,7 +79,7 @@ void idt_init(void) {
      * with the CPU exceptions. See comment inside function. */
     pic_remap();
 
-    /* Exception Handling. exc_* defined in src/kernel/idt_asm.asm */
+    /* Exception Handling. exc_* defined in src/kernel/idt.asm */
     register_isr(0, (uint32_t)&exc_0);
     register_isr(1, (uint32_t)&exc_1);
     register_isr(2, (uint32_t)&exc_2);
@@ -110,20 +102,19 @@ void idt_init(void) {
     register_isr(20, (uint32_t)&exc_20);
     register_isr(30, (uint32_t)&exc_30);
 
-    /* IRQs. See src/kernel/idt_asm.asm */
+    /* IRQs. See src/kernel/idt.asm */
     register_isr(32, (uint32_t)&irq_pit); /* PIT. IRQ 0 */
     register_isr(33, (uint32_t)&irq_kb);  /* Keyboard. IRQ 1 */
 
-    /* Unused IRQs, just ignore. See src/kernel/idt_asm.asm */
+    /* Unused IRQs, just ignore. See src/kernel/idt.asm */
     for (int i = 34; i < 40; i++)
         register_isr(i, (uint32_t)&irq_default_master);
     for (int i = 40; i < 48; i++)
         register_isr(i, (uint32_t)&irq_default_slave);
 
-    /* src/kernel/idt_asm.asm */
+    /* See src/kernel/idt.asm */
     idt_load(&descriptor);
 
     /* Enable interrupts (opposite of cli) */
     asm("sti");
 }
-

@@ -1,4 +1,5 @@
 
+#include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <kernel/color.h>
@@ -6,8 +7,18 @@
 #include <kernel/framebuffer.h>
 #include <kernel/framebuffer_console.h>
 
-/* Converts a char position in the fbc to a pixel position (top left corner) */
+/**
+ * @brief Converts a char Y position in the fbc to a pixel position
+ * @param y Character position in the framebuffer console
+ * @return Pixel position in the screen of the char
+ */
 #define CHAR_Y_TO_PX(fy) (ctx->y + ((fy)*ctx->font->h))
+
+/**
+ * @brief Converts a char X position in the fbc to a pixel position
+ * @param x Character position in the framebuffer console
+ * @return Pixel position in the screen of the char
+ */
 #define CHAR_X_TO_PX(fx) (ctx->x + ((fx)*ctx->font->w))
 
 /*
@@ -24,14 +35,19 @@
 static fbc_ctx _first_ctx;
 static fbc_ctx* ctx = &_first_ctx;
 
-/* Bool that will be set to 1 if we know we are going to shift the console. See
- * framebuffer console wiki page */
+/**
+ * @brief Will be set to true if we know we are going to shift the console. See
+ * framebuffer console wiki page.
+ */
 static bool should_shift;
 
 /* -------------------------------------------------------------------------- */
 
-/* fbc_refresh_entry: refreshes the pixels on the screen corresponding to
- * ctx->fbc's entry at (cy, cx) */
+/**
+ * @brief Refreshes the pixels on the screen corresponding to the specified fbc
+ * character.
+ * @param cy, cx Position of the character we want to refresh in the fbc array
+ */
 static inline void fbc_refresh_entry(uint32_t cy, uint32_t cx) {
     /* Get the current fbc_entry */
     const fbc_entry cur_entry = ctx->fbc[cy * ctx->ch_w + cx];
@@ -58,9 +74,6 @@ static inline void fbc_refresh_entry(uint32_t cy, uint32_t cx) {
 
 /* -------------------------------------------------------------------------- */
 
-/* fbc_init: initialize the framebuffer console. First 4 parameters are position
- * and size in pixels of the console and the last one is the font. The font ptr
- * is stored and used to get the height and width of each char. */
 void fbc_init(uint32_t y, uint32_t x, uint32_t h, uint32_t w, Font* font) {
     ctx->y = y;
     ctx->x = x;
@@ -87,18 +100,14 @@ void fbc_init(uint32_t y, uint32_t x, uint32_t h, uint32_t w, Font* font) {
     fbc_refresh();
 }
 
-/* fbc_change_ctx: switches to the specified framebuffer console context */
 void fbc_change_ctx(fbc_ctx* new_ctx) {
     ctx = new_ctx;
 }
 
-/* fbc_get_ctx: returns the current framebuffer console context */
 fbc_ctx* fbc_get_ctx(void) {
     return ctx;
 }
 
-/* fbc_clear: clears the framebuffer console and moves cursor to the first
- * char */
 void fbc_clear(void) {
     ctx->cur_x = 0;
     ctx->cur_y = 0;
@@ -122,7 +131,6 @@ void fbc_clear(void) {
     }
 }
 
-/* fbc_clrtoeol: clear to end of line. Does not change cursor position */
 void fbc_clrtoeol(void) {
     /* Current position will be the end of the current line */
     ctx->fbc[ctx->cur_y * ctx->ch_w + ctx->cur_x] = (fbc_entry){
@@ -143,14 +151,11 @@ void fbc_clrtoeol(void) {
     }
 }
 
-/* fbc_sprint: prints zero-terminated string to the framebuffer console using
- * fbc_putchar */
 void fbc_sprint(const char* s) {
     while (*s > '\0')
         fbc_putchar(*s++);
 }
 
-/* fbc_putchar: prints "c" to the framebuffer console */
 void fbc_putchar(char c) {
     /* First of all, check if we need to shift the array. We need this kind of
      * "queue" system so the array doesn't immediately shift when a line ends
@@ -254,10 +259,6 @@ void fbc_putchar(char c) {
     }
 }
 
-/* fbc_refresh: updates each pixel of the framebuffer with the real one in
- * ctx->fbc. Calling this function everytime we update ctx->fbc would be slow.
- * Instead call this function on specific situations and we refresh the entries
- * we need when updating ctx->fbc (e.g. when calling fbc_putchar) */
 void fbc_refresh(void) {
     /* First iterate each char of the framebuffer console */
     for (uint32_t cy = 0; cy < ctx->ch_h; cy++)
@@ -265,8 +266,9 @@ void fbc_refresh(void) {
             fbc_refresh_entry(cy, cx);
 }
 
-/* fbc_shift_rows: scrolls the framebuffer terminal "n" rows (fbc_entry's) */
-/* TODO: Still not very fast. Optimize */
+/**
+ * @todo Still not very fast. Optimize.
+ */
 void fbc_shift_rows(uint8_t n) {
     /* Used to count the position of the last valid char in the line */
     uint32_t char_count = 0;
@@ -330,30 +332,24 @@ void fbc_shift_rows(uint8_t n) {
 
 /* -------------------------------------------------------------------------- */
 
-/* fbc_getcols: writes the current colors of the terminal to "fg" and "bg" */
 void fbc_getcols(uint32_t* fg, uint32_t* bg) {
     *fg = ctx->cur_cols.fg;
     *bg = ctx->cur_cols.bg;
 }
 
-/* fbc_setcol: sets the current foreground and background colors */
 void fbc_setcol(uint32_t fg, uint32_t bg) {
     ctx->cur_cols.fg = fg;
     ctx->cur_cols.bg = bg;
 }
 
-/* fbc_setfore: change the current foreground color */
 void fbc_setfore(uint32_t fg) {
     ctx->cur_cols.fg = fg;
 }
 
-/* fbc_setback: change the current background color */
 void fbc_setback(uint32_t bg) {
     ctx->cur_cols.bg = bg;
 }
 
-/* fbc_setcol_rgb: sets the current foreground and background colors in rgb
- * format */
 void fbc_setcol_rgb(uint8_t fore_r, uint8_t fore_g, uint8_t fore_b,
                     uint8_t back_r, uint8_t back_g, uint8_t back_b) {
     ctx->cur_cols.fg = rgb2col(fore_r, fore_g, fore_b);

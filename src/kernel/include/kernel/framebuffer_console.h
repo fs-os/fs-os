@@ -7,81 +7,142 @@
 #include <kernel/font.h>
 #include <kernel/color.h> /* color_pair */
 
+/**
+ * @brief Number of spaces per tab to be displayed
+ */
 #define FBC_TABSIZE 4
 
-/* Framebuffer console entry. Char and rgb fg and bg in uint32_t format */
+/**
+ * @brief Framebuffer console entry.
+ */
 typedef struct {
-    uint8_t c;
-    uint32_t fg;
-    uint32_t bg;
+    uint8_t c;   /**< @brief Char of the entry */
+    uint32_t fg; /**< @brief 32 bit foreground color */
+    uint32_t bg; /**< @brief 32 bit background color */
 } fbc_entry;
 
-/* Framebuffer console context. Used for example by ncurses. */
+/**
+ * @brief Framebuffer console context.
+ * @details Used for example by ncurses.
+ */
 typedef struct {
-    /* Global framebuffer console. Main fbc_entry array */
+    /** @brief Global framebuffer console. Main fbc_entry array */
     fbc_entry* fbc;
-    /* Global size in px of the framebuffer console */
+
+    /** @name Global size in px of the framebuffer console
+     * @{ */
     uint32_t y, x, h, w;
-    /* Global number of entry rows and cols that form the console (chars) */
+    /** @} */
+
+    /** @name Global number of entry rows and cols that form the console (chars)
+     * @{ */
     uint32_t ch_h, ch_w;
-    /* Global pointer to the font the framebufer console is using */
+    /** @} */
+
+    /** @brief Global pointer to the font the framebufer console is using */
     Font* font;
-    /* Current color we are using when printing. Foreground and background */
+
+    /** @brief Current color_pair we are using when printing. Foreground and
+     * background */
     color_pair cur_cols;
-    /* Current position on the console */
+
+    /** @name Current character position on the console
+     * @{ */
     uint32_t cur_y, cur_x;
+    /** @} */
 } fbc_ctx;
 
-/* fbc_init: initialize the framebuffer console. First 4 parameters are position
- * and size in pixels of the console and the last one is the font. The font ptr
- * is stored and used to get the height and width of each char. */
+/**
+ * @brief Initialize the framebuffer console
+ * @param y, x Position of the new console in px
+ * @param h, w Size of the new console in px
+ * @param[in] font Pointer to the font
+ */
 void fbc_init(uint32_t y, uint32_t x, uint32_t h, uint32_t w, Font* font);
 
-/* fbc_change_ctx: switches to the specified framebuffer console context */
+/**
+ * @brief Switches to the specified framebuffer console context
+ * @param[in] new_ctx New framebuffer console context
+ */
 void fbc_change_ctx(fbc_ctx* new_ctx);
 
-/* fbc_get_ctx: returns the current framebuffer console context */
+/**
+ * @brief Get the current framebuffer console context
+ * @return Current framebuffer console context
+ */
 fbc_ctx* fbc_get_ctx(void);
 
-/* fbc_clear: clears the framebuffer console and moves cursor to the first
- * char */
+/**
+ * @brief Clears the framebuffer console and moves cursor to the first char
+ */
 void fbc_clear(void);
 
-/* fbc_clrtoeol: clear to end of line. Does not change cursor position */
+/**
+ * @brief Clear to end of line
+ * @details Does not change cursor position
+ */
 void fbc_clrtoeol(void);
 
-/* fbc_sprint: prints zero-terminated string to the framebuffer console using
- * fbc_putchar */
+/**
+ * @brief prints zero-terminated string to the framebuffer console using
+ * fbc_putchar()
+ * @param s Zero-terminated string to print
+ */
 void fbc_sprint(const char* s);
 
-/* fbc_putchar: prints "c" to the framebuffer console */
+/**
+ * @brief Prints \p c to the framebuffer console
+ * @param c Char to print
+ */
 void fbc_putchar(char c);
 
-/* fbc_refresh: updates each pixel of the framebuffer with the real one in
- * ctx.fbc. Calling this function everytime we update ctx.fbc would be slow.
- * Instead call this function on specific situations and we refresh the entries
- * we need when updating ctx.fbc (e.g. when calling fbc_putchar) */
+/**
+ * @brief Updates each pixel of the framebuffer with the real one in ctx->fbc.
+ * @details Calling this function everytime we update ctx.fbc would be slow.
+ * Instead we call this function on specific situations and we refresh the
+ * entries we need when updating ctx->fbc (e.g. when calling fbc_putchar())
+ */
 void fbc_refresh(void);
 
-/* fbc_shift_rows: scrolls the framebuffer terminal "n" rows (fbc_entry's) */
+/**
+ * @brief Scrolls the framebuffer terminal \p n rows.
+ * @param n Number of rows to shift
+ */
 void fbc_shift_rows(uint8_t n);
 
-/* fbc_getcols: writes the current colors of the terminal to "fg" and "bg" */
+/* fbc_getcols:  */
+/**
+ * @brief Writes the current colors of the terminal to \p fg and \p bg.
+ * @param[out] fg Foreground color dst pointer
+ * @param[out] bg Background color dst pointer
+ */
 void fbc_getcols(uint32_t* fg, uint32_t* bg);
 
-/* fbc_setcol: sets the current foreground and background colors */
+/**
+ * @brief Sets the specified colors for the terminal.
+ * @param[in] fg Foreground color
+ * @param[in] bg Background color
+ */
 void fbc_setcol(uint32_t fg, uint32_t bg);
 
-/* fbc_setfore: change the current foreground color */
+/**
+ * @brief Sets the specified foreground color for the terminal.
+ * @param[in] fg Foreground color
+ */
 void fbc_setfore(uint32_t fg);
 
-/* fbc_setback: change the current background color */
+/**
+ * @brief Sets the specified background color for the terminal.
+ * @param[in] bg Background color
+ */
 void fbc_setback(uint32_t bg);
 
-/* fbc_setcol_rgb: sets the current foreground and background colors in rgb
- * format */
+/**
+ * @brief Sets the current foreground and background colors in rgb format
+ * @param fore_r, fore_g, fore_b Foreground color in rgb format
+ * @param back_r, back_g, back_b Background color in rgb format
+ */
 void fbc_setcol_rgb(uint8_t fore_r, uint8_t fore_g, uint8_t fore_b,
                     uint8_t back_r, uint8_t back_g, uint8_t back_b);
 
 #endif /* _KERNEL_FRAMEBUFFER_CONSOLE_H */
-

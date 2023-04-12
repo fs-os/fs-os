@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <kernel/multitask.h>
 
-/* dump_task_list: print the list of tasks starting with the current one */
 void dump_task_list(void) {
     puts("Dumping task list:");
 

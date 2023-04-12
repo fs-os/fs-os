@@ -1,9 +1,4 @@
 
-/*
- * For more information see:
- *   https://wiki.osdev.org/Bare_Bones#Implementing_the_Kernel
- */
-
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -26,7 +21,7 @@
 #include <kernel/keyboard.h>            /* kb_setlayout, kb_getchar_init */
 #include <kernel/multitask.h>           /* mt_init */
 
-#include <kernel/multiboot.h> /* multiboot info structure */
+#include <kernel/multiboot.h> /* Multiboot info structure */
 #include <fonts/main_font.h>
 
 #include "../apps/sh/sh.h" /* sh_main */
@@ -133,8 +128,12 @@ static inline void test_colors(void) {
     fbc_setfore(COLOR_WHITE);
 }
 
-/* print_logo: prints the logo from logo.h using the GIMP macro */
-void print_logo(unsigned int ypad, unsigned int xpad) {
+/**
+ * @brief Prints the OS logo using the GIMP macro
+ * @param ypad Top padding in px
+ * @param xpad Left padding in px
+ */
+static void print_logo(unsigned int ypad, unsigned int xpad) {
     char rgb[3] = { 0 };
     /* Copy ptr because HEADER_PIXEL increases it */
     char* logo_ptr = fsos_logo_s;
@@ -147,7 +146,11 @@ void print_logo(unsigned int ypad, unsigned int xpad) {
     }
 }
 
-/* kernel_main: Called by boot.asm */
+/**
+ * @brief C entry point of the kernel. Called by boot.asm
+ * @param mb_info Pointer to the Multiboot information struct from the
+ * bootloader.
+ */
 void kernel_main(Multiboot* mb_info) {
     idt_init();
     paging_init();
@@ -235,4 +238,3 @@ void kernel_main(Multiboot* mb_info) {
 
     __builtin_unreachable();
 }
-

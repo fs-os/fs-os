@@ -14,7 +14,11 @@
 
 #include <kernel/keyboard.h> /* kb_getchar */
 
-/* print: calls "putchar" for each char of "str". Returns bytes written. */
+/**
+ * @brief Prints the speicified string using putchar.
+ * @param[in] str Zero terminated string to print.
+ * @return Bytes written.
+ */
 static inline int print(const char* str) {
     while (*str != '\0')
         putchar(*str++);
@@ -22,8 +26,13 @@ static inline int print(const char* str) {
     return 0;
 }
 
-/* prints_n: similar to print, but adds strlen("str") - "pad" spaces before "str".
- * Used for "%123s" */
+/**
+ * @brief Print string with padding.
+ * @details Similar to print(), but adds `strlen(str) - pad` spaces before
+ * "str". Used for "%123s"
+ * @param[in] str String to print.
+ * @param[in] pad Padding for the string.
+ */
 static void prints_n(const char* str, uint32_t pad) {
     int final_pad = pad - strlen(str);
 
@@ -33,8 +42,11 @@ static void prints_n(const char* str, uint32_t pad) {
     print(str);
 }
 
-/* printi: similar to stdlib's itoan, but instead of writing to buffer, prints. Used
- * by printf's "%i". */
+/**
+ * @brief Similar to stdlib's itoan, but instead of writing to buffer, prints.
+ * @details Used by printf's "%i".
+ * @param[in] num Number to print.
+ */
 static void printi(int64_t num) {
     /* Write '-' for negative numbers and convert number to positive */
     if (num < 0) {
@@ -47,8 +59,13 @@ static void printi(int64_t num) {
         putchar((num / ipow(10, cur_digit)) % 10 + '0');
 }
 
-/* printi_n: similar to printi, but adds digits("num") - "pad" zeros before "num".
- * Used for "%123d" */
+/**
+ * @brief Print integer with padding.
+ * @details Similar to printi(), but adds `digits(num) - pad` zeros before num.
+ * Used for "%123d"
+ * @param[in] num Number to print.
+ * @param[in] pad Padding for the number.
+ */
 static void printi_n(int64_t num, uint32_t pad) {
     uint8_t sign = (num < 0) ? 1 : 0;
     if (sign)
@@ -66,7 +83,11 @@ static void printi_n(int64_t num, uint32_t pad) {
     print(converted_num);
 }
 
-/* printx: print "num" in hexadecimal format (lowercase). Does not support sign */
+/**
+ * @brief Print integer in hexadecimal format (lowercase).
+ * @details Does not support sign.
+ * @param[in] num Number to print in hex format.
+ */
 static void printx(int64_t num) {
     if (num <= 0)
         print("0");
@@ -93,8 +114,14 @@ static void printx(int64_t num) {
     print(hex_str);
 }
 
-/* printx_n: similar to printi, but adds digits("num") - "pad" zeros before "num".
- * Used for "%123x", "%123X", "%123lx", "%123lX" */
+/**
+ * @brief Print integer in hexadecimal format with padding.
+ * @details Similar to printx(), but adds `digits(num) - pad` zeros before num.
+ * Used for "%123x", "%123X"
+ * @param[in] num Number to print in hex format.
+ * @param[in] pad Padding for the number.
+ * @param[in] uppercase If true will use uppercase hex chars.
+ */
 static void printx_n(int64_t num, uint32_t pad, bool uppercase) {
     const char upper_c = uppercase ? 'A' : 'a';
 
@@ -126,7 +153,11 @@ static void printx_n(int64_t num, uint32_t pad, bool uppercase) {
     print(hex_str);
 }
 
-/* printX: print "num" in hexadecimal format (uppercase). Does not support sign */
+/**
+ * @brief Print integer in hexadecimal format (uppercase).
+ * @details Does not support sign.
+ * @param[in] num Number to print in hex format.
+ */
 static void printX(int64_t num) {
     if (num <= 0)
         print("0");
@@ -152,7 +183,12 @@ static void printX(int64_t num) {
     strrev(hex_str);
     print(hex_str);
 }
-/* printp: print the "ptr" address in hexadecimal format (lowercase) */
+
+/**
+ * @brief Print the address of the specified pointer in hex format.
+ * @details Prints "(null)" if NULL.
+ * @param[inout] ptr Pointer to print.
+ */
 static void printp(void* ptr) {
     if (ptr == NULL) {
         print("(null)");
@@ -162,12 +198,11 @@ static void printp(void* ptr) {
     }
 }
 
-/* puts: prints "str" and a newline char */
 int puts(const char* str) {
-    return printf("%s\n", str);
+    printf("%s\n", str);
+    return 1; /* EOF means failure */
 }
 
-/* printf: prints with format "fmt" */
 int printf(const char* fmt, ...) {
     va_list va;
     va_start(va, fmt);
@@ -178,17 +213,6 @@ int printf(const char* fmt, ...) {
     return ret;
 }
 
-/* vprintf: prints with format "fmt" using the variable argument list "va". Formats
- * supported:
- *   - "%c"
- *   - "%s", "%25s"
- *   - "%d", "%l", "%ll", "%ld", "%lld"
- *   - "%25d", "%25l", "%25ll", "%25ld", "%25lld"
- *   - "%x", "%lx", "%llx", "%25x", "%25lx", "%25llx"
- *   - "%X", "%lX", "%llX", "%25X", "%25lX", "%25llX"
- *   - "%p"
- *   - "%%"
- */
 int vprintf(const char* fmt, va_list va) {
     int written = 0;
 
@@ -199,7 +223,7 @@ int vprintf(const char* fmt, va_list va) {
             if (written < INT_MAX)
                 written++;
             else
-                return -1; /* TODO: Set errno to EOVERFLOW */
+                return -1; /**< @todo Set errno to EOVERFLOW */
 
             switch (*fmt) {
                 case 'c':
@@ -209,12 +233,13 @@ int vprintf(const char* fmt, va_list va) {
                     const char* va_str = va_arg(va, const char*);
                     print(va_str);
 
-                    /* If printing a string from va_list, add len to "written" */
+                    /* If printing a string from va_list, add len to "written"
+                     */
                     int va_strlen = strlen(va_str);
                     if (written + va_strlen < INT_MAX)
                         written += va_strlen;
                     else
-                        return -1; /* TODO: Set errno to EOVERFLOW */
+                        return -1; /**< @todo Set errno to EOVERFLOW */
 
                     break;
                 case 'd':
@@ -230,7 +255,8 @@ int vprintf(const char* fmt, va_list va) {
                     printp(va_arg(va, void*));
                     break;
                 case 'l':
-                    /* Check pattern. Not the best way but good enough for now */
+                    /* Check pattern. Not the best way but good enough for now
+                     */
                     if (memcmp(fmt, "ld", 2) == 0) {
                         fmt++;                        /* The 'l' */
                         printi(va_arg(va, long int)); /* "%ld" */
@@ -299,10 +325,12 @@ int vprintf(const char* fmt, va_list va) {
                                     printi_n(va_arg(va, long int), fmt_num);
                                     break;
                                 case 'x':
-                                    printx_n(va_arg(va, long int), fmt_num, false);
+                                    printx_n(va_arg(va, long int), fmt_num,
+                                             false);
                                     break;
                                 case 'X':
-                                    printx_n(va_arg(va, long int), fmt_num, true);
+                                    printx_n(va_arg(va, long int), fmt_num,
+                                             true);
                                     break;
                                 case 'l':
                                     fmt++;
@@ -342,7 +370,7 @@ int vprintf(const char* fmt, va_list va) {
                     break;
             }
         } else {
-            /* TODO: Any kind of return value check? */
+            /** @todo Return value check? */
             putchar(*fmt);
         }
 
@@ -350,13 +378,12 @@ int vprintf(const char* fmt, va_list va) {
         if (written < INT_MAX)
             written++;
         else
-            return -1; /* TODO: Set errno to EOVERFLOW */
+            return -1; /**< @todo Set errno to EOVERFLOW */
     }
 
     return written;
 }
 
-/* putchar: prints the single character "c" */
 int putchar(int c) {
     const char tmp = (char)c;
 
@@ -369,8 +396,6 @@ int putchar(int c) {
     return tmp;
 }
 
-/* getchar: wrapper for kb_getchar */
 int getchar(void) {
     return kb_getchar();
 }
-

@@ -272,6 +272,9 @@ Beep thunderstruck[] = {
 
 #define LENGTH(arr) (sizeof(arr) / sizeof(arr[0]))
 
+/**
+ * @brief Play the thunderstruck Beep array.
+ */
 static inline void play_thunderstruck(void) {
     fbc_setfore(COLOR_GREEN_B);
     printf("Playing thunderstruck... Press \'q\' to stop.\n");
@@ -294,4 +297,3 @@ static inline void play_thunderstruck(void) {
 
     putchar('\n');
 }
-
