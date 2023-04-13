@@ -24,7 +24,7 @@ ASM_OBJS=obj/kernel/boot.asm.o obj/kernel/io.asm.o obj/kernel/gdt.asm.o obj/kern
 # List of object files containing the app functions. For now built into the kernel
 # until we have a proper userspace.
 # sh means src/apps/sh/sh.c will be compiled to obj/apps/sh.c.o
-APP_OBJS=obj/apps/sh/sh.c.o obj/apps/piano/piano.c.o obj/apps/minesweeper/minesweeper.c.o
+APP_OBJS=obj/apps/sh/sh.c.o obj/apps/piano/piano.c.o obj/apps/minesweeper/minesweeper.c.o obj/apps/5x5/5x5.c.o
 
 # Libk is the libc version (with some changes) that the kernel uses for building. We
 # don't need a static lib, because we can just link the kernel with these objs
