@@ -19,6 +19,7 @@
 
 #include "../piano/piano.h"
 #include "../minesweeper/minesweeper.h"
+#include "../5x5/5x5.h"
 #include "../../media/soviet_anthem.h"
 #include "../../media/thunderstruck.h"
 
@@ -56,6 +57,7 @@ static int cmd_beep(int argc, char** argv);
 /* piano_main */
 /* piano_random */
 /* minesweeper_main */
+/* main_5x5 */
 static int cmd_page_map();
 static int cmd_heap_headers();
 static int cmd_test_libk();
@@ -133,6 +135,11 @@ static Command cmd_list[] = {
       "minesweeper",
       "Simple terminal minesweeper",
       &minesweeper_main,
+    },
+    {
+      "5x5",
+      "Simple 5x5 game",
+      &main_5x5,
     },
     {
       "page_map",
@@ -490,4 +497,3 @@ static int cmd_play(int argc, char** argv) {
     printf("Invalid song name: \"%s\"\n", argv[1]);
     return 1;
 }
-
