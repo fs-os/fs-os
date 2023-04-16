@@ -95,8 +95,8 @@ mt_newtask:
     ;
     push    ecx                             ; Preserve 2nd arg
     mov     edx, [mt_current_task]          ; edx = &cur
-    mov     [eax + ctx_t.prev], edx         ; new.prev = &cur
     mov     ecx, [edx + ctx_t.next]         ; ecx = cur.next
+    mov     [eax + ctx_t.prev], edx         ; new.prev = &cur
     mov     [eax + ctx_t.next], ecx         ; new.next = cur.next
     mov     [edx + ctx_t.next], eax         ; cur.next = &new
     mov     [ecx + ctx_t.prev], eax         ; cur.next.prev = &new
