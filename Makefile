@@ -52,9 +52,10 @@ clean:
 
 .PHONY: sysroot sysroot_headers sysroot_lib sysroot_boot
 
-# Would be the same as: "Copy the headers to the sysroot, compile libc into object
-# files, make the static lib and copy it to the sysroot, build the kernel binary and
-# copy it to the sysroot"
+# Description of this target: Copy the headers to the sysroot, compile libc into
+# object files, make the static lib and copy it to the sysroot, build the kernel
+# binary and copy it to the sysroot.
+# TODO: Don't copy headers if they are updated.
 sysroot: sysroot_headers sysroot_lib sysroot_boot
 
 # Create the sysroot, copy the headers into the destination (include folder)
@@ -69,8 +70,8 @@ sysroot_lib: $(LIBC)
 	cp --preserve=timestamps $(LIBC) $(SYSROOT_LIBDIR)/
 
 # Create the sysroot, copy the kernel binary to destination (boot folder).
-# Make a target for the sysroot kernel file so $(ISO) doesn't have phony targets as
-# rules.
+# Make a target for the sysroot kernel file so $(ISO) doesn't have phony targets
+# as rules.
 sysroot_boot: $(SYSROOT_KERNEL)
 $(SYSROOT_KERNEL): $(KERNEL_BIN)
 	@mkdir -p $(SYSROOT_BOOTDIR)
@@ -78,9 +79,9 @@ $(SYSROOT_KERNEL): $(KERNEL_BIN)
 
 # ----------------------------------------------------------------------------------
 
-# Use the sysroot kernel path as rule to make sure we have the sysroot ready. User
-# should run "make sysroot" before "make all". Sysroot already has all the components
-# (kernel, inlcudes, lib) compiled and copied into it.
+# Use the sysroot kernel path as rule to make sure we have the sysroot ready.
+# User should run "make sysroot" before "make all". Sysroot already has all the
+# components (kernel, inlcudes, lib) compiled and copied into it.
 $(ISO): $(SYSROOT_KERNEL) limine
 	mkdir -p iso/boot/
 	cp $(SYSROOT_KERNEL) iso/boot/$(KERNEL_BIN)
@@ -96,7 +97,8 @@ limine:
 	git clone https://github.com/limine-bootloader/limine.git --branch=v4.x-branch-binary --depth=1
 	make -C limine
 
-# We will use the same compiler for linking. Use sysroot for including with <>, etc.
+# We will use the same compiler for linking. Use sysroot for including with
+# <lib.h>, etc.
 $(KERNEL_BIN): cfg/linker.ld $(ASM_OBJS) $(KERNEL_OBJS) $(LIBK_OBJS) $(APP_OBJS)
 	$(CC) --sysroot=sysroot -isystem=/usr/include -T cfg/linker.ld -o $@ -ffreestanding -nostdlib $(CFLAGS) $(ASM_OBJS) $(KERNEL_OBJS) $(LIBK_OBJS) $(APP_OBJS) -lgcc
 
@@ -104,9 +106,9 @@ $(ASM_OBJS): obj/kernel/%.o: src/kernel/%
 	@mkdir -p $(dir $@)
 	$(ASM) $(ASM_FLAGS) $< -o $@
 
-# We need the sysroot with the includes and the static lib for building the kernel,
-# framebuffer, etc. We called 'make sysroot' in the 'all' target so we should be
-# fine.
+# We need the sysroot with the includes and the static lib for building the
+# kernel, framebuffer, etc. We called 'make sysroot' in the 'all' target so we
+# should be fine.
 $(KERNEL_OBJS): obj/kernel/%.o: src/kernel/%
 	@mkdir -p $(dir $@)
 	$(CC) --sysroot=sysroot -isystem=/usr/include -c $< -o $@ -ffreestanding -std=gnu11 $(CFLAGS) -Iinclude
@@ -115,11 +117,11 @@ $(APP_OBJS): obj/apps/%.o: src/apps/%
 	@mkdir -p $(dir $@)
 	$(CC) --sysroot=sysroot -isystem=/usr/include -c $< -o $@ -ffreestanding -std=gnu11 $(CFLAGS) -Iinclude
 
-# Libk is a modified version of libc for building the kernel. We don't need a static
-# lib for libk, we will just link the kernel with these objs.
-# TODO: Doesn't have its own include folder, so it uses the same headers as libc. If
-# some function parameters need to change, or we need to add a custom function for
-# the kernel, make libk header folder in sysroot.
+# Libk is a modified version of libc for building the kernel. We don't need a
+# static lib for libk, we will just link the kernel with these objs.
+# NOTE: Doesn't have its own include folder, so it uses the same headers as
+# libc. If some function parameters need to change, or we need to add a custom
+# function for the kernel, make libk header folder in sysroot.
 $(LIBK_OBJS): obj/libk/%.o : src/libk/%
 	@mkdir -p $(dir $@)
 	$(CC) --sysroot=sysroot -isystem=/usr/include -c $< -o $@ -ffreestanding -std=gnu11 $(CFLAGS) -Iinclude
@@ -128,8 +130,8 @@ $(LIBC_OBJS): obj/libc/%.o : src/libc/%
 	@mkdir -p $(dir $@)
 	$(CC) --sysroot=sysroot -isystem=/usr/include -c $< -o $@ -ffreestanding -std=gnu11 $(CFLAGS) -Iinclude
 
-# Libc used for the userspace. Currently useless. Archive the library objects into a
-# static library.
+# Libc used for the userspace. Currently useless. Archive the library objects
+# into a static library.
 $(LIBC): $(LIBC_OBJS)
 	$(AR) rcs $(LIBC) $(LIBC_OBJS)
 
