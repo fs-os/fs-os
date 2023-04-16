@@ -58,22 +58,22 @@ clean:
 sysroot: sysroot_headers sysroot_lib sysroot_boot
 
 # Create the sysroot, copy the headers into the destination (include folder)
-sysroot_headers:
-	@mkdir -p $(SYSROOT)/$(SYSROOT_INCLUDEDIR)
-	cp -R --preserve=timestamps $(KERNEL_INCLUDES)/. $(SYSROOT)/$(SYSROOT_INCLUDEDIR)/.
-	cp -R --preserve=timestamps $(LIBC_INCLUDES)/. $(SYSROOT)/$(SYSROOT_INCLUDEDIR)/.
+sysroot_headers: $(KERNEL_INCLUDES)/* $(LIBC_INCLUDES)/*
+	@mkdir -p $(SYSROOT_INCLUDEDIR)
+	cp -R --preserve=timestamps $(KERNEL_INCLUDES)/. $(SYSROOT_INCLUDEDIR)/.
+	cp -R --preserve=timestamps $(LIBC_INCLUDES)/. $(SYSROOT_INCLUDEDIR)/.
 
 # Create the sysroot, copy the libc static library to destination (lib folder).
 sysroot_lib: $(LIBC)
-	@mkdir -p $(SYSROOT)/$(SYSROOT_LIBDIR)
-	cp --preserve=timestamps $(LIBC) $(SYSROOT)/$(SYSROOT_LIBDIR)/
+	@mkdir -p $(SYSROOT_LIBDIR)
+	cp --preserve=timestamps $(LIBC) $(SYSROOT_LIBDIR)/
 
 # Create the sysroot, copy the kernel binary to destination (boot folder).
 # Make a target for the sysroot kernel file so $(ISO) doesn't have phony targets as
 # rules.
 sysroot_boot: $(SYSROOT_KERNEL)
 $(SYSROOT_KERNEL): $(KERNEL_BIN)
-	@mkdir -p $(SYSROOT)/$(SYSROOT_BOOTDIR)
+	@mkdir -p $(SYSROOT_BOOTDIR)
 	cp --preserve=timestamps $(KERNEL_BIN) $(SYSROOT_KERNEL)
 
 # ----------------------------------------------------------------------------------

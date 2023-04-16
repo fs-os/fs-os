@@ -37,11 +37,10 @@ LIBC=obj/libc.a
 
 # sysroot paths
 SYSROOT=./sysroot
-SYSROOT_INCLUDEDIR=usr/include
-SYSROOT_LIBDIR=usr/lib
-SYSROOT_BOOTDIR=boot
-
-SYSROOT_KERNEL=$(SYSROOT)/$(SYSROOT_BOOTDIR)/$(KERNEL_BIN)
+SYSROOT_INCLUDEDIR=$(SYSROOT)/usr/include
+SYSROOT_LIBDIR=$(SYSROOT)/usr/lib
+SYSROOT_BOOTDIR=$(SYSROOT)/boot
+SYSROOT_KERNEL=$(SYSROOT_BOOTDIR)/$(KERNEL_BIN)
 
 # Paths for moving the headers to the sysroot. For example:
 # (src/libc/include/*.h -> sysroot/usr/include/*.h)
