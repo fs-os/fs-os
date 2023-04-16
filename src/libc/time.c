@@ -4,16 +4,36 @@
 #include <kernel/pit.h>
 #include <kernel/rtc.h>
 
+#define DAYSPER4YEARS (365 * 4 + 1)
+
+/**
+ * @var days
+ * @brief Days in each of the 4 year leap cycles. Used by time()
+ */
+static const uint16_t days_v[4][12] = {
+    { 0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335 },
+    { 366, 397, 425, 456, 486, 517, 547, 578, 609, 639, 670, 700 },
+    { 731, 762, 790, 821, 851, 882, 912, 943, 974, 1004, 1035, 1065 },
+    { 1096, 1127, 1155, 1186, 1216, 1247, 1277, 1308, 1339, 1369, 1400, 1430 },
+};
+
+/** @todo: Needs like 900 million seconds more :) */
 uint32_t time(void* tloc) {
     (void)tloc; /* Unused */
 
     DateTime now = rtc_get_datetime();
 
-    /**
-     * @todo Search mktime function from glibc or something:
-     * https://www.epochconverter.com/programming/c
-     * */
-    return now.time.s;
+    const uint16_t sec  = now.time.s;
+    const uint16_t min  = now.time.m;
+    const uint16_t hour = now.time.h;
+    const uint16_t day  = now.date.d - 1; /* -1 to get days[][] idx */
+    const uint16_t mon  = now.date.m - 1; /* -1 to get days[][] idx */
+    const uint16_t year = now.date.y;
+
+    /* Days since epoch. Days in the previous 4 year cycles + days inside the
+     * current 4 year cycle. */
+    const int days = (year / 4 * DAYSPER4YEARS + days_v[year % 4][mon] + day);
+    return ((days * 24 + hour) * 60 + min) * 60 + sec;
 }
 
 void sleep(uint32_t sec) {

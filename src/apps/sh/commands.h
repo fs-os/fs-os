@@ -277,6 +277,10 @@ static int cmd_date() {
     fbc_setfore(COLOR_GRAY);
     printf("%2d/%2d/%2d - %2d:%2d:%2d\n", now.date.d, now.date.m, now.date.y,
            now.time.h, now.time.m, now.time.s);
+    fbc_setfore(COLOR_WHITE_B);
+    printf("Epoch: ");
+    fbc_setfore(COLOR_GRAY);
+    printf("%ld\n", time(NULL));
     fbc_setfore(COLOR_WHITE);
 
     return 0;
