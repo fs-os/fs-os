@@ -56,6 +56,8 @@ clean:
 # object files, make the static lib and copy it to the sysroot, build the kernel
 # binary and copy it to the sysroot.
 # TODO: Don't copy headers if they are updated.
+# NOTE: Maybe it can be fixed using `$?`:
+#   https://www.gnu.org/software/make/manual/html_node/Automatic-Variables.html
 sysroot: sysroot_headers sysroot_lib sysroot_boot
 
 # Create the sysroot, copy the headers into the destination (include folder)
