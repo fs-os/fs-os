@@ -30,13 +30,15 @@ int printf(const char* fmt, ...) __attribute__((format(printf, 1, 2)));
  *
  * Formats supported:
  *   - "%c"
- *   - "%s", "%25s"
- *   - "%d", "%l", "%ll", "%ld", "%lld"
- *   - "%25d", "%25l", "%25ll", "%25ld", "%25lld"
- *   - "%x", "%lx", "%llx", "%25x", "%25lx", "%25llx"
- *   - "%X", "%lX", "%llX", "%25X", "%25lX", "%25llX"
  *   - "%p"
  *   - "%%"
+ *   - "%s", "%25s"
+ *   - "%d", "%ld", "%lld"
+ *   - "%u", "%lu", "%llu"
+ *   - "%x", "%lx", "%llx", "%X", "%lX", "%llX"
+ *   - "%25d", "%25ld", "%25lld"
+ *   - "%25u", "%25lu", "%25llu"
+ *   - "%25x", "%25lx", "%25llx", "%25X", "%25lX", "%25llX"
  *
  * @param[in] fmt Format string.
  * @param[in] va Variable argument list.

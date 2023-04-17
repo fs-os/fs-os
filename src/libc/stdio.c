@@ -226,8 +226,7 @@ int vprintf(const char* fmt, va_list va) {
                     const char* va_str = va_arg(va, const char*);
                     print(va_str);
 
-                    /* If printing a string from va_list, add len to "written"
-                     */
+                    /* Add len to "written" if printing a string from va_list */
                     int va_strlen = strlen(va_str);
                     if (written + va_strlen < INT_MAX)
                         written += va_strlen;
@@ -237,6 +236,9 @@ int vprintf(const char* fmt, va_list va) {
                     break;
                 case 'd':
                     printi(va_arg(va, int));
+                    break;
+                case 'u':
+                    printi(va_arg(va, unsigned int));
                     break;
                 case 'x':
                     printx(va_arg(va, int));
@@ -248,35 +250,57 @@ int vprintf(const char* fmt, va_list va) {
                     printp(va_arg(va, void*));
                     break;
                 case 'l':
-                    /* Check pattern. Not the best way but good enough for now
-                     */
-                    if (memcmp(fmt, "ld", 2) == 0) {
-                        fmt++;                        /* The 'l' */
-                        printi(va_arg(va, long int)); /* "%ld" */
-                    } else if (memcmp(fmt, "lx", 2) == 0) {
-                        fmt++;                        /* The 'l' */
-                        printx(va_arg(va, long int)); /* "%lx" */
-                    } else if (memcmp(fmt, "lX", 2) == 0) {
-                        fmt++;                        /* The 'l' */
-                        printX(va_arg(va, long int)); /* "%lX" */
-                    } else if (memcmp(fmt, "ll", 2) == 0) {
-                        fmt++; /* The 'l' */
+                    fmt++; /* Skip the first 'l' */
 
-                        if (memcmp(fmt, "lx", 2) == 0) {
-                            fmt++;                             /* The 'x' */
-                            printx(va_arg(va, long long int)); /* "%llx" */
-                        } else if (memcmp(fmt, "lX", 2) == 0) {
-                            fmt++;                             /* The 'X' */
-                            printX(va_arg(va, long long int)); /* "%llX" */
-                        } else if (memcmp(fmt, "ld", 2) == 0) {
-                            fmt++;                             /* The 'd' */
-                            printi(va_arg(va, long long int)); /* "%lld" */
-                        } else {
-                            printi(va_arg(va, long long int)); /* "%ll???" */
-                        }
-                    } else {
-                        printi(va_arg(va, long int)); /* "%l???" */
-                    }
+                    /* Check pattern  */
+                    switch (*fmt) {
+                        default: /* "%l?" -> "%ld" */
+                            /* If it is an unknown char, subtract one and print
+                             * int. We subtract one here because we want to
+                             * analize the char on the next iteration, and it
+                             * will get increased after the format switch. */
+                            fmt--;
+
+                            /* Adding this again is better than falling through
+                             * to 'd' */
+                            printi(va_arg(va, long));
+                            break;
+                        case 'd': /* "%ld" */
+                            printi(va_arg(va, long));
+                            break;
+                        case 'u': /* "%lu" */
+                            printi(va_arg(va, unsigned long));
+                            break;
+                        case 'x': /* "%lx" */
+                            printx(va_arg(va, long));
+                            break;
+                        case 'X': /* "%lX" */
+                            printX(va_arg(va, long));
+                            break;
+                        case 'l':
+                            fmt++; /* Skip the second 'l' */
+
+                            switch (*fmt) {
+                                default: /* "%ll?" -> "%lld" */
+                                    /* See previous comment on "%ld" */
+                                    fmt--;
+                                    printi(va_arg(va, long long));
+                                    break;
+                                case 'd': /* "%lld" */
+                                    printi(va_arg(va, long long));
+                                    break;
+                                case 'u': /* "%llu" */
+                                    printi(va_arg(va, unsigned long long));
+                                    break;
+                                case 'x': /* "%llx" */
+                                    printx(va_arg(va, long long));
+                                    break;
+                                case 'X': /* "%llX" */
+                                    printX(va_arg(va, long long));
+                                    break;
+                            } /* %lld switch */
+                            break;
+                    } /* %ld switch */
 
                     break;
                 case '0': /* Not necessary */
@@ -298,61 +322,84 @@ int vprintf(const char* fmt, va_list va) {
                         fmt++;
                     } while (*fmt >= '0' && *fmt <= '9');
 
+                    /*
+                     * Now fmt points to the format char:
+                     *  "%123lld"
+                     *       ^
+                     */
                     switch (*fmt) {
                         case 'd': /* "%123d" */
                             printi_n(va_arg(va, int), fmt_num);
                             break;
-                        case 'x':
+                        case 'u': /* "%123u" */
+                            printi_n(va_arg(va, unsigned int), fmt_num);
+                            break;
+                        case 'x': /* "%123x" */
                             printx_n(va_arg(va, int), fmt_num, false);
                             break;
-                        case 'X':
+                        case 'X': /* "%123X" */
                             printx_n(va_arg(va, int), fmt_num, true);
                             break;
-                        case 'l': /* "%123ld", "%123llx", ... */
-                            fmt++;
+                        case 'l':  /* "%123ld", "%123lld", ... */
+                            fmt++; /* Skip the first 'l' of "%123lld" */
 
-                            /* 123ld (long) */
                             switch (*fmt) {
-                                default:
-                                case 'd':
-                                    printi_n(va_arg(va, long int), fmt_num);
+                                default: /* "%123l?" -> "%123ld" */
+                                    /* See previous comment on "%ld" */
+                                    fmt--;
+                                    printi_n(va_arg(va, long), fmt_num);
                                     break;
-                                case 'x':
-                                    printx_n(va_arg(va, long int), fmt_num,
-                                             false);
+                                case 'd': /* "%123ld" */
+                                    printi_n(va_arg(va, long), fmt_num);
                                     break;
-                                case 'X':
-                                    printx_n(va_arg(va, long int), fmt_num,
-                                             true);
+                                case 'u': /* "%123lu" */
+                                    printi_n(va_arg(va, unsigned long),
+                                             fmt_num);
                                     break;
-                                case 'l':
+                                case 'x': /* "%123lx" */
+                                    printx_n(va_arg(va, long), fmt_num, false);
+                                    break;
+                                case 'X': /* "%123lX" */
+                                    printx_n(va_arg(va, long), fmt_num, true);
+                                    break;
+                                case 'l': /* "%123lld", "%123llx", ... */
+                                    /* Skip the second 'l' of "%123lld" */
                                     fmt++;
 
-                                    /* 123lld (long long) */
                                     switch (*fmt) {
-                                        default:
-                                        case 'd':
-                                            printi_n(va_arg(va, long long int),
+                                        default: /* "%123ll?" -> "%123lld" */
+                                            /* See previous comment on "%ld" */
+                                            fmt--;
+                                            printi_n(va_arg(va, long long),
                                                      fmt_num);
                                             break;
-                                        case 'x':
-                                            printx_n(va_arg(va, long long int),
+                                        case 'd': /* "%123lld" */
+                                            printi_n(va_arg(va, long long),
+                                                     fmt_num);
+                                            break;
+                                        case 'u': /* "%123llu" */
+                                            printi_n(
+                                              va_arg(va, unsigned long long),
+                                              fmt_num);
+                                            break;
+                                        case 'x': /* "%123llx" */
+                                            printx_n(va_arg(va, long long),
                                                      fmt_num, false);
                                             break;
-                                        case 'X':
-                                            printx_n(va_arg(va, long long int),
+                                        case 'X': /* "%123llX" */
+                                            printx_n(va_arg(va, long long),
                                                      fmt_num, true);
                                             break;
-                                    }
+                                    } /* %123lld switch */
                                     break;
-                            }
+                            } /* %123ld switch */
                             break;
                         case 's': /* "%132s" */
                             prints_n(va_arg(va, const char*), fmt_num);
                             break;
                         default:
                             break;
-                    }
+                    } /* %123 switch */
 
                     break;
                 case '%': /* "%%" -> "%" */
@@ -361,7 +408,7 @@ int vprintf(const char* fmt, va_list va) {
                     putchar('%');
                     putchar(*fmt);
                     break;
-            }
+            } /* Main format char switch */
         } else {
             /** @todo Return value check? */
             putchar(*fmt);
