@@ -4,7 +4,8 @@
 #include <kernel/pit.h>
 #include <kernel/rtc.h>
 
-#define DAYSPER4YEARS (365 * 4 + 1)
+#define DAYSPER4YEARS    (365 * 4 + 1)
+#define CENTURY2YEARS(c) ((c - 1) * 100)
 
 /**
  * @var days
@@ -23,12 +24,12 @@ uint32_t time(void* tloc) {
 
     DateTime now = rtc_get_datetime();
 
-    const uint16_t sec  = now.time.s;
-    const uint16_t min  = now.time.m;
-    const uint16_t hour = now.time.h;
-    const uint16_t day  = now.date.d - 1; /* -1 to get days[][] idx */
+    const uint16_t year = now.date.y + CENTURY2YEARS(now.date.c);
     const uint16_t mon  = now.date.m - 1; /* -1 to get days[][] idx */
-    const uint16_t year = now.date.y;
+    const uint16_t day  = now.date.d - 1; /* -1 to get days[][] idx */
+    const uint16_t hour = now.time.h;
+    const uint16_t min  = now.time.m;
+    const uint16_t sec  = now.time.s;
 
     /* Days since epoch. Days in the previous 4 year cycles + days inside the
      * current 4 year cycle. */
