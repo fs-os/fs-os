@@ -4,12 +4,29 @@
 #include <kernel/pit.h>
 #include <kernel/rtc.h>
 
-#define CENTURY2YEARS(c) ((c - 1) * 100)
-#define YEAR2SEC(x)      (x * 31556926)
-#define MON2SEC(x)       (x * 2629743)
-#define DAY2SEC(x)       (x * 86400)
-#define HOUR2SEC(x)      (x * 3600)
-#define MIN2SEC(x)       (x * 60)
+#define MIN2SEC(x)  (x * 60)
+#define HOUR2SEC(x) (x * 3600)
+#define DAY2SEC(x)  (x * 86400)
+#define MON2SEC(x)  (x * 2629743)
+
+/**
+ * @def YEAR2SEC
+ * @brief Generates seconds that passed since epoch to 1/1/x, x being a year
+ * minus 1900 (1975 -> 75; 2023 -> 123)
+ *
+ * @details It adds in a day for each year that follows a leap year starting
+ * with the first leap year since the Epoch. The first term adds a day every 4
+ * years starting in 1973, the second subtracts a day back out every 100 years
+ * starting in 2001, and the third adds a day back in every 400 years starting
+ * in 2001. The divisions in the formula are integer divisions; that is, the
+ * remainder is discarded leaving only the integer quotient.
+ *
+ * Source:
+ * https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap04.html#tag_04_16
+ */
+#define YEAR2SEC(x)                                                           \
+    ((x - 70) * 31536000 + ((x - 69) / 4) * 86400 - ((x - 1) / 100) * 86400 + \
+     ((x + 299) / 400) * 86400)
 
 /** @todo: Needs like 900 million seconds more :) */
 uint32_t time(void* tloc) {
@@ -17,16 +34,15 @@ uint32_t time(void* tloc) {
 
     DateTime now = rtc_get_datetime();
 
-    /** @todo: Remove random calibrations */
-    const uint16_t year = now.date.y + CENTURY2YEARS(now.date.c) - 1970;
-    const uint16_t mon  = now.date.m - 1;
-    const uint16_t day  = now.date.d - 2;
-    const uint16_t hour = now.time.h - 3;
-    const uint16_t min  = now.time.m - 30;
-    const uint16_t sec  = now.time.s;
+    /** @todo: Fix month offset */
+    const uint32_t sec  = now.time.s;
+    const uint32_t min  = MIN2SEC(now.time.m);
+    const uint32_t hour = HOUR2SEC(now.time.h);
+    const uint32_t day  = DAY2SEC(now.date.d);
+    const uint32_t mon  = MON2SEC(now.date.m);
+    const uint32_t year = YEAR2SEC(now.date.y + 100); /* (years since 1900) */
 
-    return YEAR2SEC(year) + MON2SEC(mon) + DAY2SEC(day) + HOUR2SEC(hour) +
-           MIN2SEC(min) + sec;
+    return sec + min + hour + day + mon + year;
 }
 
 void sleep(uint32_t sec) {
