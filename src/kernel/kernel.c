@@ -123,7 +123,7 @@ static inline void test_colors(void) {
     printf("%c%c%c", 219, 219, 219);
     fbc_setfore(COLOR_WHITE_B);
     printf("%c%c%c", 219, 219, 219);
-    printf("\n\t");
+    printf("\n");
 
     fbc_setfore(COLOR_WHITE);
 }
