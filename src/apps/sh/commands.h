@@ -280,7 +280,7 @@ static int cmd_date() {
     fbc_setfore(COLOR_WHITE_B);
     printf("Epoch: ");
     fbc_setfore(COLOR_GRAY);
-    printf("%ld\n", time(NULL));
+    printf("%lu\n", time(NULL));
     fbc_setfore(COLOR_WHITE);
 
     return 0;
