@@ -11,7 +11,12 @@ if you have any improvements to the OS.
 - [X] Multitasking.
     - [X] Non-preemptive with no priority.
     - [ ] Improve. Add priority, etc.
-- [ ] Port [tinylisp](https://github.com/Robert-van-Engelen/tinylisp) interpreter.
+- [ ] Port [tinylisp](https://github.com/Robert-van-Engelen/tinylisp)
+      interpreter.
+- [ ] Consistent arrow key support (`getchar`, `curses.h`, etc.).
+- [ ] Global framebuffer cursor.
+    - [ ] Editable `getchar` line buffer with arrows.
+- [ ] Scrollable help (like the `less` command) if it gets too long. Use curses.
 - [ ] Devices (Framebuffer, disks, etc.).
     - [ ] `stdin`, `stdout`, `stderr`.
         - [ ] Per process.
@@ -31,8 +36,8 @@ if you have any improvements to the OS.
 - [X] Sleep functions ([Link](https://wiki.osdev.org/Programmable_Interval_Timer)).
 - [X] GDT and IDT.
 - [X] Keyboard.
-    - [X] Getchar system.
-    - [X] Control backspace in getchar.
+    - [X] `getchar` system.
+    - [X] Control backspace in `getchar`.
     - [X] Control backspace so you can only delete what you wrote.
 - [X] Port ncurses lib to framebuffer console.
     - [X] Port [minesweeper](https://github.com/8dcc/minesweeper).
