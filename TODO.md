@@ -11,8 +11,7 @@ if you have any improvements to the OS.
 - [X] Multitasking.
     - [X] Non-preemptive with no priority.
     - [ ] Improve. Add priority, etc.
-- [ ] Port ncurses lib to framebuffer console.
-    - [ ] Port [minesweeper](https://github.com/8dcc/minesweeper).
+- [ ] Port [tinylisp](https://github.com/Robert-van-Engelen/tinylisp) interpreter.
 - [ ] Devices (Framebuffer, disks, etc.).
     - [ ] `stdin`, `stdout`, `stderr`.
         - [ ] Per process.
@@ -35,4 +34,6 @@ if you have any improvements to the OS.
     - [X] Getchar system.
     - [X] Control backspace in getchar.
     - [X] Control backspace so you can only delete what you wrote.
-
+- [X] Port ncurses lib to framebuffer console.
+    - [X] Port [minesweeper](https://github.com/8dcc/minesweeper).
+    - [X] Port [5x5](https://github.com/8dcc/5x5).
