@@ -13,6 +13,7 @@
 /**
  * @struct Beep
  * @brief Structure for a beep, with a frequency and a duration in ms.
+ * @todo Rename `ms_len` to len.
  */
 typedef struct {
     uint32_t freq;   /**< @brief Frequency for the PIT (hz) */

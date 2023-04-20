@@ -54,6 +54,7 @@ static int cmd_ticks();
 static int cmd_date();
 static int cmd_timer(int argc, char** argv);
 static int cmd_beep(int argc, char** argv);
+static int cmd_metronome(int argc, char** argv);
 /* piano_main */
 /* piano_random */
 /* minesweeper_main */
@@ -120,6 +121,11 @@ static Command cmd_list[] = {
       "beep",
       "Beep through the pc speaker (optional frequency and duration)",
       &cmd_beep,
+    },
+    {
+      "metronome",
+      "Start the metronome",
+      &cmd_metronome,
     },
     {
       "piano",
@@ -299,7 +305,7 @@ static int cmd_timer(int argc, char** argv) {
     if (strcmp(argv[1], "start") == 0) {
         timer_start();
     } else if (strcmp(argv[1], "stop") == 0) {
-        printf("%lldms\n", timer_stop());
+        printf("%llums\n", timer_stop());
     } else {
         printf("Invalid option \"%s\"\n"
                "Usage:\n"
@@ -340,6 +346,78 @@ static int cmd_beep(int argc, char** argv) {
     }
 
     pcspkr_beep_custom(beep_info);
+
+    return 0;
+}
+
+static int cmd_metronome(int argc, char** argv) {
+    const int beep_duration = 10;  /* ms */
+    uint32_t freq           = 150; /* hz for the pcspkr */
+    uint32_t bpm            = 60;  /* beats per minute */
+
+    /*** Argument parsing ***/
+    bool arg_error = false;
+    for (int i = 1; i < argc; i++) {
+        if (!strcmp(argv[i], "-f") || !memcmp(argv[i], "--freq", 5)) {
+            if (i == argc - 1) {
+                printf("Not enough arguments for \"%s\"\n", argv[i]);
+                arg_error = true;
+                break;
+            }
+
+            i++;
+            freq = atoi(argv[i]);
+            if (freq < 1) {
+                printf("Invalid frequency format for \"%s\".\n", argv[i - 1]);
+                arg_error = true;
+                break;
+            }
+        } else if (!strcmp(argv[i], "-b") || !strcmp(argv[i], "--bpm")) {
+            if (i == argc - 1) {
+                printf("Not enough arguments for \"%s\"\n", argv[i]);
+                arg_error = true;
+                break;
+            }
+
+            i++;
+            bpm = atoi(argv[i]);
+            if (bpm < 1) {
+                printf("Invalid BPM format for \"%s\".\n", argv[i - 1]);
+                arg_error = true;
+                break;
+            }
+        } else if (!strcmp(argv[i], "-h") || !strcmp(argv[i], "--help")) {
+            arg_error = true;
+            break;
+        }
+    }
+
+    if (arg_error) {
+        printf("Usage:\n"
+               "\t%s --help     - Show this help\n"
+               "\t%s -f [freq]  - Start specified frequency\n"
+               "\t%s -b [bpm]   - Start specified beats per minute\n",
+               argv[0], argv[0], argv[0]);
+        return 1;
+    }
+    /*** End argument parsing ***/
+
+    /* Get ms delay from bpm */
+    const uint32_t ms_delay = 1000 * 60 / bpm;
+
+    Beep beep = {
+        .freq   = freq,
+        .ms_len = beep_duration,
+    };
+
+    printf("Running metronome at %luhz and %lu BPM.\n"
+           "Hold \'q\' to quit...\n",
+           freq, bpm);
+
+    while (!kb_held('q')) {
+        pcspkr_beep_custom(beep);
+        sleep_ms(ms_delay);
+    }
 
     return 0;
 }
