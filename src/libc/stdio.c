@@ -196,7 +196,7 @@ int puts(const char* str) {
     return 1; /* EOF means failure */
 }
 
-int printf(const char* fmt, ...) {
+int printf(const char* restrict fmt, ...) {
     va_list va;
     va_start(va, fmt);
 
@@ -206,7 +206,25 @@ int printf(const char* fmt, ...) {
     return ret;
 }
 
-int vprintf(const char* fmt, va_list va) {
+int fprintf(FILE* restrict stream, const char* restrict fmt, ...) {
+    va_list va;
+    va_start(va, fmt);
+
+    int ret = vfprintf(stream, fmt, va);
+
+    va_end(va);
+    return ret;
+}
+
+int vfprintf(FILE* restrict stream, const char* restrict fmt, va_list va) {
+    /** @todo FILE struct and libc implementation */
+    (void)stream;
+
+    /* Just call normal vprintf */
+    return vprintf(fmt, va);
+}
+
+int vprintf(const char* restrict fmt, va_list va) {
     int written = 0;
 
     while (*fmt != '\0') {

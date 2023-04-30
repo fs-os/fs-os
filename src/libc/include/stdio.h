@@ -3,6 +3,7 @@
 #define _STDIO_H
 
 #include <stdarg.h>
+#include <stdint.h>
 
 /**
  * @def EOF
@@ -11,11 +12,49 @@
 #define EOF (-1)
 
 /**
+ * @typedef FILE
+ * @todo Actual FILE struct: https://www.geeksforgeeks.org/data-type-file-c/
+ */
+typedef uint32_t FILE;
+
+/**
+ * @name File descriptors
+ * @{ */
+#define stdin  (FILE*)0 /**< @brief Standard input */
+#define stdout (FILE*)1 /**< @brief Standard output */
+#define stderr (FILE*)2 /**< @brief Standard error */
+/** @} */
+
+/**
  * @brief Prints the specified string and a newline char.
  * @param[in] str Zero-terminated string to print.
  * @return 1 if success, EOF otherwise.
+ * @todo fputs()
  */
 int puts(const char* str);
+
+/**
+ * @brief Write to the specified stream with the specified format.
+ * @details For now, only `stdin` and `stdout` are supported, and the change is
+ * just visual.
+ * @param[out] stream Stream for writing.
+ * @param[in] fmt Format string.
+ * @return Bytes written.
+ */
+int fprintf(FILE* stream, const char* fmt, ...)
+  __attribute__((format(printf, 2, 3)));
+
+/**
+ * @brief Write to the specified stream with the specified format using the
+ * specified variable argument list.
+ * @details For now, only `stdin` and `stdout` are supported, and the change is
+ * just visual.
+ * @param[out] stream Stream for writing.
+ * @param[in] fmt Format string.
+ * @param[in] va Variable argument list.
+ * @return Bytes written.
+ */
+int vfprintf(FILE* stream, const char* fmt, va_list va);
 
 /**
  * @brief Prints with the specified format.
