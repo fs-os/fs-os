@@ -30,6 +30,9 @@
         fbc_setfore(COLOR_GRAY);    \
     }
 
+/* Just used in cmd_test_libk */
+#define SIGMAROUND(n) (double)(int)(n + 0.5)
+
 #define LENGTH(arr) (sizeof(arr) / sizeof(arr[0]))
 
 extern Layout us_layout;
@@ -454,8 +457,8 @@ static int cmd_test_libk() {
     buf[10] = '\0';
     puts(buf);
 
-    printf("srand(1337)\n");
-    srand(1337);
+    printf("srand(time(NULL))\n");
+    srand(time(NULL));
     printf("rand() -> %d\n", rand());
     printf("rand() -> %d\n", rand());
 
@@ -468,9 +471,14 @@ static int cmd_test_libk() {
         printf("cpu_rand() -> %ld\n", cpu_rand());
     }
 
+    TEST_TITLE("\nTesting float formats");
+    printf("2.5 + 1.3 = %f\n", 2.5 + 1.3);
+    printf("SIGMAROUND(1.4) = %f\n", SIGMAROUND(1.4));
+    printf("SIGMAROUND(1.5) = %f\n", SIGMAROUND(1.5));
+
     TEST_TITLE("\nTesting time.h functions");
     printf("Hello, ");
-    sleep(2);
+    sleep(1);
     printf("world!\n");
 
     return 0;
