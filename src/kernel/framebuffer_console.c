@@ -35,12 +35,6 @@
 static fbc_ctx _first_ctx;
 static fbc_ctx* ctx = &_first_ctx;
 
-/**
- * @brief Will be set to true if we know we are going to shift the console. See
- * framebuffer console wiki page.
- */
-static bool should_shift;
-
 /* -------------------------------------------------------------------------- */
 
 /**
@@ -91,7 +85,7 @@ void fbc_init(uint32_t y, uint32_t x, uint32_t h, uint32_t w, Font* font) {
     ctx->cur_y = 0;
     ctx->cur_x = 0;
 
-    should_shift = false;
+    ctx->should_shift = false;
 
     /* Allocate the number of fbc_entry's. Rows and cols of the console */
     ctx->fbc = malloc(ctx->ch_h * ctx->ch_w * sizeof(fbc_entry));
@@ -161,9 +155,9 @@ void fbc_putchar(char c) {
      * "queue" system so the array doesn't immediately shift when a line ends
      * with
      * '\n', for example */
-    if (should_shift) {
+    if (ctx->should_shift) {
         fbc_shift_rows(1);
-        should_shift = false;
+        ctx->should_shift = false;
     }
 
     /* Check for special chars like newlines, tabs, backspaces, etc. */
@@ -182,7 +176,7 @@ void fbc_putchar(char c) {
             if (ctx->cur_y + 1 < ctx->ch_h)
                 ctx->cur_y++;
             else
-                should_shift = true;
+                ctx->should_shift = true;
 
             ctx->cur_x = 0;
 
@@ -255,7 +249,7 @@ void fbc_putchar(char c) {
         if (ctx->cur_y + 1 < ctx->ch_h)
             ctx->cur_y++;
         else
-            should_shift = true;
+            ctx->should_shift = true;
     }
 }
 
@@ -355,4 +349,3 @@ void fbc_setcol_rgb(uint8_t fore_r, uint8_t fore_g, uint8_t fore_b,
     ctx->cur_cols.fg = rgb2col(fore_r, fore_g, fore_b);
     ctx->cur_cols.bg = rgb2col(back_r, back_g, back_b);
 }
-

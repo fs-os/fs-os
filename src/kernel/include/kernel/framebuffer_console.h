@@ -50,6 +50,10 @@ typedef struct {
      * @{ */
     uint32_t cur_y, cur_x;
     /** @} */
+
+    /** @brief Will be set to true if we know we are going to shift the
+     * console of this context. See framebuffer console wiki page. */
+    bool should_shift;
 } fbc_ctx;
 
 /**
