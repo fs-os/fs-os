@@ -134,97 +134,102 @@ static inline unsigned char* get_layout(void) {
 
 /* -------------------------------------------------------------------------- */
 
+/* io_outb call is used to tell CPU that it's okay to resume interrupts. See:
+ * https://wiki.osdev.org/Interrupts#From_the_OS.27s_perspective */
+#define KB_HANDLER_RETURN()  \
+    {                        \
+        io_outb(0x20, 0x20); \
+        return;              \
+    }
+
 void kb_handler(void) {
-    /* You don't really need to read the bit 0 of the status byte when reading
-     * port 0x60, but I have seen it in other projects so I am doing it. */
-    /** @todo Macro for doing last outb + return, replace loop and continues */
-    for (uint8_t status = io_inb(KB_PORT_STATUS); status & KB_STATUS_BUFFER_OUT;
-         status         = io_inb(KB_PORT_STATUS)) {
-        uint8_t key = io_inb(KB_PORT_DATA);
+    uint8_t status = io_inb(KB_PORT_STATUS);
+    if (!(status & KB_STATUS_BUFFER_OUT))
+        KB_HANDLER_RETURN();
 
-        /* Highest bit is 1 if the key is released, store it and clear it from
-         * key */
-        uint8_t released = (key >> 7) & 1;
-        key &= 0x7f;
+    uint8_t key = io_inb(KB_PORT_DATA);
 
-        /* Check if we should toggle global variables for caps, etc. */
-        check_special(released, key);
+    /* Highest bit is 1 if the key is released, store it and clear it from key
+     */
+    uint8_t released = (key >> 7) & 1;
+    key &= 0x7f;
 
-        /* Check if we need to use an alternative layout when using shift, ctrl,
-         * etc. */
-        const unsigned char* final_layout = get_layout();
-        const unsigned char final_key     = final_layout[key];
+    /* Check if we should toggle global variables for caps, etc. */
+    check_special(released, key);
 
-        /* Store the current key as pressed or released in the key_flags
-         * array */
-        if (released) {
-            key_flags[final_key] &= ~KB_FLAG_PRESSED;
+    /* Check if we need to use an alternative layout when using shift, ctrl,
+     * etc. */
+    const unsigned char* final_layout = get_layout();
+    const unsigned char final_key     = final_layout[key];
 
-            /* We only want to go to the next part if the key was pressed */
-            continue;
-        } else {
-            key_flags[final_key] |= KB_FLAG_PRESSED;
+    /* Store the current key as pressed or released in the key_flags array */
+    if (released) {
+        key_flags[final_key] &= ~KB_FLAG_PRESSED;
+
+        /* We only want to go to the next part if the key was pressed */
+        KB_HANDLER_RETURN();
+    } else {
+        key_flags[final_key] |= KB_FLAG_PRESSED;
+    }
+
+    /* We only want to go to the next part if the key can be displayed */
+    if (final_key == 0)
+        KB_HANDLER_RETURN();
+
+    /* If a program called kb_getchar */
+    if (getting_char) {
+        /* If this variable is not set, kb_raw has been called. kb_getchar will
+         * need to return each character inmediately, so we don't use the line
+         * buffer. */
+        if (!wait_for_eol) {
+            /* getchar_buf_pos will always be 0. See kb_getchar comment */
+            getchar_buf[getchar_buf_pos++] = final_key;
+
+            /* We don't use line buffer, we just print here and return */
+            if (print_chars)
+                putchar(final_key);
+
+            KB_HANDLER_RETURN();
         }
 
-        /* We only want to go to the next part if the key can be displayed */
-        if (final_key == 0)
-            continue;
+        if (getchar_line_buf_pos >= KB_GETCHAR_BUFSZ)
+            panic_line("getchar buffer out of bounds");
 
-        /* If a program called kb_getchar */
-        if (getting_char) {
-            /* If this variable is not set, kb_raw has been called. kb_getchar
-             * will need to return each character inmediately, so we don't use
-             * the line buffer. */
-            if (!wait_for_eol) {
-                /* getchar_buf_pos will always be 0. See kb_getchar comment */
-                getchar_buf[getchar_buf_pos++] = final_key;
+        /* Store the current char to the getchar line buffer */
+        getchar_line_buf[getchar_line_buf_pos++] = final_key;
 
-                /* We don't use line buffer, we just print here and continue */
-                if (print_chars)
-                    putchar(final_key);
-
-                continue;
+        /* If the key we just saved is '\n', the user is done with the input
+         * line so we can move the chars to the final buffer */
+        if (final_key == '\n') {
+            for (int i = 0; i < getchar_line_buf_pos; i++) {
+                getchar_buf[i]      = getchar_line_buf[i];
+                getchar_line_buf[i] = EOF;
             }
 
-            if (getchar_line_buf_pos >= KB_GETCHAR_BUFSZ)
-                panic_line("getchar buffer out of bounds");
+            getchar_buf_pos      = 0; /* Not needed */
+            getchar_line_buf_pos = 0;
 
-            /* Store the current char to the getchar line buffer */
-            getchar_line_buf[getchar_line_buf_pos++] = final_key;
+            putchar(final_key);
+        } else if (final_key == '\b') {
+            /* Delete last char from line buffer if we detect '\b' */
 
-            /* If the key we just saved is '\n', the user is done with the
-             * input line so we can move the chars to the final buffer */
-            if (final_key == '\n') {
-                for (int i = 0; i < getchar_line_buf_pos; i++) {
-                    getchar_buf[i]      = getchar_line_buf[i];
-                    getchar_line_buf[i] = EOF;
-                }
+            /* Remove the '\b' we just added */
+            getchar_line_buf[--getchar_line_buf_pos] = EOF;
 
-                getchar_buf_pos      = 0; /* Not needed */
-                getchar_line_buf_pos = 0;
-
-                putchar(final_key);
-            } else if (final_key == '\b') {
-                /* Delete last char from line buffer if we detect '\b' */
-
-                /* Remove the '\b' we just added */
+            /* Delete the last char and print '\b', only if we have something to
+             * delete */
+            if (getchar_line_buf_pos > 0) {
                 getchar_line_buf[--getchar_line_buf_pos] = EOF;
-
-                /* Delete the last char and print '\b', only if we have
-                 * something to delete */
-                if (getchar_line_buf_pos > 0) {
-                    getchar_line_buf[--getchar_line_buf_pos] = EOF;
-                    putchar(final_key);
-                }
-            } else if (print_chars) {
-                /* We print the typed char here for:
-                 *   - Only printing keyboard input when a program asks for it
-                 *   - Handle special cases like:
-                 *     - '\n': Just print
-                 *     - '\b': Only print if we have something to delete
-                 *   - In those special cases, print them inside that block */
                 putchar(final_key);
             }
+        } else if (print_chars) {
+            /* We print the typed char here for:
+             *   - Only printing keyboard input when a program asks for it
+             *   - Handle special cases like:
+             *     - '\n': Just print
+             *     - '\b': Only print if we have something to delete
+             *   - In those special cases, print them inside that block */
+            putchar(final_key);
         }
     }
 
