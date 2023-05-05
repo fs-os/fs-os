@@ -41,7 +41,7 @@ static void prints_n(const char* str, uint32_t pad) {
  * @param[in] num Number to print.
  */
 static void printi(int64_t num) {
-    /* Write '-' for negative numbers and convert number to positive */
+    /* Write '-' for negative numbers and convert it to positive */
     if (num < 0) {
         putchar('-');
         num = -num;
@@ -72,8 +72,37 @@ static void printi_n(int64_t num, uint32_t pad) {
 
     int final_pad = (pad - strlen(converted_num)) - sign;
     while (final_pad-- > 0)
-        putchar('0');
+        putchar(' ');
     print(converted_num);
+}
+
+/**
+ * @brief Print double.
+ * @details Used by vprintf()
+ * @param[in] num Number to print.
+ */
+static void print_double(double num) {
+    /* First print the integer part using printi, and remove it from num for
+     * only keeping decimals */
+    printi((int)num);
+    num -= (int)num;
+
+    if (num < 0)
+        num = -num;
+
+    /* If the double doesn't have decimals (12.0) */
+    if (num == 0) {
+        print(".0");
+        return;
+    }
+
+    putchar('.');
+
+    while (num > 0) {
+        num *= 10;
+        putchar((int)num + '0');
+        num -= (int)num;
+    }
 }
 
 /**
@@ -141,7 +170,7 @@ static void printx_n(int64_t num, uint32_t pad, bool uppercase) {
     /* i is now the length of the final str */
     int final_pad = pad - i;
     while (final_pad-- > 0)
-        putchar('0');
+        putchar(' ');
 
     print(hex_str);
 }
@@ -182,7 +211,7 @@ static void printX(int64_t num) {
  * @details Prints "(null)" if NULL.
  * @param[inout] ptr Pointer to print.
  */
-static void printp(void* ptr) {
+static inline void printp(void* ptr) {
     if (ptr == NULL) {
         print("(null)");
     } else {
@@ -258,6 +287,10 @@ int vprintf(const char* restrict fmt, va_list va) {
                 case 'u':
                     printi(va_arg(va, unsigned int));
                     break;
+                case 'f':
+                    /* Floats get promoted to doubles when calling printf */
+                    print_double(va_arg(va, double));
+                    break;
                 case 'x':
                     printx(va_arg(va, int));
                     break;
@@ -288,6 +321,10 @@ int vprintf(const char* restrict fmt, va_list va) {
                             break;
                         case 'u': /* "%lu" */
                             printi(va_arg(va, unsigned long));
+                            break;
+                        case 'f': /* "%lf" */
+                            /* Same as "%f", see comment there */
+                            print_double(va_arg(va, double));
                             break;
                         case 'x': /* "%lx" */
                             printx(va_arg(va, long));
@@ -443,11 +480,11 @@ int vprintf(const char* restrict fmt, va_list va) {
 }
 
 int putchar(int c) {
-    /* TODO: Implement stdio and write syscalls */
+    /** @todo Implement stdio and write syscalls */
     return c;
 }
 
 int getchar(void) {
-    /* TODO: Implement stdio and proper getchar */
+    /** @todo Implement stdio and proper getchar */
     return EOF;
 }

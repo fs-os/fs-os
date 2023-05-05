@@ -80,8 +80,32 @@
         putchar('\n');              \
     }
 
+/* Need tmp to remove NULL from itoa */
+#define PAD_ZEROS(n, p)                \
+    {                                  \
+        if (n < 10) {                  \
+            *p       = '0';            \
+            *(p + 1) = n + '0';        \
+        } else {                       \
+            const char tmp = *(p + 2); \
+            itoa(p, n);                \
+            *(p + 2) = tmp;            \
+        }                              \
+    }
+
 /* Default layout, declared in keyboard.c */
 extern Layout us_layout;
+
+static inline void format_date(char* str, DateTime now) {
+    /* "00/00/00 - 00:00:00" */
+
+    PAD_ZEROS(now.date.d, &str[0]);
+    PAD_ZEROS(now.date.m, &str[3]);
+    PAD_ZEROS(now.date.y, &str[6]);
+    PAD_ZEROS(now.time.h, &str[11]);
+    PAD_ZEROS(now.time.m, &str[14]);
+    PAD_ZEROS(now.time.s, &str[17]);
+}
 
 static inline void test_colors(void) {
     printf("\n\t");
@@ -213,9 +237,9 @@ void kernel_main(Multiboot* mb_info) {
     SYSTEM_INFO("Resolution:\t", "%ldx%ld", mb_info->framebuffer_width,
                 mb_info->framebuffer_height);
     SYSTEM_INFO("Font:\t\t", "%s", main_font.name);
-    DateTime now = rtc_get_datetime();
-    SYSTEM_INFO("Time:\t\t", "%2d/%2d/%2d - %2d:%2d:%2d", now.date.d,
-                now.date.m, now.date.y, now.time.h, now.time.m, now.time.s);
+    char date_fmt[] = "00/00/00 - 00:00:00";
+    format_date(date_fmt, rtc_get_datetime());
+    SYSTEM_INFO("Time:\t\t", "%s", date_fmt);
     putchar('\n');
 
     LOAD_INFO("Color palette:");

@@ -74,6 +74,7 @@ int printf(const char* fmt, ...) __attribute__((format(printf, 1, 2)));
  *   - "%s", "%25s"
  *   - "%d", "%ld", "%lld"
  *   - "%u", "%lu", "%llu"
+ *   - "%f", "%lf"
  *   - "%x", "%lx", "%llx", "%X", "%lX", "%llX"
  *   - "%25d", "%25ld", "%25lld"
  *   - "%25u", "%25lu", "%25llu"
