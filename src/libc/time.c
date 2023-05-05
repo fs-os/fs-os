@@ -10,7 +10,6 @@
 #define MON2SEC(x)  ((x)*2629743)
 #define YEAR2SEC(x) ((x)*31556926)
 
-/** @todo: Needs like 900 million seconds more :) */
 uint32_t time(void* tloc) {
     (void)tloc; /* Unused */
 
