@@ -91,7 +91,7 @@ void fbc_init(uint32_t y, uint32_t x, uint32_t h, uint32_t w, Font* font) {
     ctx->fbc = malloc(ctx->ch_h * ctx->ch_w * sizeof(fbc_entry));
 
     fbc_clear();
-    fbc_refresh();
+    fbc_refresh_raw();
 }
 
 void fbc_change_ctx(fbc_ctx* new_ctx) {
@@ -253,11 +253,32 @@ void fbc_putchar(char c) {
     }
 }
 
-void fbc_refresh(void) {
-    /* First iterate each char of the framebuffer console */
+void fbc_refresh_raw(void) {
+    /* Iterate each char of the framebuffer console */
     for (uint32_t cy = 0; cy < ctx->ch_h; cy++)
         for (uint32_t cx = 0; cx < ctx->ch_w; cx++)
             fbc_refresh_entry(cy, cx);
+}
+
+void fbc_refresh(void) {
+    /* Iterate each char of the framebuffer console */
+    for (uint32_t cy = 0; cy < ctx->ch_h; cy++) {
+        for (uint32_t cx = 0; cx < ctx->ch_w; cx++) {
+            fbc_refresh_entry(cy, cx);
+
+            /* If NULL, we are done with the line: Fill from current pos to end
+             * of line and go to the next one */
+            if (ctx->fbc[cy * ctx->ch_w + cx].c == '\0') {
+                const uint32_t fill_y = CHAR_Y_TO_PX(cy);
+                const uint32_t fill_x = CHAR_X_TO_PX(cx);
+                const uint32_t fill_h = ctx->font->h;
+                const uint32_t fill_w = CHAR_X_TO_PX(ctx->ch_w) - fill_x;
+                fb_drawrect_fast(fill_y, fill_x, fill_h, fill_w,
+                                 ctx->cur_cols.bg);
+                break;
+            }
+        }
+    }
 }
 
 /**

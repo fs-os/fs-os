@@ -46,13 +46,14 @@ WINDOW* initscr(void) {
     /* Switch to the new fbc context */
     fbc_change_ctx(win->ctx);
     fbc_clear();
-    fbc_refresh();
+    fbc_refresh_raw();
 
     return win;
 }
 
 int endwin(void) {
-    /* Switch to old ctx and refresh the screen */
+    /* Switch to old ctx and refresh the screen. Unlike in initscr, we are not
+     * clearing so we don't use fbc_refresh_raw() */
     fbc_change_ctx(stdscr->old_ctx);
     fbc_refresh();
 
@@ -96,7 +97,7 @@ int noecho(void) {
 }
 
 int refresh(void) {
-    fbc_refresh();
+    fbc_refresh_raw();
     return OK;
 }
 
@@ -104,7 +105,7 @@ int wrefresh(WINDOW* win) {
     fbc_ctx* old_ctx = fbc_get_ctx();
 
     fbc_change_ctx(win->ctx);
-    fbc_refresh();
+    fbc_refresh_raw();
 
     fbc_change_ctx(old_ctx);
     return OK;
@@ -201,7 +202,7 @@ int getch(void) {
 
 int clear(void) {
     fbc_clear();
-    fbc_refresh();
+    fbc_refresh_raw();
     return OK;
 }
 
@@ -210,7 +211,7 @@ int wclear(WINDOW* win) {
 
     fbc_change_ctx(win->ctx);
     fbc_clear();
-    fbc_refresh();
+    fbc_refresh_raw();
 
     fbc_change_ctx(old_ctx);
     return OK;

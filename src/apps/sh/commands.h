@@ -215,7 +215,7 @@ static int cmd_last() {
 
 static int cmd_clear() {
     fbc_clear();
-    fbc_refresh();
+    fbc_refresh_raw();
 
     return 0;
 }

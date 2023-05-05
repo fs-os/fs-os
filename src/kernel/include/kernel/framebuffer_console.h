@@ -105,6 +105,16 @@ void fbc_putchar(char c);
  * @details Calling this function everytime we update ctx.fbc would be slow.
  * Instead we call this function on specific situations and we refresh the
  * entries we need when updating ctx->fbc (e.g. when calling fbc_putchar())
+ *
+ * The raw version is usually meant for refreshing everything when we control
+ * all the contents (e.g. after clearing the fbc)
+ */
+void fbc_refresh_raw(void);
+
+/**
+ * @brief Same as fbc_refresh_raw(), but stop at end of line.
+ * @defails End of line meaning `'\0'`. Usually meant for refreshing when we are
+ * not sure of the fbc contents beforehand.
  */
 void fbc_refresh(void);
 
