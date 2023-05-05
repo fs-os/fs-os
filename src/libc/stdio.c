@@ -246,22 +246,11 @@ int fprintf(FILE* restrict stream, const char* restrict fmt, ...) {
 }
 
 int vfprintf(FILE* restrict stream, const char* restrict fmt, va_list va) {
-    if (stream == stderr) {
-        /* Save old colors and set fore to red */
-        uint32_t old_fg, old_bg;
-        fbc_getcols(&old_fg, &old_bg);
-        fbc_setfore(COLOR_RED);
+    /** @todo FILE struct and libc implementation */
+    (void)stream;
 
-        /* Print */
-        const int ret = vprintf(fmt, va);
-
-        /* Reset old colors and return bytes written from vprintf */
-        fbc_setfore(old_fg);
-        return ret;
-    } else {
-        /* Just call normal vprintf */
-        return vprintf(fmt, va);
-    }
+    /* Just call normal vprintf */
+    return vprintf(fmt, va);
 }
 
 int vprintf(const char* restrict fmt, va_list va) {
