@@ -74,9 +74,8 @@ int sh_main(void) {
 
         /* If none of the cmds of cmd_list were valid, error */
         if (!valid_cmd && cur_cmd[0] != '\0')
-            cmd_unk(0, NULL);
+            cmd_unk();
     }
 
     return 0;
 }
-
