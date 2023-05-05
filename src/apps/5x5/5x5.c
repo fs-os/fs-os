@@ -96,9 +96,6 @@ static inline bool parse_args(int argc, char** argv, ctx_t* ctx) {
         } else if (!strcmp(argv[i], "-k") || !strcmp(argv[i], "--keys")) {
             puts("Controls:\n"
 
-#ifdef USE_ARROWS
-                 "    <arrows> - Move in the grid\n"
-#endif
                  "        hjkl - Move in the grid (vim-like)\n"
                  "     <space> - Toggle selected cell (and adjacent)\n"
                  "           r - Generate random grid\n"
@@ -357,9 +354,6 @@ int main_5x5(int argc, char** argv) {
     initscr(); /* Init ncurses */
     raw();     /* Scan input without pressing enter */
     noecho();  /* Don't print when typing */
-#ifdef USE_ARROWS
-    keypad(stdscr, true); /* Enable keypad (arrow keys) */
-#endif
 
 #ifdef USE_COLOR
     /* Global used to indicate redraw_grid that color is supported at runtime */
@@ -398,30 +392,18 @@ int main_5x5(int argc, char** argv) {
         /* Parse input. 'q' quits and there is vim-like navigation */
         switch (c) {
             case 'k':
-#ifdef USE_ARROWS
-            case KEY_UP:
-#endif
                 if (ctx.cursor.y > 0)
                     ctx.cursor.y--;
                 break;
             case 'j':
-#ifdef USE_ARROWS
-            case KEY_DOWN:
-#endif
                 if (ctx.cursor.y < ctx.h - 1)
                     ctx.cursor.y++;
                 break;
             case 'h':
-#ifdef USE_ARROWS
-            case KEY_LEFT:
-#endif
                 if (ctx.cursor.x > 0)
                     ctx.cursor.x--;
                 break;
             case 'l':
-#ifdef USE_ARROWS
-            case KEY_RIGHT:
-#endif
                 if (ctx.cursor.x < ctx.w - 1)
                     ctx.cursor.x++;
                 break;

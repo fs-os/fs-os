@@ -17,14 +17,6 @@
  */
 #define USE_COLOR
 
-/**
- * @def USE_ARROWS
- * @brief Compile with arrow navigation.
- * @details If the program is compiled with this macro defined, it will support
- * arrow navigation. Currently unsupported.
- */
-/* #define USE_ARROWS */
-
 #define DEFAULT_H   5 /**< @brief Default height */
 #define DEFAULT_W   5 /**< @brief Default width */
 #define DEFAULT_YSC 3 /**< @brief Default vertical scale */
