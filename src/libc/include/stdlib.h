@@ -19,8 +19,19 @@
  * @details Will not count `'-'` for negative numbers.
  * @param[in] num Number for counting.
  * @return Digits of num.
+ *
+ * @todo Rename to digits_int
  */
 int count_digits(int64_t num) __attribute__((pure));
+
+/**
+ * @brief Returns the number of digits of a positive double.
+ * @details Will not count `'-'` for negative numbers. Will count the dot.
+ * @param[in] num Decimal number for counting.
+ * @param[in] decilams Max number of decimal places.
+ * @return Digits of num.
+ */
+int digits_double(double num, uint32_t decimals) __attribute__((pure));
 
 /**
  * @brief Convert integer to string, write to `str`.

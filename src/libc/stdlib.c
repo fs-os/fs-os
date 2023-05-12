@@ -10,12 +10,20 @@ int count_digits(int64_t num) {
     if (num < 0)
         num = -num;
 
-    /* Count how many numbers we can remove */
+    /* Count how many digits we can remove */
     while ((num /= 10) > 0) {
         ret++;
     }
 
     return ret;
+}
+
+int digits_double(double num, uint32_t decimals) {
+    if (num < 0)
+        num = -num;
+
+    /* Digits of integer part + dot + decimal digits */
+    return count_digits((int)num) + 1 + decimals;
 }
 
 void itoa(char* str, int64_t num) {
