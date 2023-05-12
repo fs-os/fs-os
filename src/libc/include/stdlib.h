@@ -19,10 +19,8 @@
  * @details Will not count `'-'` for negative numbers.
  * @param[in] num Number for counting.
  * @return Digits of num.
- *
- * @todo Rename to digits_int
  */
-int count_digits(int64_t num) __attribute__((pure));
+int digits_int(int64_t num) __attribute__((pure));
 
 /**
  * @brief Returns the number of digits of a positive double.

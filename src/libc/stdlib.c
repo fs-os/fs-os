@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int count_digits(int64_t num) {
+int digits_int(int64_t num) {
     int ret = 1;
 
     if (num < 0)
@@ -23,12 +23,12 @@ int digits_double(double num, uint32_t decimals) {
         num = -num;
 
     /* Digits of integer part + dot + decimal digits */
-    return count_digits((int)num) + 1 + decimals;
+    return digits_int((int)num) + 1 + decimals;
 }
 
 void itoa(char* str, int64_t num) {
     int sign   = 0;
-    int digits = count_digits(num);
+    int digits = digits_int(num);
 
     if (num < 0) {
         sign   = 1;
@@ -110,8 +110,8 @@ void itoan(char* str, int64_t num, size_t max_digits) {
      * Also make sure the string position is not greater than the max we can
      * write.
      */
-    for (int cur_digit = count_digits(num) - 1;
-         cur_digit >= 0 && sp < max_digits; cur_digit--)
+    for (int cur_digit = digits_int(num) - 1; cur_digit >= 0 && sp < max_digits;
+         cur_digit--)
         str[sp++] = (num / ipow(10, cur_digit)) % 10 + '0';
 
     str[sp++] = '\0';

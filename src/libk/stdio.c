@@ -55,7 +55,7 @@ static void printi(int64_t num) {
     }
 
     /* For more information about this loop, see stdlib's itoan. */
-    for (int cur_digit = count_digits(num) - 1; cur_digit >= 0; cur_digit--)
+    for (int cur_digit = digits_int(num) - 1; cur_digit >= 0; cur_digit--)
         putchar((num / ipow(10, cur_digit)) % 10 + '0');
 }
 
