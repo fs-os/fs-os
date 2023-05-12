@@ -85,6 +85,9 @@ _start:
     ; Init the Global Descriptor Table
     call    gdt_init
 
+    ; Initialize the FPU
+    finit
+
     ; TODO: Here would be a good place to add:
     ;   - Floating point instructions
     ;   - Instruction set extensions (Instruction Set Extensions are additional
