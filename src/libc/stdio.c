@@ -80,12 +80,14 @@ static void printi_n(int64_t num, uint32_t pad) {
  * @brief Print double.
  * @details Used by vprintf()
  * @param[in] num Number to print.
+ * @param[in] decimals Number of decimal places to print.
  */
-static void print_double(double num) {
+static void print_double(double num, uint32_t decimals) {
     /* First print the integer part using printi, and remove it from num for
      * only keeping decimals */
-    printi((int)num);
-    num -= (int)num;
+    int int_part = (int)num;
+    printi(int_part);
+    num -= int_part;
 
     if (num < 0)
         num = -num;
@@ -98,11 +100,26 @@ static void print_double(double num) {
 
     putchar('.');
 
-    while (num > 0) {
+    while (decimals-- > 0) {
         num *= 10;
         putchar((int)num + '0');
         num -= (int)num;
     }
+}
+
+/**
+ * @brief Print double with decimal places and padding.
+ * @details Used by vprintf()
+ * @param[in] num Number to print.
+ * @param[in] pad Padding. Same ass printi_n(). Used for "%123f"
+ * @param[in] num Decimals. Used for "%.5f"
+ */
+static void print_double_n(double num, uint32_t pad, uint32_t decimals) {
+    /* Print spaces for each digit we need to reach the padding */
+    for (uint32_t i = 0; i < pad - digits_double(num, decimals); i++)
+        putchar(' ');
+
+    print_double(num, decimals);
 }
 
 /**
@@ -289,7 +306,7 @@ int vprintf(const char* restrict fmt, va_list va) {
                     break;
                 case 'f':
                     /* Floats get promoted to doubles when calling printf */
-                    print_double(va_arg(va, double));
+                    print_double(va_arg(va, double), _DEFAULT_DOUBLE_DECIMALS);
                     break;
                 case 'x':
                     printx(va_arg(va, int));
@@ -300,8 +317,22 @@ int vprintf(const char* restrict fmt, va_list va) {
                 case 'p':
                     printp(va_arg(va, void*));
                     break;
+                case '.': /* "%.123f" */
+                    /* Skip the dot */
+                    fmt++;
+
+                    uint32_t dot_fmt_num = 0;
+                    do {
+                        dot_fmt_num *= 10;
+                        dot_fmt_num += *fmt - '0';
+                        fmt++;
+                    } while (*fmt >= '0' && *fmt <= '9');
+
+                    print_double(va_arg(va, double), dot_fmt_num);
+                    break;
                 case 'l':
-                    fmt++; /* Skip the first 'l' */
+                    /* Skip the first 'l' */
+                    fmt++;
 
                     /* Check pattern  */
                     switch (*fmt) {
@@ -324,7 +355,8 @@ int vprintf(const char* restrict fmt, va_list va) {
                             break;
                         case 'f': /* "%lf" */
                             /* Same as "%f", see comment there */
-                            print_double(va_arg(va, double));
+                            print_double(va_arg(va, double),
+                                         _DEFAULT_DOUBLE_DECIMALS);
                             break;
                         case 'x': /* "%lx" */
                             printx(va_arg(va, long));
@@ -389,11 +421,33 @@ int vprintf(const char* restrict fmt, va_list va) {
                         case 'u': /* "%123u" */
                             printi_n(va_arg(va, unsigned int), fmt_num);
                             break;
+                        case 'f': /* "%123f" */
+                            print_double_n(va_arg(va, double), fmt_num,
+                                           _DEFAULT_DOUBLE_DECIMALS);
+                            break;
                         case 'x': /* "%123x" */
                             printx_n(va_arg(va, int), fmt_num, false);
                             break;
                         case 'X': /* "%123X" */
                             printx_n(va_arg(va, int), fmt_num, true);
+                            break;
+                        case '.': /* "%123.5f" */
+                            /* Skip the dot */
+                            fmt++;
+
+                            /* Not a digit after the dot */
+                            if (*fmt < '0' || *fmt > '9')
+                                break;
+
+                            uint32_t dot_fmt_num = 0;
+                            do {
+                                dot_fmt_num *= 10;
+                                dot_fmt_num += *fmt - '0';
+                                fmt++;
+                            } while (*fmt >= '0' && *fmt <= '9');
+
+                            print_double_n(va_arg(va, double), fmt_num,
+                                           dot_fmt_num);
                             break;
                         case 'l':  /* "%123ld", "%123lld", ... */
                             fmt++; /* Skip the first 'l' of "%123lld" */
@@ -458,6 +512,8 @@ int vprintf(const char* restrict fmt, va_list va) {
 
                     break;
                 case '%': /* "%%" -> "%" */
+                    putchar(*fmt);
+                    break;
                 default:
                     /* If unknown fmt, print the % and the unknown char */
                     putchar('%');

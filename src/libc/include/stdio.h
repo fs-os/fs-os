@@ -12,6 +12,12 @@
 #define EOF (-1)
 
 /**
+ * @def _DEFAULT_DOUBLE_DECIMALS
+ * @brief Default decimal places to print with "%f"
+ */
+#define _DEFAULT_DOUBLE_DECIMALS 6
+
+/**
  * @typedef FILE
  * @todo Actual FILE struct: https://www.geeksforgeeks.org/data-type-file-c/
  */
