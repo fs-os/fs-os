@@ -176,6 +176,9 @@ static void print_logo(unsigned int ypad, unsigned int xpad) {
  * bootloader.
  */
 void kernel_main(Multiboot* mb_info) {
+    /* Initialize the FPU */
+    asm volatile ("fninit");
+    
     idt_init();
     paging_init();
     heap_init();
