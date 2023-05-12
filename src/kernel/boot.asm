@@ -89,7 +89,6 @@ _start:
     finit
 
     ; TODO: Here would be a good place to add:
-    ;   - Floating point instructions
     ;   - Instruction set extensions (Instruction Set Extensions are additional
     ;     instructions that can increase performance when the same operations
     ;     are performed on multiple data objects.)
