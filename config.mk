@@ -29,10 +29,10 @@ APP_OBJS=obj/apps/sh/sh.c.o obj/apps/piano/piano.c.o obj/apps/minesweeper/minesw
 # Libk is the libc version (with some changes) that the kernel uses for building. We
 # don't need a static lib, because we can just link the kernel with these objs
 # instead.
-LIBK_OBJS=obj/libk/string.c.o obj/libk/stdlib.c.o obj/libk/stdio.c.o obj/libk/ctype.c.o obj/libk/time.c.o obj/libk/curses.c.o
+LIBK_OBJS=obj/libk/string.c.o obj/libk/stdlib.c.o obj/libk/stdio.c.o obj/libk/ctype.c.o obj/libk/time.c.o obj/libk/curses.c.o obj/libk/math.c.o
 
 # List of object files of our standard library, and the final static library
-LIBC_OBJS=obj/libc/string.c.o obj/libc/stdlib.c.o obj/libc/stdio.c.o obj/libc/ctype.c.o obj/libc/time.c.o obj/libc/curses.c.o
+LIBC_OBJS=obj/libc/string.c.o obj/libc/stdlib.c.o obj/libc/stdio.c.o obj/libc/ctype.c.o obj/libc/time.c.o obj/libc/curses.c.o obj/libc/math.c.o
 LIBC=obj/libc.a
 
 # sysroot paths
