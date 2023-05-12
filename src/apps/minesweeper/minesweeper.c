@@ -459,6 +459,7 @@ static bool check_win(ms_t* ms) {
     return true;
 }
 
+/** @todo `minesweeper -d 1<RET> <SPC>` literally crashes the whole OS :D */
 int minesweeper_main(int argc, char** argv) {
     /* Main minesweeper struct */
     ms_t ms = (ms_t){
