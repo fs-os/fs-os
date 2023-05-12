@@ -84,6 +84,7 @@ int printf(const char* fmt, ...) __attribute__((format(printf, 1, 2)));
  *   - "%x", "%lx", "%llx", "%X", "%lX", "%llX"
  *   - "%25d", "%25ld", "%25lld"
  *   - "%25u", "%25lu", "%25llu"
+ *   - "%25f", "%25lf", "%.3f", "%25.3f"
  *   - "%25x", "%25lx", "%25llx", "%25X", "%25lX", "%25llX"
  *
  * @param[in] fmt Format string.

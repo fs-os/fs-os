@@ -483,6 +483,11 @@ int vprintf(const char* restrict fmt, va_list va) {
                                     printi_n(va_arg(va, unsigned long),
                                              fmt_num);
                                     break;
+                                case 'f': /* "%123lf" */
+                                    /* Same as "%123f". No "%123.5lf" format */
+                                    print_double_n(va_arg(va, double), fmt_num,
+                                                   _DEFAULT_DOUBLE_DECIMALS);
+                                    break;
                                 case 'x': /* "%123lx" */
                                     printx_n(va_arg(va, long), fmt_num, false);
                                     break;
