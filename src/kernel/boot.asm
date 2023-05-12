@@ -88,10 +88,14 @@ _start:
     ; Initialize the FPU
     finit
 
-    ; TODO: Here would be a good place to add:
-    ;   - Instruction set extensions (Instruction Set Extensions are additional
-    ;     instructions that can increase performance when the same operations
-    ;     are performed on multiple data objects.)
+	; Enable SSE
+    mov eax, cr0
+    and al, ~0x04
+    or al, 0x22
+    mov cr0, eax
+    mov eax, cr4
+    or ax, 0x600
+    mov cr4, eax
 
     ; The ABI requires the stack to be 16 byte aligned at the time of the call
     ; instruction (Because it pushes the return address to the stack: 4 bytes).
