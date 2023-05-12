@@ -88,7 +88,7 @@ _start:
     ; Initialize the FPU
     finit
 
-	; Enable SSE
+    ; Enable SSE
     mov eax, cr0
     and al, ~0x04
     or al, 0x22
