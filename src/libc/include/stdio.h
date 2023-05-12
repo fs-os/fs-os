@@ -32,6 +32,30 @@ typedef uint32_t FILE;
 /** @} */
 
 /**
+ * @brief Prints with the specified format using the specified variable argument
+ * list.
+ *
+ * Formats supported:
+ *   - "%c"
+ *   - "%p"
+ *   - "%%"
+ *   - "%s", "%25s"
+ *   - "%d", "%ld", "%lld"
+ *   - "%u", "%lu", "%llu"
+ *   - "%f", "%lf"
+ *   - "%x", "%lx", "%llx", "%X", "%lX", "%llX"
+ *   - "%25d", "%25ld", "%25lld"
+ *   - "%25u", "%25lu", "%25llu"
+ *   - "%25f", "%25lf", "%.3f", "%25.3f"
+ *   - "%25x", "%25lx", "%25llx", "%25X", "%25lX", "%25llX"
+ *
+ * @param[in] fmt Format string.
+ * @param[in] va Variable argument list.
+ * @return Bytes written.
+ */
+int vprintf(const char* fmt, va_list va);
+
+/**
  * @brief Prints the specified string and a newline char.
  * @param[in] str Zero-terminated string to print.
  * @return 1 if success, EOF otherwise.
@@ -68,30 +92,6 @@ int vfprintf(FILE* stream, const char* fmt, va_list va);
  * @return Bytes written.
  */
 int printf(const char* fmt, ...) __attribute__((format(printf, 1, 2)));
-
-/**
- * @brief Prints with the specified format using the specified variable argument
- * list.
- *
- * Formats supported:
- *   - "%c"
- *   - "%p"
- *   - "%%"
- *   - "%s", "%25s"
- *   - "%d", "%ld", "%lld"
- *   - "%u", "%lu", "%llu"
- *   - "%f", "%lf"
- *   - "%x", "%lx", "%llx", "%X", "%lX", "%llX"
- *   - "%25d", "%25ld", "%25lld"
- *   - "%25u", "%25lu", "%25llu"
- *   - "%25f", "%25lf", "%.3f", "%25.3f"
- *   - "%25x", "%25lx", "%25llx", "%25X", "%25lX", "%25llX"
- *
- * @param[in] fmt Format string.
- * @param[in] va Variable argument list.
- * @return Bytes written.
- */
-int vprintf(const char* fmt, va_list va);
 
 /**
  * @brief Prints the specified character.

@@ -244,50 +244,6 @@ static inline void printp(void* ptr) {
     }
 }
 
-int puts(const char* str) {
-    printf("%s\n", str);
-    return 1; /* EOF means failure */
-}
-
-int printf(const char* restrict fmt, ...) {
-    va_list va;
-    va_start(va, fmt);
-
-    int ret = vprintf(fmt, va);
-
-    va_end(va);
-    return ret;
-}
-
-int fprintf(FILE* restrict stream, const char* restrict fmt, ...) {
-    va_list va;
-    va_start(va, fmt);
-
-    int ret = vfprintf(stream, fmt, va);
-
-    va_end(va);
-    return ret;
-}
-
-int vfprintf(FILE* restrict stream, const char* restrict fmt, va_list va) {
-    if (stream == stderr) {
-        /* Save old colors and set fore to red */
-        uint32_t old_fg, old_bg;
-        fbc_getcols(&old_fg, &old_bg);
-        fbc_setfore(COLOR_RED);
-
-        /* Print */
-        const int ret = vprintf(fmt, va);
-
-        /* Reset old colors and return bytes written from vprintf */
-        fbc_setfore(old_fg);
-        return ret;
-    } else {
-        /* Just call normal vprintf */
-        return vprintf(fmt, va);
-    }
-}
-
 int vprintf(const char* restrict fmt, va_list va) {
     int written = 0;
 
@@ -556,6 +512,50 @@ int vprintf(const char* restrict fmt, va_list va) {
     }
 
     return written;
+}
+
+int puts(const char* str) {
+    printf("%s\n", str);
+    return 1; /* EOF means failure */
+}
+
+int printf(const char* restrict fmt, ...) {
+    va_list va;
+    va_start(va, fmt);
+
+    int ret = vprintf(fmt, va);
+
+    va_end(va);
+    return ret;
+}
+
+int fprintf(FILE* restrict stream, const char* restrict fmt, ...) {
+    va_list va;
+    va_start(va, fmt);
+
+    int ret = vfprintf(stream, fmt, va);
+
+    va_end(va);
+    return ret;
+}
+
+int vfprintf(FILE* restrict stream, const char* restrict fmt, va_list va) {
+    if (stream == stderr) {
+        /* Save old colors and set fore to red */
+        uint32_t old_fg, old_bg;
+        fbc_getcols(&old_fg, &old_bg);
+        fbc_setfore(COLOR_RED);
+
+        /* Print */
+        const int ret = vprintf(fmt, va);
+
+        /* Reset old colors and return bytes written from vprintf */
+        fbc_setfore(old_fg);
+        return ret;
+    } else {
+        /* Just call normal vprintf */
+        return vprintf(fmt, va);
+    }
 }
 
 int putchar(int c) {
