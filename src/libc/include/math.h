@@ -8,6 +8,8 @@
 double sqrt(double x);
 double sin(double x);
 double cos(double x);
+double tan(double x);
+double cot(double x);
 double pow(double base, int exponent);
 double floor(double x);
 double ceil(double x);
