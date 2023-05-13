@@ -32,6 +32,32 @@ double cos(double x) {
     return result;
 }
 
+double tan(double x) {
+    double result;
+
+    asm volatile("fld %1\n\t"
+                 "fsincos\n\t"
+                 "fdivp\n\t"
+                 "fstp %0"
+                 : "=m" (result)
+                 : "m" (x));
+
+    return result;
+}
+
+double cot(double x) {
+    double result;
+
+    asm volatile("fld %1\n\t"
+                 "fsincos\n\t"
+                 "fdivrp\n\t"
+                 "fstp %0"
+                 : "=m" (result)
+                 : "m" (x));
+
+    return result;
+}
+
 double pow(double base, int exponent) {
     double result = 1;
 
