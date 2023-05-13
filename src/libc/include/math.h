@@ -5,6 +5,7 @@
 #define M_E     2.71828182845904523536
 #define M_SQRT2 1.41421356237309504880
 
+double abs(double x);
 double sqrt(double x);
 double sin(double x);
 double cos(double x);

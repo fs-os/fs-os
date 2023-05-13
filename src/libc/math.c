@@ -1,5 +1,9 @@
 #include <math.h>
 
+double abs(double x) {
+    return x < 0 ? -x : x;
+}
+
 double sqrt(double x) {
     double result;
 
