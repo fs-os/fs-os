@@ -1,4 +1,5 @@
 
+#include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
@@ -29,9 +30,6 @@
         puts(s);                    \
         fbc_setfore(COLOR_GRAY);    \
     }
-
-/* Just used in cmd_test_libk */
-#define SIGMAROUND(n) (double)(int)(n + 0.5)
 
 #define LENGTH(arr) (sizeof(arr) / sizeof(arr[0]))
 
@@ -475,8 +473,9 @@ static int cmd_test_libk() {
     printf("2.5 + 1.3 = %f\n", 2.5 + 1.3);
     printf("654.12345678 (\"%%.3f\") -> \"%.3f\"\n", 654.12345678);
     printf("654.12345678 (\"%%10.4f\") -> \"%10.4f\"\n", 654.12345678);
-    printf("SIGMAROUND(1.4) = %f\n", SIGMAROUND(1.4));
-    printf("SIGMAROUND(1.5) = %f\n", SIGMAROUND(1.5));
+    printf("round(1.4) = %f\n", round(1.4));
+    printf("round(1.5) = %f\n", round(1.5));
+    printf("sqrt(9) = %f\n", sqrt(9));
 
     TEST_TITLE("\nTesting time.h functions");
     printf("Hello, ");

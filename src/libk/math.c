@@ -1,5 +1,13 @@
 #include <math.h>
 
+double sqrt(double x) {
+    double result;
+
+    asm volatile("sqrtsd %0, %1" : "=x" (result) : "x" (x));
+
+    return result;
+}
+
 double pow(double base, int exponent) {
     double result = 1;
 
