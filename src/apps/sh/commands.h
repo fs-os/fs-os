@@ -473,6 +473,8 @@ static int cmd_test_libk() {
     printf("2.5 + 1.3 = %f\n", 2.5 + 1.3);
     printf("654.12345678 (\"%%.3f\") -> \"%.3f\"\n", 654.12345678);
     printf("654.12345678 (\"%%10.4f\") -> \"%10.4f\"\n", 654.12345678);
+
+    TEST_TITLE("\nTesting math.h functions");
     printf("round(1.4) = %f\n", round(1.4));
     printf("round(1.5) = %f\n", round(1.5));
     printf("sqrt(9) = %f\n", sqrt(9));
