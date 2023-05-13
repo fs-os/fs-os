@@ -27,6 +27,10 @@ Some interesting resources that influenced the project's philosophy:
   [xorriso](https://www.gnu.org/software/xorriso) for creating the bootable image.
 - (Optional) [qemu](https://www.qemu.org) for testing the ISO on a VM.
 
+> **Note**  
+> Depending on the distro, you might also need the `qemu-ui-gtk` and
+> `qemu-audio-pa` packages for the virtual machine.
+
 #### Building
 Once you have all the requirements, simply run:
 ```console

@@ -89,13 +89,13 @@ _start:
     finit
 
     ; Enable SSE
-    mov eax, cr0
-    and al, ~0x04
-    or al, 0x22
-    mov cr0, eax
-    mov eax, cr4
-    or ax, 0x600
-    mov cr4, eax
+    mov     eax, cr0
+    and     al, ~0x04       ; Clear CR0.EM
+    or      al, 0x22        ; Set CR0.MP
+    mov     cr0, eax
+    mov     eax, cr4
+    or      ax, 0x600       ; Set CR4.OSFXSR (9) and CR4.OSXMMEXCPT (10)
+    mov     cr4, eax
 
     ; The ABI requires the stack to be 16 byte aligned at the time of the call
     ; instruction (Because it pushes the return address to the stack: 4 bytes).

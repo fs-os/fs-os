@@ -16,7 +16,8 @@
 
 static inline void print_piano(void) {
     const char* piano_layout[] = {
-        "\xC9\xCD\xCD\xCB\xCD\xCB\xCD\xCB\xCD\xCB\xCD\xCB\xCD\xCB\xCD\xCD\xCB\xCD"
+        "\xC9\xCD\xCD\xCB\xCD\xCB\xCD\xCB\xCD\xCB\xCD\xCB\xCD\xCB\xCD\xCD\xCB"
+        "\xCD"
         "\xCD\xCB\xCD\xCB\xCD\xCB\xCD\xCB\xCD\xCD\xCB\xCD\xCD\xBB",
 
         "\xBA  \xBA"
@@ -27,7 +28,8 @@ static inline void print_piano(void) {
 
         "\xBA S \xBA D \xBA F \xBA G \xBA H \xBA J \xBA K \xBA L \xBA",
 
-        "\xC8\xCD\xCD\xCD\xCA\xCD\xCD\xCD\xCA\xCD\xCD\xCD\xCA\xCD\xCD\xCD\xCA\xCD"
+        "\xC8\xCD\xCD\xCD\xCA\xCD\xCD\xCD\xCA\xCD\xCD\xCD\xCA\xCD\xCD\xCD\xCA"
+        "\xCD"
         "\xCD\xCD\xCA\xCD\xCD\xCD\xCA\xCD\xCD\xCD\xCA\xCD\xCD\xCD\xBC",
     };
 
@@ -104,7 +106,8 @@ int piano_main(int argc, char** argv) {
             return 1;
         }
 
-        if (get_octave_notes(octave_arg, piano_notes, LENGTH(piano_notes)) != 0) {
+        if (get_octave_notes(octave_arg, piano_notes, LENGTH(piano_notes)) !=
+            0) {
             printf("Invalid octave range.\n"
                    "Usage:\n"
                    "\t%s           - Run with default octave (3)\n"
@@ -128,8 +131,8 @@ int piano_main(int argc, char** argv) {
         /* Used to check if we are playing a note at all */
         bool playing = false;
 
-        /* Store which keys are being pressed (pressed means held for the first time)
-         * and held */
+        /* Store which keys are being pressed (pressed means held for the first
+         * time) and held */
         for (size_t i = 0; i < LENGTH(piano_notes); i++) {
             const bool keyboard_held = kb_held(piano_notes[i].ch);
 
@@ -151,8 +154,8 @@ int piano_main(int argc, char** argv) {
             }
         }
 
-        /* If we didn't find a new pressed key, but the one we were playing is still
-         * being held, we keep using that one */
+        /* If we didn't find a new pressed key, but the one we were playing is
+         * still being held, we keep using that one */
         if (playing_note != NULL && playing_note->held)
             playing = true;
 
@@ -163,44 +166,29 @@ int piano_main(int argc, char** argv) {
                 if (piano_notes[i].held) {
                     /* If we didn't press a key this iteration, but we are still
                      * holding a key, change the frequency and don't stop the
-                     * speaker. We overwrite the freq even before checking the whole
-                     * array for pressed keys because we would break immediately
-                     * after we find a pressed key. */
+                     * speaker. We overwrite the freq even before checking the
+                     * whole array for pressed keys because we would break
+                     * immediately after we find a pressed key. */
                     playing_note = &piano_notes[i];
                     playing      = true;
                 }
             }
         }
 
-#ifdef DEBUG
-        for (size_t i = 0; i < LENGTH(piano_notes); i++) {
-            if (piano_notes[i].pressed)
-                printf("# ");
-            else if (piano_notes[i].held)
-                printf(". ");
-            else
-                printf("  ");
-        }
-        putchar('\n');
-#endif
-
         /* If we are not playing any note, stop the pc speaker */
         if (!playing) {
             if (pcspkr_get_freq() != 0) {
                 pcspkr_clear();
-#ifndef DEBUG
                 printf("\r\tCurrent note:");
-#endif
             }
         } else if (pcspkr_get_freq() != playing_note->freq) {
             pcspkr_play(playing_note->freq);
-#ifndef DEBUG
             printf("\r\tCurrent note: %s (%ld)", playing_note->note_name,
                    playing_note->freq);
-#endif
         }
     }
 
+    pcspkr_clear();
     printf("\r\tGoodbye.\n");
 
     /* If we were echoing the keyboard before the program, restore it */
@@ -209,6 +197,17 @@ int piano_main(int argc, char** argv) {
 
     return 0;
 }
+
+#define PIANO_USAGE()                                                    \
+    {                                                                    \
+        printf("Usage:\n"                                                \
+               "\t%s              - Run until the user exits\n"          \
+               "\t%s -n <count>   - Run for n notes\n"                   \
+               "\t%s -o <octave>  - Run with the specified octave\n"     \
+               "\t%s -s <seed>    - Use the specified numeric seed for " \
+               "srand\n",                                                \
+               argv[0], argv[0], argv[0], argv[0]);                      \
+    }
 
 int piano_random(int argc, char** argv) {
     int note_limit   = 1; /* Max notes the program will play */
@@ -228,14 +227,8 @@ int piano_random(int argc, char** argv) {
             switch (argv[i][1]) {
                 case 'n':
                     if ((note_limit = atoi(argv[i + 1])) == 0) {
-                        printf("Invalid option for \"-n\".\n"
-                               "Usage:\n"
-                               "\t%s              - Run until the user exits\n"
-                               "\t%s -n <count>   - Run for n notes\n"
-                               "\t%s -o <octave>  - Run with the specified octave\n"
-                               "\t%s -s <seed>    - Use the specified numeric seed "
-                               "for srand\n",
-                               argv[0], argv[0], argv[0], argv[0]);
+                        printf("Invalid option for \"-n\".\n");
+                        PIANO_USAGE();
                         return 1;
                     }
                     count_notes = true;
@@ -245,41 +238,23 @@ int piano_random(int argc, char** argv) {
                     if (octave_arg == 0 ||
                         get_octave_notes(octave_arg, piano_notes,
                                          LENGTH(piano_notes)) != 0) {
-                        printf("Invalid option for \"-o\".\n"
-                               "Usage:\n"
-                               "\t%s              - Run until the user exits\n"
-                               "\t%s -n <count>   - Run for n notes\n"
-                               "\t%s -o <octave>  - Run with the specified octave\n"
-                               "\t%s -s <seed>    - Use the specified numeric seed "
-                               "for srand\n",
-                               argv[0], argv[0], argv[0], argv[0]);
+                        printf("Invalid option for \"-o\".\n");
+                        PIANO_USAGE();
                         return 1;
                     }
                     break;
                 case 's':
                     const int seed = atoi(argv[i + 1]);
                     if (seed == 0) {
-                        printf("Invalid option for \"-s\".\n"
-                               "Usage:\n"
-                               "\t%s              - Run until the user exits\n"
-                               "\t%s -n <count>   - Run for n notes\n"
-                               "\t%s -o <octave>  - Run with the specified octave\n"
-                               "\t%s -s <seed>    - Use the specified numeric seed "
-                               "for srand\n",
-                               argv[0], argv[0], argv[0], argv[0]);
+                        printf("Invalid option for \"-s\".\n");
+                        PIANO_USAGE();
                         return 1;
                     }
                     srand(seed);
                     break;
                 default:
-                    printf("Invalid arguments.\n"
-                           "Usage:\n"
-                           "\t%s              - Run until the user exits\n"
-                           "\t%s -n <count>   - Run for n notes\n"
-                           "\t%s -o <octave>  - Run with the specified octave\n"
-                           "\t%s -s <seed>    - Use the specified numeric seed for "
-                           "srand\n",
-                           argv[0], argv[0], argv[0], argv[0]);
+                    printf("Invalid arguments.\n");
+                    PIANO_USAGE();
                     return 1;
             } /* argv switch */
         }     /* argv for */
@@ -308,4 +283,3 @@ int piano_random(int argc, char** argv) {
 
     return 0;
 }
-
