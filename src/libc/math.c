@@ -72,7 +72,12 @@ double pow(double base, int exponent) {
 }
 
 double floor(double x) {
-    return (int)x;
+    int int_part = (int)x;
+
+    if (x < 0 && x != int_part)
+        int_part--;
+
+    return int_part;
 }
 
 double ceil(double x) {
