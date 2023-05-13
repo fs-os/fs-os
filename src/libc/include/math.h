@@ -1,6 +1,10 @@
 #ifndef _MATH_H
 #define _MATH_H
 
+#define M_PI    3.14159265358979323846
+#define M_E     2.71828182845904523536
+#define M_SQRT2 1.41421356237309504880
+
 double sqrt(double x);
 double pow(double base, int exponent);
 double floor(double x);
