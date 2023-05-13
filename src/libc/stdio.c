@@ -92,12 +92,6 @@ static void print_double(double num, uint32_t decimals) {
     if (num < 0)
         num = -num;
 
-    /* If the double doesn't have decimals (12.0) */
-    if (num == 0) {
-        print(".0");
-        return;
-    }
-
     putchar('.');
 
     while (decimals-- > 0) {
