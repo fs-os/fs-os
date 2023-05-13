@@ -8,6 +8,30 @@ double sqrt(double x) {
     return result;
 }
 
+double sin(double x) {
+    double result;
+
+    asm volatile("fld %1\n\t"
+                 "fsin\n\t"
+                 "fstp %0\n\t"
+                 : "=m" (result)
+                 : "m" (x));
+
+    return result;
+}
+
+double cos(double x) {
+    double result;
+
+    asm volatile("fld %1\n\t"
+                 "fcos\n\t"
+                 "fstp %0\n\t"
+                 : "=m" (result)
+                 : "m" (x));
+
+    return result;
+}
+
 double pow(double base, int exponent) {
     double result = 1;
 

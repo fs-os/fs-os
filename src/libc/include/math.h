@@ -6,6 +6,8 @@
 #define M_SQRT2 1.41421356237309504880
 
 double sqrt(double x);
+double sin(double x);
+double cos(double x);
 double pow(double base, int exponent);
 double floor(double x);
 double ceil(double x);
