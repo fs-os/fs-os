@@ -25,7 +25,7 @@ enum fb_types {
  * @param[in] h Framebuffer height in px
  * @param[in] bpp Framebuffer bits per pixel
  */
-void fb_init(uint32_t* fb, uint32_t pitch, uint32_t w, uint32_t h,
+void fb_init(volatile uint32_t* fb, uint32_t pitch, uint32_t w, uint32_t h,
              uint32_t bpp);
 
 /**
@@ -34,7 +34,7 @@ void fb_init(uint32_t* fb, uint32_t pitch, uint32_t w, uint32_t h,
  * caution.
  * @return Framebuffer address
  */
-uint32_t* fb_get_ptr(void);
+volatile uint32_t* fb_get_ptr(void);
 
 /**
  * @brief Get the framebuffer width in px

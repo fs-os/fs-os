@@ -2,13 +2,13 @@
 #include <kernel/framebuffer.h>
 
 /* Framebuffer globals */
-static uint32_t* g_fb;
+static volatile uint32_t* g_fb;
 static uint32_t g_pitch;
 static uint32_t g_width;
 static uint32_t g_height;
 static uint32_t g_bpp;
 
-void fb_init(uint32_t* fb, uint32_t pitch, uint32_t w, uint32_t h,
+void fb_init(volatile uint32_t* fb, uint32_t pitch, uint32_t w, uint32_t h,
              uint32_t bpp) {
     /* Set globals to the parameter values we received from main (multiboot
      * info) */
@@ -25,7 +25,7 @@ void fb_init(uint32_t* fb, uint32_t pitch, uint32_t w, uint32_t h,
     }
 }
 
-uint32_t* fb_get_ptr(void) {
+volatile uint32_t* fb_get_ptr(void) {
     return g_fb;
 }
 
