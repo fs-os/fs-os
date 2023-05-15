@@ -45,7 +45,7 @@ static fbc_ctx* ctx = &_first_ctx;
 static inline void fbc_refresh_entry(uint32_t cy, uint32_t cx) {
     /* Get the current fbc_entry */
     const fbc_entry cur_entry = ctx->fbc[cy * ctx->ch_w + cx];
-    uint32_t* const fb_ptr    = fb_get_ptr();
+    volatile uint32_t* fb_ptr = fb_get_ptr();
     const uint32_t fb_w       = fb_get_width();
 
     /* Then iterate each pixel that forms the font char */
