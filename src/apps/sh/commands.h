@@ -478,6 +478,8 @@ static int cmd_test_libk() {
     printf("round(1.4) = %f\n", round(1.4));
     printf("round(1.5) = %f\n", round(1.5));
     printf("sqrt(9) = %f\n", sqrt(9));
+    printf("sin(M_PI / 2) = %f\n", sin(M_PI / 2));
+    printf("tan(M_PI / 4) = %f\n", tan(M_PI / 4));
 
     TEST_TITLE("\nTesting time.h functions");
     printf("Hello, ");
