@@ -71,7 +71,6 @@ struc ctx_t
     .esp:       resd 1          ; Top of the current task's stack
     .cr3:       resd 1          ; cr3 register for the current stack (virtual
                                 ; address space/page directory)
-    .state:     resd 1
     .name:      resd 1          ; char* to the task name
 endstruc
 

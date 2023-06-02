@@ -12,7 +12,6 @@ section .bss
             at ctx_t.stack, resd 1
             at ctx_t.esp,   resd 1
             at ctx_t.cr3,   resd 1
-            at ctx_t.state, resd 1
             at ctx_t.name,  resd 1
         iend
 
@@ -42,9 +41,6 @@ mt_init:
     mov     eax, cr3
     mov     [first_ctx + ctx_t.cr3], eax
 
-    ; TODO: State
-    mov     [first_ctx + ctx_t.state], dword 0x00000000
-
     ; "kernel_main"
     mov     [first_ctx + ctx_t.name],  dword first_task_name
 
@@ -70,7 +66,6 @@ mt_newtask:
                                 ; by new allocated stack.
 
     mov     [eax + ctx_t.name], edx ; Program name (char*), first arg
-    mov     [eax + ctx_t.state], dword 0x00000000 ; TODO: State
 
     mov     edx, cr3
     mov     [eax + ctx_t.cr3], edx  ; TODO: For now save current cr3 for new

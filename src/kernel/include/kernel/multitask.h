@@ -16,7 +16,6 @@ struct Ctx {
     uint32_t stack; /**< @brief Pointer to the allocated stack for the task */
     uint32_t esp;   /**< @brief Stack top */
     uint32_t cr3;   /**< @brief cr3 register (page directory) */
-    uint32_t state; /**< @brief Unused for now. */
     char* name;     /**< @brief Task name */
 };
 
