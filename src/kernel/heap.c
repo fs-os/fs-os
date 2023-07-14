@@ -23,17 +23,19 @@ void heap_init(void) {
     };
 }
 
-void* heap_alloc(size_t sz) {
-    /* First, make sure the size is aligned to 8 bytes */
-    const size_t align_diff = sz % 8;
-    if (align_diff != 0)
-        sz += 8 - align_diff;
-
+void* heap_alloc(size_t sz, size_t align) {
     /* From block cursor (last allocation/free), traverse blocks until we find
      * one free or until we loop back to the original cursor. */
     for (Block* blk = blk_cursor;; blk = blk->next) {
         /* Invalid block, check next */
         if (!blk->free || blk->sz < sz + sizeof(Block)) {
+            /**
+             * @todo Pretty sure this isn't supposed to work since last block
+             * is NULL, doesn't "loop". We need to find a new way to loop, not
+             * chaging the NULL part since we need to know which block is the
+             * first and last
+             */
+
             /* If we are back to where we started, there is no block left */
             if (blk->next == blk_cursor)
                 break;
@@ -41,18 +43,32 @@ void* heap_alloc(size_t sz) {
                 continue;
         }
 
+        /* Add padding to the end of the last block so the data of the new block
+         * is aligned. */
+        size_t sz_pad = (uint32_t)HEADER_TO_PTR(blk) % align;
+        if (sz_pad != 0 && blk->prev != NULL) {
+            /* Once we know we need padding, update var to know how much */
+            sz_pad = align - sz_pad;
+
+            /* If the start of the data is not algined and this is not the first
+             * block, add padding to size of last block */
+            blk->prev->sz += sz_pad;
+
+            /** @todo Move current 'blk' since we updated the prev's sz */
+            /** @todo Update current 'blk->sz' since we moved the header
+             * (subtract pad we added to prevs sz) */
+        }
+
         /* Location of the new block we will add after the size we are
-         * allocating: (current Block ptr + size of current block + sz to alloc)
-         * Similar to the HEADER_TO_PTR macro. The pointer is const. */
-        Block* const new_blk = (Block*)((uint32_t)blk + sizeof(Block) + sz);
+         * allocating: (data ptr + sz we just allocated)
+         * The pointer is const. */
+        Block* const new_blk = (Block*)((uint32_t)HEADER_TO_PTR(blk) + sz);
 
         /* Place the new block header */
         *new_blk = (Block){
             blk,       /* Prev block is the old block */
             blk->next, /* Next block is ".next" of the old block */
-            blk->sz - sz - sizeof(Block), /* Shrink the allocated size and the
-                                             new header size from the old blk
-                                             size */
+            blk->sz - sz - sizeof(Block), /* Shrink the old blk sz */
             1,
         };
 
@@ -164,4 +180,3 @@ void heap_dump_headers(void) {
         print_header_id(i++, blk);
     }
 }
-
