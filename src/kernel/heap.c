@@ -54,9 +54,14 @@ void* heap_alloc(size_t sz, size_t align) {
              * block, add padding to size of last block */
             blk->prev->sz += sz_pad;
 
-            /** @todo Move current 'blk' since we updated the prev's sz */
-            /** @todo Update current 'blk->sz' since we moved the header
-             * (subtract pad we added to prevs sz) */
+            /* Move current 'blk' since we updated the prev's sz */
+            Block tmp = *blk;
+            memset(blk, 0, sizeof(Block));
+            blk  = (Block*)((uint32_t)blk + sz_pad);
+            *blk = tmp;
+
+            /* Update current 'blk->sz' since we moved the header */
+            blk->sz -= sz_pad;
         }
 
         /* Location of the new block we will add after the size we are
