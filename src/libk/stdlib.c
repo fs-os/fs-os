@@ -161,7 +161,8 @@ void abort(void) {
 }
 
 void* malloc(size_t sz) {
-    return heap_alloc(sz);
+    /* Aligned to 8 bytes */
+    return heap_alloc(sz, 8);
 }
 
 void* calloc(size_t item_n, size_t item_sz) {
