@@ -61,6 +61,9 @@ void* heap_alloc(size_t sz, size_t align) {
             blk  = (Block*)((uint32_t)blk + sz_pad);
             *blk = tmp;
 
+            /* Also update the location of the previous item */
+            blk->prev->next = blk;
+
             /* Update current 'blk->sz' since we moved the header */
             blk->sz -= sz_pad;
 
