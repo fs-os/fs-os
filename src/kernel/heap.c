@@ -51,25 +51,24 @@ void* heap_alloc(size_t sz, size_t align) {
             /* Once we know we need padding, update var to know how much */
             sz_pad = align - sz_pad;
 
-            /* If the start of the data is not algined and this is not the first
-             * block, add padding to size of last block */
-            blk->prev->sz += sz_pad;
+            /* Check if the updated size is still enough to hold what was
+             * requested */
+            if (blk->sz - sz_pad < sz)
+                continue;
 
-            /* Move current 'blk' since we updated the prev's sz */
+            /* If the start of the data is not algined and this is not the first
+             * block, move current 'blk' */
             Block tmp = *blk;
             memset(blk, 0, sizeof(Block));
             blk  = (Block*)((uint32_t)blk + sz_pad);
             *blk = tmp;
 
-            /* Also update the location of the previous item */
-            blk->prev->next = blk;
-
             /* Update current 'blk->sz' since we moved the header */
             blk->sz -= sz_pad;
 
-            /** @todo Check if the updated size is still enough to hold what was
-             * requested
-             * (If not, continue;) */
+            /* Also update the size and new location in the previous item */
+            blk->prev->next = blk;
+            blk->prev->sz += sz_pad;
         }
 
         /* Location of the new block we will add after the size we are
