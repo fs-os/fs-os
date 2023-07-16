@@ -66,9 +66,13 @@ void* heap_alloc(size_t sz, size_t align) {
             /* Update current 'blk->sz' since we moved the header */
             blk->sz -= sz_pad;
 
-            /* Also update the size and new location in the previous item */
+            /* Also update the size and new location in the previous item, and
+             * the next one if there is one */
             blk->prev->next = blk;
             blk->prev->sz += sz_pad;
+
+            if (blk->next != NULL)
+                blk->next->prev = blk;
         }
 
         /* Location of the new block we will add after the size we are
