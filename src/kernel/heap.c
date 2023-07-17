@@ -10,6 +10,8 @@
  */
 #define HEADER_TO_PTR(blk) ((void*)((uint32_t)blk + sizeof(Block)))
 
+/** @todo FREE/BUSY enum instead of 1/0 */
+
 Block* blk_cursor = (Block*)HEAP_START;
 
 void heap_init(void) {
@@ -68,8 +70,8 @@ void* heap_alloc(size_t sz, size_t align) {
 
             /* Also update the size and new location in the previous item, and
              * the next one if there is one */
-            blk->prev->next = blk;
             blk->prev->sz += sz_pad;
+            blk->prev->next = blk;
 
             if (blk->next != NULL)
                 blk->next->prev = blk;
