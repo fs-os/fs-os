@@ -2,6 +2,8 @@
 #ifndef _CTYPE_H
 #define _CTYPE_H 1
 
+#include <stdbool.h>
+
 /**
  * @brief Returns true if `c` is uppercase.
  * @param[in] c Character to check
@@ -16,7 +18,7 @@ static inline bool isupper(int c) {
  * @param[in] c Character to check
  * @return True of lowercase
  */
-static inline bool islower(c) {
+static inline bool islower(int c) {
     return c >= 'a' && c <= 'z';
 }
 
