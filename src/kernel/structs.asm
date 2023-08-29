@@ -69,7 +69,7 @@ struc ctx_t
     .prev:      resd 1          ; Pointer to previous task
     .stack:     resd 1          ; Address of the allocated stack. Used for free()
     .esp:       resd 1          ; Top of the current task's stack
-    .cr3:       resd 1          ; cr3 register for the current stack (virtual
+    .cr3:       resd 1          ; cr3 register for the current task (virtual
                                 ; address space/page directory)
     .name:      resd 1          ; char* to the task name
 endstruc
