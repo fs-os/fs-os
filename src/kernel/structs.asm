@@ -71,6 +71,8 @@ struc ctx_t
     .esp:       resd 1          ; Top of the current task's stack
     .cr3:       resd 1          ; cr3 register for the current task (virtual
                                 ; address space/page directory)
+    .fxdata:    resd 1          ; 512 bytes needed for fxsave to store fpu/sse
+                                ; registers
     .name:      resd 1          ; char* to the task name
 endstruc
 

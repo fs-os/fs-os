@@ -11,12 +11,13 @@ typedef struct Ctx Ctx;
  * @details We could add more stuff like parent task and priority
  */
 struct Ctx {
-    Ctx* next;      /**< @brief Pointer to next task */
-    Ctx* prev;      /**< @brief Pointer to next task */
-    uint32_t stack; /**< @brief Pointer to the allocated stack for the task */
-    uint32_t esp;   /**< @brief Stack top */
-    uint32_t cr3;   /**< @brief cr3 register (page directory) */
-    char* name;     /**< @brief Task name */
+    Ctx* next;       /**< @brief Pointer to next task */
+    Ctx* prev;       /**< @brief Pointer to next task */
+    uint32_t stack;  /**< @brief Pointer to the allocated stack for the task */
+    uint32_t esp;    /**< @brief Stack top */
+    uint32_t cr3;    /**< @brief cr3 register (page directory) */
+    uint32_t fxdata; /**< @brief 512 bytes needed for fxsave to store FPU/SSE */
+    char* name;      /**< @brief Task name */
 };
 
 typedef struct tss_t Tss;
