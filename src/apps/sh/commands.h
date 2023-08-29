@@ -30,6 +30,19 @@
         fbc_setfore(COLOR_GRAY);    \
     }
 
+/* Need tmp to remove '\0' from itoa */
+#define PAD_ZEROS(n, p)                \
+    do {                               \
+        if (n < 10) {                  \
+            *p       = '0';            \
+            *(p + 1) = n + '0';        \
+        } else {                       \
+            const char tmp = *(p + 2); \
+            itoa(p, n);                \
+            *(p + 2) = tmp;            \
+        }                              \
+    } while (0);
+
 /* Just used in cmd_test_libk */
 #define SIGMAROUND(n) (double)(int)(n + 0.5)
 
@@ -278,23 +291,24 @@ static int cmd_ticks() {
     return 0;
 }
 
-/**
- * @todo Since the %2d format now pads with spaces instead of zeros, we need to
- * manually pad with zeros the numbers <10
- */
 static int cmd_date() {
-    const DateTime now = rtc_get_datetime();
+    static char date_str[] = "00/00/00 - 00:00:00";
+    const DateTime now     = rtc_get_datetime();
+
+    PAD_ZEROS(now.date.d, &date_str[0]);
+    PAD_ZEROS(now.date.m, &date_str[3]);
+    PAD_ZEROS(now.date.y, &date_str[6]);
+    PAD_ZEROS(now.time.h, &date_str[11]);
+    PAD_ZEROS(now.time.m, &date_str[14]);
+    PAD_ZEROS(now.time.s, &date_str[17]);
 
     fbc_setfore(COLOR_WHITE_B);
     printf("Date: ");
-
     fbc_setfore(COLOR_GRAY);
-    printf("%d/%d/%d - %d:%d:%d\n", now.date.d, now.date.m, now.date.y,
-           now.time.h, now.time.m, now.time.s);
+    puts(date_str);
 
     fbc_setfore(COLOR_WHITE_B);
     printf("Epoch (Not acurate): ");
-
     fbc_setfore(COLOR_GRAY);
     printf("%lu\n", time(NULL));
 
