@@ -278,20 +278,27 @@ static int cmd_ticks() {
     return 0;
 }
 
+/**
+ * @todo Since the %2d format now pads with spaces instead of zeros, we need to
+ * manually pad with zeros the numbers <10
+ */
 static int cmd_date() {
     const DateTime now = rtc_get_datetime();
 
     fbc_setfore(COLOR_WHITE_B);
     printf("Date: ");
+
     fbc_setfore(COLOR_GRAY);
-    printf("%2d/%2d/%2d - %2d:%2d:%2d\n", now.date.d, now.date.m, now.date.y,
+    printf("%d/%d/%d - %d:%d:%d\n", now.date.d, now.date.m, now.date.y,
            now.time.h, now.time.m, now.time.s);
+
     fbc_setfore(COLOR_WHITE_B);
-    printf("Epoch: ");
+    printf("Epoch (Not acurate): ");
+
     fbc_setfore(COLOR_GRAY);
     printf("%lu\n", time(NULL));
-    fbc_setfore(COLOR_WHITE);
 
+    fbc_setfore(COLOR_WHITE);
     return 0;
 }
 

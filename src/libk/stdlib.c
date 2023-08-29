@@ -90,9 +90,6 @@ int ipow(int b, int e) {
     return ret;
 }
 
-/* itoan: write the first "max_digits" of "num" (at max) into "str". "str" needs
- * to have enough space. Useful for making sure you won't write out of bounds.
- * Keep in mind that max_digits does not include the null terminator. */
 void itoan(char* str, int64_t num, size_t max_digits) {
     if (max_digits <= 0) {
         str[0] = '\0';
