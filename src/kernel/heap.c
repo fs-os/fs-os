@@ -155,6 +155,9 @@ void heap_free(void* ptr) {
             blk->next->prev = blk->prev;
 
         blk->prev->next = blk->next;
+
+        /* Once we are done merging with prev, we update the blk ptr */
+        blk = blk->prev;
     }
 
     /* If the next block is being used, just set this one free */
