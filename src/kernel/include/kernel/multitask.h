@@ -131,6 +131,6 @@ Ctx* mt_gettask(void);
  * @brief Print the list of tasks starting with the current one.
  * @details Defined in src/kernel/multitask.c
  */
-void dump_task_list(void);
+void mt_dump_tasks(void);
 
 #endif /* _KERNEL_MULTITASK_H */

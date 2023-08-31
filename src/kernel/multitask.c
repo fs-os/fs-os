@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <kernel/multitask.h>
 
-void dump_task_list(void) {
+void mt_dump_tasks(void) {
     puts("Dumping task list:");
 
     /* 0 will be the current one, not the first task we created */
