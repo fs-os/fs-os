@@ -7,20 +7,24 @@ section .bss
 
     first_ctx:              ; Reserve the bytes, filled in mt_init
         istruc ctx_t
-            at ctx_t.next,  resd 1
-            at ctx_t.prev,  resd 1
-            at ctx_t.stack, resd 1
-            at ctx_t.esp,   resd 1
-            at ctx_t.cr3,   resd 1
-            at ctx_t.name,  resd 1
+            at ctx_t.next,   resd 1
+            at ctx_t.prev,   resd 1
+            at ctx_t.stack,  resd 1
+            at ctx_t.esp,    resd 1
+            at ctx_t.cr3,    resd 1
+            at ctx_t.fxdata, resd 1
+            at ctx_t.name,   resd 1
         iend
+
+    align 16                    ; 512 bytes needed by fxsave used by the first
+    first_fxdata: resb 512      ; task. Reserved here instead of heap.
 
 section .data
     first_task_name db 'kernel_main', 0x0
 
 section .text
     extern stack_bottom         ; src/kernel/boot.asm
-    extern malloc:function      ; src/libk/stdlib.c
+    extern heap_alloc:function  ; src/kernel/heap.c
     extern free:function        ; src/libk/stdlib.c
 
 ; void mt_init(void);
@@ -41,6 +45,9 @@ mt_init:
     mov     eax, cr3
     mov     [first_ctx + ctx_t.cr3], eax
 
+    ; 512 bytes aligned to 16 bytes in .bss for fxsave. See mt_newtask
+    mov     [first_ctx + ctx_t.fxdata], dword first_fxdata
+
     ; "kernel_main"
     mov     [first_ctx + ctx_t.name],  dword first_task_name
 
@@ -57,10 +64,12 @@ mt_newtask:
     push    ebp
     mov     ebp, esp
 
+    push    dword 8             ; Align to 8 bytes
     push    dword ctx_t_size    ; Size of the ctx_t struct
-    call    malloc              ; Allocate a ctx_t struct on the heap
-    add     esp, 4              ; Remove dword we just pushed
+    call    heap_alloc          ; Allocate a ctx_t struct on the heap
+    add     esp, 8              ; Remove 2 dwords we just pushed
 
+    ; TODO: Use [ebp + N] instead of restoring all the time
     mov     ecx, [esp + 12]     ; Second arg, entry point for task
     mov     edx, [esp + 8]      ; First arg, task name. edx will be overwritten
                                 ; by new allocated stack.
@@ -100,10 +109,11 @@ mt_newtask:
     push    eax             ; Push eax (allocated Ctx*) because of next malloc
     push    ecx             ; Push second arg because caller must preserve
 
-    push    dword 16384     ; 16KiB stack for the new task
-    call    malloc
+    push    dword 8         ; Align to 8 bytes
+    push    dword 0x4000    ; 16KiB stack for the new task
+    call    heap_alloc
     mov     edx, eax        ; Save new stack address to edx
-    add     esp, 4          ; Remove dword we just pushed
+    add     esp, 8          ; Remove 2 dwords we just pushed
 
     pop     ecx             ; Restore second arg
     pop     eax             ; Restore old Ctx* from first malloc
@@ -112,9 +122,10 @@ mt_newtask:
                                         ; Stored so we can free it once the task
                                         ; ends.
 
-    add     edx, 16384      ; Now edx points to the end of the allocated memory,
+    add     edx, 0x4000 - 4 ; Now edx points to the end of the allocated memory,
                             ; which is the bottom of the stack in x86 (pushed
-                            ; items are in lower addresses).
+                            ; items are in lower addresses). We subtract 4 to
+                            ; not overflow. See issue #12
 
     ; Fill new allocated stack for new task. From bottom to top, needed by
     ; mt_switch and System V ABI:
@@ -136,6 +147,21 @@ mt_newtask:
     mov     [eax + ctx_t.esp], edx      ; Save the address at the top of the
                                         ; allocated stack
 
+    ; Allocate 512 bytes needed by the fxsave instruction for preserving the fpu
+    ; and sse registers
+    push    eax
+
+    push    dword 16                        ; Need to be 16-bit aligned
+    push    dword 512                       ; 512 bytes for fxsave
+    call    heap_alloc
+    mov     edx, eax                        ; Save allocated bytes to edx
+    add     esp, 8                          ; Remove 2 dwords we just pushed
+
+    pop     eax
+
+    mov     [eax + ctx_t.fxdata], edx       ; Save in ctx struct
+
+    ; Exit the mt_newtask function
     mov     esp, ebp
     pop     ebp
 
@@ -149,7 +175,7 @@ mt_switch:
 
     push    edi     ; edi will be the current task
     push    esi     ; esi will be the first argument (new ctx)
-    push    ebp     ; ebp and ebx are unused in mt_swtich, we still need to save
+    push    ebp     ; ebp and ebx are unused in mt_switch, we still need to save
     push    ebx     ; them because the called function should preserve them
                     ; acording to the System V ABI.
 
@@ -163,10 +189,20 @@ mt_switch:
     mov     edi, [mt_current_task]
     mov     [edi + ctx_t.esp], esp
 
-    mov     esi, [esp + 5 * 4]      ; First argument. We pushed 4 elements +
-                                    ; return address, of size 4 (dword).
-    mov     [mt_current_task], esi  ; Save the function argument as the current
-                                    ; ctx
+    ; Save the SSE, MMX and FPU registers. fxsave requires a 16byte-aligned
+    ; address to 512 bytes. Although this "dereference" looks weird, it's the
+    ; same as lgdt (src/kernel/gdt.asm)
+    mov     eax, [edi + ctx_t.fxdata]
+    fxsave  [eax]
+
+    ; Now we are done storing the current task, we can switch to the next task.
+    ; We store the first argument in esi. We pushed 4 elements + 1 return
+    ; address, of size 4 (dword). We set it as the current ctx.
+    mov     esi, [esp + 5 * 4]
+    mov     [mt_current_task], esi
+
+    mov     eax, [esi + ctx_t.fxdata]   ; Restore SSE/MMX/FPU registers saved by
+    fxrstor [eax]                       ; fxsave on ctx_t.fxdata
 
     mov     esp, [esi + ctx_t.esp]  ; Load all fields from next task
     mov     eax, [esi + ctx_t.cr3]  ; Save new cr3 to eax for comparing
@@ -213,19 +249,25 @@ mt_endtask:
     mov     [ecx + ctx_t.next], edx     ; arg->prev->next = arg->next
     mov     [edx + ctx_t.prev], ecx     ; arg->next->prev = arg->prev
 
-    ; Free the stack we allocated for the task, and then free the Ctx struct as
-    ; well
-
-    push    eax         ; Preserve eax and push it to use it as arg for the 2nd
-                        ; free call (first free the stack, then free the Ctx
-                        ; struct)
+    ; Free the stack, fxdata and Ctx struct we allocated for the task. First we
+    ; preserve eax in edx because the first "free" (for the stack) will overwrite it
+    ; when returning.
+    push    eax
 
     push    dword [eax + ctx_t.stack]   ; Address of the allocated stack
     call    free                        ; Free the task's stack
-    add     esp, 4                      ; Remove dword we just pushed
+    add     esp, 4                      ; Remove stack dword we just pushed
 
-    call    free                        ; Free the Ctx struct itself, function
-                                        ; arg we pushed before freeing the stack.
+    pop     eax                         ; Restore eax since it was overwritten
+    mov     edx, [eax + ctx_t.fxdata]   ; Save fxdata address in edx
+    push    eax                         ; Push eax (Ctx*) again
+
+    push    edx                         ; Free 512 bytes of fxdata
+    call    free
+    add     esp, 4                      ; Remove fxdata dword we just pushed
+
+    call    free        ; Free the Ctx struct itself, eax we pushed before
+                        ; freeing fxdata
 
     mov     esp, ebp
     pop     ebp

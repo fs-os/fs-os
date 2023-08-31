@@ -16,8 +16,8 @@ typedef struct Block Block;
  * @details The block ptr should point to (header_ptr + sizeof(Block))
  */
 struct Block {
-    Block* prev; /** @brief Pointer to prev header. Start of heap means NULL */
-    Block* next; /** @brief Pointer to next header. End of heap means NULL */
+    Block* prev; /** @brief Pointer to prev header. NULL means start of heap */
+    Block* next; /** @brief Pointer to next header. NULL means end of heap */
     uint32_t sz; /** @brief Block size in bytes */
     bool free;   /** @brief True if the block is not being used */
 };
@@ -35,12 +35,13 @@ extern Block* blk_cursor;
 void heap_init(void);
 
 /**
- * @brief Allocate \p sz bytes of memory from the heap and return the address
- * @details Size will be padded to 8 bytes.
+ * @brief Allocate `sz` bytes of memory from the heap and return the address
+ * @details Returned pointer will be padded/aligned to the parameter.
  * @param[in] sz Size in bytes to allocate
- * @return Pointer to the allocated block of memory
+ * @param[in] align Number for aligning the start of the returned pointer
+ * @return Pointer to the allocated (aligned) block of memory
  */
-void* heap_alloc(size_t sz);
+void* heap_alloc(size_t sz, size_t align);
 
 /**
  * @brief Free a previously allocated ptr.

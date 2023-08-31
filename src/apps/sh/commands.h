@@ -548,9 +548,9 @@ static int cmd_test_multitask() {
      *
      * For more information, call dump_task_list() after creating the tasks.
      */
-    Ctx* task2 = mt_newtask("task2", (void*)multitask_test2);
-    Ctx* task1 = mt_newtask("task1", (void*)multitask_test1);
-    Ctx* task0 = mt_newtask("task0", (void*)multitask_test0);
+    Ctx* task2 = mt_newtask("task2", multitask_test2);
+    Ctx* task1 = mt_newtask("task1", multitask_test1);
+    Ctx* task0 = mt_newtask("task0", multitask_test0);
 
     for (int i = 0; i <= 5; i++) {
         printf("%s: %d\n", mt_gettask()->name, i);
