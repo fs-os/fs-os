@@ -49,7 +49,7 @@ void* heap_alloc(size_t sz, size_t align) {
         /* Add padding to the end of the last block so the data of the new block
          * is aligned. */
         size_t sz_pad = (uint32_t)HEADER_TO_PTR(blk) % align;
-        if (sz_pad != 0 && blk->prev != NULL) {
+        if (sz_pad != 0) {
             /* Once we know we need padding, update var to know how much */
             sz_pad = align - sz_pad;
 
@@ -58,8 +58,7 @@ void* heap_alloc(size_t sz, size_t align) {
             if (blk->sz - sz_pad < sz)
                 continue;
 
-            /* If the start of the data is not algined and this is not the first
-             * block, move current 'blk' */
+            /* If the start of the data is not algined, move current 'blk' */
             Block tmp = *blk;
             memset(blk, 0, sizeof(Block));
             blk  = (Block*)((uint32_t)blk + sz_pad);
@@ -68,11 +67,14 @@ void* heap_alloc(size_t sz, size_t align) {
             /* Update current 'blk->sz' since we moved the header */
             blk->sz -= sz_pad;
 
-            /* Also update the size and new location in the previous item, and
-             * the next one if there is one */
-            blk->prev->sz += sz_pad;
-            blk->prev->next = blk;
+            /* If this is not the first block, also update the size and new
+             * location in the previous item */
+            if (blk->prev != NULL) {
+                blk->prev->sz += sz_pad;
+                blk->prev->next = blk;
+            }
 
+            /* Same if there is a next one */
             if (blk->next != NULL)
                 blk->next->prev = blk;
         }
