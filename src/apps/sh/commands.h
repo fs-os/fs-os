@@ -31,6 +31,19 @@
         fbc_setfore(COLOR_GRAY);    \
     }
 
+/* Need tmp to remove '\0' from itoa */
+#define PAD_ZEROS(n, p)                \
+    do {                               \
+        if (n < 10) {                  \
+            *p       = '0';            \
+            *(p + 1) = n + '0';        \
+        } else {                       \
+            const char tmp = *(p + 2); \
+            itoa(p, n);                \
+            *(p + 2) = tmp;            \
+        }                              \
+    } while (0);
+
 #define LENGTH(arr) (sizeof(arr) / sizeof(arr[0]))
 
 extern Layout us_layout;
@@ -277,19 +290,27 @@ static int cmd_ticks() {
 }
 
 static int cmd_date() {
-    const DateTime now = rtc_get_datetime();
+    static char date_str[] = "00/00/00 - 00:00:00";
+    const DateTime now     = rtc_get_datetime();
+
+    PAD_ZEROS(now.date.d, &date_str[0]);
+    PAD_ZEROS(now.date.m, &date_str[3]);
+    PAD_ZEROS(now.date.y, &date_str[6]);
+    PAD_ZEROS(now.time.h, &date_str[11]);
+    PAD_ZEROS(now.time.m, &date_str[14]);
+    PAD_ZEROS(now.time.s, &date_str[17]);
 
     fbc_setfore(COLOR_WHITE_B);
     printf("Date: ");
     fbc_setfore(COLOR_GRAY);
-    printf("%2d/%2d/%2d - %2d:%2d:%2d\n", now.date.d, now.date.m, now.date.y,
-           now.time.h, now.time.m, now.time.s);
+    puts(date_str);
+
     fbc_setfore(COLOR_WHITE_B);
-    printf("Epoch: ");
+    printf("Epoch (Not acurate): ");
     fbc_setfore(COLOR_GRAY);
     printf("%lu\n", time(NULL));
-    fbc_setfore(COLOR_WHITE);
 
+    fbc_setfore(COLOR_WHITE);
     return 0;
 }
 
@@ -530,9 +551,9 @@ static int cmd_test_multitask() {
      *
      * For more information, call dump_task_list() after creating the tasks.
      */
-    Ctx* task2 = mt_newtask("task2", (void*)multitask_test2);
-    Ctx* task1 = mt_newtask("task1", (void*)multitask_test1);
-    Ctx* task0 = mt_newtask("task0", (void*)multitask_test0);
+    Ctx* task2 = mt_newtask("task2", multitask_test2);
+    Ctx* task1 = mt_newtask("task1", multitask_test1);
+    Ctx* task0 = mt_newtask("task0", multitask_test0);
 
     for (int i = 0; i <= 5; i++) {
         printf("%s: %d\n", mt_gettask()->name, i);

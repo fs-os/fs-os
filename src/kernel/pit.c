@@ -40,10 +40,13 @@ uint16_t pit_read_count(enum pit_io_ports channel_port,
 
 /**
  * @brief Stores the PIT tick count since boot.
+ * @details Each tick is supposed to be 1 ms. See call to pit_init() from
+ * kernel_main()
  *
- * Each tick is supposed to be 1 ms. See call to pit_init() from kernel_main()
+ * If the counter was incremented from different places at once (e.g.
+ * mutiprocessor), we would need to make this variable volatile.
  */
-static volatile uint64_t ticks = 0;
+static uint64_t ticks = 0;
 
 void pit_dec(void) {
     if (ticks > 0)
@@ -69,4 +72,3 @@ void pit_set_ticks(uint64_t num) {
 uint64_t pit_get_ticks(void) {
     return ticks;
 }
-

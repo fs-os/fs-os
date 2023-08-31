@@ -11,13 +11,13 @@ typedef struct Ctx Ctx;
  * @details We could add more stuff like parent task and priority
  */
 struct Ctx {
-    Ctx* next;      /**< @brief Pointer to next task */
-    Ctx* prev;      /**< @brief Pointer to next task */
-    uint32_t stack; /**< @brief Pointer to the allocated stack for the task */
-    uint32_t esp;   /**< @brief Stack top */
-    uint32_t cr3;   /**< @brief cr3 register (page directory) */
-    uint32_t state; /**< @brief Unused for now. */
-    char* name;     /**< @brief Task name */
+    Ctx* next;       /**< @brief Pointer to next task */
+    Ctx* prev;       /**< @brief Pointer to next task */
+    uint32_t stack;  /**< @brief Pointer to the allocated stack for the task */
+    uint32_t esp;    /**< @brief Stack top */
+    uint32_t cr3;    /**< @brief cr3 register (page directory) */
+    uint32_t fxdata; /**< @brief 512 bytes needed for fxsave to store FPU/SSE */
+    char* name;      /**< @brief Task name */
 };
 
 typedef struct tss_t Tss;
@@ -97,13 +97,14 @@ void mt_init(void);
 /* mt_newtask:  */
 
 /**
- * @brief Creates a new task named `name`, and with the entry point `entry`.
+ * @brief Allocates and creates a new task with a `name` and `entry` point.
  * @details Defined in src/kernel/multitask.asm
  * @param[in] name The name of the new task.
  * @param[in] entry The entry point of the new task.
  * @return Pointer to the new task's context struct (Ctx).
  */
-Ctx* mt_newtask(const char* name, void* entry);
+Ctx* mt_newtask(const char* name, void* entry)
+  __attribute__((warn_unused_result));
 
 /**
  * @brief Switch to task `next`
@@ -130,6 +131,6 @@ Ctx* mt_gettask(void);
  * @brief Print the list of tasks starting with the current one.
  * @details Defined in src/kernel/multitask.c
  */
-void dump_task_list(void);
+void mt_dump_tasks(void);
 
 #endif /* _KERNEL_MULTITASK_H */

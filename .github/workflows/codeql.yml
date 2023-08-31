@@ -15,10 +15,10 @@ on:
   workflow_dispatch:
   workflow_call:
   #push:
-  #  branches: [ "main" ]
+    #branches: [ "main" ]
   pull_request:
-    # The branches below must be a subset of the branches above
-    branches: [ "main" ]
+    #branches: [ "main" ]
+    types: [submitted]
 
 jobs:
   analyze:
@@ -45,13 +45,18 @@ jobs:
         languages: ${{ matrix.language }}
 
     # Cross compiler deps. Probably not the best way.
-    - name: Cross compiler
+    - name: Cross compiler deps
       run: |
         git clone https://github.com/fs-os/cross-compiler
         cd cross-compiler
         ./debian-deps.sh
-        make
         cd ..
+
+    - name: Cross compiler binaries
+      run: |
+        wget -q https://github.com/fs-os/cross-compiler/releases/download/release1/cross-compiler.tar.gz
+        sudo tar xzpf cross-compiler.tar.gz --one-top-level=/usr/local/cross/
+        rm cross-compiler.tar.gz
 
     # Autobuild attempts to build any compiled languages  (C/C++, C#, Go, or Java).
     # If this step fails, then you should remove it and run the build manually (see below)

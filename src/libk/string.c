@@ -1,4 +1,5 @@
 
+#include <stdint.h>
 #include <stddef.h>
 #include <string.h>
 
@@ -35,8 +36,8 @@ char* strrev(char* str) {
 }
 
 int memcmp(const void* a, const void* b, size_t sz) {
-    unsigned char* ap = (unsigned char*)a;
-    unsigned char* bp = (unsigned char*)b;
+    uint8_t* ap = (uint8_t*)a;
+    uint8_t* bp = (uint8_t*)b;
 
     while (sz-- > 0) {
         if (*ap < *bp)
@@ -52,17 +53,17 @@ int memcmp(const void* a, const void* b, size_t sz) {
 }
 
 void* memset(void* ptr, int val, size_t sz) {
-    unsigned char* p = (unsigned char*)ptr;
+    uint8_t* p = (uint8_t*)ptr;
 
     while (sz-- > 0)
-        *p++ = (unsigned char)val;
+        *p++ = (uint8_t)val;
 
     return ptr;
 }
 
 void* memcpy(void* restrict dst, const void* restrict src, size_t sz) {
-    unsigned char* dp = (unsigned char*)dst;
-    unsigned char* sp = (unsigned char*)src;
+    uint8_t* dp = (uint8_t*)dst;
+    uint8_t* sp = (uint8_t*)src;
 
     while (sz-- > 0)
         *dp++ = *sp++;

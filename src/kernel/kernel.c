@@ -34,55 +34,45 @@
 #endif
 
 #if !defined(__i386__)
-#error "You are not using a ix86-elf compiler." \
+#error "You are not using a i386-elf compiler." \
     "For more information see: https://github.com/fs-os/cross-compiler"
 #endif
 
-#define TEST_TITLE(s)               \
-    {                               \
-        fbc_setfore(COLOR_WHITE_B); \
-        puts(s);                    \
-        fbc_setfore(COLOR_GRAY);    \
-    }
+#define TEST_TITLE(s)           \
+    fbc_setfore(COLOR_WHITE_B); \
+    puts(s);                    \
+    fbc_setfore(COLOR_GRAY);
 
-#define LOAD_INFO(s)                  \
-    {                                 \
-        fbc_setfore(COLOR_MAGENTA_B); \
-        printf(" * ");                \
-        fbc_setfore(COLOR_MAGENTA);   \
-        puts(s);                      \
-        fbc_setfore(COLOR_WHITE);     \
-    }
+#define LOAD_INFO(s)              \
+    fbc_setfore(COLOR_MAGENTA_B); \
+    printf(" * ");                \
+    fbc_setfore(COLOR_MAGENTA);   \
+    puts(s);                      \
+    fbc_setfore(COLOR_WHITE);
 
-#define LOAD_IGNORE(s)             \
-    {                              \
-        fbc_setfore(COLOR_GRAY_B); \
-        printf(" * ");             \
-        puts(s);                   \
-        fbc_setfore(COLOR_WHITE);  \
-    }
+#define LOAD_IGNORE(s)         \
+    fbc_setfore(COLOR_GRAY_B); \
+    printf(" * ");             \
+    puts(s);                   \
+    fbc_setfore(COLOR_WHITE);
 
-#define LOAD_ERROR(s)             \
-    {                             \
-        fbc_setfore(COLOR_RED_B); \
-        printf(" * ");            \
-        fbc_setfore(COLOR_RED);   \
-        puts(s);                  \
-        fbc_setfore(COLOR_WHITE); \
-    }
+#define LOAD_ERROR(s)         \
+    fbc_setfore(COLOR_RED_B); \
+    printf(" * ");            \
+    fbc_setfore(COLOR_RED);   \
+    puts(s);                  \
+    fbc_setfore(COLOR_WHITE);
 
 #define SYSTEM_INFO(s1, s2fmt, ...) \
-    {                               \
-        fbc_setfore(COLOR_WHITE_B); \
-        printf("\t%s", s1);         \
-        fbc_setfore(COLOR_WHITE);   \
-        printf(s2fmt, __VA_ARGS__); \
-        putchar('\n');              \
-    }
+    fbc_setfore(COLOR_WHITE_B);     \
+    printf("\t%s", s1);             \
+    fbc_setfore(COLOR_WHITE);       \
+    printf(s2fmt, __VA_ARGS__);     \
+    putchar('\n');
 
-/* Need tmp to remove NULL from itoa */
+/* Need tmp to remove '\0' from itoa */
 #define PAD_ZEROS(n, p)                \
-    {                                  \
+    do {                               \
         if (n < 10) {                  \
             *p       = '0';            \
             *(p + 1) = n + '0';        \
@@ -91,7 +81,7 @@
             itoa(p, n);                \
             *(p + 2) = tmp;            \
         }                              \
-    }
+    } while (0);
 
 /* Default layout, declared in keyboard.c */
 extern Layout us_layout;
