@@ -8,9 +8,7 @@
 /**
  * @brief Returns the pointer to the actual usable memory of a Block
  */
-#define HEADER_TO_PTR(blk) ((void*)((uint32_t)blk + sizeof(Block)))
-
-/** @todo FREE/BUSY enum instead of 1/0 */
+#define HEADER_TO_PTR(blk) ((void*)((uint32_t)(blk) + sizeof(Block)))
 
 Block* blk_cursor = (Block*)HEAP_START;
 
@@ -18,11 +16,10 @@ void heap_init(void) {
     void* first_blk = HEAP_START;
 
     *(Block*)first_blk = (Block){
-        NULL,                      /* First block */
-        NULL,                      /* And last block */
-        HEAP_SIZE - sizeof(Block), /* Size of block is size of heap - this
-                                    * block */
-        1,                         /* Start free */
+        .prev = NULL,                      /* First block */
+        .next = NULL,                      /* And last block */
+        .sz   = HEAP_SIZE - sizeof(Block), /* Size of heap - this block */
+        .free = true,                      /* Start free */
     };
 }
 
@@ -86,10 +83,10 @@ void* heap_alloc(size_t sz, size_t align) {
 
         /* Place the new block header */
         *new_blk = (Block){
-            blk,       /* Prev block is the old block */
-            blk->next, /* Next block is ".next" of the old block */
-            blk->sz - sz - sizeof(Block), /* Shrink the old blk sz */
-            1,
+            .prev = blk,       /* The old block */
+            .next = blk->next, /* The ".next" of the old block */
+            .sz   = blk->sz - sz - sizeof(Block), /* Shrink the old blk sz */
+            .free = true,
         };
 
         blk_cursor = new_blk;
@@ -97,7 +94,7 @@ void* heap_alloc(size_t sz, size_t align) {
         /* Update values from old block */
         blk->next = new_blk;
         blk->sz   = sz;
-        blk->free = 0;
+        blk->free = false;
 
         /* Return the pointer to the actual usable memory:
          * (blk + sizeof(Block)) */
@@ -163,13 +160,15 @@ void heap_free(void* ptr) {
     }
 
     /* If the next block is being used, just set this one free */
-    blk->free = 1;
+    blk->free = true;
 
     /* If blk_cursor was pointing to a smaller block than the one we just freed,
      * update it */
     if (blk->sz > blk_cursor->sz)
         blk_cursor = blk;
 }
+
+/*----------------------------------------------------------------------------*/
 
 enum header_mod {
     NEW_HEADER = 0,
@@ -178,28 +177,27 @@ enum header_mod {
     UNK_HEADER = 3,
 };
 
-/**
- * @brief Prints information about a single alloc block header
- * @param blk_id The current block number
- * @param blk Pointer to the Block structure we want to print
- */
-static inline void print_header_id(int blk_id, Block* blk) {
-    printf("[%d] ", blk_id);
-    printf("Header: %p | Blk: %p | Prev: %p | Next: %p | Sz: 0x%lX | Free: "
-           "%d\n",
-           blk, HEADER_TO_PTR(blk), blk->prev, blk->next, blk->sz, blk->free);
-}
-
 void heap_dump_headers(void) {
     printf("Cursor: %p\n"
            "Dumping heap block headers:\n",
            blk_cursor);
 
-    /* Block id */
     int i = 0;
 
     /* From start of the heap, jump to the next block until end of heap. */
-    for (Block* blk = HEAP_START; blk != NULL; blk = blk->next) {
-        print_header_id(i++, blk);
+    for (Block* blk = HEAP_START; blk != NULL; blk = blk->next, i++) {
+        printf("[%d] [%c] Header: %p | Data: %p | Prev: %p", i,
+               (blk->free) ? 'F' : 'B', blk, HEADER_TO_PTR(blk), blk->prev);
+
+        /* Paddings for "(null)" */
+        if (blk->prev == NULL)
+            printf("  ");
+
+        printf(" | Next: %p", blk->next);
+
+        if (blk->next == NULL)
+            printf("  ");
+
+        printf(" | Sz: 0x%lX\n", blk->sz);
     }
 }
