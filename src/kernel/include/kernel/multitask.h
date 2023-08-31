@@ -96,13 +96,14 @@ void mt_init(void);
 /* mt_newtask:  */
 
 /**
- * @brief Creates a new task named `name`, and with the entry point `entry`.
+ * @brief Allocates and creates a new task with a `name` and `entry` point.
  * @details Defined in src/kernel/multitask.asm
  * @param[in] name The name of the new task.
  * @param[in] entry The entry point of the new task.
  * @return Pointer to the new task's context struct (Ctx).
  */
-Ctx* mt_newtask(const char* name, void* entry);
+Ctx* mt_newtask(const char* name, void* entry)
+  __attribute__((warn_unused_result));
 
 /**
  * @brief Switch to task `next`
