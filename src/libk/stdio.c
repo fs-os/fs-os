@@ -43,20 +43,16 @@ static void prints_n(const char* str, uint32_t pad) {
 }
 
 /**
- * @brief Similar to stdlib's itoan, but instead of writing to buffer, prints.
+ * @brief Convert number to string and print.
  * @details Used by printf's "%i".
  * @param[in] num Number to print.
  */
 static void printi(int64_t num) {
-    /* Write '-' for negative numbers and convert it to positive */
-    if (num < 0) {
-        putchar('-');
-        num = -num;
-    }
+    /* 21 are the digits of ULLONG_MAX */
+    static char str[21] = { '\0' };
+    itoa(str, num);
 
-    /* For more information about this loop, see stdlib's itoan. */
-    for (int cur_digit = digits_int(num) - 1; cur_digit >= 0; cur_digit--)
-        putchar((num / ipow(10, cur_digit)) % 10 + '0');
+    print(str);
 }
 
 /**
@@ -67,20 +63,17 @@ static void printi(int64_t num) {
  * @param[in] pad Padding for the number.
  */
 static void printi_n(int64_t num, uint32_t pad) {
-    uint8_t sign = (num < 0) ? 1 : 0;
-    if (sign)
-        num = -num;
+    int sign   = (num < 0) ? 1 : 0;
+    int digits = digits_int(num);
 
-    char converted_num[21] = { 0 };
-    itoa(converted_num, num);
+    static char str[21] = { '\0' };
+    itoa(str, num);
 
-    if (sign)
-        putchar('-');
-
-    int final_pad = (pad - strlen(converted_num)) - sign;
+    int final_pad = pad - (digits + sign);
     while (final_pad-- > 0)
         putchar(' ');
-    print(converted_num);
+
+    print(str);
 }
 
 /**

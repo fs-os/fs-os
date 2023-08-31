@@ -90,6 +90,7 @@ int ipow(int b, int e) {
     return ret;
 }
 
+/** @todo This is smart but not efficient. Optimize. */
 void itoan(char* str, int64_t num, size_t max_digits) {
     if (max_digits <= 0) {
         str[0] = '\0';
