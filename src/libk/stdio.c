@@ -120,10 +120,13 @@ static void print_double_n(double num, uint32_t pad, uint32_t decimals) {
  * @brief Print integer in hexadecimal format (lowercase).
  * @details Does not support sign.
  * @param[in] num Number to print in hex format.
+ * @param[in] uppercase If true, use lowercase letters.
  */
-static void printx(int64_t num) {
+static void printx(int64_t num, bool uppercase) {
     if (num <= 0)
         print("0");
+
+    const char ch_a = uppercase ? 'A' : 'a';
 
     /* max digits of an unsigned long */
     char hex_str[17] = { 0 };
@@ -135,7 +138,12 @@ static void printx(int64_t num) {
         num /= 16;
 
         /* Convert to char */
-        tmp += (tmp < 10) ? '0' : 'a' - 10;
+        if (tmp >= 10) {
+            tmp -= 10;
+            tmp += ch_a;
+        } else {
+            tmp += '0';
+        }
 
         hex_str[i] = tmp;
     }
@@ -156,19 +164,23 @@ static void printx(int64_t num) {
  * @param[in] uppercase If true will use uppercase hex chars.
  */
 static void printx_n(int64_t num, uint32_t pad, bool uppercase) {
-    const char upper_c = uppercase ? 'A' : 'a';
+    const char ch_a = uppercase ? 'A' : 'a';
 
     /* max digits of an unsigned long */
     char hex_str[17] = { 0 };
 
-    int tmp = 0;
     size_t i;
     for (i = 0; num > 0 && i < sizeof(hex_str) - 1; i++) {
-        tmp = num % 16;
+        int tmp = num % 16;
         num /= 16;
 
         /* Convert to char */
-        tmp += (tmp < 10) ? '0' : upper_c - 10;
+        if (tmp >= 10) {
+            tmp -= 10;
+            tmp += ch_a;
+        } else {
+            tmp += '0';
+        }
 
         hex_str[i] = tmp;
     }
@@ -187,37 +199,6 @@ static void printx_n(int64_t num, uint32_t pad, bool uppercase) {
 }
 
 /**
- * @brief Print integer in hexadecimal format (uppercase).
- * @details Does not support sign.
- * @param[in] num Number to print in hex format.
- */
-static void printX(int64_t num) {
-    if (num <= 0)
-        print("0");
-
-    /* max digits of an unsigned long */
-    char hex_str[17] = { 0 };
-
-    int tmp = 0;
-    size_t i;
-    for (i = 0; num > 0 && i < sizeof(hex_str) - 1; i++) {
-        tmp = num % 16;
-        num /= 16;
-
-        /* Convert to char */
-        tmp += (tmp < 10) ? '0' : 'A' - 10;
-
-        hex_str[i] = tmp;
-    }
-
-    hex_str[i] = '\0';
-
-    /* Reverse string and print */
-    strrev(hex_str);
-    print(hex_str);
-}
-
-/**
  * @brief Print the address of the specified pointer in hex format.
  * @details Prints "(null)" if NULL.
  * @param[inout] ptr Pointer to print.
@@ -227,7 +208,7 @@ static inline void printp(void* ptr) {
         print("(null)");
     } else {
         print("0x");
-        printX((uint32_t)ptr);
+        printx((uint32_t)ptr, true);
     }
 }
 
@@ -270,10 +251,10 @@ int vprintf(const char* restrict fmt, va_list va) {
                     print_double(va_arg(va, double), _DEFAULT_DOUBLE_DECIMALS);
                     break;
                 case 'x':
-                    printx(va_arg(va, int));
+                    printx(va_arg(va, int), false);
                     break;
                 case 'X':
-                    printX(va_arg(va, int));
+                    printx(va_arg(va, int), true);
                     break;
                 case 'p':
                     printp(va_arg(va, void*));
@@ -320,10 +301,10 @@ int vprintf(const char* restrict fmt, va_list va) {
                                          _DEFAULT_DOUBLE_DECIMALS);
                             break;
                         case 'x': /* "%lx" */
-                            printx(va_arg(va, long));
+                            printx(va_arg(va, long), false);
                             break;
                         case 'X': /* "%lX" */
-                            printX(va_arg(va, long));
+                            printx(va_arg(va, long), true);
                             break;
                         case 'l':
                             fmt++; /* Skip the second 'l' */
@@ -341,10 +322,10 @@ int vprintf(const char* restrict fmt, va_list va) {
                                     printi(va_arg(va, unsigned long long));
                                     break;
                                 case 'x': /* "%llx" */
-                                    printx(va_arg(va, long long));
+                                    printx(va_arg(va, long long), false);
                                     break;
                                 case 'X': /* "%llX" */
-                                    printX(va_arg(va, long long));
+                                    printx(va_arg(va, long long), true);
                                     break;
                             } /* %lld switch */
                             break;
