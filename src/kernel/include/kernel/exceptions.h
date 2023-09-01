@@ -18,9 +18,11 @@
 /**
  * @brief Disables interrupts and panics with the specified exception.
  * @details Defined in src/kernel/exceptions.c
- * @param exc Exception code
+ * @param code Exception code (Index in the IDT)
+ * @param eip Value of EIP register pushed by the CPU before calling the ISR
+ * (i.e. address where the exception occurred)
  */
-void handle_exception(int exc);
+void handle_exception(int exc, void* eip);
 
 /**
  * @name Default exception handlers

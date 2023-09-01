@@ -25,8 +25,8 @@ static char* exceptions[] = {
     [30] = "security exception",
 };
 
-void handle_exception(int exc) {
+void handle_exception(int code, void* eip) {
     asm("cli");
 
-    panic(NULL, 0, "exception: %s\n", exceptions[exc]);
+    panic(NULL, 0, "exception @ %p: %s\n", eip, exceptions[code]);
 }
