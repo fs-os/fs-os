@@ -9,15 +9,27 @@
 #include <kernel/color.h>               /* Color for panic() */
 
 int digits_int(int64_t num) {
-    int ret = 1;
-
     if (num < 0)
         num = -num;
 
-    /* Count how many digits we can remove */
-    while ((num /= 10) > 0) {
-        ret++;
-    }
+    int ret;
+
+    /* Remove a digit each iteration until there are none left */
+    for (ret = 1; (num /= 10) > 0; ret++)
+        ;
+
+    return ret;
+}
+
+int digits_hex(uint64_t num) {
+    if (num == 0)
+        return 1;
+
+    int ret;
+
+    /* 4 is the size in bits of 0xF */
+    for (ret = 0; num != 0; ret++, num >>= 4)
+        ;
 
     return ret;
 }

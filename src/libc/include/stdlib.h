@@ -15,12 +15,20 @@
 #define panic_line(...) panic(__func__, __LINE__, __VA_ARGS__)
 
 /**
- * @brief Returns the number of digits of a positive num.
+ * @brief Returns the number of digits of a positive integer.
  * @details Will not count `'-'` for negative numbers.
  * @param[in] num Number for counting.
  * @return Digits of num.
  */
 int digits_int(int64_t num) __attribute__((pure));
+
+/**
+ * @brief Returns the hexadecimal digits of unsigned integer `num`.
+ * @details Example: 123 -> 0x7B -> 2 hex digits
+ * @param[in] num Number for counting.
+ * @return Digits of hexadecimal version of num.
+ */
+int digits_hex(uint64_t num) __attribute__((pure));
 
 /**
  * @brief Returns the number of digits of a positive double.
