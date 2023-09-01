@@ -7,6 +7,8 @@
 #include <string.h>
 #include <stdio.h>
 
+#define _DEFAULT_DOUBLE_DECIMALS 6
+
 /**
  * @brief Prints the speicified string using putchar.
  * @param[in] str Zero terminated string to print.

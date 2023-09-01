@@ -15,15 +15,35 @@
 #include <kernel/keyboard.h> /* kb_getchar */
 
 /**
+ * @def DEFAULT_DOUBLE_DECIMALS
+ * @brief Default decimal places to print with "%f"
+ */
+#define DEFAULT_DOUBLE_DECIMALS 6
+
+/**
+ * @brief Print N ammount of spaces.
+ * @param[in] n The number of spaces to print.
+ * @return Bytes written.
+ */
+static inline size_t print_pad(size_t n) {
+    for (size_t i = 0; i < n; i++)
+        putchar(' ');
+
+    return n;
+}
+
+/**
  * @brief Prints the speicified string using putchar.
  * @param[in] str Zero terminated string to print.
  * @return Bytes written.
  */
-static inline int print(const char* str) {
-    while (*str != '\0')
+static inline size_t fmt_s(const char* str) {
+    size_t i;
+
+    for (i = 0; *str != '\0'; i++)
         putchar(*str++);
 
-    return 0;
+    return i;
 }
 
 /**
@@ -32,25 +52,29 @@ static inline int print(const char* str) {
  * "str". Used for "%123s"
  * @param[in] str String to print.
  * @param[in] pad Padding for the string.
+ * @return Bytes written.
  */
-static void prints_n(const char* str, int pad) {
-    for (size_t i = 0; i < pad - strlen(str); i++)
-        putchar(' ');
+static inline size_t fmt_s_pad(const char* str, int pad) {
+    size_t ret = 0;
 
-    print(str);
+    ret += print_pad(strlen(str) - pad);
+    ret += fmt_s(str);
+
+    return ret;
 }
 
 /**
  * @brief Convert number to string and print.
- * @details Used by printf's "%i".
+ * @details Used by printf's "%d".
  * @param[in] num Number to print.
+ * @return Bytes written.
  */
-static void printi(int64_t num) {
+static size_t fmt_d(int64_t num) {
     /* 21 are the digits of ULLONG_MAX */
     static char str[21] = { '\0' };
     itoa(str, num);
 
-    print(str);
+    return fmt_s(str);
 }
 
 /**
@@ -59,18 +83,21 @@ static void printi(int64_t num) {
  * Used for "%123d"
  * @param[in] num Number to print.
  * @param[in] pad Padding for the number.
+ * @return Bytes written.
  */
-static void printi_n(int64_t num, int pad) {
+static size_t fmt_d_pad(int64_t num, int pad) {
     int sign   = (num < 0) ? 1 : 0;
     int digits = digits_int(num);
 
     static char str[21] = { '\0' };
     itoa(str, num);
 
-    for (int i = 0; i < pad - (digits + sign); i++)
-        putchar(' ');
+    size_t ret = 0;
 
-    print(str);
+    ret += print_pad(pad - (digits + sign));
+    ret += fmt_s(str);
+
+    return ret;
 }
 
 /**
@@ -78,24 +105,34 @@ static void printi_n(int64_t num, int pad) {
  * @details Used by vprintf()
  * @param[in] num Number to print.
  * @param[in] decimals Number of decimal places to print.
+ * @return Bytes written.
  */
-static void print_double(double num, uint32_t decimals) {
+static size_t fmt_f(double num, int decimals) {
+    size_t ret = 0;
+
     /* First print the integer part using printi, and remove it from num for
      * only keeping decimals */
     int int_part = (int)num;
-    printi(int_part);
     num -= int_part;
 
     if (num < 0)
         num = -num;
 
-    putchar('.');
+    ret += fmt_d(int_part);
 
-    while (decimals-- > 0) {
+    putchar('.');
+    ret++;
+
+    for (int i = 0; i < decimals; i++) {
         num *= 10;
+
         putchar((int)num + '0');
+        ret++;
+
         num -= (int)num;
     }
+
+    return ret;
 }
 
 /**
@@ -104,13 +141,15 @@ static void print_double(double num, uint32_t decimals) {
  * @param[in] num Number to print.
  * @param[in] pad Padding. Same ass printi_n(). Used for "%123f"
  * @param[in] num Decimals. Used for "%.5f"
+ * @return Bytes written.
  */
-static void print_double_n(double num, int pad, uint32_t decimals) {
-    /* Print spaces for each digit we need to reach the padding */
-    for (int i = 0; i < pad - digits_double(num, decimals); i++)
-        putchar(' ');
+static size_t fmt_f_pad(double num, int pad, int decimals) {
+    size_t ret = 0;
 
-    print_double(num, decimals);
+    ret += print_pad(pad - digits_double(num, decimals));
+    ret += fmt_f(num, decimals);
+
+    return ret;
 }
 
 /**
@@ -118,17 +157,20 @@ static void print_double_n(double num, int pad, uint32_t decimals) {
  * @details Does not support sign.
  * @param[in] num Number to print in hex format.
  * @param[in] uppercase If true, use lowercase letters.
+ * @return Bytes written.
+ *
+ * @todo Improve method
  */
-static void printx(int64_t num, bool uppercase) {
+static size_t fmt_x(int64_t num, bool uppercase) {
     if (num <= 0) {
-        print("0");
-        return;
+        putchar('0');
+        return 1;
     }
 
     const char ch_a = uppercase ? 'A' : 'a';
 
     /* max digits of an unsigned long */
-    char hex_str[17] = { 0 };
+    static char hex_str[17] = { 0 };
 
     int tmp = 0;
     size_t i;
@@ -151,7 +193,7 @@ static void printx(int64_t num, bool uppercase) {
 
     /* Reverse string and print */
     strrev(hex_str);
-    print(hex_str);
+    return fmt_s(hex_str);
 }
 
 /**
@@ -161,20 +203,19 @@ static void printx(int64_t num, bool uppercase) {
  * @param[in] num Number to print in hex format.
  * @param[in] pad Padding for the number.
  * @param[in] uppercase If true will use uppercase hex chars.
+ * @return Bytes written.
  */
-static void printx_n(int64_t num, int pad, bool uppercase) {
+static size_t fmt_x_pad(int64_t num, int pad, bool uppercase) {
     if (num <= 0) {
-        for (int j = 0; j < pad - 1; j++)
-            putchar(' ');
-
-        print("0");
-        return;
+        print_pad(pad);
+        putchar('0');
+        return pad;
     }
 
     const char ch_a = uppercase ? 'A' : 'a';
 
     /* max digits of an unsigned long */
-    char hex_str[17] = { 0 };
+    static char hex_str[17] = { 0 };
 
     size_t i;
     for (i = 0; num > 0 && i < sizeof(hex_str) - 1; i++) {
@@ -194,30 +235,40 @@ static void printx_n(int64_t num, int pad, bool uppercase) {
 
     hex_str[i] = '\0';
 
-    /* Reverse string and print */
-    strrev(hex_str);
+    size_t ret = 0;
 
     /* i is now the length of the final str */
-    for (size_t j = 0; j < pad - i; j++)
-        putchar(' ');
+    ret += print_pad(pad - i);
 
-    print(hex_str);
+    /* Reverse string and print */
+    strrev(hex_str);
+    ret += fmt_s(hex_str);
+
+    return ret;
 }
 
 /**
  * @brief Print the address of the specified pointer in hex format.
  * @details Prints "(null)" if NULL.
- * @param[inout] ptr Pointer to print.
+ * @param[in] ptr Pointer to print.
+ * @return Bytes written.
  */
-static inline void printp(void* ptr) {
-    if (ptr == NULL) {
-        print("(null)");
-    } else {
-        print("0x");
-        printx((uint32_t)ptr, true);
-    }
+static size_t fmt_p(void* ptr) {
+    if (ptr == NULL)
+        return fmt_s("(null)");
+
+    size_t ret = 0;
+
+    ret += fmt_s("0x");
+    ret += fmt_x((uint32_t)ptr, true);
+
+    return ret;
 }
 
+/**
+ * @todo Remove unnecesary indentation in main if ('%') check. Also format
+ * comments
+ */
 int vprintf(const char* restrict fmt, va_list va) {
     int written = 0;
 
@@ -225,58 +276,46 @@ int vprintf(const char* restrict fmt, va_list va) {
         /* If we get a '%', expect format, if not, just print normal char */
         if (*fmt == '%') {
             fmt++;
-            if (written < INT_MAX)
-                written++;
-            else
-                return -1; /**< @todo Set errno to EOVERFLOW */
-
             switch (*fmt) {
                 case 'c':
                     putchar((char)va_arg(va, int));
+                    written++;
                     break;
                 case 's':
-                    const char* va_str = va_arg(va, const char*);
-                    print(va_str);
-
-                    /* Add len to "written" if printing a string from va_list */
-                    int va_strlen = strlen(va_str);
-                    if (written + va_strlen < INT_MAX)
-                        written += va_strlen;
-                    else
-                        return -1; /**< @todo Set errno to EOVERFLOW */
-
+                    written += fmt_s(va_arg(va, const char*));
                     break;
                 case 'd':
-                    printi(va_arg(va, int));
+                    written += fmt_d(va_arg(va, int));
                     break;
                 case 'u':
-                    printi(va_arg(va, unsigned int));
+                    written += fmt_d(va_arg(va, unsigned int));
                     break;
                 case 'f':
                     /* Floats get promoted to doubles when calling printf */
-                    print_double(va_arg(va, double), _DEFAULT_DOUBLE_DECIMALS);
+                    written +=
+                      fmt_f(va_arg(va, double), DEFAULT_DOUBLE_DECIMALS);
                     break;
                 case 'x':
-                    printx(va_arg(va, int), false);
+                    written += fmt_x(va_arg(va, int), false);
                     break;
                 case 'X':
-                    printx(va_arg(va, int), true);
+                    written += fmt_x(va_arg(va, int), true);
                     break;
                 case 'p':
-                    printp(va_arg(va, void*));
+                    written += fmt_p(va_arg(va, void*));
                     break;
                 case '.': /* "%.123f" */
                     /* Skip the dot */
                     fmt++;
 
-                    uint32_t dot_fmt_num = 0;
+                    int dot_fmt_num = 0;
                     do {
                         dot_fmt_num *= 10;
                         dot_fmt_num += *fmt - '0';
                         fmt++;
                     } while (*fmt >= '0' && *fmt <= '9');
 
-                    print_double(va_arg(va, double), dot_fmt_num);
+                    written += fmt_f(va_arg(va, double), dot_fmt_num);
                     break;
                 case 'l':
                     /* Skip the first 'l' */
@@ -293,24 +332,24 @@ int vprintf(const char* restrict fmt, va_list va) {
 
                             /* Adding this again is better than falling through
                              * to 'd' */
-                            printi(va_arg(va, long));
+                            written += fmt_d(va_arg(va, long));
                             break;
                         case 'd': /* "%ld" */
-                            printi(va_arg(va, long));
+                            written += fmt_d(va_arg(va, long));
                             break;
                         case 'u': /* "%lu" */
-                            printi(va_arg(va, unsigned long));
+                            written += fmt_d(va_arg(va, unsigned long));
                             break;
                         case 'f': /* "%lf" */
                             /* Same as "%f", see comment there */
-                            print_double(va_arg(va, double),
-                                         _DEFAULT_DOUBLE_DECIMALS);
+                            written += fmt_f(va_arg(va, double),
+                                             DEFAULT_DOUBLE_DECIMALS);
                             break;
                         case 'x': /* "%lx" */
-                            printx(va_arg(va, long), false);
+                            written += fmt_x(va_arg(va, long), false);
                             break;
                         case 'X': /* "%lX" */
-                            printx(va_arg(va, long), true);
+                            written += fmt_x(va_arg(va, long), true);
                             break;
                         case 'l':
                             fmt++; /* Skip the second 'l' */
@@ -319,24 +358,26 @@ int vprintf(const char* restrict fmt, va_list va) {
                                 default: /* "%ll?" -> "%lld" */
                                     /* See previous comment on "%ld" */
                                     fmt--;
-                                    printi(va_arg(va, long long));
+                                    written += fmt_d(va_arg(va, long long));
                                     break;
                                 case 'd': /* "%lld" */
-                                    printi(va_arg(va, long long));
+                                    written += fmt_d(va_arg(va, long long));
                                     break;
                                 case 'u': /* "%llu" */
-                                    printi(va_arg(va, unsigned long long));
+                                    written +=
+                                      fmt_d(va_arg(va, unsigned long long));
                                     break;
                                 case 'x': /* "%llx" */
-                                    printx(va_arg(va, long long), false);
+                                    written +=
+                                      fmt_x(va_arg(va, long long), false);
                                     break;
                                 case 'X': /* "%llX" */
-                                    printx(va_arg(va, long long), true);
+                                    written +=
+                                      fmt_x(va_arg(va, long long), true);
                                     break;
                             } /* %lld switch */
                             break;
                     } /* %ld switch */
-
                     break;
                 case '0': /* Not necessary */
                 case '1':
@@ -350,7 +391,7 @@ int vprintf(const char* restrict fmt, va_list va) {
                 case '9':
                     /* "%123s", "%123d", ... */
                     /* Read all the numbers from the format */
-                    uint32_t fmt_num = 0;
+                    int fmt_num = 0;
                     do {
                         fmt_num *= 10;
                         fmt_num += *fmt - '0';
@@ -364,20 +405,23 @@ int vprintf(const char* restrict fmt, va_list va) {
                      */
                     switch (*fmt) {
                         case 'd': /* "%123d" */
-                            printi_n(va_arg(va, int), fmt_num);
+                            written += fmt_d_pad(va_arg(va, int), fmt_num);
                             break;
                         case 'u': /* "%123u" */
-                            printi_n(va_arg(va, unsigned int), fmt_num);
+                            written +=
+                              fmt_d_pad(va_arg(va, unsigned int), fmt_num);
                             break;
                         case 'f': /* "%123f" */
-                            print_double_n(va_arg(va, double), fmt_num,
-                                           _DEFAULT_DOUBLE_DECIMALS);
+                            written += fmt_f_pad(va_arg(va, double), fmt_num,
+                                                 DEFAULT_DOUBLE_DECIMALS);
                             break;
                         case 'x': /* "%123x" */
-                            printx_n(va_arg(va, int), fmt_num, false);
+                            written +=
+                              fmt_x_pad(va_arg(va, int), fmt_num, false);
                             break;
                         case 'X': /* "%123X" */
-                            printx_n(va_arg(va, int), fmt_num, true);
+                            written +=
+                              fmt_x_pad(va_arg(va, int), fmt_num, true);
                             break;
                         case '.': /* "%123.5f" */
                             /* Skip the dot */
@@ -387,15 +431,15 @@ int vprintf(const char* restrict fmt, va_list va) {
                             if (*fmt < '0' || *fmt > '9')
                                 break;
 
-                            uint32_t dot_fmt_num = 0;
+                            int dot_fmt_num = 0;
                             do {
                                 dot_fmt_num *= 10;
                                 dot_fmt_num += *fmt - '0';
                                 fmt++;
                             } while (*fmt >= '0' && *fmt <= '9');
 
-                            print_double_n(va_arg(va, double), fmt_num,
-                                           dot_fmt_num);
+                            written += fmt_f_pad(va_arg(va, double), fmt_num,
+                                                 dot_fmt_num);
                             break;
                         case 'l':  /* "%123ld", "%123lld", ... */
                             fmt++; /* Skip the first 'l' of "%123lld" */
@@ -404,25 +448,30 @@ int vprintf(const char* restrict fmt, va_list va) {
                                 default: /* "%123l?" -> "%123ld" */
                                     /* See previous comment on "%ld" */
                                     fmt--;
-                                    printi_n(va_arg(va, long), fmt_num);
+                                    written +=
+                                      fmt_d_pad(va_arg(va, long), fmt_num);
                                     break;
                                 case 'd': /* "%123ld" */
-                                    printi_n(va_arg(va, long), fmt_num);
+                                    written +=
+                                      fmt_d_pad(va_arg(va, long), fmt_num);
                                     break;
                                 case 'u': /* "%123lu" */
-                                    printi_n(va_arg(va, unsigned long),
-                                             fmt_num);
+                                    written += fmt_d_pad(
+                                      va_arg(va, unsigned long), fmt_num);
                                     break;
                                 case 'f': /* "%123lf" */
                                     /* Same as "%123f". No "%123.5lf" format */
-                                    print_double_n(va_arg(va, double), fmt_num,
-                                                   _DEFAULT_DOUBLE_DECIMALS);
+                                    written +=
+                                      fmt_f_pad(va_arg(va, double), fmt_num,
+                                                DEFAULT_DOUBLE_DECIMALS);
                                     break;
                                 case 'x': /* "%123lx" */
-                                    printx_n(va_arg(va, long), fmt_num, false);
+                                    written += fmt_x_pad(va_arg(va, long),
+                                                         fmt_num, false);
                                     break;
                                 case 'X': /* "%123lX" */
-                                    printx_n(va_arg(va, long), fmt_num, true);
+                                    written += fmt_x_pad(va_arg(va, long),
+                                                         fmt_num, true);
                                     break;
                                 case 'l': /* "%123lld", "%123llx", ... */
                                     /* Skip the second 'l' of "%123lld" */
@@ -432,32 +481,35 @@ int vprintf(const char* restrict fmt, va_list va) {
                                         default: /* "%123ll?" -> "%123lld" */
                                             /* See previous comment on "%ld" */
                                             fmt--;
-                                            printi_n(va_arg(va, long long),
-                                                     fmt_num);
+                                            written += fmt_d_pad(
+                                              va_arg(va, long long), fmt_num);
                                             break;
                                         case 'd': /* "%123lld" */
-                                            printi_n(va_arg(va, long long),
-                                                     fmt_num);
+                                            written += fmt_d_pad(
+                                              va_arg(va, long long), fmt_num);
                                             break;
                                         case 'u': /* "%123llu" */
-                                            printi_n(
+                                            written += fmt_d_pad(
                                               va_arg(va, unsigned long long),
                                               fmt_num);
                                             break;
                                         case 'x': /* "%123llx" */
-                                            printx_n(va_arg(va, long long),
-                                                     fmt_num, false);
+                                            written +=
+                                              fmt_x_pad(va_arg(va, long long),
+                                                        fmt_num, false);
                                             break;
                                         case 'X': /* "%123llX" */
-                                            printx_n(va_arg(va, long long),
-                                                     fmt_num, true);
+                                            written +=
+                                              fmt_x_pad(va_arg(va, long long),
+                                                        fmt_num, true);
                                             break;
                                     } /* %123lld switch */
                                     break;
                             } /* %123ld switch */
                             break;
                         case 's': /* "%132s" */
-                            prints_n(va_arg(va, const char*), fmt_num);
+                            written +=
+                              fmt_s_pad(va_arg(va, const char*), fmt_num);
                             break;
                         default:
                             break;
@@ -466,22 +518,23 @@ int vprintf(const char* restrict fmt, va_list va) {
                     break;
                 case '%': /* "%%" -> "%" */
                     putchar(*fmt);
+                    written++;
                     break;
                 default:
                     /* If unknown fmt, print the % and the unknown char */
                     putchar('%');
                     putchar(*fmt);
+                    written += 2;
                     break;
             } /* Main format char switch */
         } else {
-            /** @todo Return value check? */
             putchar(*fmt);
+            written++;
         }
 
         fmt++;
-        if (written < INT_MAX)
-            written++;
-        else
+
+        if (written >= INT_MAX)
             return -1; /**< @todo Set errno to EOVERFLOW */
     }
 
