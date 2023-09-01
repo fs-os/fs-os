@@ -1,5 +1,4 @@
 
-; TODO:
 ; The CPU pushes some values to the stack before calling the ISR for the
 ; exception that just ocurred. We pass the EIP register to handle_exception
 ; (+ the macro arg: interrup id) for printing as much info as possible.
@@ -8,8 +7,11 @@
 %macro EXC_WRAPPER 1
     global exc_%1:function
     exc_%1:
-        push    %1                  ; Push the parameter
+        ; The 2nd argument of handle_exception is already pushed to the stack by
+        ; the CPU. We push the first parameter (exception ID)
+        push    %1
         call    handle_exception    ; Call the function from exceptions.c
+        add     esp, 4              ; Remove dword we just pushed from stack
 
         iretd                       ; Return from 32 bit interrupt
 %endmacro
@@ -20,11 +22,14 @@
     global exc_%1:function
     exc_%1:
         ; In this macro, we need to add 4 to ESP to "pop" the error code that
-        ; the CPU pushed before calling the ISR
+        ; the CPU pushed before calling the ISR.
         add     esp, 4
 
-        push    %1                  ; Push the parameter
+        ; Now the stack is pointing to the EIP value (2nd arg of
+        ; handle_exception). We can push the first argument and call it.
+        push    %1
         call    handle_exception    ; Call the function from exceptions.c
+        add     esp, 4              ; Remove dword we just pushed from stack
 
         iretd                       ; Return from 32 bit interrupt
 %endmacro
