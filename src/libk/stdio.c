@@ -214,272 +214,255 @@ static size_t fmt_p(void* ptr) {
     return ret;
 }
 
-/**
- * @todo Remove unnecesary indentation in main if ('%') check. Also format
- * comments
- */
 int vprintf(const char* restrict fmt, va_list va) {
     int written = 0;
 
     while (*fmt != '\0') {
-        /* If we get a '%', expect format, if not, just print normal char */
-        if (*fmt == '%') {
-            fmt++;
-            switch (*fmt) {
-                case 'c':
-                    putchar((char)va_arg(va, int));
-                    written++;
-                    break;
-                case 's':
-                    written += fmt_s(va_arg(va, const char*));
-                    break;
-                case 'd':
-                    written += fmt_d(va_arg(va, int));
-                    break;
-                case 'u':
-                    written += fmt_d(va_arg(va, unsigned int));
-                    break;
-                case 'f':
-                    /* Floats get promoted to doubles when calling printf */
-                    written +=
-                      fmt_f(va_arg(va, double), DEFAULT_DOUBLE_DECIMALS);
-                    break;
-                case 'x':
-                    written += fmt_x(va_arg(va, int), false);
-                    break;
-                case 'X':
-                    written += fmt_x(va_arg(va, int), true);
-                    break;
-                case 'p':
-                    written += fmt_p(va_arg(va, void*));
-                    break;
-                case '.': /* "%.123f" */
-                    /* Skip the dot */
-                    fmt++;
-
-                    int dot_fmt_num = 0;
-                    do {
-                        dot_fmt_num *= 10;
-                        dot_fmt_num += *fmt - '0';
-                        fmt++;
-                    } while (*fmt >= '0' && *fmt <= '9');
-
-                    written += fmt_f(va_arg(va, double), dot_fmt_num);
-                    break;
-                case 'l':
-                    /* Skip the first 'l' */
-                    fmt++;
-
-                    /* Check pattern  */
-                    switch (*fmt) {
-                        default: /* "%l?" -> "%ld" */
-                            /* If it is an unknown char, subtract one and print
-                             * int. We subtract one here because we want to
-                             * analize the char on the next iteration, and it
-                             * will get increased after the format switch. */
-                            fmt--;
-
-                            /* Adding this again is better than falling through
-                             * to 'd' */
-                            written += fmt_d(va_arg(va, long));
-                            break;
-                        case 'd': /* "%ld" */
-                            written += fmt_d(va_arg(va, long));
-                            break;
-                        case 'u': /* "%lu" */
-                            written += fmt_d(va_arg(va, unsigned long));
-                            break;
-                        case 'f': /* "%lf" */
-                            /* Same as "%f", see comment there */
-                            written += fmt_f(va_arg(va, double),
-                                             DEFAULT_DOUBLE_DECIMALS);
-                            break;
-                        case 'x': /* "%lx" */
-                            written += fmt_x(va_arg(va, long), false);
-                            break;
-                        case 'X': /* "%lX" */
-                            written += fmt_x(va_arg(va, long), true);
-                            break;
-                        case 'l':
-                            fmt++; /* Skip the second 'l' */
-
-                            switch (*fmt) {
-                                default: /* "%ll?" -> "%lld" */
-                                    /* See previous comment on "%ld" */
-                                    fmt--;
-                                    written += fmt_d(va_arg(va, long long));
-                                    break;
-                                case 'd': /* "%lld" */
-                                    written += fmt_d(va_arg(va, long long));
-                                    break;
-                                case 'u': /* "%llu" */
-                                    written +=
-                                      fmt_d(va_arg(va, unsigned long long));
-                                    break;
-                                case 'x': /* "%llx" */
-                                    written +=
-                                      fmt_x(va_arg(va, long long), false);
-                                    break;
-                                case 'X': /* "%llX" */
-                                    written +=
-                                      fmt_x(va_arg(va, long long), true);
-                                    break;
-                            } /* %lld switch */
-                            break;
-                    } /* %ld switch */
-                    break;
-                case '0': /* Not necessary */
-                case '1':
-                case '2':
-                case '3':
-                case '4':
-                case '5':
-                case '6':
-                case '7':
-                case '8':
-                case '9':
-                    /* "%123s", "%123d", ... */
-                    /* Read all the numbers from the format */
-                    int fmt_num = 0;
-                    do {
-                        fmt_num *= 10;
-                        fmt_num += *fmt - '0';
-                        fmt++;
-                    } while (*fmt >= '0' && *fmt <= '9');
-
-                    /*
-                     * Now fmt points to the format char:
-                     *  "%123lld"
-                     *       ^
-                     */
-                    switch (*fmt) {
-                        case 'd': /* "%123d" */
-                            written += fmt_d_pad(va_arg(va, int), fmt_num);
-                            break;
-                        case 'u': /* "%123u" */
-                            written +=
-                              fmt_d_pad(va_arg(va, unsigned int), fmt_num);
-                            break;
-                        case 'f': /* "%123f" */
-                            written += fmt_f_pad(va_arg(va, double), fmt_num,
-                                                 DEFAULT_DOUBLE_DECIMALS);
-                            break;
-                        case 'x': /* "%123x" */
-                            written +=
-                              fmt_x_pad(va_arg(va, int), fmt_num, false);
-                            break;
-                        case 'X': /* "%123X" */
-                            written +=
-                              fmt_x_pad(va_arg(va, int), fmt_num, true);
-                            break;
-                        case '.': /* "%123.5f" */
-                            /* Skip the dot */
-                            fmt++;
-
-                            /* Not a digit after the dot */
-                            if (*fmt < '0' || *fmt > '9')
-                                break;
-
-                            int dot_fmt_num = 0;
-                            do {
-                                dot_fmt_num *= 10;
-                                dot_fmt_num += *fmt - '0';
-                                fmt++;
-                            } while (*fmt >= '0' && *fmt <= '9');
-
-                            written += fmt_f_pad(va_arg(va, double), fmt_num,
-                                                 dot_fmt_num);
-                            break;
-                        case 'l':  /* "%123ld", "%123lld", ... */
-                            fmt++; /* Skip the first 'l' of "%123lld" */
-
-                            switch (*fmt) {
-                                default: /* "%123l?" -> "%123ld" */
-                                    /* See previous comment on "%ld" */
-                                    fmt--;
-                                    written +=
-                                      fmt_d_pad(va_arg(va, long), fmt_num);
-                                    break;
-                                case 'd': /* "%123ld" */
-                                    written +=
-                                      fmt_d_pad(va_arg(va, long), fmt_num);
-                                    break;
-                                case 'u': /* "%123lu" */
-                                    written += fmt_d_pad(
-                                      va_arg(va, unsigned long), fmt_num);
-                                    break;
-                                case 'f': /* "%123lf" */
-                                    /* Same as "%123f". No "%123.5lf" format */
-                                    written +=
-                                      fmt_f_pad(va_arg(va, double), fmt_num,
-                                                DEFAULT_DOUBLE_DECIMALS);
-                                    break;
-                                case 'x': /* "%123lx" */
-                                    written += fmt_x_pad(va_arg(va, long),
-                                                         fmt_num, false);
-                                    break;
-                                case 'X': /* "%123lX" */
-                                    written += fmt_x_pad(va_arg(va, long),
-                                                         fmt_num, true);
-                                    break;
-                                case 'l': /* "%123lld", "%123llx", ... */
-                                    /* Skip the second 'l' of "%123lld" */
-                                    fmt++;
-
-                                    switch (*fmt) {
-                                        default: /* "%123ll?" -> "%123lld" */
-                                            /* See previous comment on "%ld" */
-                                            fmt--;
-                                            written += fmt_d_pad(
-                                              va_arg(va, long long), fmt_num);
-                                            break;
-                                        case 'd': /* "%123lld" */
-                                            written += fmt_d_pad(
-                                              va_arg(va, long long), fmt_num);
-                                            break;
-                                        case 'u': /* "%123llu" */
-                                            written += fmt_d_pad(
-                                              va_arg(va, unsigned long long),
-                                              fmt_num);
-                                            break;
-                                        case 'x': /* "%123llx" */
-                                            written +=
-                                              fmt_x_pad(va_arg(va, long long),
-                                                        fmt_num, false);
-                                            break;
-                                        case 'X': /* "%123llX" */
-                                            written +=
-                                              fmt_x_pad(va_arg(va, long long),
-                                                        fmt_num, true);
-                                            break;
-                                    } /* %123lld switch */
-                                    break;
-                            } /* %123ld switch */
-                            break;
-                        case 's': /* "%132s" */
-                            written +=
-                              fmt_s_pad(va_arg(va, const char*), fmt_num);
-                            break;
-                        default:
-                            break;
-                    } /* %123 switch */
-
-                    break;
-                case '%': /* "%%" -> "%" */
-                    putchar(*fmt);
-                    written++;
-                    break;
-                default:
-                    /* If unknown fmt, print the % and the unknown char */
-                    putchar('%');
-                    putchar(*fmt);
-                    written += 2;
-                    break;
-            } /* Main format char switch */
-        } else {
-            putchar(*fmt);
+        /* If the current char is not '%', just print */
+        if (*fmt != '%') {
+            putchar(*fmt++);
             written++;
+
+            if (written >= INT_MAX)
+                return -1; /**< @todo Set errno to EOVERFLOW */
+
+            continue;
         }
+
+        /* Rest of the loop is for the "%..." formats. First of all, skip '%' */
+        fmt++;
+
+        switch (*fmt) {
+            case 'c': /* "%c" */
+                putchar((char)va_arg(va, int));
+                written++;
+                break;
+            case 's': /* "%s" */
+                written += fmt_s(va_arg(va, const char*));
+                break;
+            case 'd': /* "%d" */
+                written += fmt_d(va_arg(va, int));
+                break;
+            case 'u': /* %u */
+                written += fmt_d(va_arg(va, unsigned int));
+                break;
+            case 'f': /* %f */
+                /* Floats get promoted to doubles when calling printf */
+                written += fmt_f(va_arg(va, double), DEFAULT_DOUBLE_DECIMALS);
+                break;
+            case 'x': /* "%x" */
+                written += fmt_x(va_arg(va, int), false);
+                break;
+            case 'X': /* "%X" */
+                written += fmt_x(va_arg(va, int), true);
+                break;
+            case 'p': /* "%p" */
+                written += fmt_p(va_arg(va, void*));
+                break;
+            case '.':  /* "%.123f" */
+                fmt++; /* Skip the dot */
+
+                int dot_fmt_num = 0;
+                do {
+                    dot_fmt_num *= 10;
+                    dot_fmt_num += *fmt - '0';
+                    fmt++;
+                } while (*fmt >= '0' && *fmt <= '9');
+
+                /* Should not happen */
+                if (*fmt != 'f')
+                    break;
+
+                written += fmt_f(va_arg(va, double), dot_fmt_num);
+                break;
+            case 'l':  /* "%l..." */
+                fmt++; /* Skip the first 'l' */
+
+                /* Check pattern  */
+                switch (*fmt) {
+                    default: /* "%l?" -> "%ld" */
+                        /* If it is an unknown char, subtract one and print int.
+                         * We subtract one here because we want to analize the
+                         * char on the next iteration, and it will get increased
+                         * after the format switch. */
+                        fmt--;
+                        /* fall through */
+                    case 'd': /* "%ld" */
+                        written += fmt_d(va_arg(va, long));
+                        break;
+                    case 'u': /* "%lu" */
+                        written += fmt_d(va_arg(va, unsigned long));
+                        break;
+                    case 'f': /* "%lf" */
+                        /* Same as "%f", see comment there */
+                        written +=
+                          fmt_f(va_arg(va, double), DEFAULT_DOUBLE_DECIMALS);
+                        break;
+                    case 'x': /* "%lx" */
+                        written += fmt_x(va_arg(va, long), false);
+                        break;
+                    case 'X': /* "%lX" */
+                        written += fmt_x(va_arg(va, long), true);
+                        break;
+                    case 'l':  /* "%ll..." */
+                        fmt++; /* Skip the second 'l' */
+
+                        switch (*fmt) {
+                            default: /* "%ll?" -> "%lld" */
+                                /* See previous comment on "%ld" */
+                                fmt--;
+                                /* fall through */
+                            case 'd': /* "%lld" */
+                                written += fmt_d(va_arg(va, long long));
+                                break;
+                            case 'u': /* "%llu" */
+                                written +=
+                                  fmt_d(va_arg(va, unsigned long long));
+                                break;
+                            case 'x': /* "%llx" */
+                                written += fmt_x(va_arg(va, long long), false);
+                                break;
+                            case 'X': /* "%llX" */
+                                written += fmt_x(va_arg(va, long long), true);
+                                break;
+                        } /* %lld switch */
+                        break;
+                } /* %ld switch */
+                break;
+            case '0': /* Not necessary */
+            case '1':
+            case '2':
+            case '3':
+            case '4':
+            case '5':
+            case '6':
+            case '7':
+            case '8':
+            case '9': /* "%123..." */
+                /* Read all the numbers from the format */
+                int fmt_num = 0;
+                do {
+                    fmt_num *= 10;
+                    fmt_num += *fmt - '0';
+                    fmt++;
+                } while (*fmt >= '0' && *fmt <= '9');
+
+                /* Now fmt points to the format char:
+                 *  "%123?"
+                 *       ^  */
+                switch (*fmt) {
+                    case 'd': /* "%123d" */
+                        written += fmt_d_pad(va_arg(va, int), fmt_num);
+                        break;
+                    case 'u': /* "%123u" */
+                        written += fmt_d_pad(va_arg(va, unsigned int), fmt_num);
+                        break;
+                    case 'f': /* "%123f" */
+                        written += fmt_f_pad(va_arg(va, double), fmt_num,
+                                             DEFAULT_DOUBLE_DECIMALS);
+                        break;
+                    case 'x': /* "%123x" */
+                        written += fmt_x_pad(va_arg(va, int), fmt_num, false);
+                        break;
+                    case 'X': /* "%123X" */
+                        written += fmt_x_pad(va_arg(va, int), fmt_num, true);
+                        break;
+                    case 's': /* "%132s" */
+                        written += fmt_s_pad(va_arg(va, const char*), fmt_num);
+                        break;
+                    case '.': /* "%123.5f" */
+                        /* Skip the dot */
+                        fmt++;
+
+                        int dot_fmt_num = 0;
+                        do {
+                            dot_fmt_num *= 10;
+                            dot_fmt_num += *fmt - '0';
+                            fmt++;
+                        } while (*fmt >= '0' && *fmt <= '9');
+
+                        /* Should not happen */
+                        if (*fmt != 'f')
+                            break;
+
+                        written +=
+                          fmt_f_pad(va_arg(va, double), fmt_num, dot_fmt_num);
+                        break;
+                    case 'l':  /* "%123l..." */
+                        fmt++; /* Skip the first 'l' of "%123l?" */
+
+                        switch (*fmt) {
+                            default: /* "%123l?" -> "%123ld" */
+                                /* See previous comment on "%ld" */
+                                fmt--;
+                                /* fall through */
+                            case 'd': /* "%123ld" */
+                                written += fmt_d_pad(va_arg(va, long), fmt_num);
+                                break;
+                            case 'u': /* "%123lu" */
+                                written +=
+                                  fmt_d_pad(va_arg(va, unsigned long), fmt_num);
+                                break;
+                            case 'f': /* "%123lf" */
+                                /* Same as "%123f". No "%123.5lf" format */
+                                written +=
+                                  fmt_f_pad(va_arg(va, double), fmt_num,
+                                            DEFAULT_DOUBLE_DECIMALS);
+                                break;
+                            case 'x': /* "%123lx" */
+                                written +=
+                                  fmt_x_pad(va_arg(va, long), fmt_num, false);
+                                break;
+                            case 'X': /* "%123lX" */
+                                written +=
+                                  fmt_x_pad(va_arg(va, long), fmt_num, true);
+                                break;
+                            case 'l': /* "%123ll..." */
+                                /* Skip the second 'l' of "%123ll?" */
+                                fmt++;
+
+                                switch (*fmt) {
+                                    default: /* "%123ll?" -> "%123lld" */
+                                        /* See previous comment on "%ld" */
+                                        fmt--;
+                                        /* fall through */
+                                    case 'd': /* "%123lld" */
+                                        written += fmt_d_pad(
+                                          va_arg(va, long long), fmt_num);
+                                        break;
+                                    case 'u': /* "%123llu" */
+                                        written += fmt_d_pad(
+                                          va_arg(va, unsigned long long),
+                                          fmt_num);
+                                        break;
+                                    case 'x': /* "%123llx" */
+                                        written +=
+                                          fmt_x_pad(va_arg(va, long long),
+                                                    fmt_num, false);
+                                        break;
+                                    case 'X': /* "%123llX" */
+                                        written += fmt_x_pad(
+                                          va_arg(va, long long), fmt_num, true);
+                                        break;
+                                } /* %123ll... switch */
+                                break;
+                        } /* %123l... switch */
+                        break;
+                    default: /* default case of "%123..." switch */
+                        break;
+                } /* %123... switch */
+                break;
+            case '%': /* "%%" -> "%" */
+                putchar(*fmt);
+                written++;
+                break;
+            default:
+                /* If unknown fmt, print the % and the unknown char */
+                putchar('%');
+                putchar(*fmt);
+                written += 2;
+                break;
+        } /* Main format char switch */
 
         fmt++;
 
