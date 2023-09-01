@@ -171,7 +171,7 @@ void paging_show_map(void) {
             /* If we found a different entry, and we just printed dots, print
              * the last one as well */
             if (printed_dots) {
-                printf("[%4ld, %4ld] paddr: 0x%8llX | vaddr: 0x%8llX | flags: ",
+                printf("[%4ld, %4ld] paddr: %8llX | vaddr: %8llX | flags: ",
                        last_entry.dir_i, last_entry.tab_i, last_entry.paddr,
                        last_entry.vaddr);
 
@@ -189,7 +189,7 @@ void paging_show_map(void) {
             last_entry   = e;
             printed_dots = false;
 
-            printf("[%4ld, %4ld] paddr: 0x%8llX | vaddr: 0x%8llX | flags: ",
+            printf("[%4ld, %4ld] paddr: %8llX | vaddr: %8llX | flags: ",
                    e.dir_i, e.tab_i, e.paddr, e.vaddr);
 
             /* Display flags */
