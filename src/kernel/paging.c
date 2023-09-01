@@ -195,7 +195,7 @@ void paging_show_map(void) {
             /* Display flags */
             for (int k = 11; k >= 0; k--) {
                 if ((e.flags >> k) & 1)
-                    putchar(flags_str[12 - k]);
+                    putchar(flags_str[11 - k]);
                 else
                     putchar('-');
             }
