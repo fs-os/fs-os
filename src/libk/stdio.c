@@ -20,6 +20,9 @@
  */
 #define DEFAULT_DOUBLE_DECIMALS 6
 
+static const char hex_chars_lower[] = "0123456789abcdef";
+static const char hex_chars_upper[] = "0123456789ABCDEF";
+
 /**
  * @brief Print N ammount of spaces.
  * @param[in] n The number of spaces to print.
@@ -48,7 +51,7 @@ static inline size_t fmt_s(const char* str) {
 
 /**
  * @brief Print string with padding.
- * @details Similar to print(), but adds `strlen(str) - pad` spaces before
+ * @details Similar to fmt_s(), but adds `strlen(str) - pad` spaces before
  * "str". Used for "%123s"
  * @param[in] str String to print.
  * @param[in] pad Padding for the string.
@@ -79,7 +82,7 @@ static size_t fmt_d(int64_t num) {
 
 /**
  * @brief Print integer with padding.
- * @details Similar to printi(), but adds `digits(num) - pad` zeros before num.
+ * @details Similar to fmt_d(), but adds `digits(num) - pad` zeros before num.
  * Used for "%123d"
  * @param[in] num Number to print.
  * @param[in] pad Padding for the number.
@@ -139,7 +142,7 @@ static size_t fmt_f(double num, int decimals) {
  * @brief Print double with decimal places and padding.
  * @details Used by vprintf()
  * @param[in] num Number to print.
- * @param[in] pad Padding. Same ass printi_n(). Used for "%123f"
+ * @param[in] pad Padding. Same ass fmt_f(). Used for "%123f"
  * @param[in] num Decimals. Used for "%.5f"
  * @return Bytes written.
  */
@@ -154,51 +157,30 @@ static size_t fmt_f_pad(double num, int pad, int decimals) {
 
 /**
  * @brief Print integer in hexadecimal format (lowercase).
- * @details Does not support sign.
  * @param[in] num Number to print in hex format.
  * @param[in] uppercase If true, use lowercase letters.
  * @return Bytes written.
- *
- * @todo Improve method
  */
-static size_t fmt_x(int64_t num, bool uppercase) {
-    if (num <= 0) {
+static size_t fmt_x(uint64_t num, bool uppercase) {
+    const char* hex_chars = uppercase ? hex_chars_upper : hex_chars_lower;
+
+    if (num == 0) {
         putchar('0');
         return 1;
     }
 
-    const char ch_a = uppercase ? 'A' : 'a';
-
-    /* max digits of an unsigned long */
-    static char hex_str[17] = { 0 };
-
-    int tmp = 0;
-    size_t i;
-    for (i = 0; num > 0 && i < sizeof(hex_str) - 1; i++) {
-        tmp = num % 16;
-        num /= 16;
-
-        /* Convert to char */
-        if (tmp >= 10) {
-            tmp -= 10;
-            tmp += ch_a;
-        } else {
-            tmp += '0';
-        }
-
-        hex_str[i] = tmp;
+    size_t ret;
+    for (ret = 0; num != 0; ret++) {
+        putchar(hex_chars[num & 15]);
+        num >>= 4; /* bitsof(0xF); */
     }
 
-    hex_str[i] = '\0';
-
-    /* Reverse string and print */
-    strrev(hex_str);
-    return fmt_s(hex_str);
+    return ret;
 }
 
 /**
  * @brief Print integer in hexadecimal format with padding.
- * @details Similar to printx(), but adds `digits(num) - pad` zeros before num.
+ * @details Similar to fmt_x(), but adds `digits(num) - pad` zeros before num.
  * Used for "%123x", "%123X"
  * @param[in] num Number to print in hex format.
  * @param[in] pad Padding for the number.
@@ -206,43 +188,10 @@ static size_t fmt_x(int64_t num, bool uppercase) {
  * @return Bytes written.
  */
 static size_t fmt_x_pad(int64_t num, int pad, bool uppercase) {
-    if (num <= 0) {
-        print_pad(pad);
-        putchar('0');
-        return pad;
-    }
-
-    const char ch_a = uppercase ? 'A' : 'a';
-
-    /* max digits of an unsigned long */
-    static char hex_str[17] = { 0 };
-
-    size_t i;
-    for (i = 0; num > 0 && i < sizeof(hex_str) - 1; i++) {
-        int tmp = num % 16;
-        num /= 16;
-
-        /* Convert to char */
-        if (tmp >= 10) {
-            tmp -= 10;
-            tmp += ch_a;
-        } else {
-            tmp += '0';
-        }
-
-        hex_str[i] = tmp;
-    }
-
-    hex_str[i] = '\0';
-
     size_t ret = 0;
 
-    /* i is now the length of the final str */
-    ret += print_pad(pad - i);
-
-    /* Reverse string and print */
-    strrev(hex_str);
-    ret += fmt_s(hex_str);
+    ret += print_pad(pad - digits_hex(num));
+    ret += fmt_x(num, uppercase);
 
     return ret;
 }
