@@ -124,16 +124,17 @@ void itoan(char* str, int64_t num, size_t max_digits) {
 }
 
 void panic(const char* func, unsigned int line, const char* fmt, ...) {
-    /* TODO: Proper kernel panic */
-
-    if (func == NULL)
-        func = "???";
 
     va_list va;
     va_start(va, fmt);
 
+    putchar('\n');
     fbc_setfore(COLOR_RED_B);
-    printf("[%s:%d] kernel panic: ", func, line);
+
+    if (func != NULL)
+        printf("[%s:%d] ", func, line);
+
+    printf("kernel panic: ");
     fbc_setfore(COLOR_RED);
     vprintf(fmt, va);
 
@@ -148,7 +149,7 @@ void panic(const char* func, unsigned int line, const char* fmt, ...) {
 }
 
 void abort(void) {
-    puts("kernel panic: abort");
+    puts("\nkernel panic: abort");
 
     asm volatile("hlt");
 

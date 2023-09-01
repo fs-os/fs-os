@@ -65,10 +65,11 @@ int ipow(int b, int e) __attribute__((pure));
 void itoan(char* str, int64_t num, size_t max_digits);
 
 /**
- * @brief Panics
+ * @brief Kernel panic. Print message and halt.
  * @details Use the panic_line() macro for shorter version
- * @param[in] func The `__func__` macro.
- * @param[in] line The `__LINE__` macro.
+ * @param[in] func The name of the function. Should use the `__func__` macro. If
+ * NULL, panic() won't print function and line.
+ * @param[in] line The line of the panic, should use the `__LINE__` macro.
  * @param[in] fmt Panic message.
  *
  * @todo Move from stdlib?
