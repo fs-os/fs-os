@@ -75,7 +75,7 @@ Package name (gentoo)            | Description
 `media-gfx/graphviz`             | (Optional\*) For the graphs
 `dev-texlive/texlive-latexextra` | (Optional) Only needed for building the documentation in pdf format
 
-\* Needed if `HAVE_DOT=YES` in [Doxyfile](Doxyfile) (The default).
+\* Needed if `HAVE_DOT=YES` in [Doxyfile](./Doxyfile) (The default).
 
 #### Building the documentation
 Simply run:
