@@ -28,6 +28,5 @@ static char* exceptions[] = {
 void handle_exception(int exc) {
     asm("cli");
 
-    panic_line("exception: %s\n", exceptions[exc]);
+    panic(NULL, 0, "exception: %s\n", exceptions[exc]);
 }
-
