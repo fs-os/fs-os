@@ -169,13 +169,17 @@ static size_t fmt_x(uint64_t num, bool uppercase) {
         return 1;
     }
 
-    size_t ret;
-    for (ret = 0; num != 0; ret++) {
-        putchar(hex_chars[num & 15]);
+    static char str[17] = { '\0' };
+
+    int i;
+    for (i = 0; num != 0; i++) {
+        str[i] = hex_chars[num & 15];
         num >>= 4; /* bitsof(0xF); */
     }
+    str[i] = '\0';
 
-    return ret;
+    strrev(str);
+    return fmt_s(str);
 }
 
 /**
