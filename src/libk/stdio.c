@@ -33,10 +33,8 @@ static inline int print(const char* str) {
  * @param[in] str String to print.
  * @param[in] pad Padding for the string.
  */
-static void prints_n(const char* str, uint32_t pad) {
-    int final_pad = pad - strlen(str);
-
-    while (final_pad-- > 0)
+static void prints_n(const char* str, int pad) {
+    for (size_t i = 0; i < pad - strlen(str); i++)
         putchar(' ');
 
     print(str);
@@ -62,15 +60,14 @@ static void printi(int64_t num) {
  * @param[in] num Number to print.
  * @param[in] pad Padding for the number.
  */
-static void printi_n(int64_t num, uint32_t pad) {
+static void printi_n(int64_t num, int pad) {
     int sign   = (num < 0) ? 1 : 0;
     int digits = digits_int(num);
 
     static char str[21] = { '\0' };
     itoa(str, num);
 
-    int final_pad = pad - (digits + sign);
-    while (final_pad-- > 0)
+    for (int i = 0; i < pad - (digits + sign); i++)
         putchar(' ');
 
     print(str);
@@ -108,9 +105,9 @@ static void print_double(double num, uint32_t decimals) {
  * @param[in] pad Padding. Same ass printi_n(). Used for "%123f"
  * @param[in] num Decimals. Used for "%.5f"
  */
-static void print_double_n(double num, uint32_t pad, uint32_t decimals) {
+static void print_double_n(double num, int pad, uint32_t decimals) {
     /* Print spaces for each digit we need to reach the padding */
-    for (uint32_t i = 0; i < pad - digits_double(num, decimals); i++)
+    for (int i = 0; i < pad - digits_double(num, decimals); i++)
         putchar(' ');
 
     print_double(num, decimals);
@@ -123,8 +120,10 @@ static void print_double_n(double num, uint32_t pad, uint32_t decimals) {
  * @param[in] uppercase If true, use lowercase letters.
  */
 static void printx(int64_t num, bool uppercase) {
-    if (num <= 0)
+    if (num <= 0) {
         print("0");
+        return;
+    }
 
     const char ch_a = uppercase ? 'A' : 'a';
 
@@ -163,7 +162,15 @@ static void printx(int64_t num, bool uppercase) {
  * @param[in] pad Padding for the number.
  * @param[in] uppercase If true will use uppercase hex chars.
  */
-static void printx_n(int64_t num, uint32_t pad, bool uppercase) {
+static void printx_n(int64_t num, int pad, bool uppercase) {
+    if (num <= 0) {
+        for (int j = 0; j < pad - 1; j++)
+            putchar(' ');
+
+        print("0");
+        return;
+    }
+
     const char ch_a = uppercase ? 'A' : 'a';
 
     /* max digits of an unsigned long */
@@ -191,8 +198,7 @@ static void printx_n(int64_t num, uint32_t pad, bool uppercase) {
     strrev(hex_str);
 
     /* i is now the length of the final str */
-    int final_pad = pad - i;
-    while (final_pad-- > 0)
+    for (size_t j = 0; j < pad - i; j++)
         putchar(' ');
 
     print(hex_str);
