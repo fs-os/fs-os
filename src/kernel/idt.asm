@@ -1,10 +1,32 @@
 
+; TODO:
+; The CPU pushes some values to the stack before calling the ISR for the
+; exception that just ocurred. We pass the EIP register to handle_exception
+; (+ the macro arg: interrup id) for printing as much info as possible.
+;
+; For more info, see: https://wiki.osdev.org/Interrupt_Service_Routines#x86
 %macro EXC_WRAPPER 1
     global exc_%1:function
     exc_%1:
         push    %1                  ; Push the parameter
         call    handle_exception    ; Call the function from exceptions.c
-        iretd                       ; Return doubleword interrupt (32bit)
+
+        iretd                       ; Return from 32 bit interrupt
+%endmacro
+
+; We need to different macros because some exceptions push an extra "Error code"
+; value to the stack. For more info, see: https://wiki.osdev.org/Exceptions
+%macro EXC_WRAPPER_ERR 1
+    global exc_%1:function
+    exc_%1:
+        ; In this macro, we need to add 4 to ESP to "pop" the error code that
+        ; the CPU pushed before calling the ISR
+        add     esp, 4
+
+        push    %1                  ; Push the parameter
+        call    handle_exception    ; Call the function from exceptions.c
+
+        iretd                       ; Return from 32 bit interrupt
 %endmacro
 
 bits 32
@@ -28,28 +50,29 @@ idt_load:
     ret
 
 ; exc_X: call the exception handler with the specified IRQ. Used as ISR offsets
-; for the idt.
-EXC_WRAPPER 0
-EXC_WRAPPER 1
-EXC_WRAPPER 2
-EXC_WRAPPER 3
-EXC_WRAPPER 4
-EXC_WRAPPER 5
-EXC_WRAPPER 6
-EXC_WRAPPER 7
-EXC_WRAPPER 8
-EXC_WRAPPER 10
-EXC_WRAPPER 11
-EXC_WRAPPER 12
-EXC_WRAPPER 13
-EXC_WRAPPER 14
-EXC_WRAPPER 15
-EXC_WRAPPER 16
-EXC_WRAPPER 17
-EXC_WRAPPER 18
-EXC_WRAPPER 19
-EXC_WRAPPER 20
-EXC_WRAPPER 30
+; for the idt. We use different macros depending on the exception number because
+; the CPU pushes an extra error code argument before calling the ISR.
+EXC_WRAPPER     0
+EXC_WRAPPER     1
+EXC_WRAPPER     2
+EXC_WRAPPER     3
+EXC_WRAPPER     4
+EXC_WRAPPER     5
+EXC_WRAPPER     6
+EXC_WRAPPER     7
+EXC_WRAPPER_ERR 8
+EXC_WRAPPER_ERR 10
+EXC_WRAPPER_ERR 11
+EXC_WRAPPER_ERR 12
+EXC_WRAPPER_ERR 13
+EXC_WRAPPER_ERR 14
+EXC_WRAPPER     15  ; Reserved
+EXC_WRAPPER     16
+EXC_WRAPPER_ERR 17
+EXC_WRAPPER     18
+EXC_WRAPPER     19
+EXC_WRAPPER     20
+EXC_WRAPPER_ERR 30
 
 ; void irq_pit(void)
 ; First IRQ we remapped to 0x20. Calls the pit_inc C function, located in:
@@ -80,15 +103,15 @@ irq_kb:
 global irq_default_master:function
 irq_default_master:
     mov     al, 0x20
-	out     0x20, al
+    out     0x20, al
     iretd
 
 ; void irq_default_slave(void)
 ; Ignore all IRQs we didn't add from slave PIC
 global irq_default_slave:function
 irq_default_slave:
-	mov     al, 0x20
-	out     0xa0, al
-	out     0x20, al
+    mov     al, 0x20
+    out     0xa0, al
+    out     0x20, al
     iretd
 
