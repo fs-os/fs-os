@@ -21,6 +21,8 @@
  * @param code Exception code (Index in the IDT)
  * @param eip Value of EIP register pushed by the CPU before calling the ISR
  * (i.e. address where the exception occurred)
+ *
+ * @todo Also push error code to the stack inside EXC_WRAPPER_ERR (See idt.asm)
  */
 void handle_exception(int exc, void* eip);
 

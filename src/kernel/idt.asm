@@ -1,14 +1,12 @@
 
-; The CPU pushes some values to the stack before calling the ISR for the
-; exception that just ocurred. We pass the EIP register to handle_exception
-; (+ the macro arg: interrup id) for printing as much info as possible.
-;
-; For more info, see: https://wiki.osdev.org/Interrupt_Service_Routines#x86
 %macro EXC_WRAPPER 1
     global exc_%1:function
     exc_%1:
-        ; The 2nd argument of handle_exception is already pushed to the stack by
-        ; the CPU. We push the first parameter (exception ID)
+        ; The CPU pushes some values to the stack before calling the ISR for the
+        ; exception that just ocurred. Since it's already the last pushed value,
+        ; we can simply push the first parameter of handle_exception (the
+        ; exception ID). For more info, see:
+        ;   https://wiki.osdev.org/Interrupt_Service_Routines#x86
         push    %1
         call    handle_exception    ; Call the function from exceptions.c
         add     esp, 4              ; Remove dword we just pushed from stack
