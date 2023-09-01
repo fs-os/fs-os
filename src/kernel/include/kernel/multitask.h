@@ -9,6 +9,11 @@ typedef struct Ctx Ctx;
 /**
  * @struct Task context struct
  * @details We could add more stuff like parent task and priority
+ *
+ * @todo Rename to something less generic like Task or TaskCtx, since the fbc
+ * also uses fbc_ctx.
+ * @todo Use a more standard naming convention for structs. Either all
+ * capitalized or all lowercase with "_t" subfix.
  */
 struct Ctx {
     Ctx* next;       /**< @brief Pointer to next task */
@@ -93,8 +98,6 @@ Tss* tss_getptr(void);
  * src/kernel/multitask.asm
  */
 void mt_init(void);
-
-/* mt_newtask:  */
 
 /**
  * @brief Allocates and creates a new task with a `name` and `entry` point.
