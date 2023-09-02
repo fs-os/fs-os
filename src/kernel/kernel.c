@@ -38,6 +38,7 @@
     "For more information see: https://github.com/fs-os/cross-compiler"
 #endif
 
+/* TODO: Replace 's' with '...' and use printf */
 #define TEST_TITLE(s)           \
     fbc_setfore(COLOR_WHITE_B); \
     puts(s);                    \
@@ -139,6 +140,10 @@ static inline void test_colors(void) {
     fbc_setfore(COLOR_WHITE);
 }
 
+/* If false, this machine doesn't support SSE, and it's enabled. SSE/SSE2
+ * support is checked in src/kernel/boot.asm if ENABLE_SSE is defined. */
+bool sse_supported = true;
+
 /**
  * @brief Prints the OS logo using the GIMP macro
  * @param ypad Top padding in px
@@ -202,16 +207,17 @@ void kernel_main(Multiboot* mb_info) {
     pit_init(1000);
     LOAD_INFO("PIT initialized.");
 
-    if (check_rdseed()) {
-        LOAD_INFO("RDSEED supported.");
-    } else {
+    if (!check_rdseed()) {
         LOAD_IGNORE("RDSEED not supported.");
     }
 
-    if (check_rdrand()) {
-        LOAD_INFO("RDRAND supported.");
-    } else {
+    if (!check_rdrand()) {
         LOAD_IGNORE("RDRAND not supported.");
+    }
+
+    if (!sse_supported) {
+        LOAD_ERROR("SSE/SSE2 not supported. Please re-compile with DISABLE_SSE "
+                   "defined in config.mk\n");
     }
 
     kb_setlayout(&us_layout);
