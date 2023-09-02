@@ -25,6 +25,7 @@ section .data
 section .text
     extern stack_bottom         ; src/kernel/boot.asm
     extern heap_alloc:function  ; src/kernel/heap.c
+    extern heap_calloc:function ; src/kernel/heap.c
     extern free:function        ; src/libk/stdlib.c
 
 ; void mt_init(void);
@@ -151,12 +152,12 @@ mt_newtask:
     ; and sse registers
     push    eax
 
-    ; TODO: Initialize .fxdata
     push    dword 16                        ; Need to be 16-bit aligned
+    push    dword 1                         ; sizeof(byte)
     push    dword 512                       ; 512 bytes for fxsave
-    call    heap_alloc
+    call    heap_calloc
     mov     edx, eax                        ; Save allocated bytes to edx
-    add     esp, 8                          ; Remove 2 dwords we just pushed
+    add     esp, 12                         ; Remove 3 dwords we just pushed
 
     pop     eax
 
