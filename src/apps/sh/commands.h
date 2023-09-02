@@ -490,9 +490,9 @@ static int cmd_test_libk() {
     }
 
     TEST_TITLE("\nTesting float formats");
-    printf("2.5 + 1.3 = %f\n", 2.5 + 1.3);
-    printf("654.12345678 (\"%%.3f\") -> \"%.3f\"\n", 654.12345678);
-    printf("654.12345678 (\"%%10.4f\") -> \"%10.4f\"\n", 654.12345678);
+    printf("(rand() %% 10) + 1.3f = %f\n", (rand() % 10) + 1.3f);
+    printf("654.12345678f (\"%%.3f\") -> \"%.3f\"\n", 654.12345678f);
+    printf("654.12345678f (\"%%10.4f\") -> \"%10.4f\"\n", 654.12345678f);
     printf("SIGMAROUND(1.4) = %f\n", SIGMAROUND(1.4));
     printf("SIGMAROUND(1.5) = %f\n", SIGMAROUND(1.5));
 
