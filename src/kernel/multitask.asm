@@ -16,14 +16,17 @@ section .bss
             at ctx_t.name,   resd 1
         iend
 
-    align 16                    ; 512 bytes needed by fxsave used by the first
-    first_fxdata: resb 512      ; task. Reserved here instead of heap.
+    ; 512 bytes needed by fxsave. Reserved here instead of heap.
+    align 16
+    first_fxdata: resb 512      ; For .fxdata member of first_ctx (kernel_main)
+    clean_fxdata: resb 512      ; Used to store a clean FPU/SSE state (mt_init)
 
 section .data
     first_task_name db 'kernel_main', 0x0
 
 section .text
     extern stack_bottom         ; src/kernel/boot.asm
+    extern memcpy:function      ; src/libk/string.c
     extern heap_alloc:function  ; src/kernel/heap.c
     extern heap_calloc:function ; src/kernel/heap.c
     extern free:function        ; src/libk/stdlib.c
@@ -48,6 +51,10 @@ mt_init:
 
     ; 512 bytes aligned to 16 bytes in .bss for fxsave. See mt_newtask
     mov     [first_ctx + ctx_t.fxdata], dword first_fxdata
+
+    ; Save the FPU/SSE state at the moment of calling mt_init. This will be used
+    ; to fill .fxdata when creating new tasks in mt_newtask.
+    fxsave  [clean_fxdata]
 
     ; "kernel_main"
     mov     [first_ctx + ctx_t.name],  dword first_task_name
@@ -148,8 +155,8 @@ mt_newtask:
     mov     [eax + ctx_t.esp], edx      ; Save the address at the top of the
                                         ; allocated stack
 
-    ; Allocate 512 bytes needed by the fxsave instruction for preserving the fpu
-    ; and sse registers
+    ; Allocate 512 bytes needed by the fxsave instruction for preserving the FPU
+    ; and SSE registers
     push    eax
 
     push    dword 16                        ; Need to be 16-bit aligned
@@ -160,8 +167,14 @@ mt_newtask:
     add     esp, 12                         ; Remove 3 dwords we just pushed
 
     pop     eax
-
     mov     [eax + ctx_t.fxdata], edx       ; Save in ctx struct
+
+    ; Fill the allocated 512 bytes with clean data we stored in mt_init
+    push    dword 512                       ; Size for memcpy
+    push    dword clean_fxdata              ; Src for memcpy
+    push    edx                             ; Dst for memcpy (newctx.fxdata)
+    call    memcpy
+    add     esp, 12                         ; Remove 3 dwords we just pushed
 
     ; Exit the mt_newtask function
     mov     esp, ebp
