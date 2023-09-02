@@ -109,7 +109,7 @@ mt_newtask:
     push    eax             ; Push eax (allocated Ctx*) because of next malloc
     push    ecx             ; Push second arg because caller must preserve
 
-    push    dword 8         ; Align to 8 bytes
+    push    dword 16        ; Align to 16 bytes
     push    dword 0x4000    ; 16KiB stack for the new task
     call    heap_alloc
     mov     edx, eax        ; Save new stack address to edx
@@ -151,6 +151,7 @@ mt_newtask:
     ; and sse registers
     push    eax
 
+    ; TODO: Initialize .fxdata
     push    dword 16                        ; Need to be 16-bit aligned
     push    dword 512                       ; 512 bytes for fxsave
     call    heap_alloc
