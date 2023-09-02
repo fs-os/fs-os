@@ -1,4 +1,7 @@
 
+# Set to false to disable SSE/SSE2 support
+SSE_SUPPORT=true
+
 # For compiling the bootstrap assembly
 ASM=nasm
 ASM_FLAGS=-f elf32 -isrc/kernel -isrc/kernel/include/kernel
@@ -7,7 +10,7 @@ ASM_FLAGS=-f elf32 -isrc/kernel -isrc/kernel/include/kernel
 CC=/usr/local/cross/bin/i686-elf-gcc
 
 # Global cflags. Other commands use specific ones not yet in the config
-CFLAGS=-Wall -Wextra -O2 -masm=intel -msse -msse2
+CFLAGS=-Wall -Wextra -O2 -masm=intel
 
 # Cross-compiled ar for creating the static library (LIBC)
 AR=/usr/local/cross/bin/i686-elf-ar
@@ -47,9 +50,15 @@ SYSROOT_KERNEL=$(SYSROOT_BOOTDIR)/$(KERNEL_BIN)
 KERNEL_INCLUDES=src/kernel/include
 LIBC_INCLUDES=src/libc/include
 
+#-------------------------------------------------------------------------------
+
 # For replacing "(GITHASH)" with the last commit in the grub entry. Comment these
 # lines if you just want the os name.
 PERCENT:=%
 COMMIT_CMD=git branch -v --format="$(PERCENT)(objectname:short)$(PERCENT)(HEAD)" | grep "*$$" | tr -d "*"
 COMMIT_SHA1=($(shell $(COMMIT_CMD)))
 
+ifeq ($(SSE_SUPPORT), true)
+CFLAGS += -msse -msse2 -DENABLE_SSE
+ASM_FLAGS += -D ENABLE_SSE
+endif
