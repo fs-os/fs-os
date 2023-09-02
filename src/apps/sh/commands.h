@@ -48,9 +48,6 @@
 
 #define LENGTH(arr) (sizeof(arr) / sizeof(arr[0]))
 
-extern Layout us_layout;
-extern Layout es_layout;
-
 /* -------------------------------------------------------------------------- */
 
 /* Used in sh_main and cmd_quit */
@@ -250,7 +247,7 @@ static int cmd_loadkeys(int argc, char** argv) {
 
     typedef struct {
         const char* name;
-        Layout* layout;
+        const Layout* layout;
     } layout_pair_t;
 
     layout_pair_t layouts[] = {
@@ -508,26 +505,32 @@ static int cmd_test_libk() {
 }
 
 static void multitask_test0(void) {
-    for (int i = 0; i <= 5; i++) {
-        printf("%s: %d\n", mt_gettask()->name, i);
+    Ctx* self = mt_gettask();
+
+    for (int i = 0; i <= 3; i++) {
+        printf("%s: %.2f\n", self->name, i + 0.1f);
         sleep_ms(100);
-        mt_switch(mt_gettask()->next);
+        mt_switch(self->next);
     }
 }
 
 static void multitask_test1(void) {
-    for (int i = 0; i <= 5; i++) {
-        printf("%s: %d\n", mt_gettask()->name, i);
+    Ctx* self = mt_gettask();
+
+    for (int i = 0; i <= 3; i++) {
+        printf("%s: %.2f\n", self->name, i + 0.2f);
         sleep_ms(100);
-        mt_switch(mt_gettask()->next);
+        mt_switch(self->next);
     }
 }
 
 static void multitask_test2(void) {
-    for (int i = 0; i <= 5; i++) {
-        printf("%s: %d\n", mt_gettask()->name, i);
+    Ctx* self = mt_gettask();
+
+    for (int i = 0; i <= 3; i++) {
+        printf("%s: %.2f\n", self->name, i + 0.3f);
         sleep_ms(100);
-        mt_switch(mt_gettask()->next);
+        mt_switch(self->next);
     }
 }
 
@@ -552,10 +555,12 @@ static int cmd_test_multitask() {
     Ctx* task1 = mt_newtask("task1", multitask_test1);
     Ctx* task0 = mt_newtask("task0", multitask_test0);
 
-    for (int i = 0; i <= 5; i++) {
-        printf("%s: %d\n", mt_gettask()->name, i);
+    Ctx* self = mt_gettask();
+
+    for (int i = 0; i <= 3; i++) {
+        printf("%s: %.2f\n", self->name, (float)i);
         sleep_ms(100);
-        mt_switch(mt_gettask()->next);
+        mt_switch(self->next);
     }
 
     /* Order does not matter */
