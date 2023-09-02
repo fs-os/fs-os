@@ -168,6 +168,36 @@ void heap_free(void* ptr) {
         blk_cursor = blk;
 }
 
+void* heap_calloc(size_t item_n, size_t item_sz, size_t align) {
+    const size_t bytes = item_n * item_sz;
+    void* ptr          = heap_alloc(bytes, align);
+
+    switch (item_sz) {
+        case 2: { /* sizeof(uint16_t) */
+            uint16_t* casted = ptr;
+            for (size_t i = 0; i < item_n; i++)
+                casted[i] = 0;
+            break;
+        }
+        case 4: { /* sizeof(uint32_t) */
+            uint32_t* casted = ptr;
+            for (size_t i = 0; i < item_n; i++)
+                casted[i] = 0;
+            break;
+        }
+        case 1: /* sizeof(uint8_t) || item_sz > sizeof(uint32_t) */
+        default: {
+            /* If it's an unknown size, iterate each byte */
+            uint8_t* casted = ptr;
+            for (size_t i = 0; i < bytes; i++)
+                casted[i] = 0;
+            break;
+        }
+    }
+
+    return ptr;
+}
+
 /*----------------------------------------------------------------------------*/
 
 enum header_mod {
