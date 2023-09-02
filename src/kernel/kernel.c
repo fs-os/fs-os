@@ -38,30 +38,33 @@
     "For more information see: https://github.com/fs-os/cross-compiler"
 #endif
 
-/* TODO: Replace 's' with '...' and use printf */
-#define TEST_TITLE(s)           \
+#define TEST_TITLE(...)         \
     fbc_setfore(COLOR_WHITE_B); \
-    puts(s);                    \
+    printf(__VA_ARGS__);        \
+    putchar('\n');              \
     fbc_setfore(COLOR_GRAY);
 
-#define LOAD_INFO(s)              \
+#define LOAD_INFO(...)            \
     fbc_setfore(COLOR_MAGENTA_B); \
     printf(" * ");                \
     fbc_setfore(COLOR_MAGENTA);   \
-    puts(s);                      \
+    printf(__VA_ARGS__);          \
+    putchar('\n');                \
     fbc_setfore(COLOR_WHITE);
 
-#define LOAD_IGNORE(s)         \
+#define LOAD_IGNORE(...)       \
     fbc_setfore(COLOR_GRAY_B); \
     printf(" * ");             \
-    puts(s);                   \
+    printf(__VA_ARGS__);       \
+    putchar('\n');             \
     fbc_setfore(COLOR_WHITE);
 
-#define LOAD_ERROR(s)         \
+#define LOAD_ERROR(...)       \
     fbc_setfore(COLOR_RED_B); \
     printf(" * ");            \
     fbc_setfore(COLOR_RED);   \
-    puts(s);                  \
+    printf(__VA_ARGS__);      \
+    putchar('\n');            \
     fbc_setfore(COLOR_WHITE);
 
 #define SYSTEM_INFO(s1, s2fmt, ...) \
