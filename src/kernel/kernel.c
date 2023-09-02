@@ -83,9 +83,6 @@
         }                              \
     } while (0);
 
-/* Default layout, declared in keyboard.c */
-extern Layout us_layout;
-
 static inline void format_date(char* str, DateTime now) {
     /* "00/00/00 - 00:00:00" */
 
