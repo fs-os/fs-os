@@ -23,12 +23,11 @@
 #include "../../media/soviet_anthem.h"
 #include "../../media/thunderstruck.h"
 
-#define TEST_TITLE(s)               \
-    {                               \
-        fbc_setfore(COLOR_WHITE_B); \
-        puts(s);                    \
-        fbc_setfore(COLOR_GRAY);    \
-    }
+#define TEST_TITLE(...)         \
+    fbc_setfore(COLOR_WHITE_B); \
+    printf(__VA_ARGS__);        \
+    putchar('\n');              \
+    fbc_setfore(COLOR_GRAY);
 
 /* Need tmp to remove '\0' from itoa */
 #define PAD_ZEROS(n, p)                \
@@ -504,12 +503,15 @@ static int cmd_test_libk() {
     return 0;
 }
 
+#define MT_TEST_ITERS 3
+#define MT_TEST_DELAY 100
+
 static void multitask_test0(void) {
     Ctx* self = mt_gettask();
 
-    for (int i = 0; i <= 3; i++) {
+    for (int i = 0; i <= MT_TEST_ITERS; i++) {
         printf("%s: %.2f\n", self->name, i + 0.1f);
-        sleep_ms(100);
+        sleep_ms(MT_TEST_DELAY);
         mt_switch(self->next);
     }
 }
@@ -517,9 +519,9 @@ static void multitask_test0(void) {
 static void multitask_test1(void) {
     Ctx* self = mt_gettask();
 
-    for (int i = 0; i <= 3; i++) {
+    for (int i = 0; i <= MT_TEST_ITERS; i++) {
         printf("%s: %.2f\n", self->name, i + 0.2f);
-        sleep_ms(100);
+        sleep_ms(MT_TEST_DELAY);
         mt_switch(self->next);
     }
 }
@@ -527,15 +529,16 @@ static void multitask_test1(void) {
 static void multitask_test2(void) {
     Ctx* self = mt_gettask();
 
-    for (int i = 0; i <= 3; i++) {
+    for (int i = 0; i <= MT_TEST_ITERS; i++) {
         printf("%s: %.2f\n", self->name, i + 0.3f);
-        sleep_ms(100);
+        sleep_ms(MT_TEST_DELAY);
         mt_switch(self->next);
     }
 }
 
 static int cmd_test_multitask() {
-    TEST_TITLE("Testing multitasking");
+    TEST_TITLE("Testing multitasking with %d iterations and %dms of delay",
+               MT_TEST_ITERS, MT_TEST_DELAY);
 
     /*
      * When creating more than 1 task, the last tasks added will be placed after
@@ -557,9 +560,9 @@ static int cmd_test_multitask() {
 
     Ctx* self = mt_gettask();
 
-    for (int i = 0; i <= 3; i++) {
+    for (int i = 0; i <= MT_TEST_ITERS; i++) {
         printf("%s: %.2f\n", self->name, (float)i);
-        sleep_ms(100);
+        sleep_ms(MT_TEST_DELAY);
         mt_switch(self->next);
     }
 
