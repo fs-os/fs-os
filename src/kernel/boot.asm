@@ -1,8 +1,7 @@
-;----------------------------------------------
-; https://wiki.osdev.org/Bare_Bones_with_NASM
-; Compile using:
-;   nasm -f elf32 boot.asm
-;----------------------------------------------
+;------------------------------------------------------------------------------
+; Entry point of the OS after the bootloader. Performs a basic setup and calls
+; kernel_main (src/kernel/kernel.c)
+;------------------------------------------------------------------------------
 
 MB_ALIGN    equ 1 << 0      ; Align loaded modules on page boundaries
 MB_MEMINFO  equ 1 << 1      ; Provide memory map
