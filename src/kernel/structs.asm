@@ -65,7 +65,7 @@ endstruc
 
 ; 512 bytes for FPU/SSE data used by fxsave and fxrstor in multitasking.
 ; See Table 10-2 of volume 1 of the Intel Developer Manual
-struc fpu_data
+struc fpu_data_t
     .fcw:           resw 1          ; FPU Control Word. Figure 8-6, vol. 1
     .fsw:           resw 1          ; FPU Status Word. Figure 8-4, vol. 1
     .ftw:           resb 1          ; FPU Tag Word
