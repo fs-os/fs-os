@@ -25,13 +25,28 @@ struct Ctx {
     char* name;      /**< @brief Task name */
 };
 
-typedef struct tss_t Tss;
+typedef struct fpu_data_t {
+    uint16_t fcw;        /* FPU Control Word. Figure 8-6, vol. 1 */
+    uint16_t fsw;        /* FPU Status Word. Figure 8-4, vol. 1 */
+    uint8_t ftw;         /* FPU Tag Word */
+    uint8_t pad0;        /* Reserved */
+    uint16_t fop;        /* FPU Opcode */
+    uint32_t fip;        /* FPU Instruction Pointer Offset */
+    uint16_t fcs;        /* FPU Instruction Pointer Selector */
+    uint16_t pad1;       /* Reserved */
+    uint32_t fdp;        /* FPU Instruction Operand Pointer Offset */
+    uint16_t fds;        /* FPU Instruction Operand Pointer Selector */
+    uint16_t pad2;       /* Reserved */
+    uint32_t mxcsr;      /* MXCSR Register State. Figure 10-3, vol. 1 */
+    uint32_t mxcsr_mask; /* Mask for MXCSR register */
+    uint8_t registers;   /* Registers ST0/MM0 to ST7/MM7 */
+} __attribute__((packed));
 
 /**
- * @struct tss_t
+ * @struct Tss
  * @brief Task state segment, loaded to the GDT
  */
-struct tss_t {
+typedef struct Tss {
     uint16_t link;
     uint16_t pad0; /**< @brief Padding */
 
@@ -76,7 +91,7 @@ struct tss_t {
     uint16_t pad11; /**< @brief Padding (before iobp) */
     uint16_t iobp;
     uint32_t ssp; /**< @brief 0x68 (0x68 - 0x6C) */
-} __attribute__((packed));
+} Tss __attribute__((packed));
 
 /**
  * @var mt_current_task
