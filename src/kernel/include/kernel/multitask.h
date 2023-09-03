@@ -146,6 +146,15 @@ void mt_endtask(Ctx* task);
 Ctx* mt_gettask(void);
 
 /**
+ * @brief Fill the specified fpu_data_t with the current FPU data from fxsave.
+ * @details It allocates 512 bytes for fxsave, and it is not optimized. It
+ * should only be used for specific debugging. The caller should declare the
+ * fpu_data_t. Defined in src/kernel/multitask.asm
+ * @param[out] dst Pointer to the allocated fpu_data_t that will be filled.
+ */
+void mt_get_fpu_data(fpu_data_t* dst);
+
+/**
  * @brief Print the list of tasks starting with the current one.
  * @details Defined in src/kernel/multitask.c
  */

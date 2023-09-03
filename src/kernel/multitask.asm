@@ -292,3 +292,36 @@ mt_gettask:
     mov     eax, [mt_current_task]  ; Dereference to get the pointer
     ret
 
+; void mt_get_fpu_data(fpu_data_t* p);
+; Fill fpu_data_t argument with data from fxsave
+global mt_get_fpu_data:function
+mt_get_fpu_data:
+    push    ebx
+    push    ebp
+    mov     ebp, esp
+
+    mov     ebx, [ebp + 12]     ; 1st arg = ebp + ebx + ret
+
+    push    dword 16            ; Need to be 16-bit aligned
+    push    dword 1             ; sizeof(byte)
+    push    dword 512           ; 512 bytes for fxsave
+    call    heap_calloc
+    add     esp, 12             ; Remove 3 dwords we just pushed
+
+    fxsave  [eax]               ; Fill 512 bytes we just allocated
+
+    push    eax                 ; Preserve and use as parameter for free bellow
+
+    push    dword fpu_data_t_size   ; Size
+    push    eax                     ; Source
+    push    ebx                     ; Destination
+    call    memcpy
+    add     esp, 12                 ; Remove 3 dwords we just pushed
+
+    call    free                ; Free the 512 bytes we allocated for fxsave
+    add     esp, 4              ; Remove eax (Pushed before call to memcpy)
+
+    mov     esp, ebp
+    pop     ebp
+    pop     ebx
+    ret
