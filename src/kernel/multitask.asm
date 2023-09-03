@@ -19,7 +19,6 @@ section .bss
     ; 512 bytes needed by fxsave. Reserved here instead of heap.
     align 16
     first_fxdata: resb 512      ; For .fxdata member of first_ctx (kernel_main)
-    clean_fxdata: resb 512      ; Used to store a clean FPU/SSE state (mt_init)
 
 section .data
     first_task_name db 'kernel_main', 0x0
@@ -51,10 +50,6 @@ mt_init:
 
     ; 512 bytes aligned to 16 bytes in .bss for fxsave. See mt_newtask
     mov     [first_ctx + ctx_t.fxdata], dword first_fxdata
-
-    ; Save the FPU/SSE state at the moment of calling mt_init. This will be used
-    ; to fill .fxdata when creating new tasks in mt_newtask.
-    fxsave  [clean_fxdata]
 
     ; "kernel_main"
     mov     [first_ctx + ctx_t.name],  dword first_task_name
@@ -169,12 +164,13 @@ mt_newtask:
     pop     eax
     mov     [eax + ctx_t.fxdata], edx       ; Save in ctx struct
 
-    ; Fill the allocated 512 bytes with clean data we stored in mt_init
-    push    dword 512                       ; Size for memcpy
-    push    dword clean_fxdata              ; Src for memcpy
-    push    edx                             ; Dst for memcpy (newctx.fxdata)
-    call    memcpy
-    add     esp, 12                         ; Remove 3 dwords we just pushed
+    ; Initialize the fxdata we just allocated by:
+    ;   - Setting edx.fcw to 0x037F (See Intel manual Vol. 1, Chapter 8.1.5)
+    ;   - Masking bits 7..12 of the MXCSR register (Vol. 1, Figure 10-3)
+    ;   - Setting the default MXCSR_MASK (Vol. 1, Chapter 11.6.6)
+    mov     [edx + fpu_data_t.fcw],   dword 0b0000001101111111
+    mov     [edx + fpu_data_t.mxcsr], dword 0b0001111110000000
+    mov     [edx + fpu_data_t.mxcsr_mask], dword 0x0000FFFF
 
     ; Exit the mt_newtask function
     mov     esp, ebp
