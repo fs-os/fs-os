@@ -40,7 +40,7 @@ typedef struct fpu_data_t {
     uint32_t mxcsr;      /* MXCSR Register State. Figure 10-3, vol. 1 */
     uint32_t mxcsr_mask; /* Mask for MXCSR register */
     uint8_t registers;   /* Registers ST0/MM0 to ST7/MM7 */
-} __attribute__((packed));
+} fpu_data_t __attribute__((packed));
 
 /**
  * @struct Tss
@@ -150,5 +150,11 @@ Ctx* mt_gettask(void);
  * @details Defined in src/kernel/multitask.c
  */
 void mt_dump_tasks(void);
+
+/**
+ * @brief Print address and members of fpu_data_t struct
+ * @param[inout] p Pointer to a fpu_data_t struct
+ */
+void mt_print_fpu_data(fpu_data_t* p);
 
 #endif /* _KERNEL_MULTITASK_H */

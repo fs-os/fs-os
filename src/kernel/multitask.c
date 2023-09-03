@@ -25,3 +25,21 @@ void mt_dump_tasks(void) {
                cur_ctx->stack, cur_ctx->esp, cur_ctx->cr3, cur_ctx->fxdata);
     }
 }
+
+void mt_print_fpu_data(fpu_data_t* p) {
+    printf("*(fpu_data_t*)%p = {\n"
+           "  .fcw        = 0x%X\n"
+           "  .fsw        = 0x%X\n"
+           "  .ftw        = 0x%X\n"
+           "  .fop        = 0x%X\n"
+           "  .fip        = 0x%lX\n"
+           "  .fcs        = 0x%X\n"
+           "  .fdp        = 0x%lX\n"
+           "  .fds        = 0x%X\n"
+           "  .mxcsr      = 0x%lX\n"
+           "  .mxcsr_mask = 0x%lX\n"
+           "  .registers  = (void*)%p\n"
+           "}\n",
+           p, p->fcw, p->fsw, p->ftw, p->fop, p->fip, p->fcs, p->fdp, p->fds,
+           p->mxcsr, p->mxcsr_mask, &p->registers);
+}
