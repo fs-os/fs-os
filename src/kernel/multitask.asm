@@ -34,6 +34,9 @@ section .text
 ; Initialize multitasking. Creates the first task for the kernel.
 global mt_init:function
 mt_init:
+    push    ebp
+    mov     ebp, esp
+
     ; .next and .next of first task is itself.
     mov     [first_ctx + ctx_t.next], dword first_ctx
     mov     [first_ctx + ctx_t.prev], dword first_ctx
@@ -57,6 +60,8 @@ mt_init:
     ; Address of the struct we just filled
     mov     [mt_current_task], dword first_ctx
 
+    mov     esp, ebp
+    pop     ebp
     ret
 
 ; Ctx* mt_newtask(const char* name, void* entry);
@@ -67,24 +72,23 @@ mt_newtask:
     push    ebp
     mov     ebp, esp
 
+    ; NOTE: General register usage:
+    ;   - eax: Pointer to the ctx_t we allocate at the start.
+    ;   - ecx: Temporary register for values with short life.
+    ;   - edx: Pointer to the allocated stack, or to the allocated fxdata.
+
     push    dword 8             ; Align to 8 bytes
     push    dword ctx_t_size    ; Size of the ctx_t struct
     call    heap_alloc          ; Allocate a ctx_t struct on the heap
     add     esp, 8              ; Remove 2 dwords we just pushed
 
-    ; TODO: Use [ebp + N] instead of restoring all the time
-    mov     ecx, [esp + 12]     ; Second arg, entry point for task
-    mov     edx, [esp + 8]      ; First arg, task name. edx will be overwritten
-                                ; by new allocated stack.
+    mov     ecx, [ebp + 8]          ; First argument
+    mov     [eax + ctx_t.name], ecx ; Program name (char*), first arg
 
-    mov     [eax + ctx_t.name], edx ; Program name (char*), first arg
-
-    mov     edx, cr3
-    mov     [eax + ctx_t.cr3], edx  ; TODO: For now save current cr3 for new
-                                    ; tasks
+    mov     ecx, cr3
+    mov     [eax + ctx_t.cr3], ecx  ; Use same CR3 as caller (parent)
 
     ; Insert new task next to the current one in the list.
-    ;   0. We are going to use ecx so we preserve it.
     ;   1. Move the current task's address (edx) to the new task's (eax) "prev"
     ;      pointer.
     ;   2. Move the current task's "next" pointer (ecx) to the new task's "next"
@@ -100,17 +104,14 @@ mt_newtask:
     ;         | |---(1)---| |  | |---(2)---| |
     ;         |-----(3)-----|  |-----(4)-----|
     ;
-    push    ecx                             ; Preserve 2nd arg
     mov     edx, [mt_current_task]          ; edx = &cur
     mov     ecx, [edx + ctx_t.next]         ; ecx = cur.next
     mov     [eax + ctx_t.prev], edx         ; new.prev = &cur
     mov     [eax + ctx_t.next], ecx         ; new.next = cur.next
     mov     [edx + ctx_t.next], eax         ; cur.next = &new
     mov     [ecx + ctx_t.prev], eax         ; cur.next.prev = &new
-    pop     ecx                             ; Restore 2nd arg
 
-    push    eax             ; Push eax (allocated Ctx*) because of next malloc
-    push    ecx             ; Push second arg because caller must preserve
+    push    eax             ; Preserve eax (allocated Ctx*)
 
     push    dword 16        ; Align to 16 bytes
     push    dword 0x4000    ; 16KiB stack for the new task
@@ -118,17 +119,15 @@ mt_newtask:
     mov     edx, eax        ; Save new stack address to edx
     add     esp, 8          ; Remove 2 dwords we just pushed
 
-    pop     ecx             ; Restore second arg
     pop     eax             ; Restore old Ctx* from first malloc
 
-    mov     [eax + ctx_t.stack], edx    ; Address of stack we just allocated.
-                                        ; Stored so we can free it once the task
-                                        ; ends.
+    ; Address of stack we just allocated. Store so we can free it in mt_endtask
+    mov     [eax + ctx_t.stack], edx
 
-    add     edx, 0x4000 - 4 ; Now edx points to the end of the allocated memory,
-                            ; which is the bottom of the stack in x86 (pushed
-                            ; items are in lower addresses). We subtract 4 to
-                            ; not overflow. See issue #12
+    ; Now edx points to the end of the allocated memory, which is the bottom of
+    ; the stack in x86 (pushed items are in lower addresses). We subtract 4 to
+    ; not overflow. See issue #12
+    add     edx, 0x4000 - 4
 
     ; Fill new allocated stack for new task. From bottom to top, needed by
     ; mt_switch and System V ABI:
@@ -137,6 +136,7 @@ mt_newtask:
     ;   - esi
     ;   - ebp
     ;   - ebx
+    mov     ecx, [ebp + 12]             ; tmp = second_arg;
     mov     [edx], ecx                  ; *stack_ptr = eip;   // Entry point
     sub     edx, 4                      ; stack_ptr--;
     mov     [edx], dword 0x00000000     ; *stack_ptr = edi;
@@ -175,7 +175,6 @@ mt_newtask:
     ; Exit the mt_newtask function
     mov     esp, ebp
     pop     ebp
-
     ret
 
 ; void mt_switch(Ctx* next);
