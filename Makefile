@@ -84,7 +84,7 @@ $(SYSROOT_KERNEL): $(KERNEL_BIN)
 # Use the sysroot kernel path as rule to make sure we have the sysroot ready.
 # User should run "make sysroot" before "make all". Sysroot already has all the
 # components (kernel, inlcudes, lib) compiled and copied into it.
-$(ISO): $(SYSROOT_KERNEL) limine
+$(ISO): $(SYSROOT_KERNEL) limine/limine-deploy
 	mkdir -p iso/boot/
 	cp $(SYSROOT_KERNEL) iso/boot/$(KERNEL_BIN)
 	cp limine/limine.sys limine/limine-cd.bin iso/
@@ -95,8 +95,7 @@ $(ISO): $(SYSROOT_KERNEL) limine
 		iso -o $(ISO)
 	limine/limine-deploy --quiet $(ISO)
 
-limine:
-	git clone https://github.com/limine-bootloader/limine.git --branch=v4.x-branch-binary --depth=1
+limine/limine-deploy:
 	make -C limine
 
 # We will use the same compiler for linking. Use sysroot for including with
