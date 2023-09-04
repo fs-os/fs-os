@@ -9,9 +9,16 @@ This project has a wiki explaining how the OS works from the start, so feel free
 check it out [here](https://github.com/fs-os/fs-os/wiki) and open an issue if you
 find wrong or incomplete information.
 
-An important part of this project, as the name implies, is to keep it as simple as
-possible. This is very important to understand how everything in the project works
-(*which is the main goal!*).
+The goal of this project is not to create a user-friendly and secure system. The
+goal is to create a playground for tinkering, where you have a lot of power and
+a lot of things that can go wrong. As the project evolves, I would like that
+tinkering to be more accessible at runtime, instead of having to edit the code
+directly and re-compile the OS. Being able to edit code and assembly at runtime
+(not necessarily the operating system's code) would be amazing.
+
+An important part of this project, as the name implies, is to keep it very
+simple and bloat-free. This is very important to understand how everything in
+the project works, which is one of the main goals.
 
 Some interesting resources that influenced the project's philosophy:
 - [GNU philosophy](https://www.gnu.org/philosophy) (See [free](https://www.gnu.org/philosophy/free-sw.html)).
@@ -23,8 +30,10 @@ Some interesting resources that influenced the project's philosophy:
 #### Requirements
 - i686-elf cross compiler from [here](https://github.com/fs-os/cross-compiler).
 - [nasm](https://nasm.us) for compiling the assembly used in the project.
-- The [limine](https://github.com/limine-bootloader/limine) dependencies, including
-  [xorriso](https://www.gnu.org/software/xorriso) for creating the bootable image.
+- The [limine](https://github.com/limine-bootloader/limine) dependencies,
+  including [xorriso](https://www.gnu.org/software/xorriso) for creating the
+  bootable image (Limine sources are already in the repo and only need to be
+  compiled once).
 - (Optional) [qemu](https://www.qemu.org) for testing the ISO on a VM.
 
 > **Note**  
@@ -114,6 +123,3 @@ See [todo.md](TODO.md) or the todo list of the doxygen documentation.
 - [bdf2c](https://github.com/pixelmatix/bdf2c)
 - [This repo](https://github.com/ShaneMcC/beeps) for the beep frequencies and
   timings.
-- [heatd](https://github.com/heatd) for helping me understand some important concepts.
-- [zid](https://github.com/zid) for helping me understand some important concepts.
-
