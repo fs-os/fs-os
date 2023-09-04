@@ -22,14 +22,14 @@ qemu: all
 		-cdrom $(ISO)
 
 # Add -g for compiling stuff
-debug_flags:
+debug-flags:
 	$(eval CFLAGS += -g)
 	$(eval ASM_FLAGS += -g)
 
 # Connect with the patched gdb from (https://github.com/fs-os/cross-compiler):
 #   (gdb) target remote :1234
 # Change "-audiodev pa" if not using pulseaudio (try replacing "pa" with "alsa")
-qemu-debug: debug_flags clean all
+qemu-debug: debug-flags clean all
 	qemu-system-i386                   \
 		-s                             \
 		-rtc base=localtime            \
