@@ -56,26 +56,34 @@ static int last_ret = 0;
 /* Need to declare them here because the array needs the functions, but the
  * functions also need the array */
 static int cmd_unk();
+
 static int cmd_help();
-static int cmd_quit();
 static int cmd_last();
+static int cmd_quit();
+
 static int cmd_clear();
 static int cmd_ref();
+
 static int cmd_loadkeys(int argc, char** argv);
+
 static int cmd_ticks();
 static int cmd_date();
 static int cmd_timer(int argc, char** argv);
+
 static int cmd_beep(int argc, char** argv);
 static int cmd_metronome(int argc, char** argv);
+static int cmd_play(int argc, char** argv);
+
 /* piano_main */
 /* piano_random */
 /* minesweeper_main */
 /* main_5x5 */
-static int cmd_page_map();
-static int cmd_heap_headers();
+
 static int cmd_test_libk();
 static int cmd_test_multitask();
-static int cmd_play(int argc, char** argv);
+
+static int cmd_page_map();
+static int cmd_heap_headers();
 
 /*
  * Structure of the array:
@@ -90,14 +98,14 @@ static Command cmd_list[] = {
       &cmd_help,
     },
     {
-      "quit",
-      "Permanently exit the shell",
-      &cmd_quit,
-    },
-    {
       "last",
       "Print the exit code of the last command",
       &cmd_last,
+    },
+    {
+      "quit",
+      "Permanently exit the shell",
+      &cmd_quit,
     },
     {
       "clear",
@@ -140,6 +148,11 @@ static Command cmd_list[] = {
       &cmd_metronome,
     },
     {
+      "play",
+      "Play a song using the pc speaker",
+      &cmd_play,
+    },
+    {
       "piano",
       "Play the piano through the pc speaker",
       &piano_main,
@@ -160,16 +173,6 @@ static Command cmd_list[] = {
       &main_5x5,
     },
     {
-      "page_map",
-      "Display the page director and page table layout",
-      &cmd_page_map,
-    },
-    {
-      "heap_headers",
-      "Dump the alloc headers",
-      &cmd_heap_headers,
-    },
-    {
       "test_libk",
       "Test the kernel standard lib",
       &cmd_test_libk,
@@ -180,9 +183,14 @@ static Command cmd_list[] = {
       &cmd_test_multitask,
     },
     {
-      "play",
-      "Play a song using the pc speaker",
-      &cmd_play,
+      "page_map",
+      "Display the page director and page table layout",
+      &cmd_page_map,
+    },
+    {
+      "heap_headers",
+      "Dump the alloc headers",
+      &cmd_heap_headers,
     },
 };
 
@@ -210,16 +218,17 @@ static int cmd_help() {
     return 0;
 }
 
+static int cmd_last() {
+    printf("Last exit code: %d\n", last_ret);
+
+    /* Keep the same exit code in case we want to call it twice */
+    return last_ret;
+}
+
 static int cmd_quit() {
     puts("Goodbye.");
     quit_sh = true;
     return 0;
-}
-
-static int cmd_last() {
-    printf("Last exit code: %d\n", last_ret);
-    return last_ret; /* Keep the same exit code in case we want to call it twice
-                      */
 }
 
 static int cmd_clear() {
@@ -442,14 +451,49 @@ static int cmd_metronome(int argc, char** argv) {
     return 0;
 }
 
-static int cmd_page_map() {
-    paging_show_map();
-    return 0;
-}
+static int cmd_play(int argc, char** argv) {
+    if (argc <= 1 || !strcmp(argv[1], "-h") || !strcmp(argv[1], "--help")) {
+        printf("Usage:\n"
+               "\t%s --help       - Show this help\n"
+               "\t%s --list       - List the available songs\n"
+               "\t%s <song name>  - Play the specified song\n",
+               argv[0], argv[0], argv[0]);
+        return 1;
+    }
 
-static int cmd_heap_headers() {
-    heap_dump_headers();
-    return 0;
+    typedef struct {
+        const char* name;
+        void (*func)(void);
+    } song_pair_t;
+
+    song_pair_t songs[] = {
+        { "soviet", &play_soviet_anthem },
+        { "thunder", &play_thunderstruck },
+        { "thunderstruck", &play_thunderstruck },
+    };
+
+    if (strcmp(argv[1], "--list") == 0) {
+        fbc_setfore(COLOR_WHITE_B);
+        puts("Available songs:");
+        fbc_setfore(COLOR_WHITE);
+
+        for (size_t i = 0; i < LENGTH(songs); i++)
+            printf("- %s\n", songs[i].name);
+
+        return 0;
+    } else {
+        for (size_t i = 0; i < LENGTH(songs); i++) {
+            if (strcmp(argv[1], songs[i].name) == 0) {
+                /* Call the function */
+                (*songs[i].func)();
+
+                return 0;
+            }
+        }
+    }
+
+    printf("Invalid song name: \"%s\"\n", argv[1]);
+    return 1;
 }
 
 static int cmd_test_libk() {
@@ -574,47 +618,12 @@ static int cmd_test_multitask() {
     return 0;
 }
 
-static int cmd_play(int argc, char** argv) {
-    if (argc <= 1 || !strcmp(argv[1], "-h") || !strcmp(argv[1], "--help")) {
-        printf("Usage:\n"
-               "\t%s --help       - Show this help\n"
-               "\t%s --list       - List the available songs\n"
-               "\t%s <song name>  - Play the specified song\n",
-               argv[0], argv[0], argv[0]);
-        return 1;
-    }
+static int cmd_page_map() {
+    paging_show_map();
+    return 0;
+}
 
-    typedef struct {
-        const char* name;
-        void (*func)(void);
-    } song_pair_t;
-
-    song_pair_t songs[] = {
-        { "soviet", &play_soviet_anthem },
-        { "thunder", &play_thunderstruck },
-        { "thunderstruck", &play_thunderstruck },
-    };
-
-    if (strcmp(argv[1], "--list") == 0) {
-        fbc_setfore(COLOR_WHITE_B);
-        puts("Available songs:");
-        fbc_setfore(COLOR_WHITE);
-
-        for (size_t i = 0; i < LENGTH(songs); i++)
-            printf("- %s\n", songs[i].name);
-
-        return 0;
-    } else {
-        for (size_t i = 0; i < LENGTH(songs); i++) {
-            if (strcmp(argv[1], songs[i].name) == 0) {
-                /* Call the function */
-                (*songs[i].func)();
-
-                return 0;
-            }
-        }
-    }
-
-    printf("Invalid song name: \"%s\"\n", argv[1]);
-    return 1;
+static int cmd_heap_headers() {
+    heap_dump_headers();
+    return 0;
 }
