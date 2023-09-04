@@ -79,6 +79,7 @@ static int cmd_play(int argc, char** argv);
 /* minesweeper_main */
 /* main_5x5 */
 
+static int cmd_primes(int argc, char** argv);
 static int cmd_test_libk();
 static int cmd_test_multitask();
 
@@ -171,6 +172,11 @@ static Command cmd_list[] = {
       "5x5",
       "Simple 5x5 game",
       &main_5x5,
+    },
+    {
+      "primes",
+      "Test performance by printing prime numbers from 1 to N",
+      cmd_primes,
     },
     {
       "test_libk",
@@ -494,6 +500,44 @@ static int cmd_play(int argc, char** argv) {
 
     printf("Invalid song name: \"%s\"\n", argv[1]);
     return 1;
+}
+
+static int cmd_primes(int argc, char** argv) {
+    uint32_t num;
+    if (argc <= 1 || !strcmp(argv[1], "-h") || !strcmp(argv[1], "--help") ||
+        (num = atoi(argv[1])) < 1) {
+        printf("Usage:\n"
+               "\t%s <last_num>   - Print all the prime numbers from 1 to "
+               "<last_num>\n",
+               argv[0]);
+        return 1;
+    }
+
+    timer_start();
+
+    uint32_t found = 0;
+    for (uint32_t i = 1; i <= num; i++) {
+        bool prime = true;
+
+        /* Very basic method, used to test the performance of I/O functions */
+        for (uint32_t j = 2; j < i; j++) {
+            if (i % j == 0) {
+                prime = false;
+                break;
+            }
+        }
+
+        if (prime) {
+            printf("%ld\n", i);
+            found++;
+        }
+    }
+    uint32_t end = (uint32_t)timer_stop();
+
+    printf("Done. %ld primes found from 1 to %ld in %ld ticks.\n", found, num,
+           end);
+
+    return 0;
 }
 
 static int cmd_test_libk() {
