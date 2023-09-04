@@ -10,14 +10,17 @@
 #define HEAP_SIZE  (0x3200000)       /* Bytes. 50MB */
 
 typedef struct Block Block;
+
 /**
  * @struct Block
  * @brief Heap block header.
  * @details The block ptr should point to (header_ptr + sizeof(Block))
+ *
+ * @todo Rename to something like HeapBlk
  */
 struct Block {
-    Block* prev; /** @brief Pointer to prev header. NULL means start of heap */
     Block* next; /** @brief Pointer to next header. NULL means end of heap */
+    Block* prev; /** @brief Pointer to prev header. NULL means start of heap */
     uint32_t sz; /** @brief Block size in bytes */
     bool free;   /** @brief True if the block is not being used */
 };
