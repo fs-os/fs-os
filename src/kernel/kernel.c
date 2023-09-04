@@ -148,24 +148,6 @@ static inline void test_colors(void) {
 bool sse_supported = true;
 
 /**
- * @brief Prints the OS logo using the GIMP macro
- * @param ypad Top padding in px
- * @param xpad Left padding in px
- */
-static void print_logo(unsigned int ypad, unsigned int xpad) {
-    char rgb[3] = { 0 };
-    /* Copy ptr because HEADER_PIXEL increases it */
-    char* logo_ptr = fsos_logo_s;
-
-    for (unsigned int y = 0; y < fsos_logo_s_h; y++) {
-        for (unsigned int x = 0; x < fsos_logo_s_w; x++) {
-            HEADER_PIXEL(logo_ptr, rgb);
-            fb_setpx(y + ypad, x + xpad, rgb[0], rgb[1], rgb[2]);
-        }
-    }
-}
-
-/**
  * @brief C entry point of the kernel. Called by boot.asm
  * @param mb_info Pointer to the Multiboot information struct from the
  * bootloader.
@@ -191,12 +173,22 @@ void kernel_main(Multiboot* mb_info) {
             mb_info->framebuffer_height, mb_info->framebuffer_bpp);
     vga_sprint("Framebuffer initialized.\n");
 
-    print_logo(5, 0);
-    print_logo(5, 100);
-    print_logo(5, 200);
+    /* Draw the 3 logos on top */
+    const uint32_t logo_y = 3;
+    const uint32_t logo_x = 3;
+    const uint32_t logo_h = fsos_logo_s.h;
+    const uint32_t logo_w = fsos_logo_s.w;
+    fb_drawimage(logo_y, logo_x + (logo_w * 0), &fsos_logo_s);
+    fb_drawimage(logo_y, logo_x + (logo_w * 1), &fsos_logo_s);
+    fb_drawimage(logo_y, logo_x + (logo_w * 2), &fsos_logo_s);
 
-    fbc_init(110, 3, mb_info->framebuffer_height - 110 - 5,
-             mb_info->framebuffer_width - 3 * 2, &main_font);
+    /* Get framebuffer console pos and size and initialize it */
+    const uint32_t fbc_margin = 3;
+    const uint32_t fbc_y      = logo_y + logo_h + fbc_margin;
+    const uint32_t fbc_x      = fbc_margin;
+    const uint32_t fbc_h      = fb_get_height() - fbc_y - fbc_margin;
+    const uint32_t fbc_w      = fb_get_width() - (fbc_margin * 2);
+    fbc_init(fbc_y, fbc_x, fbc_h, fbc_w, &main_font);
 
     /* Once we have a framebuffer terminal, print previous messages too */
     LOAD_INFO("IDT initialized.");
