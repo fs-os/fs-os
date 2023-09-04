@@ -3,26 +3,15 @@
  * @brief GIMP header image file format (RGB): fs-os-logo.h
  */
 
+#ifndef _MEDIA_LOGO_H
+#define _MEDIA_LOGO_H 1
+
 /**
  * @name Logo size
  * @{ */
 static unsigned int fsos_logo_w = 250; /**< @brief Width */
 static unsigned int fsos_logo_h = 250; /**< @brief Height */
 /** @} */
-
-/**
- * @def HEADER_PIXEL
- * @brief Call this macro repeatedly. After each use, the pixel data can be
- * extracted
- * @details GIMP macro.
- */
-#define HEADER_PIXEL(data, pixel)                                           \
-    {                                                                       \
-        pixel[0] = (((data[0] - 33) << 2) | ((data[1] - 33) >> 4));         \
-        pixel[1] = ((((data[1] - 33) & 0xF) << 4) | ((data[2] - 33) >> 2)); \
-        pixel[2] = ((((data[2] - 33) & 0x3) << 6) | ((data[3] - 33)));      \
-        data += 4;                                                          \
-    }
 
 static char* fsos_logo =
   "`Q$C`Q$C`Q$D`Q$C`Q$C`Q$C`Q$D`Q$D`Q$C`Q(D`Q$C`Q$C`Q$C`Q$C`Q$D`Q$D"
@@ -3950,3 +3939,5 @@ static char* fsos_logo =
   ">A$`>Q$`>Q(`>Q$`>Q$`>Q$`>Q$`>Q$`>Q$`>Q$`>Q$`>Q$`>A$`>Q$`>Q$`>Q$`"
   ">Q$`>Q$`>Q$`>Q$`>Q$`>Q$`>Q$`>Q$`>Q$`>Q$`>Q$`>Q$`>Q$`>Q$`>Q$`>Q$`"
   ">Q(`>Q$`>Q$`>Q$`";
+
+#endif /* _MEDIA_LOGO_H */

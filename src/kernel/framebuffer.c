@@ -70,3 +70,28 @@ void fb_drawrect_fast(uint32_t y, uint32_t x, uint32_t h, uint32_t w,
         for (uint32_t cur_x = x; cur_x < x + w; cur_x++)
             g_fb[cur_y * g_width + cur_x] = col;
 }
+
+void fb_drawimage(uint32_t y, uint32_t x, uint32_t h, uint32_t w,
+                  const char* img) {
+    if (y >= g_height || x >= g_width)
+        return;
+
+    uint32_t final_y = y + h;
+    uint32_t final_x = x + w;
+
+    /* Don't draw outside of the screen */
+    if (final_y >= g_height)
+        final_y = g_height - 1;
+
+    if (final_x >= g_width)
+        final_x = g_width - 1;
+
+    uint8_t rgb[3];
+
+    for (uint32_t cur_y = y; cur_y < final_y; cur_y++) {
+        for (uint32_t cur_x = x; cur_x < final_x; cur_x++) {
+            GIMP_GET_PIXEL(img, rgb);
+            g_fb[cur_y * g_width + cur_x] = rgb2col(rgb[0], rgb[1], rgb[2]);
+        }
+    }
+}

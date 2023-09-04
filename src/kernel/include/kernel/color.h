@@ -5,6 +5,22 @@
 #include <stdint.h>
 
 /**
+ * @def HEADER_PIXEL
+ * @brief Extract pixel to byte array from data array exported from GIMP.
+ * @details This is a GIMP macro.
+ * @param[inout] data Pointer to the C array exported by GIMP. Will increase the
+ * pointer by 4 each call
+ * @param[out] Array of 3 uint8_t for storing current rgb values
+ */
+#define GIMP_GET_PIXEL(data, pixel)                                         \
+    do {                                                                    \
+        pixel[0] = (((data[0] - 33) << 2) | ((data[1] - 33) >> 4));         \
+        pixel[1] = ((((data[1] - 33) & 0xF) << 4) | ((data[2] - 33) >> 2)); \
+        pixel[2] = ((((data[2] - 33) & 0x3) << 6) | ((data[3] - 33)));      \
+        data += 4;                                                          \
+    } while (0);
+
+/**
  * @brief Color pair structure with foreground and background
  */
 typedef struct {
@@ -38,6 +54,7 @@ static inline void col2rgb(uint8_t* r, uint8_t* g, uint8_t* b, uint32_t col) {
 
 /**
  * @name Color palette
+ * @todo Make all hex numbers uppercase in color.h
  * @{ */
 #ifndef COLOR_BLACK
 #define COLOR_BLACK 0x000000

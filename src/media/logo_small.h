@@ -3,6 +3,9 @@
  * @brief GIMP header image file format (RGB): fs-os-logo-small.h
  */
 
+#ifndef _MEDIA_LOGO_SMALL_H
+#define _MEDIA_LOGO_SMALL_H 1
+
 /**
  * @name Logo size
  * @{ */
@@ -10,21 +13,7 @@ static unsigned int fsos_logo_s_w = 100; /**< @brief Width */
 static unsigned int fsos_logo_s_h = 100; /**< @brief Height */
 /** @} */
 
-/**
- * @def HEADER_PIXEL
- * @brief Call this macro repeatedly. After each use, the pixel data can be
- * extracted
- * @details GIMP macro.
- */
-#define HEADER_PIXEL(data, pixel)                                           \
-    {                                                                       \
-        pixel[0] = (((data[0] - 33) << 2) | ((data[1] - 33) >> 4));         \
-        pixel[1] = ((((data[1] - 33) & 0xF) << 4) | ((data[2] - 33) >> 2)); \
-        pixel[2] = ((((data[2] - 33) & 0x3) << 6) | ((data[3] - 33)));      \
-        data += 4;                                                          \
-    }
-
-static char* fsos_logo_s =
+static const char fsos_logo_s[] =
   "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
   "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
   "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
@@ -651,3 +640,5 @@ static char* fsos_logo_s =
   "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
   "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
   "";
+
+#endif /* _MEDIA_LOGO_SMALL_H */
