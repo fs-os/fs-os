@@ -17,6 +17,32 @@ enum fb_types {
 };
 
 /**
+ * @def HEADER_PIXEL
+ * @brief Extract pixel to byte array from data array exported from GIMP.
+ * @details This is a GIMP macro.
+ * @param[inout] data Pointer to the C array exported by GIMP. Will increase the
+ * pointer by 4 each call
+ * @param[out] Array of 3 uint8_t for storing current rgb values
+ */
+#define GIMP_GET_PIXEL(data, pixel)                                         \
+    do {                                                                    \
+        pixel[0] = (((data[0] - 33) << 2) | ((data[1] - 33) >> 4));         \
+        pixel[1] = ((((data[1] - 33) & 0xF) << 4) | ((data[2] - 33) >> 2)); \
+        pixel[2] = ((((data[2] - 33) & 0x3) << 6) | ((data[3] - 33)));      \
+        data += 4;                                                          \
+    } while (0);
+
+/**
+ * @struct GimpImage
+ * @brief Structure containing the height, width and data of an image exported
+ * by GIMP.
+ */
+typedef struct {
+    uint32_t h, w;
+    const char* data;
+} GimpImage;
+
+/**
  * @brief Initialize global framebuffer variables and clear the framebuffer
  * @details See Multiboot struct for more info
  * @param[out] fb Framebuffer address returned by the bootloader
