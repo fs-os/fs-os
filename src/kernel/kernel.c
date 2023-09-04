@@ -212,7 +212,8 @@ void kernel_main(Multiboot* mb_info) {
 
     if (!sse_supported) {
         LOAD_ERROR("SSE/SSE2 not supported. Please re-compile with DISABLE_SSE "
-                   "defined in config.mk\n");
+                   "defined in config.mk");
+        abort();
     }
 
     kb_setlayout(&us_layout);
