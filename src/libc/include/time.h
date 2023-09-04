@@ -29,8 +29,6 @@ void sleep_ms(uint64_t ms);
  */
 void timer_start(void);
 
-/* timer_stop:  (time in ms that passed since we called timer_start). */
-
 /**
  * @brief Get the ticks (ms) since we called timer_start()
  * @details Each tick should be 1 ms, see pit_init() call from kernel.c
