@@ -110,16 +110,16 @@ void fbc_clear(void) {
         /* First entry is newline, rest spaces. We dont need to call
          * fbc_refresh_entry because we know the whole line is empty */
         ctx->fbc[cy * ctx->ch_w + 0] = (fbc_entry){
-            '\n',
-            DEFAULT_FG,
-            DEFAULT_BG,
+            .c  = '\n',
+            .fg = DEFAULT_FG,
+            .bg = DEFAULT_BG,
         };
 
         for (uint32_t cx = 1; cx < ctx->ch_w; cx++) {
             ctx->fbc[cy * ctx->ch_w + cx] = (fbc_entry){
-                '\0',
-                DEFAULT_FG,
-                DEFAULT_BG,
+                .c  = '\0',
+                .fg = DEFAULT_FG,
+                .bg = DEFAULT_BG,
             };
         }
     }
@@ -128,18 +128,18 @@ void fbc_clear(void) {
 void fbc_clrtoeol(void) {
     /* Current position will be the end of the current line */
     ctx->fbc[ctx->cur_y * ctx->ch_w + ctx->cur_x] = (fbc_entry){
-        '\n',
-        DEFAULT_FG,
-        DEFAULT_BG,
+        .c  = '\n',
+        .fg = DEFAULT_FG,
+        .bg = DEFAULT_BG,
     };
     fbc_refresh_entry(ctx->cur_y, ctx->cur_x);
 
     /* Rest of them as '\0' */
     for (uint32_t cx = ctx->cur_x + 1; cx < ctx->ch_w; cx++) {
         ctx->fbc[ctx->cur_y * ctx->ch_w + cx] = (fbc_entry){
-            '\0',
-            DEFAULT_FG,
-            DEFAULT_BG,
+            .c  = '\0',
+            .fg = DEFAULT_FG,
+            .bg = DEFAULT_BG,
         };
         fbc_refresh_entry(ctx->cur_y, cx);
     }
@@ -165,9 +165,9 @@ void fbc_putchar(char c) {
         case '\n':
             /* Save newline char (don't display anything) */
             ctx->fbc[ctx->cur_y * ctx->ch_w + ctx->cur_x] = (fbc_entry){
-                '\n',
-                DEFAULT_FG,
-                DEFAULT_BG,
+                .c  = '\n',
+                .fg = DEFAULT_FG,
+                .bg = DEFAULT_BG,
             };
 
             /* If we have rows left on the terminal, go down, if we are on the
@@ -201,9 +201,9 @@ void fbc_putchar(char c) {
 
             /* Clear the char we just deleted */
             ctx->fbc[ctx->cur_y * ctx->ch_w + ctx->cur_x] = (fbc_entry){
-                ' ',
-                DEFAULT_FG,
-                DEFAULT_BG,
+                .c  = ' ',
+                .fg = DEFAULT_FG,
+                .bg = DEFAULT_BG,
             };
 
             /* Draw the pixels on the screen */
@@ -220,9 +220,9 @@ void fbc_putchar(char c) {
 
             for (uint32_t tmp_x = 0; tmp_x < ctx->cur_x; tmp_x++) {
                 ctx->fbc[ctx->cur_y * ctx->ch_w + tmp_x] = (fbc_entry){
-                    ' ',
-                    ctx->cur_cols.fg,
-                    ctx->cur_cols.bg,
+                    .c  = ' ',
+                    .fg = ctx->cur_cols.fg,
+                    .bg = ctx->cur_cols.bg,
                 };
             }
 
@@ -233,9 +233,9 @@ void fbc_putchar(char c) {
     }
 
     ctx->fbc[ctx->cur_y * ctx->ch_w + ctx->cur_x] = (fbc_entry){
-        c,
-        ctx->cur_cols.fg,
-        ctx->cur_cols.bg,
+        .c  = c,
+        .fg = ctx->cur_cols.fg,
+        .bg = ctx->cur_cols.bg,
     };
 
     /* Draw the pixels on the screen */
@@ -323,16 +323,16 @@ void fbc_shift_rows(uint8_t n) {
         /* First entry is newline, rest spaces. We dont need to call
          * fbc_refresh_entry because we know the whole line is empty */
         ctx->fbc[y * ctx->ch_w + 0] = (fbc_entry){
-            '\n',
-            DEFAULT_FG,
-            DEFAULT_BG,
+            .c  = '\n',
+            .fg = DEFAULT_FG,
+            .bg = DEFAULT_BG,
         };
 
         for (uint32_t x = 1; x < ctx->ch_w; x++) {
             ctx->fbc[y * ctx->ch_w + x] = (fbc_entry){
-                '\0',
-                DEFAULT_FG,
-                DEFAULT_BG,
+                .c  = '\0',
+                .fg = DEFAULT_FG,
+                .bg = DEFAULT_BG,
             };
         }
     }
