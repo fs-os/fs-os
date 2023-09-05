@@ -34,7 +34,7 @@ void handle_exception(int exc, void* eip);
  * src/kernel/exceptions.asm
  * @{ */
 void exc_0(void);
-void exc_1(void);
+void exc_debug(void);
 void exc_2(void);
 void exc_3(void);
 void exc_4(void);

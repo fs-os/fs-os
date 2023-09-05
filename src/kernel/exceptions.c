@@ -1,10 +1,11 @@
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <kernel/exceptions.h>
 
 static char* exceptions[] = {
     [0]  = "division by zero",
-    [1]  = "debug",
+    [1]  = "debug", /* Handled in handle_debug() */
     [2]  = "non maskable interrupt",
     [3]  = "breakpoint",
     [4]  = "overflow",
@@ -17,6 +18,7 @@ static char* exceptions[] = {
     [12] = "stack exception",
     [13] = "general protection fault",
     [14] = "page fault",
+    [15] = "reserved exception, something is very wrong", /* Reserved */
     [16] = "x87 floating point exception",
     [17] = "alignment check",
     [18] = "machine check",
@@ -26,7 +28,9 @@ static char* exceptions[] = {
 };
 
 void handle_exception(int code, void* eip) {
-    asm("cli");
-
     panic(NULL, 0, "exception @ %p: %s\n", eip, exceptions[code]);
+}
+
+void handle_debug(uint32_t tsc, void* eip) {
+    printf("[Debug] Trap @ %p, tsc: %ld\n", eip, tsc);
 }
