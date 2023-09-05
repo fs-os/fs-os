@@ -125,7 +125,7 @@ _start:
     pop     ecx
     pop     ebx
     pop     eax
-%endif
+%endif ; ENABLE_SSE
 
     ; The ABI requires the stack to be 16 byte aligned at the time of the call
     ; instruction (Because it pushes the return address to the stack: 4 bytes).

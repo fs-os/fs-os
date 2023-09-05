@@ -153,8 +153,7 @@ void fbc_sprint(const char* s) {
 void fbc_putchar(char c) {
     /* First of all, check if we need to shift the array. We need this kind of
      * "queue" system so the array doesn't immediately shift when a line ends
-     * with
-     * '\n', for example */
+     * with '\n', for example */
     if (ctx->should_shift) {
         fbc_shift_rows(1);
         ctx->should_shift = false;
