@@ -83,33 +83,3 @@ dump_stack:
     mov     eax, 0
     ret
 
-%if 0
-; void test_dump_stack(void);
-global test_dump_stack:function
-test_dump_stack:
-    push    ebp
-    mov     ebp, esp
-
-    push    byte 0x01
-    push    byte 0x02
-    push    byte 0x03
-    push    byte 0x04
-    push    byte 0x05
-    push    byte 0x06
-    push    byte 0x07
-    push    byte 0x08
-    push    byte 0x09
-    push    byte 0x0A
-    push    byte 0x0B
-    push    byte 0x0C
-
-    push    dword 4
-    push    dword 14
-    call    dump_stack
-
-    mov     esp, ebp
-    pop     ebp
-
-    ret
-%endif
-
