@@ -70,8 +70,11 @@ section .bss
 section .text
     global _start:function (_start.end - _start)    ; Size of the _start section
     extern gdt_init                                 ; src/kernel/gdt.asm
+    extern is_sse_supported                         ; src/kernel/util.asm
     extern sse_supported                            ; src/kernel/kernel.c
+    extern is_msr_supported                         ; src/kernel/util.asm
     extern msr_supported                            ; src/kernel/kernel.c
+    extern is_tsc_supported                         ; src/kernel/util.asm
     extern tsc_supported                            ; src/kernel/kernel.c
 
 _start:
@@ -90,27 +93,13 @@ _start:
     ; Initialize the FPU
     finit
 
-    ; TODO: Move checks to another function in util.asm
 %ifdef ENABLE_SSE
-    push    eax             ; Store registers used by CPUID
-    push    ebx
-    push    ecx
-    push    edx
+    call    is_sse_supported            ; Defined in util.asm
+    test    eax, eax
+    jnz     .enable_sse                 ; Returned true
+    mov     [sse_supported], byte 0     ; Returned 0, set to var false
 
-    ; Check for SSE1
-    mov     eax, 0x1                    ; Request function 1 of CPUID
-    cpuid
-    test    edx, 1 << 25                ; CPUID.1:EDX.SSE[bit 25] == 1?
-    jnz     .check_sse2
-    mov     [sse_supported], byte 0     ; It was 0, set to false
-
-.check_sse2:
-    ; Check for SSE2
-    test    edx, 1 << 26                ; CPUID.1:EDX.SSE[bit 26] == 1?
-    jnz     .enable_sse2
-    mov     [sse_supported], byte 0     ; It was 0, set to false
-
-.enable_sse2:
+.enable_sse:
     ; Enable SSE
     mov     eax, cr0
     and     al, ~0x04       ; Clear CR0.EM
@@ -120,37 +109,21 @@ _start:
     or      ax, 0x600       ; Set CR4.OSFXSR (9) and CR4.OSXMMEXCPT (10)
     mov     cr4, eax
 
-    pop     edx             ; Restore registers used by CPUID
-    pop     ecx
-    pop     ebx
-    pop     eax
 %endif ; ENABLE_SSE
 
 %ifdef DEBUG
-    push    eax             ; Store registers used by CPUID
-    push    ebx
-    push    ecx
-    push    edx
-
-    ; Check for SSE1
-    mov     eax, 0x1                    ; Request function 1 of CPUID
-    cpuid
-    test    edx, 1 << 5                 ; CPUID.1:EDX.MSR[bit 5] == 1?
-    jnz     .check_tsc
+    call    is_msr_supported            ; Defined in util.asm
+    test    eax, eax
+    jnz     .check_tsc                  ; Returned true
     mov     [msr_supported], byte 0     ; It was 0, set to false
 
 .check_tsc:
-    mov     eax, 0x1                    ; Request function 1 of CPUID
-    cpuid
-    test    edx, 1 << 4                 ; CPUID.1:EDX.TSC[bit 4] == 1?
-    jnz     .debug_checks_done
+    call    is_tsc_supported            ; Defined in util.asm
+    test    eax, eax
+    jnz     .debug_checks_done          ; Returned true
     mov     [tsc_supported], byte 0     ; It was 0, set to false
 
 .debug_checks_done:
-    pop     edx             ; Restore registers used by CPUID
-    pop     ecx
-    pop     ebx
-    pop     eax
 %endif ; DEBUG
 
     ; The ABI requires the stack to be 16 byte aligned at the time of the call

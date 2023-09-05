@@ -135,3 +135,79 @@ asm_disable_debug:
     pop     ebp
     ret
 
+; bool is_sse_supported(void);
+global is_sse_supported:function
+is_sse_supported:
+    push    ebx                 ; Store registers used by CPUID (Except return)
+    push    ecx
+    push    edx
+
+    ; Check for SSE1
+    mov     eax, 0x1            ; Request function 1 of CPUID
+    cpuid
+    test    edx, 1 << 25        ; CPUID.1:EDX.SSE[bit 25] == 1?
+    jnz     .check_sse2
+    mov     eax, 0
+    jmp     .done
+
+.check_sse2:
+    ; Check for SSE2
+    test    edx, 1 << 26        ; CPUID.1:EDX.SSE[bit 26] == 1?
+    jnz     .enabled            ; If 1, return true
+    mov     eax, 0              ; Not enabled, return false
+    jmp     .done
+
+.enabled:
+    mov     eax, 1              ; Return true
+
+.done:
+    pop     edx                 ; Restore registers used by CPUID
+    pop     ecx
+    pop     ebx
+    ret
+
+; bool is_msr_supported(void);
+global is_msr_supported:function
+is_msr_supported:
+    push    ebx                 ; Store registers used by CPUID (Except return)
+    push    ecx
+    push    edx
+
+    mov     eax, 0x1            ; Request function 1 of CPUID
+    cpuid
+    test    edx, 1 << 5         ; CPUID.1:EDX.MSR[bit 5] == 1?
+    jnz     .enabled            ; If 1, return true
+    mov     eax, 0              ; Not enabled, return false
+    jmp     .done
+
+.enabled:
+    mov     eax, 1
+
+.done:
+    pop     edx                 ; Restore registers used by CPUID
+    pop     ecx
+    pop     ebx
+    ret
+
+; bool is_tsc_supported(void);
+global is_tsc_supported:function
+is_tsc_supported:
+    push    ebx                 ; Store registers used by CPUID (Except return)
+    push    ecx
+    push    edx
+
+    mov     eax, 0x1            ; Request function 1 of CPUID
+    cpuid
+    test    edx, 1 << 4         ; CPUID.1:EDX.TSC[bit 4] == 1?
+    jnz     .enabled            ; If 1, return true
+    mov     eax, 0              ; Not enabled, return false
+    jmp     .done
+
+.enabled:
+    mov     eax, 1
+
+.done:
+    pop     edx                 ; Restore registers used by CPUID
+    pop     ecx
+    pop     ebx
+    ret
