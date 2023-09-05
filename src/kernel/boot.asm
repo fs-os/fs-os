@@ -72,6 +72,7 @@ section .text
     extern gdt_init                                 ; src/kernel/gdt.asm
     extern sse_supported                            ; src/kernel/kernel.c
     extern msr_supported                            ; src/kernel/kernel.c
+    extern tsc_supported                            ; src/kernel/kernel.c
 
 _start:
     ; The bootloader loaded us into 32bit protected mode on a x86 machine.
@@ -89,6 +90,7 @@ _start:
     ; Initialize the FPU
     finit
 
+    ; TODO: Move checks to another function in util.asm
 %ifdef ENABLE_SSE
     push    eax             ; Store registers used by CPUID
     push    ebx
@@ -134,10 +136,17 @@ _start:
     mov     eax, 0x1                    ; Request function 1 of CPUID
     cpuid
     test    edx, 1 << 5                 ; CPUID.1:EDX.MSR[bit 5] == 1?
-    jnz     .msr_done
+    jnz     .check_tsc
     mov     [msr_supported], byte 0     ; It was 0, set to false
 
-.msr_done:
+.check_tsc:
+    mov     eax, 0x1                    ; Request function 1 of CPUID
+    cpuid
+    test    edx, 1 << 4                 ; CPUID.1:EDX.TSC[bit 4] == 1?
+    jnz     .debug_checks_done
+    mov     [tsc_supported], byte 0     ; It was 0, set to false
+
+.debug_checks_done:
     pop     edx             ; Restore registers used by CPUID
     pop     ecx
     pop     ebx

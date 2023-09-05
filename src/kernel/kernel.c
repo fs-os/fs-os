@@ -154,6 +154,12 @@ bool sse_supported = true;
  * support is checked in src/kernel/boot.asm if DEBUG is defined. */
 bool msr_supported = true;
 
+/* If false, this machine doesn't support the Time-Stamp Counter (TSC). This
+ * should only matter if DEBUG is defined (i.e. we are going to use hardware
+ * debug functionalities). TSC support is checked in src/kernel/boot.asm if
+ * DEBUG is defined. */
+bool tsc_supported = true;
+
 /**
  * @brief C entry point of the kernel. Called by boot.asm
  * @param mb_info Pointer to the Multiboot information struct from the
@@ -224,8 +230,14 @@ void kernel_main(Multiboot* mb_info) {
     }
 
     if (!msr_supported) {
-        LOAD_ERROR("MSR not supported on this machine. Please re-compile "
+        LOAD_ERROR("MSR is not supported on this machine. Please re-compile "
                    "without DEBUG defined.");
+        abort();
+    }
+
+    if (!tsc_supported) {
+        LOAD_ERROR("Time-Stamp Counter (TSC) is not supported on this machine. "
+                   "Please re-compile without DEBUG defined.");
         abort();
     }
 
