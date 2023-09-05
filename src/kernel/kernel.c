@@ -8,6 +8,8 @@
 #include <stdio.h>
 #include <time.h>
 
+#include <kernel/util.h>
+
 #include <kernel/paging.h>              /* paging_init */
 #include <kernel/heap.h>                /* heap_init */
 #include <kernel/vga.h>                 /* vga_init, vga_sprint */
@@ -147,6 +149,11 @@ static inline void test_colors(void) {
  * support is checked in src/kernel/boot.asm if ENABLE_SSE is defined. */
 bool sse_supported = true;
 
+/* If false, this machine doesn't support MSR. This should only matter if DEBUG
+ * is defined (i.e. we are going to use hardware debug functionalities). MSR
+ * support is checked in src/kernel/boot.asm if DEBUG is defined. */
+bool msr_supported = true;
+
 /**
  * @brief C entry point of the kernel. Called by boot.asm
  * @param mb_info Pointer to the Multiboot information struct from the
@@ -211,8 +218,14 @@ void kernel_main(Multiboot* mb_info) {
     }
 
     if (!sse_supported) {
-        LOAD_ERROR("SSE/SSE2 not supported. Please re-compile with DISABLE_SSE "
-                   "defined in config.mk");
+        LOAD_ERROR("SSE/SSE2 not supported on this machine. Please re-compile "
+                   "with DISABLE_SSE=true defined in config.mk");
+        abort();
+    }
+
+    if (!msr_supported) {
+        LOAD_ERROR("MSR not supported on this machine. Please re-compile "
+                   "without DEBUG defined.");
         abort();
     }
 
