@@ -22,7 +22,7 @@ ISO=$(KERNEL_BIN:.bin=.iso)
 # List of object files to be linked with the kernel. Same for asm_objs but with
 # different compilation method.
 KERNEL_OBJS=obj/kernel/kernel.c.o obj/kernel/vga.c.o obj/kernel/paging.c.o obj/kernel/heap.c.o obj/kernel/multitask.c.o obj/kernel/framebuffer.c.o obj/kernel/framebuffer_console.c.o obj/kernel/idt.c.o obj/kernel/exceptions.c.o obj/kernel/rtc.c.o obj/kernel/pit.c.o obj/kernel/pcspkr.c.o obj/kernel/keyboard.c.o
-ASM_OBJS=obj/kernel/boot.asm.o obj/kernel/io.asm.o obj/kernel/gdt.asm.o obj/kernel/idt.asm.o obj/kernel/paging.asm.o obj/kernel/multitask.asm.o obj/kernel/rand.asm.o obj/kernel/asm_util.asm.o
+ASM_OBJS=obj/kernel/boot.asm.o obj/kernel/io.asm.o obj/kernel/gdt.asm.o obj/kernel/idt.asm.o obj/kernel/paging.asm.o obj/kernel/multitask.asm.o obj/kernel/rand.asm.o obj/kernel/util.asm.o
 
 # List of object files containing the app functions. For now built into the kernel
 # until we have a proper userspace.
