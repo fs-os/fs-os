@@ -1,4 +1,6 @@
 
+; EDX argument for RDMSR and WRMSR. See Vol. 4, search for "IA32_DEBUGCTL".
+%define IA32_DEBUGCTL 0x1D9
 
 section .data
     title_fmt  db "Dumping %ld items of size %ld from stack: {", 0xA, 0x0
@@ -9,7 +11,7 @@ section .text
     extern printf:function
 
 ; void asm_dump_stack(uint32_t count, size_t size);
-; Prints "count" elements of size "size" from the stack in hex format. Pseudo:
+; Function prototype in kernel/util.h; pseudo:
 ;   asm_dump_stack(N, S):
 ;       eax_total = N * S;
 ;       edx_size  = S;
@@ -74,5 +76,62 @@ dump_stack:
     pop     ebp
 
     xor     eax, eax        ; Return 0
+    ret
+
+; void asm_enable_debug(uint32_t on_branch);
+; NOTE: This is not really usable since the ISR calls itself. See util.h
+global asm_enable_debug:function
+asm_enable_debug:
+    push    ebp
+    mov     ebp, esp
+
+    mov     eax, [ebp + 8]
+    test    eax, eax            ; if (!on_branch)
+    jz      .enable_trapflag    ;   skip_msr_bits();
+
+    ; If `on_branch` is not zero, enable branch/interrupt/exception traces and
+    ; breakpoints on branch change. See:
+    ;   - Single step on branches: Vol. 3, Chapter 17.4
+    mov     ecx, IA32_DEBUGCTL      ; Argument for RDMSR and WRMSR: 0x1D9
+    rdmsr                   ; Read MSR into EDX:EAX. See Vol. 3, Chapter 17.4.1
+    or      eax, 1 << 0     ; LBR (last branch/interrupt/exception) flag
+    or      eax, 1 << 1     ; BTF (single-step on branches) flag
+    wrmsr                   ; Write changed MSR register
+
+.enable_trapflag:
+    ; Enable the Trap Flag (TF) bit in EFLAGS. See:
+    ;   - pushfd and popfd: Vol. 1 Chapter 5.1.11
+    ;   - Trap Flag: Vol. 1, Chapter 3.4.3.3 (and figure 3-8)
+    pushfd                          ; Push EFLAGS to the stack
+    or      dword [esp], 1 << 8     ; Set Trap Flag bit in EFLAGS
+    popfd                           ; Pop into EFLAGS from the stack
+
+    mov     esp, ebp
+    pop     ebp
+    ret
+
+; void asm_disable_debug(uint32_t on_branch);
+global asm_disable_debug:function
+asm_disable_debug:
+    push    ebp
+    mov     ebp, esp
+
+    mov     eax, [ebp + 8]
+    test    eax, eax                    ; if (!on_branch)
+    jz      .disable_trapflag           ;   skip_msr_bits();
+
+    mov     ecx, IA32_DEBUGCTL          ; Argument for RDMSR and WRMSR: 0x1D9
+    rdmsr                   ; Read MSR into EDX:EAX. See Vol. 3, Chapter 17.4.1
+    and     eax, ~(1 << 0)  ; Unset LBR (last branch/interrupt/exception) flag
+    and     eax, ~(1 << 1)  ; Unset BTF (single-step on branches) flag
+    wrmsr                   ; Write changed MSR register
+
+.disable_trapflag:
+    pushfd                              ; Push EFLAGS to the stack
+    and     dword [esp], ~(1 << 8)      ; Unset Trap Flag bit in EFLAGS
+    popfd                               ; Pop into EFLAGS from the stack
+
+    mov     esp, ebp
+    pop     ebp
     ret
 
