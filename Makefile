@@ -23,8 +23,8 @@ qemu: all
 
 # Add -g for compiling stuff
 debug-flags:
-	$(eval CFLAGS += -g)
-	$(eval ASM_FLAGS += -g)
+	$(eval CFLAGS += -g -DDEBUG)
+	$(eval ASM_FLAGS += -g -D DEBUG)
 
 # Connect with the patched gdb from (https://github.com/fs-os/cross-compiler):
 #   (gdb) target remote :1234

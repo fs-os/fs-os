@@ -53,7 +53,7 @@ int sh_main(void) {
         /* Last item of argv is 0 */
         argv[argc] = NULL;
 
-#ifdef DEBUG
+#ifdef ARG_DEBUG
         printf("[dbg] argc: %d\n", argc);
         printf("[dbg] argv: [ ");
         int argv_i;

@@ -132,11 +132,7 @@ static inline void col2rgb(uint8_t* r, uint8_t* g, uint8_t* b, uint32_t col) {
 #endif
 
 #ifndef DEFAULT_BG
-#ifdef DEBUG
-#define DEFAULT_BG COLOR_BLACK_B
-#else
 #define DEFAULT_BG COLOR_BLACK
-#endif
 #endif
 /**  @} */
 
