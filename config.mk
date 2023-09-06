@@ -44,7 +44,7 @@ APP_OBJS=obj/apps/sh/sh.c.o obj/apps/piano/piano.c.o obj/apps/minesweeper/minesw
 
 # Libk is the libc version used by the kernel. We will link the final kernel
 # binary with these objects.
-LIBK_OBJS=obj/libk/string.c.o obj/libk/stdlib.c.o obj/libk/stdio.c.o obj/libk/ctype.c.o obj/libk/time.c.o obj/libk/curses.c.o obj/libk/math.c.o
+LIBK_OBJS=obj/libk/string.c.o obj/libk/stdlib.c.o obj/libk/stdio.c.o obj/libk/ctype.c.o obj/libk/time.c.o obj/libk/curses.c.o obj/libk/math.c.o obj/libk/math.asm.o
 
 # Paths for the sysroot
 SYSROOT=./sysroot
