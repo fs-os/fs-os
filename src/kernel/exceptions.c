@@ -33,7 +33,9 @@ void handle_exception(int code, void* eip) {
     panic(NULL, 0, "exception @ %p: %s\n", eip, exceptions[code]);
 }
 
-void handle_debug(uint32_t tsc_l, uint32_t tsc_u, void* eip) {
+void handle_debug(uint64_t* tsc, void* eip) {
+    static uint64_t last_tsc = 0;
+
     uint32_t old_fg, old_bg;
     fbc_getcols(&old_fg, &old_bg);
 
@@ -42,7 +44,20 @@ void handle_debug(uint32_t tsc_l, uint32_t tsc_u, void* eip) {
     fbc_setfore(COLOR_BLUE_B);
     printf("DbgException");
     fbc_setfore(COLOR_BLUE);
-    printf("] Trap @ %p, TimeStampCounter: %lu:%lu\n", eip, tsc_u, tsc_l);
+    printf("] Trap @ %p", eip);
 
+    /* Not compiled with DEBUG, exc_debug() passes NULL */
+    if (tsc != NULL) {
+        printf(" TimeStampCounter: %llu", *tsc);
+
+        if (last_tsc != 0)
+            printf(" (+%llu)", *tsc - last_tsc);
+    }
+
+    putchar('\n');
     fbc_setfore(old_fg);
+
+    /* Store last TSC at the bottom so we don't store time from this func */
+    if (tsc != NULL)
+        last_tsc = *tsc;
 }

@@ -41,6 +41,13 @@
 ;-------------------------------------------------------------------------------
 
 bits 32
+section .bss
+    ; This is how GCC stores 64 bit integers in 32 bits. See:
+    ; https://github.com/8dcc/c-stuff/blob/main/Misc/64bit-vars-in-32bit-pc.c
+    align 16                    ; Align to 16 bytes for SSE
+    tsc_lo: resd 1              ; uint64_t tsc used in exc_debug() bellow
+    tsc_hi: resd 1
+
 section .text
     align 8
     extern handle_exception     ; src/kernel/exceptions.c
@@ -97,18 +104,20 @@ exc_debug:
     popfd                               ; Pop into EFLAGS from the stack
 
 %ifndef DEBUG
-    push    dword 0x00000000
-    push    dword 0x00000000
+    push    dword 0x00000000    ; Pass NULL if !DEBUG
 %else
     ; Read Time-Stamp Counter (TSC) to EDX:EAX
     rdtsc
 
-    ; The CPU pushed EIP (2nd arg of handle_debug) before calling the ISR
-    push    edx                 ; Push the upper part of uint64_t
-    push    eax                 ; Push the lower part of first argument, TSC
-%endif
-    call    handle_debug        ; Call C function
-    add     esp, 8              ; Remove dword we just pushed
+    mov     dword [tsc_lo], eax ; Store the lower part of first argument, TSC
+    mov     dword [tsc_hi], edx ; Store the upper part of uint64_t
+    push    tsc_lo              ; Push first argument, pointer to uint64_t
+%endif ; DEBUG
+
+    ; The CPU pushed EIP (2nd arg of handle_debug) before calling the ISR, and
+    ; we just pushed the tsc ptr. We need to pass a ptr for SSE alignment.
+    call    handle_debug        ; Call C function with 2 args
+    add     esp, 4              ; Remove dword we just pushed
 
     sti                         ; Re-enable interrupts
     iretd                       ; Return from 32 bit interrupt
