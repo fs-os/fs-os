@@ -195,6 +195,6 @@ int rand(void) {
     return (unsigned int)(rand_next / 65536) % RAND_MAX;
 }
 
-void srand(unsigned int seed) {
+void srand(uint32_t seed) {
     rand_next = seed;
 }

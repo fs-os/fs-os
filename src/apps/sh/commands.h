@@ -564,16 +564,16 @@ static int cmd_test_libk() {
 
     printf("srand(time(NULL))\n");
     srand(time(NULL));
-    printf("rand() -> %d\n", rand());
-    printf("rand() -> %d\n", rand());
+    printf("rand() -> %u\n", rand());
+    printf("rand() -> %u\n", rand());
 
     if (!check_rdseed() && !check_rdrand()) {
         fbc_setfore(COLOR_RED);
         puts("rdseed and rdrand not supported, skipping...");
         fbc_setfore(COLOR_GRAY);
     } else {
-        printf("cpu_rand() -> %ld\n", cpu_rand());
-        printf("cpu_rand() -> %ld\n", cpu_rand());
+        printf("cpu_rand() -> %lu\n", cpu_rand());
+        printf("cpu_rand() -> %lu\n", cpu_rand());
     }
 
     TEST_TITLE("\nTesting float formats");

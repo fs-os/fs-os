@@ -122,6 +122,6 @@ int rand(void);
  * @brief Set the rand seed.
  * @param[in] seed New rand seed.
  */
-void srand(unsigned int seed);
+void srand(uint32_t seed);
 
 #endif /* _STDLIB_H */
