@@ -1,9 +1,9 @@
 
-#include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
+#include <math.h>
 #include <time.h> /* sleep */
 
 #include <kernel/framebuffer_console.h> /* fbc_setfore, fbc_clear */
