@@ -24,12 +24,11 @@
 #include "../../media/soviet_anthem.h"
 #include "../../media/thunderstruck.h"
 
-#define TEST_TITLE(s)               \
-    {                               \
-        fbc_setfore(COLOR_WHITE_B); \
-        puts(s);                    \
-        fbc_setfore(COLOR_GRAY);    \
-    }
+#define TEST_TITLE(...)         \
+    fbc_setfore(COLOR_WHITE_B); \
+    printf(__VA_ARGS__);        \
+    putchar('\n');              \
+    fbc_setfore(COLOR_GRAY);
 
 /* Need tmp to remove '\0' from itoa */
 #define PAD_ZEROS(n, p)                \
@@ -46,9 +45,6 @@
 
 #define LENGTH(arr) (sizeof(arr) / sizeof(arr[0]))
 
-extern Layout us_layout;
-extern Layout es_layout;
-
 /* -------------------------------------------------------------------------- */
 
 /* Used in sh_main and cmd_quit */
@@ -58,26 +54,35 @@ static int last_ret = 0;
 /* Need to declare them here because the array needs the functions, but the
  * functions also need the array */
 static int cmd_unk();
+
 static int cmd_help();
-static int cmd_quit();
 static int cmd_last();
+static int cmd_quit();
+
 static int cmd_clear();
 static int cmd_ref();
+
 static int cmd_loadkeys(int argc, char** argv);
+
 static int cmd_ticks();
 static int cmd_date();
 static int cmd_timer(int argc, char** argv);
+
 static int cmd_beep(int argc, char** argv);
 static int cmd_metronome(int argc, char** argv);
+static int cmd_play(int argc, char** argv);
+
 /* piano_main */
 /* piano_random */
 /* minesweeper_main */
 /* main_5x5 */
-static int cmd_page_map();
-static int cmd_heap_headers();
+
+static int cmd_primes(int argc, char** argv);
 static int cmd_test_libk();
 static int cmd_test_multitask();
-static int cmd_play(int argc, char** argv);
+
+static int cmd_page_map();
+static int cmd_heap_headers();
 
 /*
  * Structure of the array:
@@ -92,14 +97,14 @@ static Command cmd_list[] = {
       &cmd_help,
     },
     {
-      "quit",
-      "Permanently exit the shell",
-      &cmd_quit,
-    },
-    {
       "last",
       "Print the exit code of the last command",
       &cmd_last,
+    },
+    {
+      "quit",
+      "Permanently exit the shell",
+      &cmd_quit,
     },
     {
       "clear",
@@ -142,6 +147,11 @@ static Command cmd_list[] = {
       &cmd_metronome,
     },
     {
+      "play",
+      "Play a song using the pc speaker",
+      &cmd_play,
+    },
+    {
       "piano",
       "Play the piano through the pc speaker",
       &piano_main,
@@ -162,14 +172,9 @@ static Command cmd_list[] = {
       &main_5x5,
     },
     {
-      "page_map",
-      "Display the page director and page table layout",
-      &cmd_page_map,
-    },
-    {
-      "heap_headers",
-      "Dump the alloc headers",
-      &cmd_heap_headers,
+      "primes",
+      "Test performance by printing prime numbers from 1 to N",
+      cmd_primes,
     },
     {
       "test_libk",
@@ -182,9 +187,14 @@ static Command cmd_list[] = {
       &cmd_test_multitask,
     },
     {
-      "play",
-      "Play a song using the pc speaker",
-      &cmd_play,
+      "page_map",
+      "Display the page director and page table layout",
+      &cmd_page_map,
+    },
+    {
+      "heap_headers",
+      "Dump the alloc headers",
+      &cmd_heap_headers,
     },
 };
 
@@ -212,16 +222,17 @@ static int cmd_help() {
     return 0;
 }
 
+static int cmd_last() {
+    printf("Last exit code: %d\n", last_ret);
+
+    /* Keep the same exit code in case we want to call it twice */
+    return last_ret;
+}
+
 static int cmd_quit() {
     puts("Goodbye.");
     quit_sh = true;
     return 0;
-}
-
-static int cmd_last() {
-    printf("Last exit code: %d\n", last_ret);
-    return last_ret; /* Keep the same exit code in case we want to call it twice
-                      */
 }
 
 static int cmd_clear() {
@@ -248,7 +259,7 @@ static int cmd_loadkeys(int argc, char** argv) {
 
     typedef struct {
         const char* name;
-        Layout* layout;
+        const Layout* layout;
     } layout_pair_t;
 
     layout_pair_t layouts[] = {
@@ -444,131 +455,6 @@ static int cmd_metronome(int argc, char** argv) {
     return 0;
 }
 
-static int cmd_page_map() {
-    paging_show_map();
-    return 0;
-}
-
-static int cmd_heap_headers() {
-    heap_dump_headers();
-    return 0;
-}
-
-static int cmd_test_libk() {
-    TEST_TITLE("\nTesting stdlib.h, string.h and stdio.h functions");
-
-    char buf[255] = { 0 };
-
-    printf("strlen(\"abcd\") -> %ld\n", strlen("abcd"));
-    printf("memcmp(\"abcd\", \"abca\", 4) -> %d\n", memcmp("abcd", "abc1", 4));
-    printf("memcmp(\"abcd\", \"abce\", 4) -> %d\n", memcmp("abcd", "abce", 4));
-    printf("memcmp(\"12345\", \"12345\", 5) -> %d\n",
-           memcmp("12345", "12345", 5));
-
-    /* More than one line for the null terminator */
-    printf("memset(buf, 'h', 5) -> ");
-    memset(buf, 'h', 5);
-    buf[5] = '\0';
-    puts(buf);
-
-    printf("memcpy(&buf[5], &buf[0], 5) -> ");
-    memcpy(&buf[5], &buf[0], 5);
-    buf[10] = '\0';
-    puts(buf);
-
-    printf("srand(time(NULL))\n");
-    srand(time(NULL));
-    printf("rand() -> %d\n", rand());
-    printf("rand() -> %d\n", rand());
-
-    if (!check_rdseed() && !check_rdrand()) {
-        fbc_setfore(COLOR_RED);
-        puts("rdseed and rdrand not supported, skipping...");
-        fbc_setfore(COLOR_GRAY);
-    } else {
-        printf("cpu_rand() -> %ld\n", cpu_rand());
-        printf("cpu_rand() -> %ld\n", cpu_rand());
-    }
-
-    TEST_TITLE("\nTesting float formats");
-    printf("2.5 + 1.3 = %f\n", 2.5 + 1.3);
-    printf("654.12345678 (\"%%.3f\") -> \"%.3f\"\n", 654.12345678);
-    printf("654.12345678 (\"%%10.4f\") -> \"%10.4f\"\n", 654.12345678);
-
-    TEST_TITLE("\nTesting math.h functions");
-    printf("round(1.4) = %f\n", round(1.4));
-    printf("round(1.5) = %f\n", round(1.5));
-    printf("sqrt(9) = %f\n", sqrt(9));
-    printf("sin(M_PI / 2) = %f\n", sin(M_PI / 2));
-    printf("tan(M_PI / 4) = %f\n", tan(M_PI / 4));
-
-    TEST_TITLE("\nTesting time.h functions");
-    printf("Hello, ");
-    sleep(1);
-    printf("world!\n");
-
-    return 0;
-}
-
-static void multitask_test0(void) {
-    for (int i = 0; i <= 5; i++) {
-        printf("%s: %d\n", mt_gettask()->name, i);
-        sleep_ms(100);
-        mt_switch(mt_gettask()->next);
-    }
-}
-
-static void multitask_test1(void) {
-    for (int i = 0; i <= 5; i++) {
-        printf("%s: %d\n", mt_gettask()->name, i);
-        sleep_ms(100);
-        mt_switch(mt_gettask()->next);
-    }
-}
-
-static void multitask_test2(void) {
-    for (int i = 0; i <= 5; i++) {
-        printf("%s: %d\n", mt_gettask()->name, i);
-        sleep_ms(100);
-        mt_switch(mt_gettask()->next);
-    }
-}
-
-static int cmd_test_multitask() {
-    TEST_TITLE("Testing multitasking");
-
-    /*
-     * When creating more than 1 task, the last tasks added will be placed after
-     * the current task:
-     *   - First, task2 will be placed after the current task
-     *   - Second, task1 will be placed after the current task, so between the
-     *     current task and task2
-     *   - Third, task0 will be placed after the current task, so between the
-     *     current task and task1
-     *
-     * So in the end:
-     *     [cur_task] -> [task0] -> [task1] -> [task2]
-     *
-     * For more information, call dump_task_list() after creating the tasks.
-     */
-    Ctx* task2 = mt_newtask("task2", multitask_test2);
-    Ctx* task1 = mt_newtask("task1", multitask_test1);
-    Ctx* task0 = mt_newtask("task0", multitask_test0);
-
-    for (int i = 0; i <= 5; i++) {
-        printf("%s: %d\n", mt_gettask()->name, i);
-        sleep_ms(100);
-        mt_switch(mt_gettask()->next);
-    }
-
-    /* Order does not matter */
-    mt_endtask(task0);
-    mt_endtask(task1);
-    mt_endtask(task2);
-
-    return 0;
-}
-
 static int cmd_play(int argc, char** argv) {
     if (argc <= 1 || !strcmp(argv[1], "-h") || !strcmp(argv[1], "--help")) {
         printf("Usage:\n"
@@ -612,4 +498,179 @@ static int cmd_play(int argc, char** argv) {
 
     printf("Invalid song name: \"%s\"\n", argv[1]);
     return 1;
+}
+
+static int cmd_primes(int argc, char** argv) {
+    uint32_t num;
+    if (argc <= 1 || !strcmp(argv[1], "-h") || !strcmp(argv[1], "--help") ||
+        (num = atoi(argv[1])) < 1) {
+        printf("Usage:\n"
+               "\t%s <last_num>   - Print all the prime numbers from 1 to "
+               "<last_num>\n",
+               argv[0]);
+        return 1;
+    }
+
+    timer_start();
+
+    uint32_t found = 0;
+    for (uint32_t i = 1; i <= num; i++) {
+        bool prime = true;
+
+        /* Very basic method, used to test the performance of I/O functions */
+        for (uint32_t j = 2; j < i; j++) {
+            if (i % j == 0) {
+                prime = false;
+                break;
+            }
+        }
+
+        if (prime) {
+            printf("%ld\n", i);
+            found++;
+        }
+    }
+    uint32_t end = (uint32_t)timer_stop();
+
+    printf("Done. %ld primes found from 1 to %ld in %ld ticks.\n", found, num,
+           end);
+
+    return 0;
+}
+
+static int cmd_test_libk() {
+    TEST_TITLE("\nTesting stdlib.h, string.h and stdio.h functions");
+
+    char buf[255] = { 0 };
+
+    printf("strlen(\"abcd\") -> %ld\n", strlen("abcd"));
+    printf("memcmp(\"abcd\", \"abca\", 4) -> %d\n", memcmp("abcd", "abc1", 4));
+    printf("memcmp(\"abcd\", \"abce\", 4) -> %d\n", memcmp("abcd", "abce", 4));
+    printf("memcmp(\"12345\", \"12345\", 5) -> %d\n",
+           memcmp("12345", "12345", 5));
+
+    /* More than one line for the null terminator */
+    printf("memset(buf, 'h', 5) -> ");
+    memset(buf, 'h', 5);
+    buf[5] = '\0';
+    puts(buf);
+
+    printf("memcpy(&buf[5], &buf[0], 5) -> ");
+    memcpy(&buf[5], &buf[0], 5);
+    buf[10] = '\0';
+    puts(buf);
+
+    printf("srand(time(NULL))\n");
+    srand(time(NULL));
+    printf("rand() -> %u\n", rand());
+    printf("rand() -> %u\n", rand());
+
+    if (!check_rdseed() && !check_rdrand()) {
+        fbc_setfore(COLOR_RED);
+        puts("rdseed and rdrand not supported, skipping...");
+        fbc_setfore(COLOR_GRAY);
+    } else {
+        printf("cpu_rand() -> %lu\n", cpu_rand());
+        printf("cpu_rand() -> %lu\n", cpu_rand());
+    }
+
+    TEST_TITLE("\nTesting float formats");
+    printf("(rand() %% 10) + 1.3f = %f\n", (rand() % 10) + 1.3f);
+    printf("654.12345678f (\"%%.3f\") -> \"%.3f\"\n", 654.12345678f);
+    printf("654.12345678f (\"%%10.4f\") -> \"%10.4f\"\n", 654.12345678f);
+
+    TEST_TITLE("\nTesting math.h functions");
+    printf("round(1.4) = %f\n", round(1.4));
+    printf("round(1.5) = %f\n", round(1.5));
+    printf("sqrt(9) = %f\n", sqrt(9));
+    printf("sin(M_PI / 2) = %f\n", sin(M_PI / 2));
+    printf("tan(M_PI / 4) = %f\n", tan(M_PI / 4));
+
+    TEST_TITLE("\nTesting time.h functions");
+    printf("Hello, ");
+    sleep(1);
+    printf("world!\n");
+
+    return 0;
+}
+
+#define MT_TEST_ITERS 3
+#define MT_TEST_DELAY 100
+
+static void multitask_test0(void) {
+    Ctx* self = mt_gettask();
+
+    for (int i = 0; i <= MT_TEST_ITERS; i++) {
+        printf("%s: %.2f\n", self->name, i + 0.1f);
+        sleep_ms(MT_TEST_DELAY);
+        mt_switch(self->next);
+    }
+}
+
+static void multitask_test1(void) {
+    Ctx* self = mt_gettask();
+
+    for (int i = 0; i <= MT_TEST_ITERS; i++) {
+        printf("%s: %.2f\n", self->name, i + 0.2f);
+        sleep_ms(MT_TEST_DELAY);
+        mt_switch(self->next);
+    }
+}
+
+static void multitask_test2(void) {
+    Ctx* self = mt_gettask();
+
+    for (int i = 0; i <= MT_TEST_ITERS; i++) {
+        printf("%s: %.2f\n", self->name, i + 0.3f);
+        sleep_ms(MT_TEST_DELAY);
+        mt_switch(self->next);
+    }
+}
+
+static int cmd_test_multitask() {
+    TEST_TITLE("Testing multitasking with %d iterations and %dms of delay",
+               MT_TEST_ITERS, MT_TEST_DELAY);
+
+    /*
+     * When creating more than 1 task, the last tasks added will be placed after
+     * the current task:
+     *   - First, task2 will be placed after the current task
+     *   - Second, task1 will be placed after the current task, so between the
+     *     current task and task2
+     *   - Third, task0 will be placed after the current task, so between the
+     *     current task and task1
+     *
+     * So in the end:
+     *     [cur_task] -> [task0] -> [task1] -> [task2]
+     *
+     * For more information, call dump_task_list() after creating the tasks.
+     */
+    Ctx* task2 = mt_newtask("task2", multitask_test2);
+    Ctx* task1 = mt_newtask("task1", multitask_test1);
+    Ctx* task0 = mt_newtask("task0", multitask_test0);
+
+    Ctx* self = mt_gettask();
+
+    for (int i = 0; i <= MT_TEST_ITERS; i++) {
+        printf("%s: %.2f\n", self->name, (float)i);
+        sleep_ms(MT_TEST_DELAY);
+        mt_switch(self->next);
+    }
+
+    /* Order does not matter */
+    mt_endtask(task0);
+    mt_endtask(task1);
+    mt_endtask(task2);
+
+    return 0;
+}
+
+static int cmd_page_map() {
+    paging_show_map();
+    return 0;
+}
+
+static int cmd_heap_headers() {
+    heap_dump_headers();
+    return 0;
 }

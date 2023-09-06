@@ -16,21 +16,27 @@ section .bss
             at ctx_t.name,   resd 1
         iend
 
-    align 16                    ; 512 bytes needed by fxsave used by the first
-    first_fxdata: resb 512      ; task. Reserved here instead of heap.
+    ; 512 bytes needed by fxsave. Reserved here instead of heap.
+    align 16
+    first_fxdata: resb 512      ; For .fxdata member of first_ctx (kernel_main)
 
 section .data
     first_task_name db 'kernel_main', 0x0
 
 section .text
     extern stack_bottom         ; src/kernel/boot.asm
+    extern memcpy:function      ; src/libk/string.c
     extern heap_alloc:function  ; src/kernel/heap.c
+    extern heap_calloc:function ; src/kernel/heap.c
     extern free:function        ; src/libk/stdlib.c
 
 ; void mt_init(void);
 ; Initialize multitasking. Creates the first task for the kernel.
 global mt_init:function
 mt_init:
+    push    ebp
+    mov     ebp, esp
+
     ; .next and .next of first task is itself.
     mov     [first_ctx + ctx_t.next], dword first_ctx
     mov     [first_ctx + ctx_t.prev], dword first_ctx
@@ -54,6 +60,8 @@ mt_init:
     ; Address of the struct we just filled
     mov     [mt_current_task], dword first_ctx
 
+    mov     esp, ebp
+    pop     ebp
     ret
 
 ; Ctx* mt_newtask(const char* name, void* entry);
@@ -64,24 +72,23 @@ mt_newtask:
     push    ebp
     mov     ebp, esp
 
+    ; NOTE: General register usage:
+    ;   - eax: Pointer to the ctx_t we allocate at the start.
+    ;   - ecx: Temporary register for values with short life.
+    ;   - edx: Pointer to the allocated stack, or to the allocated fxdata.
+
     push    dword 8             ; Align to 8 bytes
     push    dword ctx_t_size    ; Size of the ctx_t struct
     call    heap_alloc          ; Allocate a ctx_t struct on the heap
     add     esp, 8              ; Remove 2 dwords we just pushed
 
-    ; TODO: Use [ebp + N] instead of restoring all the time
-    mov     ecx, [esp + 12]     ; Second arg, entry point for task
-    mov     edx, [esp + 8]      ; First arg, task name. edx will be overwritten
-                                ; by new allocated stack.
+    mov     ecx, [ebp + 8]          ; First argument
+    mov     [eax + ctx_t.name], ecx ; Program name (char*), first arg
 
-    mov     [eax + ctx_t.name], edx ; Program name (char*), first arg
-
-    mov     edx, cr3
-    mov     [eax + ctx_t.cr3], edx  ; TODO: For now save current cr3 for new
-                                    ; tasks
+    mov     ecx, cr3
+    mov     [eax + ctx_t.cr3], ecx  ; Use same CR3 as caller (parent)
 
     ; Insert new task next to the current one in the list.
-    ;   0. We are going to use ecx so we preserve it.
     ;   1. Move the current task's address (edx) to the new task's (eax) "prev"
     ;      pointer.
     ;   2. Move the current task's "next" pointer (ecx) to the new task's "next"
@@ -97,35 +104,30 @@ mt_newtask:
     ;         | |---(1)---| |  | |---(2)---| |
     ;         |-----(3)-----|  |-----(4)-----|
     ;
-    push    ecx                             ; Preserve 2nd arg
     mov     edx, [mt_current_task]          ; edx = &cur
     mov     ecx, [edx + ctx_t.next]         ; ecx = cur.next
     mov     [eax + ctx_t.prev], edx         ; new.prev = &cur
     mov     [eax + ctx_t.next], ecx         ; new.next = cur.next
     mov     [edx + ctx_t.next], eax         ; cur.next = &new
     mov     [ecx + ctx_t.prev], eax         ; cur.next.prev = &new
-    pop     ecx                             ; Restore 2nd arg
 
-    push    eax             ; Push eax (allocated Ctx*) because of next malloc
-    push    ecx             ; Push second arg because caller must preserve
+    push    eax             ; Preserve eax (allocated Ctx*)
 
-    push    dword 8         ; Align to 8 bytes
+    push    dword 16        ; Align to 16 bytes
     push    dword 0x4000    ; 16KiB stack for the new task
     call    heap_alloc
     mov     edx, eax        ; Save new stack address to edx
     add     esp, 8          ; Remove 2 dwords we just pushed
 
-    pop     ecx             ; Restore second arg
     pop     eax             ; Restore old Ctx* from first malloc
 
-    mov     [eax + ctx_t.stack], edx    ; Address of stack we just allocated.
-                                        ; Stored so we can free it once the task
-                                        ; ends.
+    ; Address of stack we just allocated. Store so we can free it in mt_endtask
+    mov     [eax + ctx_t.stack], edx
 
-    add     edx, 0x4000 - 4 ; Now edx points to the end of the allocated memory,
-                            ; which is the bottom of the stack in x86 (pushed
-                            ; items are in lower addresses). We subtract 4 to
-                            ; not overflow. See issue #12
+    ; Now edx points to the end of the allocated memory, which is the bottom of
+    ; the stack in x86 (pushed items are in lower addresses). We subtract 4 to
+    ; not overflow. See issue #12
+    add     edx, 0x4000 - 4
 
     ; Fill new allocated stack for new task. From bottom to top, needed by
     ; mt_switch and System V ABI:
@@ -134,6 +136,7 @@ mt_newtask:
     ;   - esi
     ;   - ebp
     ;   - ebx
+    mov     ecx, [ebp + 12]             ; tmp = second_arg;
     mov     [edx], ecx                  ; *stack_ptr = eip;   // Entry point
     sub     edx, 4                      ; stack_ptr--;
     mov     [edx], dword 0x00000000     ; *stack_ptr = edi;
@@ -147,24 +150,31 @@ mt_newtask:
     mov     [eax + ctx_t.esp], edx      ; Save the address at the top of the
                                         ; allocated stack
 
-    ; Allocate 512 bytes needed by the fxsave instruction for preserving the fpu
-    ; and sse registers
+    ; Allocate 512 bytes needed by the fxsave instruction for preserving the FPU
+    ; and SSE registers
     push    eax
 
     push    dword 16                        ; Need to be 16-bit aligned
+    push    dword 1                         ; sizeof(byte)
     push    dword 512                       ; 512 bytes for fxsave
-    call    heap_alloc
+    call    heap_calloc
     mov     edx, eax                        ; Save allocated bytes to edx
-    add     esp, 8                          ; Remove 2 dwords we just pushed
+    add     esp, 12                         ; Remove 3 dwords we just pushed
 
     pop     eax
-
     mov     [eax + ctx_t.fxdata], edx       ; Save in ctx struct
+
+    ; Initialize the fxdata we just allocated by:
+    ;   - Setting edx.fcw to 0x037F (See Intel manual Vol. 1, Chapter 8.1.5)
+    ;   - Masking bits 7..12 of the MXCSR register (Vol. 1, Figure 10-3)
+    ;   - Setting the default MXCSR_MASK (Vol. 1, Chapter 11.6.6)
+    mov     [edx + fpu_data_t.fcw],   dword 0b0000001101111111
+    mov     [edx + fpu_data_t.mxcsr], dword 0b0001111110000000
+    mov     [edx + fpu_data_t.mxcsr_mask], dword 0x0000FFFF
 
     ; Exit the mt_newtask function
     mov     esp, ebp
     pop     ebp
-
     ret
 
 ; void mt_switch(Ctx* next);
@@ -281,3 +291,36 @@ mt_gettask:
     mov     eax, [mt_current_task]  ; Dereference to get the pointer
     ret
 
+; void mt_get_fpu_data(fpu_data_t* p);
+; Fill fpu_data_t argument with data from fxsave
+global mt_get_fpu_data:function
+mt_get_fpu_data:
+    push    ebx
+    push    ebp
+    mov     ebp, esp
+
+    mov     ebx, [ebp + 12]     ; 1st arg = ebp + ebx + ret
+
+    push    dword 16            ; Need to be 16-bit aligned
+    push    dword 1             ; sizeof(byte)
+    push    dword 512           ; 512 bytes for fxsave
+    call    heap_calloc
+    add     esp, 12             ; Remove 3 dwords we just pushed
+
+    fxsave  [eax]               ; Fill 512 bytes we just allocated
+
+    push    eax                 ; Preserve and use as parameter for free bellow
+
+    push    dword fpu_data_t_size   ; Size
+    push    eax                     ; Source
+    push    ebx                     ; Destination
+    call    memcpy
+    add     esp, 12                 ; Remove 3 dwords we just pushed
+
+    call    free                ; Free the 512 bytes we allocated for fxsave
+    add     esp, 4              ; Remove eax (Pushed before call to memcpy)
+
+    mov     esp, ebp
+    pop     ebp
+    pop     ebx
+    ret

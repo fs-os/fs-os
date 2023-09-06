@@ -1,8 +1,7 @@
-;----------------------------------------------
-; https://wiki.osdev.org/Bare_Bones_with_NASM
-; Compile using:
-;   nasm -f elf32 boot.asm
-;----------------------------------------------
+;------------------------------------------------------------------------------
+; Entry point of the OS after the bootloader. Performs a basic setup and calls
+; kernel_main (src/kernel/kernel.c)
+;------------------------------------------------------------------------------
 
 MB_ALIGN    equ 1 << 0      ; Align loaded modules on page boundaries
 MB_MEMINFO  equ 1 << 1      ; Provide memory map
@@ -64,13 +63,19 @@ section .bss
 
     align   16
     stack_bottom:       ; Items pushed to the stack will get 'closer' to this.
-        resb    16384   ; 16 KiB
+        resb    0x4000  ; 16 KiB
     stack_top:
 
 ; Declare the kernel entry point.
 section .text
     global _start:function (_start.end - _start)    ; Size of the _start section
-    extern gdt_init                                 ; /src/kernel/gdt.asm
+    extern gdt_init                                 ; src/kernel/gdt.asm
+    extern is_sse_supported                         ; src/kernel/util.asm
+    extern sse_supported                            ; src/kernel/kernel.c
+    extern is_msr_supported                         ; src/kernel/util.asm
+    extern msr_supported                            ; src/kernel/kernel.c
+    extern is_tsc_supported                         ; src/kernel/util.asm
+    extern tsc_supported                            ; src/kernel/kernel.c
 
 _start:
     ; The bootloader loaded us into 32bit protected mode on a x86 machine.
@@ -88,6 +93,13 @@ _start:
     ; Initialize the FPU
     finit
 
+%ifdef ENABLE_SSE
+    call    is_sse_supported            ; Defined in util.asm
+    test    eax, eax
+    jnz     .enable_sse                 ; Returned true
+    mov     [sse_supported], byte 0     ; Returned 0, set to var false
+
+.enable_sse:
     ; Enable SSE
     mov     eax, cr0
     and     al, ~0x04       ; Clear CR0.EM
@@ -96,6 +108,23 @@ _start:
     mov     eax, cr4
     or      ax, 0x600       ; Set CR4.OSFXSR (9) and CR4.OSXMMEXCPT (10)
     mov     cr4, eax
+
+%endif ; ENABLE_SSE
+
+%ifdef DEBUG
+    call    is_msr_supported            ; Defined in util.asm
+    test    eax, eax
+    jnz     .check_tsc                  ; Returned true
+    mov     [msr_supported], byte 0     ; It was 0, set to false
+
+.check_tsc:
+    call    is_tsc_supported            ; Defined in util.asm
+    test    eax, eax
+    jnz     .debug_checks_done          ; Returned true
+    mov     [tsc_supported], byte 0     ; It was 0, set to false
+
+.debug_checks_done:
+%endif ; DEBUG
 
     ; The ABI requires the stack to be 16 byte aligned at the time of the call
     ; instruction (Because it pushes the return address to the stack: 4 bytes).

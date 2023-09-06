@@ -9,15 +9,27 @@
 #include <kernel/color.h>               /* Color for panic() */
 
 int digits_int(int64_t num) {
-    int ret = 1;
-
     if (num < 0)
         num = -num;
 
-    /* Count how many digits we can remove */
-    while ((num /= 10) > 0) {
-        ret++;
-    }
+    int ret;
+
+    /* Remove a digit each iteration until there are none left */
+    for (ret = 1; (num /= 10) > 0; ret++)
+        ;
+
+    return ret;
+}
+
+int digits_hex(uint64_t num) {
+    if (num == 0)
+        return 1;
+
+    int ret;
+
+    /* 4 is the size in bits of 0xF */
+    for (ret = 0; num != 0; ret++, num >>= 4)
+        ;
 
     return ret;
 }
@@ -124,16 +136,17 @@ void itoan(char* str, int64_t num, size_t max_digits) {
 }
 
 void panic(const char* func, unsigned int line, const char* fmt, ...) {
-    /* TODO: Proper kernel panic */
-
-    if (func == NULL)
-        func = "???";
 
     va_list va;
     va_start(va, fmt);
 
+    putchar('\n');
     fbc_setfore(COLOR_RED_B);
-    printf("[%s:%d] kernel panic: ", func, line);
+
+    if (func != NULL)
+        printf("[%s:%d] ", func, line);
+
+    printf("kernel panic: ");
     fbc_setfore(COLOR_RED);
     vprintf(fmt, va);
 
@@ -148,7 +161,7 @@ void panic(const char* func, unsigned int line, const char* fmt, ...) {
 }
 
 void abort(void) {
-    puts("kernel panic: abort");
+    puts("\nkernel panic: abort");
 
     asm volatile("hlt");
 
@@ -164,14 +177,7 @@ void* malloc(size_t sz) {
 }
 
 void* calloc(size_t item_n, size_t item_sz) {
-    const size_t bytes = item_n * item_sz;
-
-    void* ptr = malloc(bytes);
-    for (size_t i = 0; i < bytes; i++) {
-        ((uint8_t*)ptr)[i] = 0;
-    }
-
-    return ptr;
+    return heap_calloc(item_n, item_sz, 8);
 }
 
 void free(void* ptr) {
@@ -189,6 +195,6 @@ int rand(void) {
     return (unsigned int)(rand_next / 65536) % RAND_MAX;
 }
 
-void srand(unsigned int seed) {
+void srand(uint32_t seed) {
     rand_next = seed;
 }

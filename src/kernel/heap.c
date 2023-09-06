@@ -16,8 +16,8 @@ void heap_init(void) {
     void* first_blk = HEAP_START;
 
     *(Block*)first_blk = (Block){
-        .prev = NULL,                      /* First block */
-        .next = NULL,                      /* And last block */
+        .next = NULL,                      /* It's the last block */
+        .prev = NULL,                      /* And first block */
         .sz   = HEAP_SIZE - sizeof(Block), /* Size of heap - this block */
         .free = true,                      /* Start free */
     };
@@ -83,8 +83,8 @@ void* heap_alloc(size_t sz, size_t align) {
 
         /* Place the new block header */
         *new_blk = (Block){
-            .prev = blk,       /* The old block */
             .next = blk->next, /* The ".next" of the old block */
+            .prev = blk,       /* The old block */
             .sz   = blk->sz - sz - sizeof(Block), /* Shrink the old blk sz */
             .free = true,
         };
@@ -168,6 +168,36 @@ void heap_free(void* ptr) {
         blk_cursor = blk;
 }
 
+void* heap_calloc(size_t item_n, size_t item_sz, size_t align) {
+    const size_t bytes = item_n * item_sz;
+    void* ptr          = heap_alloc(bytes, align);
+
+    switch (item_sz) {
+        case 2: { /* sizeof(uint16_t) */
+            uint16_t* casted = ptr;
+            for (size_t i = 0; i < item_n; i++)
+                casted[i] = 0;
+            break;
+        }
+        case 4: { /* sizeof(uint32_t) */
+            uint32_t* casted = ptr;
+            for (size_t i = 0; i < item_n; i++)
+                casted[i] = 0;
+            break;
+        }
+        case 1: /* sizeof(uint8_t) || item_sz > sizeof(uint32_t) */
+        default: {
+            /* If it's an unknown size, iterate each byte */
+            uint8_t* casted = ptr;
+            for (size_t i = 0; i < bytes; i++)
+                casted[i] = 0;
+            break;
+        }
+    }
+
+    return ptr;
+}
+
 /*----------------------------------------------------------------------------*/
 
 enum header_mod {
@@ -186,16 +216,16 @@ void heap_dump_headers(void) {
 
     /* From start of the heap, jump to the next block until end of heap. */
     for (Block* blk = HEAP_START; blk != NULL; blk = blk->next, i++) {
-        printf("[%d] [%c] Header: %p | Data: %p | Prev: %p", i,
-               (blk->free) ? 'F' : 'B', blk, HEADER_TO_PTR(blk), blk->prev);
+        printf("[%d] [%c] Header: %p | Data: %p | Next: %p", i,
+               (blk->free) ? 'F' : 'B', blk, HEADER_TO_PTR(blk), blk->next);
 
         /* Paddings for "(null)" */
-        if (blk->prev == NULL)
+        if (blk->next == NULL)
             printf("  ");
 
-        printf(" | Next: %p", blk->next);
+        printf(" | Prev: %p", blk->prev);
 
-        if (blk->next == NULL)
+        if (blk->prev == NULL)
             printf("  ");
 
         printf(" | Sz: 0x%lX\n", blk->sz);

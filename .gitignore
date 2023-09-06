@@ -3,8 +3,13 @@
 *.iso
 /iso/
 /sysroot/
-/limine/
 /doc/
+
+# Limine bootloader
+!/limine/*.bin
+/limine/limine-deploy
+/limine/limine-version
+/limine/limine-enroll-config
 
 # Prerequisites
 *.d

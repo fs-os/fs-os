@@ -9,6 +9,11 @@ typedef struct Ctx Ctx;
 /**
  * @struct Task context struct
  * @details We could add more stuff like parent task and priority
+ *
+ * @todo Rename to something less generic like Task or TaskCtx, since the fbc
+ * also uses fbc_ctx.
+ * @todo Use a more standard naming convention for structs. Either all
+ * capitalized or all lowercase with "_t" subfix.
  */
 struct Ctx {
     Ctx* next;       /**< @brief Pointer to next task */
@@ -20,13 +25,28 @@ struct Ctx {
     char* name;      /**< @brief Task name */
 };
 
-typedef struct tss_t Tss;
+typedef struct fpu_data_t {
+    uint16_t fcw;        /* FPU Control Word. Figure 8-6, vol. 1 */
+    uint16_t fsw;        /* FPU Status Word. Figure 8-4, vol. 1 */
+    uint8_t ftw;         /* FPU Tag Word */
+    uint8_t pad0;        /* Reserved */
+    uint16_t fop;        /* FPU Opcode */
+    uint32_t fip;        /* FPU Instruction Pointer Offset */
+    uint16_t fcs;        /* FPU Instruction Pointer Selector */
+    uint16_t pad1;       /* Reserved */
+    uint32_t fdp;        /* FPU Instruction Operand Pointer Offset */
+    uint16_t fds;        /* FPU Instruction Operand Pointer Selector */
+    uint16_t pad2;       /* Reserved */
+    uint32_t mxcsr;      /* MXCSR Register State. Figure 10-3, vol. 1 */
+    uint32_t mxcsr_mask; /* Mask for MXCSR register */
+    uint8_t registers;   /* Registers ST0/MM0 to ST7/MM7 */
+} fpu_data_t __attribute__((packed));
 
 /**
- * @struct tss_t
+ * @struct Tss
  * @brief Task state segment, loaded to the GDT
  */
-struct tss_t {
+typedef struct Tss {
     uint16_t link;
     uint16_t pad0; /**< @brief Padding */
 
@@ -71,7 +91,7 @@ struct tss_t {
     uint16_t pad11; /**< @brief Padding (before iobp) */
     uint16_t iobp;
     uint32_t ssp; /**< @brief 0x68 (0x68 - 0x6C) */
-} __attribute__((packed));
+} Tss __attribute__((packed));
 
 /**
  * @var mt_current_task
@@ -93,8 +113,6 @@ Tss* tss_getptr(void);
  * src/kernel/multitask.asm
  */
 void mt_init(void);
-
-/* mt_newtask:  */
 
 /**
  * @brief Allocates and creates a new task with a `name` and `entry` point.
@@ -128,9 +146,24 @@ void mt_endtask(Ctx* task);
 Ctx* mt_gettask(void);
 
 /**
+ * @brief Fill the specified fpu_data_t with the current FPU data from fxsave.
+ * @details It allocates 512 bytes for fxsave, and it is not optimized. It
+ * should only be used for specific debugging. The caller should declare the
+ * fpu_data_t. Defined in src/kernel/multitask.asm
+ * @param[out] dst Pointer to the allocated fpu_data_t that will be filled.
+ */
+void mt_get_fpu_data(fpu_data_t* dst);
+
+/**
  * @brief Print the list of tasks starting with the current one.
  * @details Defined in src/kernel/multitask.c
  */
 void mt_dump_tasks(void);
+
+/**
+ * @brief Print address and members of fpu_data_t struct
+ * @param[inout] p Pointer to a fpu_data_t struct
+ */
+void mt_print_fpu_data(fpu_data_t* p);
 
 #endif /* _KERNEL_MULTITASK_H */

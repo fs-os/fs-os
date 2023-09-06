@@ -15,12 +15,20 @@
 #define panic_line(...) panic(__func__, __LINE__, __VA_ARGS__)
 
 /**
- * @brief Returns the number of digits of a positive num.
+ * @brief Returns the number of digits of a positive integer.
  * @details Will not count `'-'` for negative numbers.
  * @param[in] num Number for counting.
  * @return Digits of num.
  */
 int digits_int(int64_t num) __attribute__((pure));
+
+/**
+ * @brief Returns the hexadecimal digits of unsigned integer `num`.
+ * @details Example: 123 -> 0x7B -> 2 hex digits
+ * @param[in] num Number for counting.
+ * @return Digits of hexadecimal version of num.
+ */
+int digits_hex(uint64_t num) __attribute__((pure));
 
 /**
  * @brief Returns the number of digits of a positive double.
@@ -65,10 +73,11 @@ int ipow(int b, int e) __attribute__((pure));
 void itoan(char* str, int64_t num, size_t max_digits);
 
 /**
- * @brief Panics
+ * @brief Kernel panic. Print message and halt.
  * @details Use the panic_line() macro for shorter version
- * @param[in] func The `__func__` macro.
- * @param[in] line The `__LINE__` macro.
+ * @param[in] func The name of the function. Should use the `__func__` macro. If
+ * NULL, panic() won't print function and line.
+ * @param[in] line The line of the panic, should use the `__LINE__` macro.
  * @param[in] fmt Panic message.
  *
  * @todo Move from stdlib?
@@ -113,6 +122,6 @@ int rand(void);
  * @brief Set the rand seed.
  * @param[in] seed New rand seed.
  */
-void srand(unsigned int seed);
+void srand(uint32_t seed);
 
 #endif /* _STDLIB_H */

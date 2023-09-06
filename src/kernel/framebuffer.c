@@ -49,14 +49,18 @@ void fb_drawrect_col(uint32_t y, uint32_t x, uint32_t h, uint32_t w,
     if (y >= g_height || x >= g_width)
         return;
 
-    /* If width or height go out of the screen, set them to the screen limit */
-    if (y + h >= g_height)
-        h = g_height - y - 1;
-    if (x + w >= g_width)
-        w = g_width - x - 1;
+    uint32_t final_y = y + h;
+    uint32_t final_x = x + w;
 
-    for (uint32_t cur_y = y; cur_y < y + h; cur_y++)
-        for (uint32_t cur_x = x; cur_x < x + w; cur_x++)
+    /* Don't draw outside of the screen */
+    if (final_y >= g_height)
+        final_y = g_height - 1;
+
+    if (final_x >= g_width)
+        final_x = g_width - 1;
+
+    for (uint32_t cur_y = y; cur_y < final_y; cur_y++)
+        for (uint32_t cur_x = x; cur_x < final_x; cur_x++)
             g_fb[cur_y * g_width + cur_x] = col;
 }
 
@@ -67,3 +71,34 @@ void fb_drawrect_fast(uint32_t y, uint32_t x, uint32_t h, uint32_t w,
             g_fb[cur_y * g_width + cur_x] = col;
 }
 
+void fb_drawimage(uint32_t y, uint32_t x, const GimpImage* img) {
+    if (y >= g_height || x >= g_width)
+        return;
+
+    uint32_t final_y = y + img->h;
+    uint32_t final_x = x + img->w;
+
+    /* Adjust final_y to not draw outside of the screen. If we exceed the
+     * height, we are not going to draw anything on the X coord. See loop
+     * contents for more info. */
+    if (final_y >= g_height)
+        final_y = g_height - 1;
+
+    const char* data = img->data;
+    uint8_t rgb[3];
+
+    for (uint32_t cur_y = y; cur_y < final_y; cur_y++) {
+        for (uint32_t cur_x = x; cur_x < final_x; cur_x++) {
+            /* Need to call even if out of bounds because  */
+            GIMP_GET_PIXEL(data, rgb);
+
+            /* Unlike with final_y, we need to check here instead of adjusting
+             * final_x because the macro needs to be called even when not
+             * drawing. */
+            if (cur_x >= g_width)
+                continue;
+
+            g_fb[cur_y * g_width + cur_x] = rgb2col(rgb[0], rgb[1], rgb[2]);
+        }
+    }
+}

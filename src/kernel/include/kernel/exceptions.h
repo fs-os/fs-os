@@ -18,9 +18,13 @@
 /**
  * @brief Disables interrupts and panics with the specified exception.
  * @details Defined in src/kernel/exceptions.c
- * @param exc Exception code
+ * @param code Exception code (Index in the IDT)
+ * @param eip Value of EIP register pushed by the CPU before calling the ISR
+ * (i.e. address where the exception occurred)
+ *
+ * @todo Also push error code to the stack inside EXC_WRAPPER_ERR (See idt.asm)
  */
-void handle_exception(int exc);
+void handle_exception(int exc, void* eip);
 
 /**
  * @name Default exception handlers
@@ -30,7 +34,7 @@ void handle_exception(int exc);
  * src/kernel/exceptions.asm
  * @{ */
 void exc_0(void);
-void exc_1(void);
+void exc_debug(void);
 void exc_2(void);
 void exc_3(void);
 void exc_4(void);

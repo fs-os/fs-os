@@ -65,6 +65,10 @@ typedef struct {
                              chars for the current layout */
 } Layout;
 
+/* Layouts are included in src/keyboard.c */
+extern const Layout us_layout;
+extern const Layout es_layout;
+
 /**
  * @brief Actual C handler for the keyboard exceptions received from irq_kb().
  * @details See src/kernel/idt.asm

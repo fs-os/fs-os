@@ -8,6 +8,8 @@
 #include <stdio.h>
 #include <time.h>
 
+#include <kernel/util.h>
+
 #include <kernel/paging.h>              /* paging_init */
 #include <kernel/heap.h>                /* heap_init */
 #include <kernel/vga.h>                 /* vga_init, vga_sprint */
@@ -38,29 +40,33 @@
     "For more information see: https://github.com/fs-os/cross-compiler"
 #endif
 
-#define TEST_TITLE(s)           \
+#define TEST_TITLE(...)         \
     fbc_setfore(COLOR_WHITE_B); \
-    puts(s);                    \
+    printf(__VA_ARGS__);        \
+    putchar('\n');              \
     fbc_setfore(COLOR_GRAY);
 
-#define LOAD_INFO(s)              \
+#define LOAD_INFO(...)            \
     fbc_setfore(COLOR_MAGENTA_B); \
     printf(" * ");                \
     fbc_setfore(COLOR_MAGENTA);   \
-    puts(s);                      \
+    printf(__VA_ARGS__);          \
+    putchar('\n');                \
     fbc_setfore(COLOR_WHITE);
 
-#define LOAD_IGNORE(s)         \
+#define LOAD_IGNORE(...)       \
     fbc_setfore(COLOR_GRAY_B); \
     printf(" * ");             \
-    puts(s);                   \
+    printf(__VA_ARGS__);       \
+    putchar('\n');             \
     fbc_setfore(COLOR_WHITE);
 
-#define LOAD_ERROR(s)         \
+#define LOAD_ERROR(...)       \
     fbc_setfore(COLOR_RED_B); \
     printf(" * ");            \
     fbc_setfore(COLOR_RED);   \
-    puts(s);                  \
+    printf(__VA_ARGS__);      \
+    putchar('\n');            \
     fbc_setfore(COLOR_WHITE);
 
 #define SYSTEM_INFO(s1, s2fmt, ...) \
@@ -82,9 +88,6 @@
             *(p + 2) = tmp;            \
         }                              \
     } while (0);
-
-/* Default layout, declared in keyboard.c */
-extern Layout us_layout;
 
 static inline void format_date(char* str, DateTime now) {
     /* "00/00/00 - 00:00:00" */
@@ -142,23 +145,20 @@ static inline void test_colors(void) {
     fbc_setfore(COLOR_WHITE);
 }
 
-/**
- * @brief Prints the OS logo using the GIMP macro
- * @param ypad Top padding in px
- * @param xpad Left padding in px
- */
-static void print_logo(unsigned int ypad, unsigned int xpad) {
-    char rgb[3] = { 0 };
-    /* Copy ptr because HEADER_PIXEL increases it */
-    char* logo_ptr = fsos_logo_s;
+/* If false, this machine doesn't support SSE, and it's enabled. SSE/SSE2
+ * support is checked in src/kernel/boot.asm if ENABLE_SSE is defined. */
+bool sse_supported = true;
 
-    for (unsigned int y = 0; y < fsos_logo_s_h; y++) {
-        for (unsigned int x = 0; x < fsos_logo_s_w; x++) {
-            HEADER_PIXEL(logo_ptr, rgb);
-            fb_setpx(y + ypad, x + xpad, rgb[0], rgb[1], rgb[2]);
-        }
-    }
-}
+/* If false, this machine doesn't support MSR. This should only matter if DEBUG
+ * is defined (i.e. we are going to use hardware debug functionalities). MSR
+ * support is checked in src/kernel/boot.asm if DEBUG is defined. */
+bool msr_supported = true;
+
+/* If false, this machine doesn't support the Time-Stamp Counter (TSC). This
+ * should only matter if DEBUG is defined (i.e. we are going to use hardware
+ * debug functionalities). TSC support is checked in src/kernel/boot.asm if
+ * DEBUG is defined. */
+bool tsc_supported = true;
 
 /**
  * @brief C entry point of the kernel. Called by boot.asm
@@ -186,12 +186,22 @@ void kernel_main(Multiboot* mb_info) {
             mb_info->framebuffer_height, mb_info->framebuffer_bpp);
     vga_sprint("Framebuffer initialized.\n");
 
-    print_logo(5, 0);
-    print_logo(5, 100);
-    print_logo(5, 200);
+    /* Draw the 3 logos on top */
+    const uint32_t logo_y = 3;
+    const uint32_t logo_x = 3;
+    const uint32_t logo_h = fsos_logo_s.h;
+    const uint32_t logo_w = fsos_logo_s.w;
+    fb_drawimage(logo_y, logo_x + (logo_w * 0), &fsos_logo_s);
+    fb_drawimage(logo_y, logo_x + (logo_w * 1), &fsos_logo_s);
+    fb_drawimage(logo_y, logo_x + (logo_w * 2), &fsos_logo_s);
 
-    fbc_init(110, 3, mb_info->framebuffer_height - 110 - 5,
-             mb_info->framebuffer_width - 3 * 2, &main_font);
+    /* Get framebuffer console pos and size and initialize it */
+    const uint32_t fbc_margin = 3;
+    const uint32_t fbc_y      = logo_y + logo_h + fbc_margin;
+    const uint32_t fbc_x      = fbc_margin;
+    const uint32_t fbc_h      = fb_get_height() - fbc_y - fbc_margin;
+    const uint32_t fbc_w      = fb_get_width() - (fbc_margin * 2);
+    fbc_init(fbc_y, fbc_x, fbc_h, fbc_w, &main_font);
 
     /* Once we have a framebuffer terminal, print previous messages too */
     LOAD_INFO("IDT initialized.");
@@ -205,16 +215,30 @@ void kernel_main(Multiboot* mb_info) {
     pit_init(1000);
     LOAD_INFO("PIT initialized.");
 
-    if (check_rdseed()) {
-        LOAD_INFO("RDSEED supported.");
-    } else {
+    if (!check_rdseed()) {
         LOAD_IGNORE("RDSEED not supported.");
     }
 
-    if (check_rdrand()) {
-        LOAD_INFO("RDRAND supported.");
-    } else {
+    if (!check_rdrand()) {
         LOAD_IGNORE("RDRAND not supported.");
+    }
+
+    if (!sse_supported) {
+        LOAD_ERROR("SSE/SSE2 not supported on this machine. Please re-compile "
+                   "with DISABLE_SSE=true defined in config.mk");
+        abort();
+    }
+
+    if (!msr_supported) {
+        LOAD_ERROR("MSR is not supported on this machine. Please re-compile "
+                   "without DEBUG defined.");
+        abort();
+    }
+
+    if (!tsc_supported) {
+        LOAD_ERROR("Time-Stamp Counter (TSC) is not supported on this machine. "
+                   "Please re-compile without DEBUG defined.");
+        abort();
     }
 
     kb_setlayout(&us_layout);

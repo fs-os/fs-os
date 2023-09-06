@@ -110,16 +110,16 @@ void fbc_clear(void) {
         /* First entry is newline, rest spaces. We dont need to call
          * fbc_refresh_entry because we know the whole line is empty */
         ctx->fbc[cy * ctx->ch_w + 0] = (fbc_entry){
-            '\n',
-            DEFAULT_FG,
-            DEFAULT_BG,
+            .c  = '\n',
+            .fg = DEFAULT_FG,
+            .bg = DEFAULT_BG,
         };
 
         for (uint32_t cx = 1; cx < ctx->ch_w; cx++) {
             ctx->fbc[cy * ctx->ch_w + cx] = (fbc_entry){
-                '\0',
-                DEFAULT_FG,
-                DEFAULT_BG,
+                .c  = '\0',
+                .fg = DEFAULT_FG,
+                .bg = DEFAULT_BG,
             };
         }
     }
@@ -128,18 +128,18 @@ void fbc_clear(void) {
 void fbc_clrtoeol(void) {
     /* Current position will be the end of the current line */
     ctx->fbc[ctx->cur_y * ctx->ch_w + ctx->cur_x] = (fbc_entry){
-        '\n',
-        DEFAULT_FG,
-        DEFAULT_BG,
+        .c  = '\n',
+        .fg = DEFAULT_FG,
+        .bg = DEFAULT_BG,
     };
     fbc_refresh_entry(ctx->cur_y, ctx->cur_x);
 
     /* Rest of them as '\0' */
     for (uint32_t cx = ctx->cur_x + 1; cx < ctx->ch_w; cx++) {
         ctx->fbc[ctx->cur_y * ctx->ch_w + cx] = (fbc_entry){
-            '\0',
-            DEFAULT_FG,
-            DEFAULT_BG,
+            .c  = '\0',
+            .fg = DEFAULT_FG,
+            .bg = DEFAULT_BG,
         };
         fbc_refresh_entry(ctx->cur_y, cx);
     }
@@ -153,8 +153,7 @@ void fbc_sprint(const char* s) {
 void fbc_putchar(char c) {
     /* First of all, check if we need to shift the array. We need this kind of
      * "queue" system so the array doesn't immediately shift when a line ends
-     * with
-     * '\n', for example */
+     * with '\n', for example */
     if (ctx->should_shift) {
         fbc_shift_rows(1);
         ctx->should_shift = false;
@@ -165,9 +164,9 @@ void fbc_putchar(char c) {
         case '\n':
             /* Save newline char (don't display anything) */
             ctx->fbc[ctx->cur_y * ctx->ch_w + ctx->cur_x] = (fbc_entry){
-                '\n',
-                DEFAULT_FG,
-                DEFAULT_BG,
+                .c  = '\n',
+                .fg = DEFAULT_FG,
+                .bg = DEFAULT_BG,
             };
 
             /* If we have rows left on the terminal, go down, if we are on the
@@ -201,9 +200,9 @@ void fbc_putchar(char c) {
 
             /* Clear the char we just deleted */
             ctx->fbc[ctx->cur_y * ctx->ch_w + ctx->cur_x] = (fbc_entry){
-                ' ',
-                DEFAULT_FG,
-                DEFAULT_BG,
+                .c  = ' ',
+                .fg = DEFAULT_FG,
+                .bg = DEFAULT_BG,
             };
 
             /* Draw the pixels on the screen */
@@ -220,9 +219,9 @@ void fbc_putchar(char c) {
 
             for (uint32_t tmp_x = 0; tmp_x < ctx->cur_x; tmp_x++) {
                 ctx->fbc[ctx->cur_y * ctx->ch_w + tmp_x] = (fbc_entry){
-                    ' ',
-                    ctx->cur_cols.fg,
-                    ctx->cur_cols.bg,
+                    .c  = ' ',
+                    .fg = ctx->cur_cols.fg,
+                    .bg = ctx->cur_cols.bg,
                 };
             }
 
@@ -233,9 +232,9 @@ void fbc_putchar(char c) {
     }
 
     ctx->fbc[ctx->cur_y * ctx->ch_w + ctx->cur_x] = (fbc_entry){
-        c,
-        ctx->cur_cols.fg,
-        ctx->cur_cols.bg,
+        .c  = c,
+        .fg = ctx->cur_cols.fg,
+        .bg = ctx->cur_cols.bg,
     };
 
     /* Draw the pixels on the screen */
@@ -288,18 +287,26 @@ void fbc_shift_rows(uint8_t n) {
     /* Used to count the position of the last valid char in the line */
     uint32_t char_count = 0;
 
-    /* Shift n rows. We go to the newline instead of always ctx->ch_w because
+    /* Get once for performance. The last_row variable is the last row that we
+     * want to replace after shifting. The fill_h variable will be used when  */
+    const uint32_t last_row = ctx->ch_h - n - 1;
+
+    /* Shift N rows. We go to the newline instead of always ctx->ch_w because
      * that will be the last valid char we care about. We can fill the rest
      * faster with fb_drawrect_fast */
-    for (uint32_t y = 0; y < ctx->ch_h - n; y++) {
+    for (uint32_t y = 0; y <= last_row; y++) {
+        /* Get once for performance. Used for ctx->fbc[] indexes */
+        const uint32_t raw_y        = y * ctx->ch_w;
+        const uint32_t raw_y_plus_n = (y + n) * ctx->ch_w;
+
         /* Update valid entries until we encounter a null byte. '\0' denotes the
          * end of the valid line. */
         for (uint32_t x = 0; x < ctx->ch_w; x++) {
-            ctx->fbc[y * ctx->ch_w + x] = ctx->fbc[(y + n) * ctx->ch_w + x];
+            ctx->fbc[raw_y + x] = ctx->fbc[raw_y_plus_n + x];
 
             /* We need to check after the assignment and not in the for because
              * we want to also copy the null byte to keep where the line ends */
-            if (ctx->fbc[(y + n) * ctx->ch_w + x].c == '\0')
+            if (ctx->fbc[raw_y_plus_n + x].c == '\0')
                 break;
 
             fbc_refresh_entry(y, x);
@@ -310,29 +317,31 @@ void fbc_shift_rows(uint8_t n) {
         /* Fill from last valid to the end of the line */
         const uint32_t fill_y = CHAR_Y_TO_PX(y);
         const uint32_t fill_x = CHAR_X_TO_PX(char_count);
-        const uint32_t fill_h = ctx->font->h;
         const uint32_t fill_w = ctx->w + ctx->x - fill_x;
-        fb_drawrect_fast(fill_y, fill_x, fill_h, fill_w, DEFAULT_BG);
+        fb_drawrect_fast(fill_y, fill_x, ctx->font->h, fill_w, DEFAULT_BG);
 
         char_count = 0;
     }
 
     /* Clear last n rows with clean entries. Only change the ones that were
-     * full */
-    for (uint32_t y = ctx->ch_h - n; y < ctx->ch_h; y++) {
+     * full. The y variable starts as the first empty line after shifting */
+    for (uint32_t y = last_row + 1; y < ctx->ch_h; y++) {
+        /* Get once for performance. Used for ctx->fbc[] indexes */
+        const uint32_t raw_y = y * ctx->ch_w;
+
         /* First entry is newline, rest spaces. We dont need to call
          * fbc_refresh_entry because we know the whole line is empty */
-        ctx->fbc[y * ctx->ch_w + 0] = (fbc_entry){
-            '\n',
-            DEFAULT_FG,
-            DEFAULT_BG,
+        ctx->fbc[raw_y + 0] = (fbc_entry){
+            .c  = '\n',
+            .fg = DEFAULT_FG,
+            .bg = DEFAULT_BG,
         };
 
         for (uint32_t x = 1; x < ctx->ch_w; x++) {
-            ctx->fbc[y * ctx->ch_w + x] = (fbc_entry){
-                '\0',
-                DEFAULT_FG,
-                DEFAULT_BG,
+            ctx->fbc[raw_y + x] = (fbc_entry){
+                .c  = '\0',
+                .fg = DEFAULT_FG,
+                .bg = DEFAULT_BG,
             };
         }
     }
@@ -341,8 +350,7 @@ void fbc_shift_rows(uint8_t n) {
     const uint32_t fill_y = CHAR_Y_TO_PX(ctx->ch_h - n);
     const uint32_t fill_x = CHAR_X_TO_PX(0);
     const uint32_t fill_h = n * ctx->font->h;
-    const uint32_t fill_w = ctx->w;
-    fb_drawrect_fast(fill_y, fill_x, fill_h, fill_w, DEFAULT_BG);
+    fb_drawrect_fast(fill_y, fill_x, fill_h, ctx->w, DEFAULT_BG);
 }
 
 /* -------------------------------------------------------------------------- */

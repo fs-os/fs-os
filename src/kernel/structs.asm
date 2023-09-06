@@ -63,6 +63,25 @@ struc gdt_entry_t
     .base2:     resb 1          ; Last 8 bits of base
 endstruc
 
+; 512 bytes for FPU/SSE data used by fxsave and fxrstor in multitasking.
+; See Table 10-2 of volume 1 of the Intel Developer Manual
+struc fpu_data_t
+    .fcw:           resw 1          ; FPU Control Word. Figure 8-6, vol. 1
+    .fsw:           resw 1          ; FPU Status Word. Figure 8-4, vol. 1
+    .ftw:           resb 1          ; FPU Tag Word
+    .pad0:          resb 1          ; Reserved
+    .fop:           resw 1          ; FPU Opcode
+    .fip:           resd 1          ; FPU Instruction Pointer Offset
+    .fcs:           resw 1          ; FPU Instruction Pointer Selector
+    .pad1:          resw 1          ; Reserved
+    .fdp:           resd 1          ; FPU Instruction Operand Pointer Offset
+    .fds:           resw 1          ; FPU Instruction Operand Pointer Selector
+    .pad2:          resw 1          ; Reserved
+    .mxcsr:         resd 1          ; MXCSR Register State. Figure 10-3, vol. 1
+    .mxcsr_mask:    resd 1          ; Mask for MXCSR register
+    .registers:     resb 1          ; Registers ST0/MM0 to ST7/MM7
+endstruc
+
 ; See src/kernel/include/kernel/multitask.h
 struc ctx_t
     .next:      resd 1          ; Pointer to next task

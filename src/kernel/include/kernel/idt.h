@@ -10,8 +10,16 @@
  *
  * 0x80, 0b10000000
  */
-#define P_BIT    (1 << 7)
-#define DPL_NONE 0
+#define P_BIT (1 << 7)
+
+/**
+ * @enum idt_dpl
+ * @brief Values for the DPL bit of the Gate Descriptor.
+ */
+enum idt_dpl {
+    DPL_OFF = 0,
+    DPL_ON  = 1,
+};
 
 /**
  * @enum idt_gate_types
@@ -24,10 +32,10 @@
  * For more information, see: https://wiki.osdev.org/IDT#Gate_Types
  */
 enum idt_gate_types {
-    IDT_GATE_TASK       = 0x5, /**< @brief Task gate */
-    IDT_GATE_16BIT_INT  = 0x6, /**< @brief 16 bit interrupt */
-    IDT_GATE_16BIT_TRAP = 0x7, /**< @brief 16 bit trap */
-    IDT_GATE_32BIT_INT  = 0xE, /**< @brief 32 bit interrupt. Used. */
+    IDT_GATE_TASK       = 0x5, /**< @brief Task gate. Unused */
+    IDT_GATE_16BIT_INT  = 0x6, /**< @brief 16 bit interrupt. Unused */
+    IDT_GATE_16BIT_TRAP = 0x7, /**< @brief 16 bit trap. Unused */
+    IDT_GATE_32BIT_INT  = 0xE, /**< @brief 32 bit interrupt */
     IDT_GATE_32BIT_TRAP = 0xF, /**< @brief 32 bit trap */
 };
 
@@ -61,7 +69,6 @@ enum pic_flags {
     ICW4_BUF_SLAVE  = 0x08, /**< @brief Buffered mode/slave */
     ICW4_BUF_MASTER = 0x0C, /**< @brief Buffered mode/master */
     ICW4_SFNM       = 0x10, /**< @brief Special fully nested (not) */
-
 };
 
 /**

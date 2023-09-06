@@ -6,6 +6,7 @@
  */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <kernel/io.h>
 #include <kernel/idt.h>
@@ -24,19 +25,22 @@ idt_descriptor descriptor;
  * @brief Registers an interrupt service routine in the selected index of the
  * idt array.
  * @param idx Index of the idt array.
- * @param func Casted pointer to ISR function.
+ * @param func Pointer to ISR function.
+ * @param trap_gate If true, the current gate type will be TRAP instead of INT.
  */
-static void register_isr(uint16_t idx, uint32_t func) {
+static void register_isr(uint16_t idx, void* func, bool trap_gate) {
     if (idx >= IDT_SZ)
         panic_line("Idx out of bounds when registering ISR.");
+
+    const int gate_type = trap_gate ? IDT_GATE_32BIT_TRAP : IDT_GATE_32BIT_INT;
 
     idt[idx] = (idt_entry){
         .selector = 0x8, /* 00000000 00001000. Last 3 bits of the selector are
                             TI and RPL. We only want to set the idx to 1 (first
                             idx is the null gdt entry) */
-        .offset_l = ((uint32_t)func) & 0xFFFF,
-        .offset_h = (((uint32_t)func) >> 16) & 0xFFFF,
-        .type     = P_BIT | DPL_NONE | IDT_GATE_32BIT_INT,
+        .offset_l = (uint32_t)func & 0xFFFF,
+        .offset_h = ((uint32_t)func >> 16) & 0xFFFF,
+        .type     = P_BIT | DPL_OFF | gate_type,
         .zero     = 0,
     };
 }
@@ -79,38 +83,40 @@ void idt_init(void) {
      * with the CPU exceptions. See comment inside function. */
     pic_remap();
 
-    /* Exception Handling. exc_* defined in src/kernel/idt.asm */
-    register_isr(0, (uint32_t)&exc_0);
-    register_isr(1, (uint32_t)&exc_1);
-    register_isr(2, (uint32_t)&exc_2);
-    register_isr(3, (uint32_t)&exc_3);
-    register_isr(4, (uint32_t)&exc_4);
-    register_isr(5, (uint32_t)&exc_5);
-    register_isr(6, (uint32_t)&exc_6);
-    register_isr(7, (uint32_t)&exc_7);
-    register_isr(8, (uint32_t)&exc_8);
-    register_isr(10, (uint32_t)&exc_10);
-    register_isr(11, (uint32_t)&exc_11);
-    register_isr(12, (uint32_t)&exc_12);
-    register_isr(13, (uint32_t)&exc_13);
-    register_isr(14, (uint32_t)&exc_14);
-    register_isr(15, (uint32_t)&exc_15);
-    register_isr(16, (uint32_t)&exc_16);
-    register_isr(17, (uint32_t)&exc_17);
-    register_isr(18, (uint32_t)&exc_18);
-    register_isr(19, (uint32_t)&exc_19);
-    register_isr(20, (uint32_t)&exc_20);
-    register_isr(30, (uint32_t)&exc_30);
+    /* Exception Handling. With exceptions, we set the gate type to TRAP instead
+     * of INT. The exc_N functions defined in src/kernel/idt.asm */
+    register_isr(0, exc_0, true);
+    register_isr(1, exc_debug, true); /* Special handler for debug */
+    register_isr(2, exc_2, true);
+    register_isr(3, exc_3, true);
+    register_isr(4, exc_4, true);
+    register_isr(5, exc_5, true);
+    register_isr(6, exc_6, true);
+    register_isr(7, exc_7, true);
+    register_isr(8, exc_8, true);
+    register_isr(10, exc_10, true);
+    register_isr(11, exc_11, true);
+    register_isr(12, exc_12, true);
+    register_isr(13, exc_13, true);
+    register_isr(14, exc_14, true);
+    register_isr(15, exc_15, true); /* Reserved */
+    register_isr(16, exc_16, true);
+    register_isr(17, exc_17, true);
+    register_isr(18, exc_18, true);
+    register_isr(19, exc_19, true);
+    register_isr(20, exc_20, true);
+    register_isr(30, exc_30, true);
 
     /* IRQs. See src/kernel/idt.asm */
-    register_isr(32, (uint32_t)&irq_pit); /* PIT. IRQ 0 */
-    register_isr(33, (uint32_t)&irq_kb);  /* Keyboard. IRQ 1 */
+    register_isr(32, irq_pit, false); /* PIT. IRQ 0 */
+    register_isr(33, irq_kb, false);  /* Keyboard. IRQ 1 */
 
     /* Unused IRQs, just ignore. See src/kernel/idt.asm */
     for (int i = 34; i < 40; i++)
-        register_isr(i, (uint32_t)&irq_default_master);
+        register_isr(i, irq_default_master, false);
+
     for (int i = 40; i < 48; i++)
-        register_isr(i, (uint32_t)&irq_default_slave);
+        register_isr(i, irq_default_slave, false);
 
     /* See src/kernel/idt.asm */
     idt_load(&descriptor);
