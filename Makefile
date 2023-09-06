@@ -100,7 +100,7 @@ $(KERNEL_BIN): cfg/linker.ld $(ASM_OBJS) $(KERNEL_OBJS) $(LIBK_OBJS) $(APP_OBJS)
 
 obj/%.asm.o: src/%.asm
 	@mkdir -p $(dir $@)
-	$(ASM) $(ASM_FLAGS) $< -o $@
+	$(ASM) $(ASM_FLAGS) -o $@ $<
 
 obj/%.c.o: src/%.c
 	@mkdir -p $(dir $@)

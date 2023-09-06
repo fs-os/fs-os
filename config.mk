@@ -15,10 +15,29 @@ KERNEL_BIN=fs-os.bin
 ISO=$(KERNEL_BIN:.bin=.iso)
 
 # List of object files to be linked with the kernel. Same for asm_objs but with
-# different compilation method. TODO: Try define:
-# https://www.gnu.org/software/make/manual/html_node/Multi_002dLine.html
-KERNEL_OBJS=obj/kernel/kernel.c.o obj/kernel/vga.c.o obj/kernel/paging.c.o obj/kernel/heap.c.o obj/kernel/multitask.c.o obj/kernel/framebuffer.c.o obj/kernel/framebuffer_console.c.o obj/kernel/idt.c.o obj/kernel/exceptions.c.o obj/kernel/rtc.c.o obj/kernel/pit.c.o obj/kernel/pcspkr.c.o obj/kernel/keyboard.c.o
-ASM_OBJS=obj/kernel/boot.asm.o obj/kernel/io.asm.o obj/kernel/gdt.asm.o obj/kernel/idt.asm.o obj/kernel/paging.asm.o obj/kernel/multitask.asm.o obj/kernel/rand.asm.o obj/kernel/util.asm.o
+# different compilation method.
+KERNEL_OBJS=obj/kernel/kernel.c.o \
+			obj/kernel/vga.c.o \
+			obj/kernel/paging.c.o \
+			obj/kernel/heap.c.o \
+			obj/kernel/multitask.c.o \
+			obj/kernel/framebuffer.c.o \
+			obj/kernel/framebuffer_console.c.o \
+			obj/kernel/idt.c.o \
+			obj/kernel/exceptions.c.o \
+			obj/kernel/rtc.c.o \
+			obj/kernel/pit.c.o \
+			obj/kernel/pcspkr.c.o \
+			obj/kernel/keyboard.c.o
+
+ASM_OBJS=obj/kernel/boot.asm.o \
+		 obj/kernel/io.asm.o \
+		 obj/kernel/gdt.asm.o \
+		 obj/kernel/idt.asm.o \
+		 obj/kernel/paging.asm.o \
+		 obj/kernel/multitask.asm.o \
+		 obj/kernel/rand.asm.o \
+		 obj/kernel/util.asm.o
 
 # List of object files containing the app functions. Built into the kernel.
 APP_OBJS=obj/apps/sh/sh.c.o obj/apps/piano/piano.c.o obj/apps/minesweeper/minesweeper.c.o obj/apps/5x5/5x5.c.o
