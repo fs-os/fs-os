@@ -50,7 +50,7 @@ clean:
 
 # ----------------------------------------------------------------------------------
 
-.PHONY: sysroot sysroot_headers sysroot_lib sysroot_boot
+.PHONY: sysroot sysroot_headers sysroot_boot
 
 # Description of this target: Copy the headers to the sysroot, compile libc into
 # object files, make the static lib and copy it to the sysroot, build the kernel
@@ -58,18 +58,13 @@ clean:
 # TODO: Don't copy headers if they are updated.
 # NOTE: Maybe it can be fixed using `$?`:
 #   https://www.gnu.org/software/make/manual/html_node/Automatic-Variables.html
-sysroot: sysroot_headers sysroot_lib sysroot_boot
+sysroot: sysroot_headers sysroot_boot
 
 # Create the sysroot, copy the headers into the destination (include folder)
-sysroot_headers: $(KERNEL_INCLUDES)/* $(LIBC_INCLUDES)/*
+sysroot_headers: $(KERNEL_INCLUDES)/* $(LIBK_INCLUDES)/*
 	@mkdir -p $(SYSROOT_INCLUDEDIR)
 	cp -R --preserve=timestamps $(KERNEL_INCLUDES)/. $(SYSROOT_INCLUDEDIR)/.
-	cp -R --preserve=timestamps $(LIBC_INCLUDES)/. $(SYSROOT_INCLUDEDIR)/.
-
-# Create the sysroot, copy the libc static library to destination (lib folder).
-sysroot_lib: $(LIBC)
-	@mkdir -p $(SYSROOT_LIBDIR)
-	cp --preserve=timestamps $(LIBC) $(SYSROOT_LIBDIR)/
+	cp -R --preserve=timestamps $(LIBK_INCLUDES)/. $(SYSROOT_INCLUDEDIR)/.
 
 # Create the sysroot, copy the kernel binary to destination (boot folder).
 # Make a target for the sysroot kernel file so $(ISO) doesn't have phony targets
@@ -83,7 +78,7 @@ $(SYSROOT_KERNEL): $(KERNEL_BIN)
 
 # Use the sysroot kernel path as rule to make sure we have the sysroot ready.
 # User should run "make sysroot" before "make all". Sysroot already has all the
-# components (kernel, inlcudes, lib) compiled and copied into it.
+# components (kernel and includes) compiled and copied into it.
 $(ISO): $(SYSROOT_KERNEL) limine/limine-deploy
 	mkdir -p iso/boot/
 	cp $(SYSROOT_KERNEL) iso/boot/$(KERNEL_BIN)
@@ -95,44 +90,19 @@ $(ISO): $(SYSROOT_KERNEL) limine/limine-deploy
 		iso -o $(ISO)
 	limine/limine-deploy --quiet $(ISO)
 
+# Only ran once
 limine/limine-deploy:
 	make -C limine
 
-# We will use the same compiler for linking. Use sysroot for including with
-# <lib.h>, etc.
+# We use --sysroot so we can for example include with <lib.h>
 $(KERNEL_BIN): cfg/linker.ld $(ASM_OBJS) $(KERNEL_OBJS) $(LIBK_OBJS) $(APP_OBJS)
-	$(CC) --sysroot=sysroot -isystem=/usr/include -T cfg/linker.ld -o $@ -ffreestanding -nostdlib $(CFLAGS) $(ASM_OBJS) $(KERNEL_OBJS) $(LIBK_OBJS) $(APP_OBJS) -lgcc
+	$(CC) --sysroot=sysroot -isystem=/usr/include -ffreestanding -nostdlib -T cfg/linker.ld -o $@ $(CFLAGS) $(ASM_OBJS) $(KERNEL_OBJS) $(LIBK_OBJS) $(APP_OBJS) -lgcc
 
-$(ASM_OBJS): obj/kernel/%.o: src/kernel/%
+obj/%.asm.o: src/%.asm
 	@mkdir -p $(dir $@)
 	$(ASM) $(ASM_FLAGS) $< -o $@
 
-# We need the sysroot with the includes and the static lib for building the
-# kernel, framebuffer, etc. We called 'make sysroot' in the 'all' target so we
-# should be fine.
-$(KERNEL_OBJS): obj/kernel/%.o: src/kernel/%
+obj/%.c.o: src/%.c
 	@mkdir -p $(dir $@)
-	$(CC) --sysroot=sysroot -isystem=/usr/include -c $< -o $@ -ffreestanding -std=gnu11 $(CFLAGS) -Iinclude
-
-$(APP_OBJS): obj/apps/%.o: src/apps/%
-	@mkdir -p $(dir $@)
-	$(CC) --sysroot=sysroot -isystem=/usr/include -c $< -o $@ -ffreestanding -std=gnu11 $(CFLAGS) -Iinclude
-
-# Libk is a modified version of libc for building the kernel. We don't need a
-# static lib for libk, we will just link the kernel with these objs.
-# NOTE: Doesn't have its own include folder, so it uses the same headers as
-# libc. If some function parameters need to change, or we need to add a custom
-# function for the kernel, make libk header folder in sysroot.
-$(LIBK_OBJS): obj/libk/%.o : src/libk/%
-	@mkdir -p $(dir $@)
-	$(CC) --sysroot=sysroot -isystem=/usr/include -c $< -o $@ -ffreestanding -std=gnu11 $(CFLAGS) -Iinclude
-
-$(LIBC_OBJS): obj/libc/%.o : src/libc/%
-	@mkdir -p $(dir $@)
-	$(CC) --sysroot=sysroot -isystem=/usr/include -c $< -o $@ -ffreestanding -std=gnu11 $(CFLAGS) -Iinclude
-
-# Libc used for the userspace. Currently useless. Archive the library objects
-# into a static library.
-$(LIBC): $(LIBC_OBJS)
-	$(AR) rcs $(LIBC) $(LIBC_OBJS)
+	$(CC) --sysroot=sysroot -isystem=/usr/include -ffreestanding -std=gnu11 -Iinclude $(CFLAGS) -c -o $@ $<
 
