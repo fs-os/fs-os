@@ -10,13 +10,13 @@
  * @def M_PI
  * @brief The mathematical constant pi.
  */
-#define M_PI    3.14159265358979323846
+#define M_PI 3.14159265358979323846
 
 /**
  * @def M_E
  * @brief The mathematical constant e.
  */
-#define M_E     2.71828182845904523536
+#define M_E 2.71828182845904523536
 
 /**
  * @def M_SQRT2
@@ -29,7 +29,14 @@
  * @param[in] x The input number.
  * @return The absolute value of x.
  */
-double abs(double x);
+int abs(int x);
+
+/**
+ * @brief Calculates the absolute value of a double.
+ * @param[in] x The input number.
+ * @return The absolute value of x.
+ */
+double fabs(double x);
 
 /**
  * @brief Calculates the square root of a number.

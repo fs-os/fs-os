@@ -1,6 +1,22 @@
 section .text
 
 ; double sqrt(double x);
+global fabs:function
+fabs:
+    push    ebp
+    mov     ebp, esp
+    sub     esp, 8                      ; Reserve 8 bytes on the stack
+
+    fld     qword [ebp + 8]             ; Push to FPU stack
+    fabs                                ; st(0) = fabs(st(0));
+    fstp    qword [ebp - 8]             ; Move st(0) to reserved bytes
+    fld     qword [ebp - 8]             ; Push reserved bytes to FPU stack
+
+    mov     esp, ebp
+    pop     ebp
+    ret
+
+; double sqrt(double x);
 global sqrt:function
 sqrt:
     push    ebp
@@ -21,12 +37,12 @@ global sin:function
 sin:
     push    ebp
     mov     ebp, esp
-    sub     esp, 8                      ; Reserve 8 bytes on the stack
+    sub     esp, 8
 
-    fld     qword [ebp + 8]             ; Push to FPU stack
+    fld     qword [ebp + 8]
     fsin                                ; st(0) = sin(st(0));
-    fstp    qword [ebp - 8]             ; Move st(0) to reserved bytes
-    fld     qword [ebp - 8]             ; Push reserved bytes to FPU stack
+    fstp    qword [ebp - 8]
+    fld     qword [ebp - 8]
 
     mov     esp, ebp
     pop     ebp
@@ -40,7 +56,7 @@ cos:
     sub     esp, 8
 
     fld     qword [ebp + 8]
-    fcos
+    fcos                                ; st(0) = cos(st(0));
     fstp    qword [ebp + 8]
     fld     qword [ebp - 8]
 
@@ -56,8 +72,8 @@ tan:
     sub     esp, 8
 
     fld     qword [ebp + 8]
-    fsincos
-    fdivp   st1, st0                    ; st(1) /= st(0)
+    fsincos                             ; st(0) = sincos(st(0));
+    fdivp   st1, st0                    ; st(1) /= st(0);
     fstp    qword [ebp + 8]
 
     mov     esp, ebp
@@ -72,8 +88,8 @@ cot:
     sub     esp, 8
 
     fld     qword [ebp + 8]
-    fsincos
-    fdivrp  st1, st0                    ; st(0) = st(1) / st(0)
+    fsincos                             ; st(0) = sincos(st(0));
+    fdivrp  st1, st0                    ; st(0) = st(1) / st(0);
     fstp    qword [ebp + 8]
 
     mov     esp, ebp

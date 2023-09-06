@@ -1,6 +1,6 @@
 #include <math.h>
 
-double abs(double x) {
+int abs(int x) {
     return x < 0 ? -x : x;
 }
 
