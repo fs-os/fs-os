@@ -23,7 +23,7 @@ if you have any improvements to the OS.
 - [ ] Filesystems.
     - [ ] FAT.
     - [ ] Ext2.
-- [ ] Userspace. Ring 3. Load executables from disk.
+- [ ] Load executables from disk.
 
 ### Done
 - [X] Newline support for VGA terminal.
