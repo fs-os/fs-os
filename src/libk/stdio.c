@@ -173,7 +173,7 @@ static size_t fmt_x(uint64_t num, bool uppercase) {
 
     int i;
     for (i = 0; num != 0; i++) {
-        str[i] = hex_chars[num & 15];
+        str[i] = hex_chars[num & 0xF];
         num >>= 4; /* bitsof(0xF); */
     }
     str[i] = '\0';
@@ -255,10 +255,10 @@ int vprintf(const char* restrict fmt, va_list va) {
                 written += fmt_f(va_arg(va, double), DEFAULT_DOUBLE_DECIMALS);
                 break;
             case 'x': /* "%x" */
-                written += fmt_x(va_arg(va, int), false);
+                written += fmt_x(va_arg(va, unsigned int), false);
                 break;
             case 'X': /* "%X" */
-                written += fmt_x(va_arg(va, int), true);
+                written += fmt_x(va_arg(va, unsigned int), true);
                 break;
             case 'p': /* "%p" */
                 written += fmt_p(va_arg(va, void*));
@@ -303,10 +303,10 @@ int vprintf(const char* restrict fmt, va_list va) {
                           fmt_f(va_arg(va, double), DEFAULT_DOUBLE_DECIMALS);
                         break;
                     case 'x': /* "%lx" */
-                        written += fmt_x(va_arg(va, long), false);
+                        written += fmt_x(va_arg(va, unsigned long), false);
                         break;
                     case 'X': /* "%lX" */
-                        written += fmt_x(va_arg(va, long), true);
+                        written += fmt_x(va_arg(va, unsigned long), true);
                         break;
                     case 'l':  /* "%ll..." */
                         fmt++; /* Skip the second 'l' */
@@ -324,10 +324,12 @@ int vprintf(const char* restrict fmt, va_list va) {
                                   fmt_d(va_arg(va, unsigned long long));
                                 break;
                             case 'x': /* "%llx" */
-                                written += fmt_x(va_arg(va, long long), false);
+                                written +=
+                                  fmt_x(va_arg(va, unsigned long long), false);
                                 break;
                             case 'X': /* "%llX" */
-                                written += fmt_x(va_arg(va, long long), true);
+                                written +=
+                                  fmt_x(va_arg(va, unsigned long long), true);
                                 break;
                         } /* %lld switch */
                         break;
@@ -366,10 +368,12 @@ int vprintf(const char* restrict fmt, va_list va) {
                                              DEFAULT_DOUBLE_DECIMALS);
                         break;
                     case 'x': /* "%123x" */
-                        written += fmt_x_pad(va_arg(va, int), fmt_num, false);
+                        written +=
+                          fmt_x_pad(va_arg(va, unsigned int), fmt_num, false);
                         break;
                     case 'X': /* "%123X" */
-                        written += fmt_x_pad(va_arg(va, int), fmt_num, true);
+                        written +=
+                          fmt_x_pad(va_arg(va, unsigned int), fmt_num, true);
                         break;
                     case 's': /* "%132s" */
                         written += fmt_s_pad(va_arg(va, const char*), fmt_num);
@@ -414,12 +418,12 @@ int vprintf(const char* restrict fmt, va_list va) {
                                             DEFAULT_DOUBLE_DECIMALS);
                                 break;
                             case 'x': /* "%123lx" */
-                                written +=
-                                  fmt_x_pad(va_arg(va, long), fmt_num, false);
+                                written += fmt_x_pad(va_arg(va, unsigned long),
+                                                     fmt_num, false);
                                 break;
                             case 'X': /* "%123lX" */
-                                written +=
-                                  fmt_x_pad(va_arg(va, long), fmt_num, true);
+                                written += fmt_x_pad(va_arg(va, unsigned long),
+                                                     fmt_num, true);
                                 break;
                             case 'l': /* "%123ll..." */
                                 /* Skip the second 'l' of "%123ll?" */
@@ -440,13 +444,14 @@ int vprintf(const char* restrict fmt, va_list va) {
                                           fmt_num);
                                         break;
                                     case 'x': /* "%123llx" */
-                                        written +=
-                                          fmt_x_pad(va_arg(va, long long),
-                                                    fmt_num, false);
+                                        written += fmt_x_pad(
+                                          va_arg(va, unsigned long long),
+                                          fmt_num, false);
                                         break;
                                     case 'X': /* "%123llX" */
                                         written += fmt_x_pad(
-                                          va_arg(va, long long), fmt_num, true);
+                                          va_arg(va, unsigned long long),
+                                          fmt_num, true);
                                         break;
                                 } /* %123ll... switch */
                                 break;
