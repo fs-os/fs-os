@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
+#include <math.h>
 #include <time.h> /* sleep */
 
 #include <kernel/framebuffer_console.h> /* fbc_setfore, fbc_clear */
@@ -41,9 +42,6 @@
             *(p + 2) = tmp;            \
         }                              \
     } while (0);
-
-/* Just used in cmd_test_libk */
-#define SIGMAROUND(n) (double)(int)(n + 0.5)
 
 #define LENGTH(arr) (sizeof(arr) / sizeof(arr[0]))
 
@@ -580,8 +578,13 @@ static int cmd_test_libk() {
     printf("(rand() %% 10) + 1.3f = %f\n", (rand() % 10) + 1.3f);
     printf("654.12345678f (\"%%.3f\") -> \"%.3f\"\n", 654.12345678f);
     printf("654.12345678f (\"%%10.4f\") -> \"%10.4f\"\n", 654.12345678f);
-    printf("SIGMAROUND(1.4) = %f\n", SIGMAROUND(1.4));
-    printf("SIGMAROUND(1.5) = %f\n", SIGMAROUND(1.5));
+
+    TEST_TITLE("\nTesting math.h functions");
+    printf("round(1.4) = %f\n", round(1.4));
+    printf("round(1.5) = %f\n", round(1.5));
+    printf("sqrt(9) = %f\n", sqrt(9));
+    printf("sin(M_PI / 2) = %f\n", sin(M_PI / 2));
+    printf("tan(M_PI / 4) = %f\n", tan(M_PI / 4));
 
     TEST_TITLE("\nTesting time.h functions");
     printf("Hello, ");
