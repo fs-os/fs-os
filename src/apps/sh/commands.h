@@ -539,31 +539,12 @@ static int cmd_primes(int argc, char** argv) {
 }
 
 static int cmd_test_libk() {
-    TEST_TITLE("\nTesting stdlib.h, string.h and stdio.h functions");
-
-    char buf[255] = { 0 };
-
-    printf("strlen(\"abcd\") -> %ld\n", strlen("abcd"));
-    printf("memcmp(\"abcd\", \"abca\", 4) -> %d\n", memcmp("abcd", "abc1", 4));
-    printf("memcmp(\"abcd\", \"abce\", 4) -> %d\n", memcmp("abcd", "abce", 4));
-    printf("memcmp(\"12345\", \"12345\", 5) -> %d\n",
-           memcmp("12345", "12345", 5));
-
-    /* More than one line for the null terminator */
-    printf("memset(buf, 'h', 5) -> ");
-    memset(buf, 'h', 5);
-    buf[5] = '\0';
-    puts(buf);
-
-    printf("memcpy(&buf[5], &buf[0], 5) -> ");
-    memcpy(&buf[5], &buf[0], 5);
-    buf[10] = '\0';
-    puts(buf);
+    TEST_TITLE("\nTesting stdlib.h functions");
 
     printf("srand(time(NULL))\n");
     srand(time(NULL));
-    printf("rand() -> %u\n", rand());
-    printf("rand() -> %u\n", rand());
+    printf("rand()     -> %u\n", rand());
+    printf("rand()     -> %u\n", rand());
 
     if (!check_rdseed() && !check_rdrand()) {
         fbc_setfore(COLOR_RED);
@@ -575,16 +556,21 @@ static int cmd_test_libk() {
     }
 
     TEST_TITLE("\nTesting float formats");
-    printf("(rand() %% 10) + 1.3f = %f\n", (rand() % 10) + 1.3f);
-    printf("654.12345678f (\"%%.3f\") -> \"%.3f\"\n", 654.12345678f);
+    printf("(rand() %% 10) + 1.3f      = %f\n", (rand() % 10) + 1.3f);
+    printf("654.12345678f (\"%%.3f\")   -> \"%.3f\"\n", 654.12345678f);
     printf("654.12345678f (\"%%10.4f\") -> \"%10.4f\"\n", 654.12345678f);
 
     TEST_TITLE("\nTesting math.h functions");
-    printf("round(1.4) = %f\n", round(1.4));
-    printf("round(1.5) = %f\n", round(1.5));
-    printf("sqrt(9) = %f\n", sqrt(9));
-    printf("sin(M_PI / 2) = %f\n", sin(M_PI / 2));
-    printf("tan(M_PI / 4) = %f\n", tan(M_PI / 4));
+    printf("round(1.4)      = %f\n", round(1.4));
+    printf("round(1.5)      = %f\n", round(1.5));
+    printf("fabs(-123.0)    = %f\n", fabs(-123.0));
+    printf("sqrt(9.0)       = %f\n", sqrt(9.0));
+
+    /* FIXME */
+    printf("sin(M_PI / 2.0) = %f\n", sin(M_PI / 2.0));
+    printf("cos(123.0)      = %f\n", cos(123.0));
+    printf("tan(M_PI / 4.0) = %f\n", tan(M_PI / 4.0));
+    printf("cot(123.0)      = %f\n", cot(123.0));
 
     TEST_TITLE("\nTesting time.h functions");
     printf("Hello, ");
