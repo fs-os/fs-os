@@ -96,11 +96,19 @@ exc_debug:
     and     dword [esp], ~(1 << 8)      ; Unset Trap Flag bit in EFLAGS
     popfd                               ; Pop into EFLAGS from the stack
 
-    ; TODO: Pass Time-Stamp Counter (Vol.3, Chapter 17.17)
-    ; The CPU pushed EIP before calling the ISR
-    push    dword 1337          ; Push the first argument, TSC
+%ifndef DEBUG
+    push    dword 0x00000000
+    push    dword 0x00000000
+%else
+    ; Read Time-Stamp Counter (TSC) to EDX:EAX
+    rdtsc
+
+    ; The CPU pushed EIP (2nd arg of handle_debug) before calling the ISR
+    push    edx                 ; Push the upper part of uint64_t
+    push    eax                 ; Push the lower part of first argument, TSC
+%endif
     call    handle_debug        ; Call C function
-    add     esp, 4              ; Remove dword we just pushed
+    add     esp, 8              ; Remove dword we just pushed
 
     sti                         ; Re-enable interrupts
     iretd                       ; Return from 32 bit interrupt

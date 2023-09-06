@@ -173,6 +173,7 @@ is_msr_supported:
     push    ecx
     push    edx
 
+    ; See Vol.2, WRMSR description
     mov     eax, 0x1            ; Request function 1 of CPUID
     cpuid
     test    edx, 1 << 5         ; CPUID.1:EDX.MSR[bit 5] == 1?
@@ -196,6 +197,7 @@ is_tsc_supported:
     push    ecx
     push    edx
 
+    ; See Vol.3, Chapter 17.17
     mov     eax, 0x1            ; Request function 1 of CPUID
     cpuid
     test    edx, 1 << 4         ; CPUID.1:EDX.TSC[bit 4] == 1?
