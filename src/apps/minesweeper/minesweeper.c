@@ -213,11 +213,14 @@ static void init_grid(ms_t* ms) {
 static int get_bombs(ms_t* ms, int fy, int fx) {
     int ret = 0;
 
+    const int top_left_y = (fy > 0) ? fy - 1 : fy;
+    const int top_left_x = (fx > 0) ? fx - 1 : fx;
+
     /* ###
      * #X#
      * ### */
-    for (int y = (fy > 0) ? fy - 1 : fy; y <= fy + 1 && y < ms->h; y++)
-        for (int x = (fx > 0) ? fx - 1 : fx; x <= fx + 1 && x < ms->w; x++)
+    for (int y = top_left_y; y <= fy + 1 && y < ms->h; y++)
+        for (int x = top_left_x; x <= fx + 1 && x < ms->w; x++)
             if (ms->grid[y * ms->w + x].c == BOMB_CH)
                 ret++;
 
@@ -337,8 +340,8 @@ static void generate_grid(ms_t* ms, point_t start, int bomb_percent) {
         total_bombs = max_bombs;
 
     for (int bombs = 0; bombs < total_bombs; bombs++) {
-        int bomb_y = rand() % ms->h;
-        int bomb_x = rand() % ms->w;
+        int bomb_y = (uint32_t)rand() % ms->h;
+        int bomb_x = (uint32_t)rand() % ms->w;
 
         /* Leave an empty zone around cursor */
         if (bomb_y > start.y - BOMB_MARGIN && bomb_y < start.y + BOMB_MARGIN &&
@@ -377,6 +380,10 @@ static inline bool surrounding_bombs_flagged(ms_t* ms, int fy, int fx) {
  * @param[in] fy, fx Position to be revealed.
  * @param[in] user_call Used to know if we are recursing in the current function
  * call or not.
+ *
+ * @todo Because the function uses recustion, with low ms->difficulty (lots of
+ * free cells, lots of recursive reveals) a stack overflow may occur, and the
+ * whole system might crash :)
  */
 static void reveal_tiles(ms_t* ms, int fy, int fx, bool user_call) {
     if (ms->grid[fy * ms->w + fx].c == BOMB_CH) {
@@ -392,12 +399,15 @@ static void reveal_tiles(ms_t* ms, int fy, int fx, bool user_call) {
          * recursing */
         ms->grid[fy * ms->w + fx].flags |= FLAG_CLEARED;
 
+        const int top_left_y = (fy > 0) ? fy - 1 : fy;
+        const int top_left_x = (fx > 0) ? fx - 1 : fx;
+
         /* No bombs in surrounding tiles, reveal them
          * ###
          * #X#
          * ### */
-        for (int y = (fy > 0) ? fy - 1 : fy; y <= fy + 1 && y < ms->h; y++)
-            for (int x = (fx > 0) ? fx - 1 : fx; x <= fx + 1 && x < ms->w; x++)
+        for (int y = top_left_y; y <= fy + 1 && y < ms->h; y++)
+            for (int x = top_left_x; x <= fx + 1 && x < ms->w; x++)
                 /* If we are not revealing that one, reveal */
                 if (!(ms->grid[y * ms->w + x].flags & FLAG_CLEARED))
                     reveal_tiles(ms, y, x, false);
@@ -459,7 +469,6 @@ static bool check_win(ms_t* ms) {
     return true;
 }
 
-/** @todo `minesweeper -d 1<RET> <SPC>` literally crashes the whole OS :D */
 int main_minesweeper(int argc, char** argv) {
     /* Main minesweeper struct */
     ms_t ms = (ms_t){
