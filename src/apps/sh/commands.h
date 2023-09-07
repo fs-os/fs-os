@@ -21,6 +21,8 @@
 #include "../piano/piano.h"
 #include "../minesweeper/minesweeper.h"
 #include "../5x5/5x5.h"
+#include "../mandelbrot/mandelbrot.h"
+
 #include "../../media/soviet_anthem.h"
 #include "../../media/thunderstruck.h"
 
@@ -76,6 +78,7 @@ static int cmd_play(int argc, char** argv);
 /* piano_random */
 /* minesweeper_main */
 /* main_5x5 */
+/* mandelbrot_main */
 
 static int cmd_primes(int argc, char** argv);
 static int cmd_test_libk();
@@ -170,6 +173,11 @@ static Command cmd_list[] = {
       "5x5",
       "Simple 5x5 game",
       &main_5x5,
+    },
+    {
+      "mandelbrot",
+      "Interactive mandelbrot",
+      &main_mandelbrot,
     },
     {
       "primes",
