@@ -565,12 +565,10 @@ static int cmd_test_libk() {
     printf("round(1.5)      = %f\n", round(1.5));
     printf("fabs(-123.0)    = %f\n", fabs(-123.0));
     printf("sqrt(9.0)       = %f\n", sqrt(9.0));
-
-    /* FIXME */
     printf("sin(M_PI / 2.0) = %f\n", sin(M_PI / 2.0));
     printf("cos(123.0)      = %f\n", cos(123.0));
     printf("tan(M_PI / 4.0) = %f\n", tan(M_PI / 4.0));
-    printf("cot(123.0)      = %f\n", cot(123.0));
+    printf("cot(5.0)        = %f\n", cot(5.0));
 
     TEST_TITLE("\nTesting time.h functions");
     printf("Hello, ");

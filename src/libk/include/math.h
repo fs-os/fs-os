@@ -49,8 +49,6 @@ double sqrt(double x);
  * @brief Calculates the sine of an angle.
  * @param[in] x The input angle in radians.
  * @return The sine of x.
- *
- * @todo Returns invalid values.
  */
 double sin(double x);
 
@@ -58,8 +56,6 @@ double sin(double x);
  * @brief Calculates the cosine of an angle.
  * @param[in] x The input angle in radians.
  * @return The cosine of x.
- *
- * @todo Returns invalid values.
  */
 double cos(double x);
 
@@ -67,8 +63,6 @@ double cos(double x);
  * @brief Calculates the tangent of an angle.
  * @param[in] x The input angle in radians.
  * @return The tangent of x.
- *
- * @todo Returns invalid values.
  */
 double tan(double x);
 
@@ -76,8 +70,6 @@ double tan(double x);
  * @brief Calculates the cotangent of an angle.
  * @param[in] x The input angle in radians.
  * @return The cotangent of x.
- *
- * @todo Returns invalid values.
  */
 double cot(double x);
 
