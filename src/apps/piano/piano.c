@@ -14,6 +14,26 @@
 
 #define LENGTH(arr) (sizeof(arr) / sizeof(arr[0]))
 
+/**
+ * @brief Information about each piano note.
+ */
+typedef struct {
+    /** @brief Key on the user's keyboard */
+    uint8_t ch;
+
+    /** @brief String containing the note name, used for displaying only */
+    char* note_name;
+
+    /** @brief Frequency of the pc speaker for this key */
+    uint32_t freq;
+
+    /** @brief The key was pressed in the current iteration */
+    bool pressed;
+
+    /** @brief The key is being held since the last iteration */
+    bool held;
+} Piano_note;
+
 static inline void print_piano(void) {
     const char* piano_layout[] = {
         "\xC9\xCD\xCD\xCB\xCD\xCB\xCD\xCB\xCD\xCB\xCD\xCB\xCD\xCB\xCD\xCD\xCB"
@@ -89,7 +109,7 @@ static const Piano_note piano_notes_original[] = {
     { 'l', "F ", 349, false, false }, /* F  */
 };
 
-int piano_main(int argc, char** argv) {
+int main_piano(int argc, char** argv) {
     /* Make a copy of piano_notes_original so we can edit the octaves there */
     Piano_note piano_notes[LENGTH(piano_notes_original)];
     memcpy(piano_notes, piano_notes_original, sizeof(piano_notes_original));
@@ -209,7 +229,7 @@ int piano_main(int argc, char** argv) {
                argv[0], argv[0], argv[0], argv[0]);                      \
     }
 
-int piano_random(int argc, char** argv) {
+int main_piano_random(int argc, char** argv) {
     int note_limit   = 1; /* Max notes the program will play */
     int note_count   = 0; /* Notes we played */
     bool count_notes = false;

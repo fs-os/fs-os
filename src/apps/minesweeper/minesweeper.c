@@ -460,8 +460,7 @@ static bool check_win(ms_t* ms) {
 }
 
 /** @todo `minesweeper -d 1<RET> <SPC>` literally crashes the whole OS :D */
-/** @todo Rename to main_minesweeper. Same for piano */
-int minesweeper_main(int argc, char** argv) {
+int main_minesweeper(int argc, char** argv) {
     /* Main minesweeper struct */
     ms_t ms = (ms_t){
         .w          = DEFAULT_W,

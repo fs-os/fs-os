@@ -74,11 +74,11 @@ static int cmd_beep(int argc, char** argv);
 static int cmd_metronome(int argc, char** argv);
 static int cmd_play(int argc, char** argv);
 
-/* piano_main */
-/* piano_random */
-/* minesweeper_main */
+/* main_piano */
+/* main_piano_random */
+/* main_minesweeper */
 /* main_5x5 */
-/* mandelbrot_main */
+/* main_mandelbrot */
 
 static int cmd_primes(int argc, char** argv);
 static int cmd_test_libk();
@@ -157,17 +157,17 @@ static Command cmd_list[] = {
     {
       "piano",
       "Play the piano through the pc speaker",
-      &piano_main,
+      &main_piano,
     },
     {
       "piano_random",
       "Random piano through the pc speaker",
-      &piano_random,
+      &main_piano_random,
     },
     {
       "minesweeper",
       "Simple terminal minesweeper",
-      &minesweeper_main,
+      &main_minesweeper,
     },
     {
       "5x5",

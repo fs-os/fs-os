@@ -8,6 +8,6 @@
  * @param[in] argv String vector with the artuments.
  * @return Exit code
  */
-int minesweeper_main(int argc, char** argv);
+int main_minesweeper(int argc, char** argv);
 
 #endif /* _APPS_MINESWEEPER_H */
