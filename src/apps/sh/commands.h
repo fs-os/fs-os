@@ -564,6 +564,7 @@ static int cmd_test_libk() {
     printf("round(1.4)      = %f\n", round(1.4));
     printf("round(1.5)      = %f\n", round(1.5));
     printf("fabs(-123.0)    = %f\n", fabs(-123.0));
+    printf("fmod(5.005, 2)  = %f\n", fmod(5.005, 2));
     printf("sqrt(9.0)       = %f\n", sqrt(9.0));
     printf("sin(M_PI / 2.0) = %f\n", sin(M_PI / 2.0));
     printf("cos(123.0)      = %f\n", cos(123.0));
