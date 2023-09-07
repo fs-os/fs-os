@@ -7,7 +7,16 @@ int abs(int x) {
 double pow(double base, int exponent) {
     double result = 1;
 
-    while (exponent--)
+    while (exponent-- != 0)
+        result *= base;
+
+    return result;
+}
+
+int ipow(int base, int exponent) {
+    int result = 1;
+
+    while (exponent-- != 0)
         result *= base;
 
     return result;

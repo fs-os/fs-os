@@ -6,6 +6,8 @@
 #ifndef _MATH_H
 #define _MATH_H
 
+#include <stdint.h>
+
 /**
  * @def M_PI
  * @brief The mathematical constant pi.
@@ -40,12 +42,22 @@ int abs(int x);
 double fabs(double x);
 
 /**
+ * @brief Calculates the modulus (remainder) of 2 numbers.
+ * @param[in] x The dividend.
+ * @param[in] x The divisor.
+ * @return The remainder of x/y.
+ */
+static inline double fmod(double x, double y) {
+    return x - y * (uint64_t)(x / y);
+}
+
+/**
  * @brief Calculates the square root of a number.
  * @details Defined in math.asm
  * @param[in] x The input number.
  * @return The square root of x.
  */
-double sqrt(double x);
+double sqrt(double x) __attribute__((pure));
 
 /**
  * @brief Calculates the sine of an angle.
@@ -53,7 +65,7 @@ double sqrt(double x);
  * @param[in] x The input angle in radians.
  * @return The sine of x.
  */
-double sin(double x);
+double sin(double x) __attribute__((pure));
 
 /**
  * @brief Calculates the cosine of an angle.
@@ -61,7 +73,7 @@ double sin(double x);
  * @param[in] x The input angle in radians.
  * @return The cosine of x.
  */
-double cos(double x);
+double cos(double x) __attribute__((pure));
 
 /**
  * @brief Calculates the tangent of an angle.
@@ -69,7 +81,7 @@ double cos(double x);
  * @param[in] x The input angle in radians.
  * @return The tangent of x.
  */
-double tan(double x);
+double tan(double x) __attribute__((pure));
 
 /**
  * @brief Calculates the cotangent of an angle.
@@ -77,7 +89,7 @@ double tan(double x);
  * @param[in] x The input angle in radians.
  * @return The cotangent of x.
  */
-double cot(double x);
+double cot(double x) __attribute__((pure));
 
 /**
  * @brief Calculates the power of a number.
@@ -85,7 +97,15 @@ double cot(double x);
  * @param[in] exponent The exponent.
  * @return The result of base raised to the power of exponent.
  */
-double pow(double base, int exponent);
+double pow(double base, int exponent) __attribute__((pure));
+
+/**
+ * @brief Calculates the power of an integer.
+ * @param[in] base The base number.
+ * @param[in] exponent The exponent.
+ * @return The result of base raised to the power of exponent.
+ */
+double ipow(double base, int exponent) __attribute__((pure));
 
 /**
  * @brief Rounds a number down to the nearest integer.
