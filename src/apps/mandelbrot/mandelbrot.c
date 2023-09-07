@@ -25,15 +25,8 @@
 #define KEY_RIGHT    'l'
 #define KEY_RESET    'r'
 
-/* Max HSV values (Used for scaling) */
+/* Max hue value (Used for scaling) */
 #define MAX_H 360
-#define MAX_S 1.0
-#define MAX_V 1.0
-
-/* Default HSV values */
-#define COL_H 360
-#define COL_S 1.0
-#define COL_V 1.0
 
 /* Smaller -> More zoom (1.0 is defaul) */
 #define DEFAULT_ZOOM 1.0
@@ -46,7 +39,7 @@
 /* RGB color used for drawing the interior of the mandelbrot set */
 #define INSIDE_COL 0x000000
 
-static void hsv2rgb(float* r, float* g, float* b, float h, float s, float v);
+static void hue2rgb(float* r, float* g, float* b, float h);
 
 /**
  * @todo Use windows once it's added.
@@ -64,7 +57,7 @@ int main_mandelbrot(int argc, char** argv) {
     const uint32_t h   = fb_get_height();
     const int max_iter = atoi(argv[1]);
 
-    if (max_iter < 1 || max_iter > 255) {
+    if (max_iter < 1) {
         printf("Wrong iteration argument (1..255).\n"
                "Usage: %s <iterations>\n",
                argv[0]);
@@ -150,10 +143,10 @@ int main_mandelbrot(int argc, char** argv) {
                  * NOTE: Make sure you change the variable type to double if you
                  * want to scale the Saturation or Value instead (to not
                  * truncate to zero) */
-                int scaled_hue = iter * COL_H / max_iter;
+                int scaled_hue = iter * MAX_H / max_iter;
 
                 float fl_r, fl_g, fl_b;
-                hsv2rgb(&fl_r, &fl_g, &fl_b, scaled_hue, COL_S, COL_V);
+                hue2rgb(&fl_r, &fl_g, &fl_b, scaled_hue);
 
                 /* NOTE: Try to replace some of these parameters with zeros or
                  * mess with the scaling and see what happens :) */
@@ -210,6 +203,7 @@ int main_mandelbrot(int argc, char** argv) {
     return 0;
 }
 
+#if 0
 static void hsv2rgb(float* r, float* g, float* b, float h, float s, float v) {
     float chroma = v * s; /* Chroma */
     float prime  = fmod(h / 60.f, 6);
@@ -243,4 +237,34 @@ static void hsv2rgb(float* r, float* g, float* b, float h, float s, float v) {
     *r += m;
     *g += m;
     *b += m;
+}
+#endif
+
+static void hue2rgb(float* r, float* g, float* b, float h) {
+    float prime  = fmod(h / 60.f, 6);
+    float x      = 1 - fabs(fmod(prime, 2) - 1);
+
+    *r = 0.f;
+    *g = 0.f;
+    *b = 0.f;
+
+    if (prime >= 0 && prime < 1) {
+        *r = 1.f;
+        *g = x;
+    } else if (prime < 2) {
+        *r = x;
+        *g = 1.f;
+    } else if (prime < 3) {
+        *g = 1.f;
+        *b = x;
+    } else if (prime < 4) {
+        *g = x;
+        *b = 1.f;
+    } else if (prime < 5) {
+        *r = x;
+        *b = 1.f;
+    } else if (prime < 6) {
+        *r = 1.f;
+        *b = x;
+    }
 }
