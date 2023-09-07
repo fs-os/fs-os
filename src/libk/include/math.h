@@ -33,6 +33,7 @@ int abs(int x);
 
 /**
  * @brief Calculates the absolute value of a double.
+ * @details Defined in math.asm
  * @param[in] x The input number.
  * @return The absolute value of x.
  */
@@ -40,6 +41,7 @@ double fabs(double x);
 
 /**
  * @brief Calculates the square root of a number.
+ * @details Defined in math.asm
  * @param[in] x The input number.
  * @return The square root of x.
  */
@@ -47,6 +49,7 @@ double sqrt(double x);
 
 /**
  * @brief Calculates the sine of an angle.
+ * @details Defined in math.asm
  * @param[in] x The input angle in radians.
  * @return The sine of x.
  */
@@ -54,6 +57,7 @@ double sin(double x);
 
 /**
  * @brief Calculates the cosine of an angle.
+ * @details Defined in math.asm
  * @param[in] x The input angle in radians.
  * @return The cosine of x.
  */
@@ -61,6 +65,7 @@ double cos(double x);
 
 /**
  * @brief Calculates the tangent of an angle.
+ * @details Defined in math.asm
  * @param[in] x The input angle in radians.
  * @return The tangent of x.
  */
@@ -68,6 +73,7 @@ double tan(double x);
 
 /**
  * @brief Calculates the cotangent of an angle.
+ * @details Defined in math.asm
  * @param[in] x The input angle in radians.
  * @return The cotangent of x.
  */
