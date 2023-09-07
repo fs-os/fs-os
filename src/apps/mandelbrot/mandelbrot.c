@@ -30,16 +30,19 @@
 
 /* Smaller -> More zoom (1.0 is defaul) */
 #define DEFAULT_ZOOM 1.0
-#define ZOOM_STEP    0.5
 
 /* Offsets for moving in the set. */
 #define DEFAULT_X_OFF 0.0 /* -2.0..+2.0 (Left..Right) */
 #define DEFAULT_Y_OFF 0.0 /* -1.0..+1.0 (Up..Down) */
 
+/* Default steps when moving around */
+#define ZOOM_STEP         0.5
+#define DEFAULT_MOVE_STEP 0.1
+
 /* RGB color used for drawing the interior of the mandelbrot set */
 #define INSIDE_COL 0x000000
 
-static void hue2rgb(float* r, float* g, float* b, float h);
+static uint32_t hue2rgb(float h);
 
 /**
  * @todo Use windows once it's added.
@@ -83,7 +86,7 @@ int main_mandelbrot(int argc, char** argv) {
     double y_offset = DEFAULT_X_OFF;
 
     /* Will be scaled when zooming, so we don't move too much */
-    double move_step = 0.1;
+    double move_step = DEFAULT_MOVE_STEP;
 
     bool main_loop = true;
     while (main_loop) {
@@ -138,23 +141,9 @@ int main_mandelbrot(int argc, char** argv) {
                     continue;
                 }
 
-                /* Get 0..360 hue for color based on iter..max_iter
-                 *
-                 * NOTE: Make sure you change the variable type to double if you
-                 * want to scale the Saturation or Value instead (to not
-                 * truncate to zero) */
-                int scaled_hue = iter * MAX_H / max_iter;
-
-                float fl_r, fl_g, fl_b;
-                hue2rgb(&fl_r, &fl_g, &fl_b, scaled_hue);
-
-                /* NOTE: Try to replace some of these parameters with zeros or
-                 * mess with the scaling and see what happens :) */
-                int r = fl_r * 255.f;
-                int g = fl_g * 255.f;
-                int b = fl_b * 255.f;
-
-                fb[y_px * w + x_px] = rgb2col(r, g, b);
+                /* Get 0..360 hue for color based on iter..max_iter */
+                int scaled_hue      = iter * MAX_H / max_iter;
+                fb[y_px * w + x_px] = hue2rgb(scaled_hue);
             }
         }
 
@@ -185,9 +174,10 @@ int main_mandelbrot(int argc, char** argv) {
                     x_offset += move_step;
                 break;
             case KEY_RESET:
-                zoom     = DEFAULT_ZOOM;
-                x_offset = DEFAULT_X_OFF;
-                y_offset = DEFAULT_X_OFF;
+                zoom      = DEFAULT_ZOOM;
+                move_step = DEFAULT_MOVE_STEP;
+                x_offset  = DEFAULT_X_OFF;
+                y_offset  = DEFAULT_X_OFF;
                 break;
             default:
                 break;
@@ -203,68 +193,31 @@ int main_mandelbrot(int argc, char** argv) {
     return 0;
 }
 
-#if 0
-static void hsv2rgb(float* r, float* g, float* b, float h, float s, float v) {
-    float chroma = v * s; /* Chroma */
-    float prime  = fmod(h / 60.f, 6);
-    float x      = chroma * (1 - fabs(fmod(prime, 2) - 1));
-    float m      = v - chroma;
+static uint32_t hue2rgb(float h) {
+    float prime = fmod(h / 60.f, 6);
+    float x     = 1 - fabs(fmod(prime, 2) - 1);
 
-    *r = 0.f;
-    *g = 0.f;
-    *b = 0.f;
+    uint32_t ret = 0x000000;
 
     if (prime >= 0 && prime < 1) {
-        *r = chroma;
-        *g = x;
-    } else if (prime >= 1 && prime < 2) {
-        *r = x;
-        *g = chroma;
-    } else if (prime >= 2 && prime < 3) {
-        *g = chroma;
-        *b = x;
-    } else if (prime >= 3 && prime < 4) {
-        *g = x;
-        *b = chroma;
-    } else if (prime >= 4 && prime < 5) {
-        *r = x;
-        *b = chroma;
-    } else if (prime >= 5 && prime < 6) {
-        *r = chroma;
-        *b = x;
-    }
-
-    *r += m;
-    *g += m;
-    *b += m;
-}
-#endif
-
-static void hue2rgb(float* r, float* g, float* b, float h) {
-    float prime  = fmod(h / 60.f, 6);
-    float x      = 1 - fabs(fmod(prime, 2) - 1);
-
-    *r = 0.f;
-    *g = 0.f;
-    *b = 0.f;
-
-    if (prime >= 0 && prime < 1) {
-        *r = 1.f;
-        *g = x;
+        ret |= 0xFF0000;                 /* r = 255 */
+        ret |= (uint8_t)(x * 0xFF) << 8; /* g = x */
     } else if (prime < 2) {
-        *r = x;
-        *g = 1.f;
+        ret |= 0x00FF00;                  /* g = 255 */
+        ret |= (uint8_t)(x * 0xFF) << 16; /* r = x */
     } else if (prime < 3) {
-        *g = 1.f;
-        *b = x;
+        ret |= 0x00FF00;                 /* g = 255 */
+        ret |= (uint8_t)(x * 0xFF) << 0; /* b = x */
     } else if (prime < 4) {
-        *g = x;
-        *b = 1.f;
+        ret |= 0x0000FF;                 /* b = 255 */
+        ret |= (uint8_t)(x * 0xFF) << 8; /* g = x */
     } else if (prime < 5) {
-        *r = x;
-        *b = 1.f;
+        ret |= 0x0000FF;                  /* b = 255 */
+        ret |= (uint8_t)(x * 0xFF) << 16; /* r = x */
     } else if (prime < 6) {
-        *r = 1.f;
-        *b = x;
+        ret |= 0xFF0000;                 /* r = 255 */
+        ret |= (uint8_t)(x * 0xFF) << 0; /* b = x */
     }
+
+    return ret;
 }
