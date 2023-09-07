@@ -265,6 +265,10 @@ void kb_noraw(void) {
     wait_for_eol = true;
 }
 
+bool kb_getraw(void) {
+    return wait_for_eol;
+}
+
 void kb_setlayout(const Layout* ptr) {
     cur_layout = ptr;
 }

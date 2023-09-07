@@ -115,6 +115,13 @@ void kb_raw(void);
 void kb_noraw(void);
 
 /**
+ * @brief Get the static wait_for_eol variable.
+ * @details The wait_for_eol static var is declared in keyboard.c
+ * @return True if we are waiting for end of line before returning chars.
+ */
+bool kb_getraw(void);
+
+/**
  * @brief Set the current active keyboard layout to the specified Layout ptr
  * @param[in] ptr Description
  */
