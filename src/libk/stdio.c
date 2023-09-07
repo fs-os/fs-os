@@ -113,13 +113,18 @@ static size_t fmt_d_pad(int64_t num, int pad) {
 static size_t fmt_f(double num, int decimals) {
     size_t ret = 0;
 
+    /* We need to handle sign ourselves, instead of fmt_d() */
+    if (num < 0) {
+        putchar('-');
+        ret++;
+
+        num = -num;
+    }
+
     /* First print the integer part using printi, and remove it from num for
      * only keeping decimals */
-    int int_part = (int)num;
+    int32_t int_part = (int32_t)num;
     num -= int_part;
-
-    if (num < 0)
-        num = -num;
 
     ret += fmt_d(int_part);
 
