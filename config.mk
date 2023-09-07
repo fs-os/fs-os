@@ -37,14 +37,15 @@ ASM_OBJS=obj/kernel/boot.asm.o \
 		 obj/kernel/paging.asm.o \
 		 obj/kernel/multitask.asm.o \
 		 obj/kernel/rand.asm.o \
-		 obj/kernel/util.asm.o
+		 obj/kernel/util.asm.o \
+		 obj/libk/math.asm.o
 
 # List of object files containing the app functions. Built into the kernel.
 APP_OBJS=obj/apps/sh/sh.c.o obj/apps/piano/piano.c.o obj/apps/minesweeper/minesweeper.c.o obj/apps/5x5/5x5.c.o
 
 # Libk is the libc version used by the kernel. We will link the final kernel
 # binary with these objects.
-LIBK_OBJS=obj/libk/string.c.o obj/libk/stdlib.c.o obj/libk/stdio.c.o obj/libk/ctype.c.o obj/libk/time.c.o obj/libk/curses.c.o obj/libk/math.c.o obj/libk/math.asm.o
+LIBK_OBJS=obj/libk/string.c.o obj/libk/stdlib.c.o obj/libk/stdio.c.o obj/libk/ctype.c.o obj/libk/time.c.o obj/libk/curses.c.o obj/libk/math.c.o
 
 # Paths for the sysroot
 SYSROOT=./sysroot
