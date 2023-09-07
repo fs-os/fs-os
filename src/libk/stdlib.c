@@ -92,49 +92,6 @@ int atoi(const char* str) {
     return ret * sign;
 }
 
-int ipow(int b, int e) {
-    int ret = 1;
-
-    /* Multiply by the base "e" times */
-    while (e-- > 0)
-        ret *= b;
-
-    return ret;
-}
-
-/** @todo This is smart but not efficient. Optimize. */
-void itoan(char* str, int64_t num, size_t max_digits) {
-    if (max_digits <= 0) {
-        str[0] = '\0';
-        return;
-    }
-
-    /* sp is the current position we want to write in the string */
-    size_t sp = 0;
-
-    /* Write '-' for negative numbers and convert number to positive */
-    if (num < 0) {
-        str[sp++] = '-';
-        num       = -num;
-    }
-
-    /*
-     * cur_digit will count the current number we want to write, starting from
-     * the right, where the last one is 0. So for 354, cur_digit will be 2, and
-     * 354 / 100 is 3. If cur_digit is 1, 354 / 10 = 35, and we can extract the
-     * last digit by doing (n%10)
-     *
-     * Also make sure the string position is not greater than the max we can
-     * write.
-     */
-    int cur_digit;
-    for (cur_digit = digits_int(num) - 1; cur_digit >= 0 && sp < max_digits;
-         cur_digit--)
-        str[sp++] = (num / ipow(10, cur_digit)) % 10 + '0';
-
-    str[sp++] = '\0';
-}
-
 void panic(const char* func, unsigned int line, const char* fmt, ...) {
 
     va_list va;

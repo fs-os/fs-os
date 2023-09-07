@@ -55,24 +55,6 @@ void itoa(char* str, int64_t num);
 int atoi(const char* str);
 
 /**
- * @brief Integer power.
- * @param[in] b Base.
- * @param[in] e Exponent.
- * @return `b^e`
- */
-int ipow(int b, int e) __attribute__((pure));
-
-/**
- * @brief Convert integer to string with digit limit.
- * @details Will stop when converted `max_digits`. `str` is expected to have
- * enough space, in this case `max_digits + 1` for the NULL terminator.
- * @param[out] str Destination.
- * @param[in] num Number to convert.
- * @param[in] max_digits The maximum number digits to convert.
- */
-void itoan(char* str, int64_t num, size_t max_digits);
-
-/**
  * @brief Kernel panic. Print message and halt.
  * @details Use the panic_line() macro for shorter version
  * @param[in] func The name of the function. Should use the `__func__` macro. If
