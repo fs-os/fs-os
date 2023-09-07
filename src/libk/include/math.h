@@ -105,7 +105,7 @@ double pow(double base, int exponent) __attribute__((pure));
  * @param[in] exponent The exponent.
  * @return The result of base raised to the power of exponent.
  */
-double ipow(double base, int exponent) __attribute__((pure));
+int ipow(int base, int exponent) __attribute__((pure));
 
 /**
  * @brief Rounds a number down to the nearest integer.
