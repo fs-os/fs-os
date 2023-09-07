@@ -9,15 +9,10 @@ fabs:
 
     fld     qword [ebp + 8]             ; Push to FPU stack
     fabs                                ; st(0) = fabs(st(0));
-    fstp    qword [ebp - 8]             ; Move st(0) to reserved bytes
-    fld     qword [ebp - 8]             ; Push reserved bytes to FPU stack
-
-    ; TODO: These store + load's of st0, are normally used by the compiler for
-    ; debugging. This is not needed here, remove.
 
     mov     esp, ebp
     pop     ebp
-    ret
+    ret                                 ; Return double in st0, acording to ABI
 
 ; double sqrt(double x);
 global sqrt:function
@@ -44,8 +39,6 @@ sin:
 
     fld     qword [ebp + 8]
     fsin                                ; st(0) = sin(st(0));
-    fstp    qword [ebp - 8]
-    fld     qword [ebp - 8]
 
     mov     esp, ebp
     pop     ebp
@@ -60,8 +53,6 @@ cos:
 
     fld     qword [ebp + 8]
     fcos                                ; st(0) = cos(st(0));
-    fstp    qword [ebp - 8]
-    fld     qword [ebp - 8]
 
     mov     esp, ebp
     pop     ebp
@@ -77,8 +68,6 @@ tan:
     fld     qword [ebp + 8]
     fsincos                             ; st1 = cos(st0); st0 = sin(st0);
     fdivp   st1, st0                    ; st1 /= st0; (sin/cos)
-    fstp    qword [ebp - 8]
-    fld     qword [ebp - 8]
 
     mov     esp, ebp
     pop     ebp
@@ -94,8 +83,6 @@ cot:
     fld     qword [ebp + 8]
     fsincos                             ; st1 = cos(st0); st0 = sin(st0);
     fdivrp  st1, st0                    ; st0 = st1 / st0; (cos/sin)
-    fstp    qword [ebp - 8]
-    fld     qword [ebp - 8]
 
     mov     esp, ebp
     pop     ebp
