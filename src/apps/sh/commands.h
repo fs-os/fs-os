@@ -97,87 +97,87 @@ static Command cmd_list[] = {
     {
       "help",
       "Show a list of commands",
-      &cmd_help,
+      cmd_help,
     },
     {
       "last",
       "Print the exit code of the last command",
-      &cmd_last,
+      cmd_last,
     },
     {
       "quit",
       "Permanently exit the shell",
-      &cmd_quit,
+      cmd_quit,
     },
     {
       "clear",
       "Clear the console",
-      &cmd_clear,
+      cmd_clear,
     },
     {
       "ref",
       "Refresh the console",
-      &cmd_ref,
+      cmd_ref,
     },
     {
       "loadkeys",
       "Changes the current keyboard layout",
-      &cmd_loadkeys,
+      cmd_loadkeys,
     },
     {
       "ticks",
       "Print the current tick count since boot (ms)",
-      &cmd_ticks,
+      cmd_ticks,
     },
     {
       "date",
       "Display current date and time",
-      &cmd_date,
+      cmd_date,
     },
     {
       "timer",
       "Simple timer command (Wrapper for time.h functions)",
-      &cmd_timer,
+      cmd_timer,
     },
     {
       "beep",
       "Beep through the pc speaker (optional frequency and duration)",
-      &cmd_beep,
+      cmd_beep,
     },
     {
       "metronome",
       "Start the metronome",
-      &cmd_metronome,
+      cmd_metronome,
     },
     {
       "play",
       "Play a song using the pc speaker",
-      &cmd_play,
+      cmd_play,
     },
     {
       "piano",
       "Play the piano through the pc speaker",
-      &main_piano,
+      main_piano,
     },
     {
       "piano_random",
       "Random piano through the pc speaker",
-      &main_piano_random,
+      main_piano_random,
     },
     {
       "minesweeper",
       "Simple terminal minesweeper",
-      &main_minesweeper,
+      main_minesweeper,
     },
     {
       "5x5",
       "Simple 5x5 game",
-      &main_5x5,
+      main_5x5,
     },
     {
       "mandelbrot",
       "Interactive mandelbrot",
-      &main_mandelbrot,
+      main_mandelbrot,
     },
     {
       "primes",
@@ -187,22 +187,22 @@ static Command cmd_list[] = {
     {
       "test_libk",
       "Test the kernel standard lib",
-      &cmd_test_libk,
+      cmd_test_libk,
     },
     {
       "test_multitask",
       "Test multitasking with 3 threads",
-      &cmd_test_multitask,
+      cmd_test_multitask,
     },
     {
       "page_map",
       "Display the page director and page table layout",
-      &cmd_page_map,
+      cmd_page_map,
     },
     {
       "heap_headers",
       "Dump the alloc headers",
-      &cmd_heap_headers,
+      cmd_heap_headers,
     },
 };
 

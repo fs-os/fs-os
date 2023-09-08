@@ -23,7 +23,10 @@
 #define KEY_DOWN     'j'
 #define KEY_LEFT     'h'
 #define KEY_RIGHT    'l'
+#define KEY_ITER_INC 'i'
+#define KEY_ITER_DEC 'u'
 #define KEY_RESET    'r'
+#define KEY_QUIT     'q'
 
 /* Max hue value (Used for scaling) */
 #define MAX_H 360
@@ -35,9 +38,13 @@
 #define DEFAULT_X_OFF 0.0 /* -2.0..+2.0 (Left..Right) */
 #define DEFAULT_Y_OFF 0.0 /* -1.0..+1.0 (Up..Down) */
 
-/* Default steps when moving around */
+/* Higher means more detail */
+#define DEFAULT_MAX_ITER 100
+
+/* Default steps for KEY_* controls */
 #define ZOOM_STEP         0.5
 #define DEFAULT_MOVE_STEP 0.1
+#define ITER_STEP         10
 
 /* RGB color used for drawing the interior of the mandelbrot set */
 #define INSIDE_COL 0x000000
@@ -48,25 +55,7 @@ static uint32_t hue2rgb(float h);
  * @todo Use windows once it's added.
  * @todo Being able to... exit
  */
-int main_mandelbrot(int argc, char** argv) {
-    if (argc != 2) {
-        printf("Wrong number of arguments.\n"
-               "Usage: %s <iterations>\n",
-               argv[0]);
-        return 1;
-    }
-
-    const uint32_t w   = fb_get_width();
-    const uint32_t h   = fb_get_height();
-    const int max_iter = atoi(argv[1]);
-
-    if (max_iter < 1) {
-        printf("Wrong iteration argument (1..255).\n"
-               "Usage: %s <iterations>\n",
-               argv[0]);
-        return 1;
-    }
-
+int main_mandelbrot() {
     bool was_kb_echo = kb_getecho();
     kb_noecho();
 
@@ -76,9 +65,11 @@ int main_mandelbrot(int argc, char** argv) {
     /* Framebuffer. Each 32 bit entry is a color */
     volatile uint32_t* fb = fb_get_ptr();
 
-    /* Calculate some values here for performance */
-    const double scaled_h = h / 2.0;
-    const double scaled_w = w / 3.0;
+    const uint32_t w = fb_get_width();
+    const uint32_t h = fb_get_height();
+
+    /* Can change with KEY_ITER_INC and KEY_ITER_DEC */
+    uint32_t max_iter = DEFAULT_MAX_ITER;
 
     /* Will become smaller when zooming */
     double zoom     = DEFAULT_ZOOM;
@@ -87,6 +78,10 @@ int main_mandelbrot(int argc, char** argv) {
 
     /* Will be scaled when zooming, so we don't move too much */
     double move_step = DEFAULT_MOVE_STEP;
+
+    /* Calculate some values here for performance */
+    const double scaled_h = h / 2.0;
+    const double scaled_w = w / 3.0;
 
     bool main_loop = true;
     while (main_loop) {
@@ -101,6 +96,7 @@ int main_mandelbrot(int argc, char** argv) {
             for (uint32_t x_px = 0; x_px < w; x_px++) {
                 /* Real X is the mandelbrot center horizontally. We subtract 2.0
                  * (half the width) to center it horizontally. */
+                /* TODO: Not zooming perfectly centered */
                 double real_x = (x_px / scaled_w) - 2.0;
                 real_x *= zoom;
                 real_x += x_offset;
@@ -116,7 +112,7 @@ int main_mandelbrot(int argc, char** argv) {
                  * is that the more iterations an outside value takes, the
                  * closer to the set is. We can use this to change colors.
                  * Ouside of the loop. */
-                int iter;
+                uint32_t iter;
                 for (iter = 0; iter < max_iter; iter++) {
                     /* Calulate squares once */
                     double sqr_x = x * x;
@@ -173,11 +169,23 @@ int main_mandelbrot(int argc, char** argv) {
                 if (x_offset < 2.1)
                     x_offset += move_step;
                 break;
+            case KEY_ITER_INC:
+                max_iter += ITER_STEP;
+                break;
+            case KEY_ITER_DEC:
+                if (max_iter > ITER_STEP)
+                    max_iter -= ITER_STEP;
+                break;
             case KEY_RESET:
                 zoom      = DEFAULT_ZOOM;
                 move_step = DEFAULT_MOVE_STEP;
                 x_offset  = DEFAULT_X_OFF;
                 y_offset  = DEFAULT_X_OFF;
+                max_iter  = DEFAULT_MAX_ITER;
+                break;
+            case KEY_QUIT:
+                /* TODO */
+                main_loop = false;
                 break;
             default:
                 break;
