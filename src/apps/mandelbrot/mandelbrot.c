@@ -80,8 +80,13 @@ int main_mandelbrot() {
     double move_step = DEFAULT_MOVE_STEP;
 
     /* Calculate some values here for performance */
-    const double scaled_h = h / 2.0;
-    const double scaled_w = w / 3.0;
+    const double min_real_x = -2.0;
+    const double max_real_x = 1.0;
+    const double min_real_y = -1.0;
+    const double max_real_y = 1.0;
+
+    const double factor_x = (max_real_x - min_real_x) / (w - 1);
+    const double factor_y = (max_real_y - min_real_y) / (h - 1);
 
     bool main_loop = true;
     while (main_loop) {
@@ -89,15 +94,14 @@ int main_mandelbrot() {
         for (uint32_t y_px = 0; y_px < h; y_px++) {
             /* Real Y is the mandelbrot center vertically. We subtract 1.0 (half
              * the height) to center it vertically. */
-            double real_y = (y_px / scaled_h) - 1.0;
+            double real_y = min_real_y + y_px * factor_y;
             real_y *= zoom;
             real_y += y_offset;
 
             for (uint32_t x_px = 0; x_px < w; x_px++) {
                 /* Real X is the mandelbrot center horizontally. We subtract 2.0
                  * (half the width) to center it horizontally. */
-                /* TODO: Not zooming perfectly centered */
-                double real_x = (x_px / scaled_w) - 2.0;
+                double real_x = min_real_x + x_px * factor_x;
                 real_x *= zoom;
                 real_x += x_offset;
 
