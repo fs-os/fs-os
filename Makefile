@@ -2,7 +2,7 @@
 # See config for more info
 include config.mk
 
-# ----------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 .PHONY: all qemu debug-flags qemu-debug clean
 
@@ -48,39 +48,31 @@ clean:
 	rm -f $(APP_OBJS)
 	rm -rf iso sysroot
 
-# ----------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
-.PHONY: sysroot sysroot_headers sysroot_boot
+# The sysroot target creates the sysroot folder, copies the kernel and libk
+# headers to the sysroot, and copies the compiles kernel (after building it)
+# into the sysroot's boot folder.
+sysroot: $(SYSROOT_INCLUDE_DIR) $(SYSROOT_KERNEL)
 
-# Description of this target: Copy the headers to the sysroot, compile libc into
-# object files, make the static lib and copy it to the sysroot, build the kernel
-# binary and copy it to the sysroot.
-# TODO: Don't copy headers if they are updated.
-# NOTE: Maybe it can be fixed using `$?`:
-#   https://www.gnu.org/software/make/manual/html_node/Automatic-Variables.html
-sysroot: sysroot_headers sysroot_boot
+# Copy the kernel and libk headers into the sysroot's include folder
+$(SYSROOT_INCLUDE_DIR): $(KERNEL_INCLUDE_DIR) $(LIBK_INCLUDE_DIR)
+	@mkdir -p $(SYSROOT_INCLUDE_DIR)
+	cp -R --preserve=timestamps $(KERNEL_INCLUDE_DIR)/. $(SYSROOT_INCLUDE_DIR)/.
+	cp -R --preserve=timestamps $(LIBK_INCLUDE_DIR)/. $(SYSROOT_INCLUDE_DIR)/.
 
-# Create the sysroot, copy the headers into the destination (include folder)
-sysroot_headers: $(KERNEL_INCLUDES)/* $(LIBK_INCLUDES)/*
-	@mkdir -p $(SYSROOT_INCLUDEDIR)
-	cp -R --preserve=timestamps $(KERNEL_INCLUDES)/. $(SYSROOT_INCLUDEDIR)/.
-	cp -R --preserve=timestamps $(LIBK_INCLUDES)/. $(SYSROOT_INCLUDEDIR)/.
-
-# Create the sysroot, copy the kernel binary to destination (boot folder).
-# Make a target for the sysroot kernel file so $(ISO) doesn't have phony targets
-# as rules.
-sysroot_boot: $(SYSROOT_KERNEL)
+# Copy the kernel binary into the sysroot's boot folder
 $(SYSROOT_KERNEL): $(KERNEL_BIN)
-	@mkdir -p $(SYSROOT_BOOTDIR)
+	@mkdir -p $(SYSROOT_BOOT_DIR)
 	cp --preserve=timestamps $(KERNEL_BIN) $(SYSROOT_KERNEL)
 
-# ----------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 # Use the sysroot kernel path as rule to make sure we have the sysroot ready.
 # User should run "make sysroot" before "make all". Sysroot already has all the
 # components (kernel and includes) compiled and copied into it.
 $(ISO): $(SYSROOT_KERNEL) limine/limine-deploy
-	mkdir -p iso/boot/
+	@mkdir -p iso/boot/
 	cp $(SYSROOT_KERNEL) iso/boot/$(KERNEL_BIN)
 	cp limine/limine.sys limine/limine-cd.bin iso/
 	cat cfg/limine.cfg | sed "s/(GITHASH)/$(COMMIT_SHA1)/" > iso/limine.cfg

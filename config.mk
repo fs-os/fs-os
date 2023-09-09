@@ -52,14 +52,14 @@ LIBK_OBJS=obj/libk/string.c.o obj/libk/stdlib.c.o obj/libk/stdio.c.o obj/libk/ct
 
 # Paths for the sysroot
 SYSROOT=./sysroot
-SYSROOT_INCLUDEDIR=$(SYSROOT)/usr/include
-SYSROOT_BOOTDIR=$(SYSROOT)/boot
-SYSROOT_KERNEL=$(SYSROOT_BOOTDIR)/$(KERNEL_BIN)
+SYSROOT_INCLUDE_DIR=$(SYSROOT)/usr/include
+SYSROOT_BOOT_DIR=$(SYSROOT)/boot
+SYSROOT_KERNEL=$(SYSROOT_BOOT_DIR)/$(KERNEL_BIN)
 
 # Paths for moving the headers to the sysroot. For example:
 # (src/libk/include/*.h -> sysroot/usr/include/*.h)
-KERNEL_INCLUDES=src/kernel/include
-LIBK_INCLUDES=src/libk/include
+KERNEL_INCLUDE_DIR=src/kernel/include
+LIBK_INCLUDE_DIR=src/libk/include
 
 #-------------------------------------------------------------------------------
 
