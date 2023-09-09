@@ -280,15 +280,9 @@ void fbc_refresh(void) {
     }
 }
 
-/**
- * @todo Still not very fast. Optimize.
- */
 void fbc_shift_rows(uint8_t n) {
-    /* Used to count the position of the last valid char in the line */
-    uint32_t char_count = 0;
-
     /* Get once for performance. The last_row variable is the last row that we
-     * want to replace after shifting. The fill_h variable will be used when  */
+     * want to replace after shifting. */
     const uint32_t last_row = ctx->ch_h - n - 1;
 
     /* Shift N rows. We go to the newline instead of always ctx->ch_w because
@@ -298,6 +292,9 @@ void fbc_shift_rows(uint8_t n) {
         /* Get once for performance. Used for ctx->fbc[] indexes */
         const uint32_t raw_y        = y * ctx->ch_w;
         const uint32_t raw_y_plus_n = (y + n) * ctx->ch_w;
+
+        /* Used to count the position of the last valid char in the line */
+        uint32_t char_count = 0;
 
         /* Update valid entries until we encounter a null byte. '\0' denotes the
          * end of the valid line. */
@@ -319,8 +316,6 @@ void fbc_shift_rows(uint8_t n) {
         const uint32_t fill_x = CHAR_X_TO_PX(char_count);
         const uint32_t fill_w = ctx->w + ctx->x - fill_x;
         fb_drawrect_fast(fill_y, fill_x, ctx->font->h, fill_w, DEFAULT_BG);
-
-        char_count = 0;
     }
 
     /* Clear last n rows with clean entries. Only change the ones that were
