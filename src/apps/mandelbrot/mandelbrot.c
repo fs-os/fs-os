@@ -90,6 +90,9 @@ int main_mandelbrot() {
 
     bool main_loop = true;
     while (main_loop) {
+        /* Increased every drawn pixel. Faster than [y * w + x] */
+        uint32_t fb_idx = 0;
+
         /* Mandelbrot */
         for (uint32_t y_px = 0; y_px < h; y_px++) {
             /* Real Y is the mandelbrot center vertically. We subtract 1.0 (half
@@ -114,36 +117,33 @@ int main_mandelbrot() {
                 /* In each iteration, we will check if we are inside the
                  * mandebrot set. An interesting property of the mandelbrot set
                  * is that the more iterations an outside value takes, the
-                 * closer to the set is. We can use this to change colors.
-                 * Ouside of the loop. */
-                uint32_t iter;
-                for (iter = 0; iter < max_iter; iter++) {
+                 * closer to the set is. We can use this to change colors. */
+                for (uint32_t iter = 0; iter < max_iter; iter++) {
                     /* Calulate squares once */
                     double sqr_x = x * x;
                     double sqr_y = y * y;
 
                     /* Absolute value of a complex number is the distance from
                      * origin: sqrt(x^2 + y^2) > 2 */
-                    if ((sqr_x + sqr_y) > 2 * 2) {
+                    if (sqr_x + sqr_y > 2 * 2) {
+                        /* Scale 0..360 HUE based on iter..max_iter ratio */
+                        int scaled_hue = iter * MAX_H / max_iter;
+                        fb[fb_idx]     = hue2rgb(scaled_hue);
+
                         inside_set = false;
                         break;
                     }
 
-                    /* This part is explained in the povusers.org link on
-                     * credits */
+                    /* This part is explained in the povusers link on credits */
                     y = (2.0 * x * y) + real_y;
                     x = (sqr_x - sqr_y) + real_x;
                 }
 
-                /* If it's inside the set, draw fixed color */
-                if (inside_set) {
-                    fb[y_px * w + x_px] = INSIDE_COL;
-                    continue;
-                }
+                /* We passed all iterations, we are inside the set. */
+                if (inside_set)
+                    fb[fb_idx] = INSIDE_COL;
 
-                /* Get 0..360 hue for color based on iter..max_iter */
-                int scaled_hue      = iter * MAX_H / max_iter;
-                fb[y_px * w + x_px] = hue2rgb(scaled_hue);
+                fb_idx++;
             }
         }
 
