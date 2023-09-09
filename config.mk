@@ -17,28 +17,28 @@ ISO=$(KERNEL_BIN:.bin=.iso)
 # List of object files to be linked with the kernel. Same for asm_objs but with
 # different compilation method.
 KERNEL_OBJS=obj/kernel/kernel.c.o \
-			obj/kernel/vga.c.o \
-			obj/kernel/paging.c.o \
-			obj/kernel/heap.c.o \
-			obj/kernel/multitask.c.o \
-			obj/kernel/framebuffer.c.o \
-			obj/kernel/framebuffer_console.c.o \
-			obj/kernel/idt.c.o \
-			obj/kernel/exceptions.c.o \
-			obj/kernel/rtc.c.o \
-			obj/kernel/pit.c.o \
-			obj/kernel/pcspkr.c.o \
-			obj/kernel/keyboard.c.o
+            obj/kernel/vga.c.o \
+            obj/kernel/paging.c.o \
+            obj/kernel/heap.c.o \
+            obj/kernel/multitask.c.o \
+            obj/kernel/framebuffer.c.o \
+            obj/kernel/framebuffer_console.c.o \
+            obj/kernel/idt.c.o \
+            obj/kernel/exceptions.c.o \
+            obj/kernel/rtc.c.o \
+            obj/kernel/pit.c.o \
+            obj/kernel/pcspkr.c.o \
+            obj/kernel/keyboard.c.o
 
 ASM_OBJS=obj/kernel/boot.asm.o \
-		 obj/kernel/io.asm.o \
-		 obj/kernel/gdt.asm.o \
-		 obj/kernel/idt.asm.o \
-		 obj/kernel/paging.asm.o \
-		 obj/kernel/multitask.asm.o \
-		 obj/kernel/rand.asm.o \
-		 obj/kernel/util.asm.o \
-		 obj/libk/math.asm.o
+         obj/kernel/io.asm.o \
+         obj/kernel/gdt.asm.o \
+         obj/kernel/idt.asm.o \
+         obj/kernel/paging.asm.o \
+         obj/kernel/multitask.asm.o \
+         obj/kernel/rand.asm.o \
+         obj/kernel/util.asm.o \
+         obj/libk/math.asm.o
 
 APP_OBJS=obj/apps/sh/sh.c.o \
          obj/apps/piano/piano.c.o \
@@ -48,7 +48,13 @@ APP_OBJS=obj/apps/sh/sh.c.o \
 
 # Libk is the libc version used by the kernel. We will link the final kernel
 # binary with these objects.
-LIBK_OBJS=obj/libk/string.c.o obj/libk/stdlib.c.o obj/libk/stdio.c.o obj/libk/ctype.c.o obj/libk/time.c.o obj/libk/curses.c.o obj/libk/math.c.o
+LIBK_OBJS=obj/libk/string.c.o \
+          obj/libk/stdlib.c.o \
+          obj/libk/stdio.c.o \
+          obj/libk/ctype.c.o \
+          obj/libk/time.c.o \
+          obj/libk/curses.c.o \
+          obj/libk/math.c.o
 
 # Paths for the sysroot
 SYSROOT=./sysroot
@@ -62,6 +68,10 @@ KERNEL_INCLUDE_DIR=src/kernel/include
 LIBK_INCLUDE_DIR=src/libk/include
 
 #-------------------------------------------------------------------------------
+
+SRC_HEADERS=$(wildcard $(KERNEL_INCLUDE_DIR)/*/*.h) $(wildcard $(LIBK_INCLUDE_DIR)/*.h)
+SYSROOT_HEADERS=$(patsubst $(LIBK_INCLUDE_DIR)/%, $(SYSROOT_INCLUDE_DIR)/%, \
+                $(patsubst $(KERNEL_INCLUDE_DIR)/%, $(SYSROOT_INCLUDE_DIR)/%, $(SRC_HEADERS)))
 
 # For replacing "(GITHASH)" with the last commit in the bootloader entry.
 # Comment these lines if you just want the os name.

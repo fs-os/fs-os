@@ -53,18 +53,22 @@ clean:
 # The sysroot target creates the sysroot folder, copies the kernel and libk
 # headers to the sysroot, and copies the compiles kernel (after building it)
 # into the sysroot's boot folder.
-sysroot: $(SYSROOT_INCLUDE_DIR) $(SYSROOT_KERNEL)
+sysroot: $(SYSROOT_HEADERS) $(SYSROOT_KERNEL)
 
-# Copy the kernel and libk headers into the sysroot's include folder
-$(SYSROOT_INCLUDE_DIR): $(KERNEL_INCLUDE_DIR) $(LIBK_INCLUDE_DIR)
-	@mkdir -p $(SYSROOT_INCLUDE_DIR)
-	cp -R --preserve=timestamps $(KERNEL_INCLUDE_DIR)/. $(SYSROOT_INCLUDE_DIR)/.
-	cp -R --preserve=timestamps $(LIBK_INCLUDE_DIR)/. $(SYSROOT_INCLUDE_DIR)/.
+# Copy the libk headers into the sysroot's include folder
+$(SYSROOT_INCLUDE_DIR)/%.h: $(LIBK_INCLUDE_DIR)/%.h
+	@mkdir -p $(dir $@)
+	cp --preserve=timestamps $< $@
+
+# Copy the kernel headers into the sysroot's include folder
+$(SYSROOT_INCLUDE_DIR)/%.h: $(KERNEL_INCLUDE_DIR)/%.h
+	@mkdir -p $(dir $@)
+	cp --preserve=timestamps $< $@
 
 # Copy the kernel binary into the sysroot's boot folder
 $(SYSROOT_KERNEL): $(KERNEL_BIN)
-	@mkdir -p $(SYSROOT_BOOT_DIR)
-	cp --preserve=timestamps $(KERNEL_BIN) $(SYSROOT_KERNEL)
+	@mkdir -p $(dir $@)
+	cp --preserve=timestamps $< $@
 
 # ------------------------------------------------------------------------------
 
