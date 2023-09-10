@@ -102,13 +102,14 @@ _start:
 .enable_sse:
     ; Enable SSE
     mov     eax, cr0
-    and     al, ~0x04       ; Clear CR0.EM
-    or      al, 0x22        ; Set CR0.MP
+    and     al, ~(1 << 2)               ; Clear CR0.EM[bit 2]
+    or      al, (1 << 1)                ; Set CR0.MP[bit 1]
+    or      al, (1 << 5)                ; Set CR0.NE[bit 5]
     mov     cr0, eax
     mov     eax, cr4
-    or      ax, 0x600       ; Set CR4.OSFXSR (9) and CR4.OSXMMEXCPT (10)
+    or      ax, (1 << 9)                ; Set CR4.OSFXSR (9)
+    or      ax, (1 << 10)               ; Set CR4.OSXMMEXCPT (10)
     mov     cr4, eax
-
 %endif ; ENABLE_SSE
 
 %ifdef DEBUG
