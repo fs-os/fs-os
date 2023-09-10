@@ -10,6 +10,7 @@
 
 #include <stdbool.h>
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 #include <math.h> /* fabs, fmod */
 
@@ -17,16 +18,17 @@
 #include <kernel/framebuffer.h>
 
 /* Keys */
-#define KEY_ZOOM_IN  '.'
-#define KEY_ZOOM_OUT ','
-#define KEY_UP       'k'
-#define KEY_DOWN     'j'
-#define KEY_LEFT     'h'
-#define KEY_RIGHT    'l'
-#define KEY_ITER_INC 'i'
-#define KEY_ITER_DEC 'u'
-#define KEY_RESET    'r'
-#define KEY_QUIT     'q'
+#define KEY_ZOOM_IN     '.'
+#define KEY_ZOOM_OUT    ','
+#define KEY_UP          'k'
+#define KEY_DOWN        'j'
+#define KEY_LEFT        'h'
+#define KEY_RIGHT       'l'
+#define KEY_ITER_INC    'i'
+#define KEY_ITER_DEC    'u'
+#define KEY_RESET       'r'
+#define KEY_TOGGLE_AXIS 'g'
+#define KEY_QUIT        'q'
 
 /* Max hue value (Used for scaling) */
 #define MAX_H 360
@@ -46,8 +48,11 @@
 #define DEFAULT_MOVE_STEP 0.1
 #define ITER_STEP         10
 
-/* RGB color used for drawing the interior of the mandelbrot set */
+/* Fixed RGB color used for drawing the pixels inside the mandelbrot set */
 #define INSIDE_COL 0x000000
+
+/* Color used to draw the X and Y axis, if enabled */
+#define AXIS_COL 0xDDDDDD
 
 static uint32_t hue2rgb(float h);
 
@@ -55,7 +60,26 @@ static uint32_t hue2rgb(float h);
  * @todo Use windows once it's added.
  * @todo Being able to... exit
  */
-int main_mandelbrot() {
+int main_mandelbrot(int argc, char** argv) {
+    if (argc > 1 && (!strcmp(argv[1], "--help") || !strcmp(argv[1], "-h"))) {
+        printf("Keys:\n"
+               "    %c - Zoom in\n"
+               "    %c - Zoom out\n"
+               "    %c - Move up\n"
+               "    %c - Move down\n"
+               "    %c - Move left\n"
+               "    %c - Move right\n"
+               "    %c - Increase iterations (precision)\n"
+               "    %c - Decrease iterations (precision)\n"
+               "    %c - Reset (position, zoom, precision)\n"
+               "    %c - Toggle X and Y axis\n"
+               "    %c - Quit (WIP)\n",
+               KEY_ZOOM_IN, KEY_ZOOM_OUT, KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT,
+               KEY_ITER_INC, KEY_ITER_DEC, KEY_RESET, KEY_TOGGLE_AXIS,
+               KEY_QUIT);
+        return 1;
+    }
+
     bool was_kb_echo = kb_getecho();
     kb_noecho();
 
@@ -67,6 +91,9 @@ int main_mandelbrot() {
 
     const uint32_t w = fb_get_width();
     const uint32_t h = fb_get_height();
+
+    /* Draw X and Y axis. Toggled with KEY_TOGGLE_AXIS */
+    bool draw_axis = false;
 
     /* Can change with KEY_ITER_INC and KEY_ITER_DEC */
     uint32_t max_iter = DEFAULT_MAX_ITER;
@@ -155,6 +182,17 @@ int main_mandelbrot() {
             }
         }
 
+        if (draw_axis) {
+            const uint32_t mid_x = w / 2;
+            const uint32_t mid_y = h / 2;
+
+            for (uint32_t y_px = 0; y_px < h; y_px++)
+                fb[y_px * w + mid_x] = AXIS_COL;
+
+            for (uint32_t x_px = 0; x_px < w; x_px++)
+                fb[mid_y * w + x_px] = AXIS_COL;
+        }
+
         /* Get user input */
         switch (getchar()) {
             case KEY_ZOOM_IN:
@@ -194,6 +232,9 @@ int main_mandelbrot() {
                 x_offset  = DEFAULT_X_OFF;
                 y_offset  = DEFAULT_X_OFF;
                 max_iter  = DEFAULT_MAX_ITER;
+                break;
+            case KEY_TOGGLE_AXIS:
+                draw_axis = !draw_axis;
                 break;
             case KEY_QUIT:
                 /* TODO */
