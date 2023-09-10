@@ -58,17 +58,17 @@ sysroot: $(SYSROOT_HEADERS) $(SYSROOT_KERNEL)
 # Copy the libk headers into the sysroot's include folder
 $(SYSROOT_INCLUDE_DIR)/%.h: $(LIBK_INCLUDE_DIR)/%.h
 	@mkdir -p $(dir $@)
-	cp --preserve=timestamps $< $@
+	@cp --preserve=timestamps $< $@
 
 # Copy the kernel headers into the sysroot's include folder
 $(SYSROOT_INCLUDE_DIR)/%.h: $(KERNEL_INCLUDE_DIR)/%.h
 	@mkdir -p $(dir $@)
-	cp --preserve=timestamps $< $@
+	@cp --preserve=timestamps $< $@
 
 # Copy the kernel binary into the sysroot's boot folder
 $(SYSROOT_KERNEL): $(KERNEL_BIN)
 	@mkdir -p $(dir $@)
-	cp --preserve=timestamps $< $@
+	@cp --preserve=timestamps $< $@
 
 # ------------------------------------------------------------------------------
 
