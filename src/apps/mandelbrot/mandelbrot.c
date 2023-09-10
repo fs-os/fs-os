@@ -98,6 +98,9 @@ int main_mandelbrot() {
             /* Real Y is the mandelbrot center vertically. We subtract 1.0 (half
              * the height) to center it vertically. */
             double real_y = min_real_y + y_px * factor_y;
+
+            /* Unlike real_x, because real_y values are -1..+1 (min/max_real_y),
+             * we can just zoom at +0 (the center) */
             real_y *= zoom;
             real_y += y_offset;
 
@@ -105,7 +108,12 @@ int main_mandelbrot() {
                 /* Real X is the mandelbrot center horizontally. We subtract 2.0
                  * (half the width) to center it horizontally. */
                 double real_x = min_real_x + x_px * factor_x;
+
+                /* Because real_x values are -2..+1 (min/max_real_x), we zoom at
+                 * -0.5 (the center) and then we restore. */
+                real_x += 0.5;
                 real_x *= zoom;
+                real_x -= 0.5;
                 real_x += x_offset;
 
                 /* These 2 values will be increased each iteration bellow */
