@@ -145,6 +145,10 @@ static inline void test_colors(void) {
     fbc_setfore(COLOR_WHITE);
 }
 
+/* Start and end of kernel, declared in cfg/linker.ld */
+extern uint8_t _start;
+extern uint8_t _bss_end;
+
 /* If false, this machine doesn't support SSE, and it's enabled. SSE/SSE2
  * support is checked in src/kernel/boot.asm if ENABLE_SSE is defined. */
 bool sse_supported = true;
@@ -247,6 +251,7 @@ void kernel_main(Multiboot* mb_info) {
     putchar('\n');
 
     LOAD_INFO("System info:");
+    SYSTEM_INFO("Kernel:\t\t", "%p - %p", &_start, &_bss_end);
     SYSTEM_INFO("Memory:\t\t", "%ldMiB", mb_info->mem_upper / 1024);
     SYSTEM_INFO("Resolution:\t", "%ldx%ld", mb_info->framebuffer_width,
                 mb_info->framebuffer_height);

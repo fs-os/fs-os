@@ -86,6 +86,7 @@ static int cmd_test_multitask();
 
 static int cmd_page_map();
 static int cmd_heap_headers();
+static int cmd_kernel_map();
 
 /*
  * Structure of the array:
@@ -203,6 +204,11 @@ static Command cmd_list[] = {
       "heap_headers",
       "Dump the alloc headers",
       cmd_heap_headers,
+    },
+    {
+      "kernel_map",
+      "Show the address in memory of each kernel section",
+      cmd_kernel_map,
     },
 };
 
@@ -665,5 +671,31 @@ static int cmd_page_map() {
 
 static int cmd_heap_headers() {
     heap_dump_headers();
+    return 0;
+}
+
+static int cmd_kernel_map() {
+    /* Symbols from cfg/linker.ld */
+    extern uint8_t _text_start;
+    extern uint8_t _text_end;
+    extern uint8_t _rodata_start;
+    extern uint8_t _rodata_end;
+    extern uint8_t _data_start;
+    extern uint8_t _data_end;
+    extern uint8_t _bss_start;
+    extern uint8_t _bss_end;
+
+    uint32_t text_size   = (uint32_t)&_text_end - (uint32_t)&_text_start;
+    uint32_t rodata_size = (uint32_t)&_rodata_end - (uint32_t)&_rodata_start;
+    uint32_t data_size   = (uint32_t)&_data_end - (uint32_t)&_data_start;
+    uint32_t bss_size    = (uint32_t)&_bss_end - (uint32_t)&_bss_start;
+
+    printf("Section\t\tStart\t\tEnd\t\t\tSize\n");
+    printf(".text\t\t%p\t%p\t0x%lX\n", &_text_start, &_text_end, text_size);
+    printf(".rodata\t\t%p\t%p\t0x%lX\n", &_rodata_start, &_rodata_end,
+           rodata_size);
+    printf(".data\t\t%p\t%p\t0x%lX\n", &_data_start, &_data_end, data_size);
+    printf(".bss\t\t%p\t%p\t0x%lX\n", &_bss_start, &_bss_end, bss_size);
+
     return 0;
 }
