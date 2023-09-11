@@ -10,22 +10,22 @@
  * @brief Colors for the vga console entries.
  */
 enum vga_color {
-    VGA_COLOR_BLACK         = 0,  /**< Black          */
-    VGA_COLOR_BLUE          = 1,  /**< Blue           */
-    VGA_COLOR_GREEN         = 2,  /**< Green          */
-    VGA_COLOR_CYAN          = 3,  /**< Cyan           */
-    VGA_COLOR_RED           = 4,  /**< Red            */
-    VGA_COLOR_MAGENTA       = 5,  /**< Magenta        */
-    VGA_COLOR_BROWN         = 6,  /**< Brown          */
-    VGA_COLOR_LIGHT_GREY    = 7,  /**< Light grey     */
-    VGA_COLOR_DARK_GREY     = 8,  /**< Dark grey      */
-    VGA_COLOR_LIGHT_BLUE    = 9,  /**< Light blue     */
-    VGA_COLOR_LIGHT_GREEN   = 10, /**< Light green    */
-    VGA_COLOR_LIGHT_CYAN    = 11, /**< Light cyan     */
-    VGA_COLOR_LIGHT_RED     = 12, /**< Light red      */
-    VGA_COLOR_LIGHT_MAGENTA = 13, /**< Light magenta  */
-    VGA_COLOR_LIGHT_BROWN   = 14, /**< Light brown    */
-    VGA_COLOR_WHITE         = 15, /**< White          */
+    VGA_COLOR_BLACK         = 0,
+    VGA_COLOR_BLUE          = 1,
+    VGA_COLOR_GREEN         = 2,
+    VGA_COLOR_CYAN          = 3,
+    VGA_COLOR_RED           = 4,
+    VGA_COLOR_MAGENTA       = 5,
+    VGA_COLOR_BROWN         = 6,
+    VGA_COLOR_LIGHT_GREY    = 7,
+    VGA_COLOR_DARK_GREY     = 8,
+    VGA_COLOR_LIGHT_BLUE    = 9,
+    VGA_COLOR_LIGHT_GREEN   = 10,
+    VGA_COLOR_LIGHT_CYAN    = 11,
+    VGA_COLOR_LIGHT_RED     = 12,
+    VGA_COLOR_LIGHT_MAGENTA = 13,
+    VGA_COLOR_LIGHT_BROWN   = 14,
+    VGA_COLOR_WHITE         = 15,
 };
 
 /**
@@ -38,8 +38,8 @@ enum vga_color {
  * @name Width and height of the VGA console.
  * @brief Defined in vga.c
  * @{ */
-extern const size_t VGA_WIDTH;  /**< Description */
-extern const size_t VGA_HEIGHT; /**< Description */
+extern const size_t VGA_WIDTH;
+extern const size_t VGA_HEIGHT;
 /** @} */
 
 /**
@@ -50,15 +50,7 @@ extern const size_t VGA_HEIGHT; /**< Description */
  * @return 8 bit VGA color pair.
  */
 static inline uint8_t vga_entry_color(enum vga_color fg, enum vga_color bg) {
-    /*
-     * Shifts the background color 4 bytes and ORs it with the foreground color.
-     *
-     * fg  = b00001010
-     * bg  = b00001100
-     *       ---------
-     * ret = b11001010
-     */
-    return fg | bg << 4;
+    return fg | (bg << 4);
 }
 
 /**
@@ -67,20 +59,13 @@ static inline uint8_t vga_entry_color(enum vga_color fg, enum vga_color bg) {
  * @param[in] color 8 bit VGA color returned from vga_entry_color()
  * @return VGA entry with the char and color.
  */
-static inline uint16_t vga_entry(unsigned char uc, uint8_t color) {
-    /*
-     * Shifts the color from vga_entry_color 8 bytes and ORs it with uc.
-     *
-     * uc  = b0000000000001010 (10)
-     * col = b0000000011001010
-     *       -----------------
-     * ret = b1100101000001010
-     */
-    return (uint16_t)uc | (uint16_t)color << 8;
+static inline uint16_t vga_entry(uint8_t uc, uint8_t color) {
+    return (uint16_t)uc | ((uint16_t)color << 8);
 }
 
 /**
- * @brief Inits the terminal x, y, color and sets the term buffer to grey spaces
+ * @brief Initializes the cursor position in the terminal, colors and clears the
+ * terminal buffer to grey spaces.
  */
 void vga_init(void);
 
@@ -119,17 +104,10 @@ void vga_shift_rows(int n);
 void vga_putchar(char c);
 
 /**
- * @brief Prints `len` bytes of `s` to the vga terminal
- * @param[in] s Char array to be writen.
- * @param[in] len The number of bytes to print.
- */
-void vga_write(const char* s, size_t len);
-
-/**
  * @brief Prints a zero-terminated string to the vga terminal using vga_write()
  * @details If we used the VGA terminal, we would need to improve this function.
  * @param[in] s Zero-terminated string to print.
  */
-void vga_sprint(const char* s);
+void vga_print(const char* s);
 
 #endif /* _KERNEL_VGA_H */

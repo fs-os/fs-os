@@ -80,16 +80,7 @@ void vga_putchar(char c) {
     }
 }
 
-void vga_write(const char* s, size_t len) {
-    /* No need to create a variable for iteration when we can increment the
-     * ptr */
-    while (len-- > 0)
-        vga_putchar(*s++);
+void vga_print(const char* s) {
+    for (; *s != '\0'; s++)
+        vga_putchar(*s);
 }
-
-void vga_sprint(const char* s) {
-    /* If we actually used vga, it would be better to write until '\0' instead
-     * of calling strlen */
-    vga_write(s, strlen(s));
-}
-

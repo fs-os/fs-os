@@ -176,10 +176,11 @@ void kernel_main(Multiboot* mb_info) {
 
     /* Currently unused */
     vga_init();
-    vga_sprint("VGA terminal initialized.\n");
+    vga_print("VGA terminal initialized.\n");
 
     if (mb_info->framebuffer_type != FB_TYPE_RGB) {
-        vga_sprint("Could not initialize framebuffer on RGB mode.\n");
+        vga_setcol(VGA_COLOR_RED, VGA_COLOR_BLACK);
+        vga_print("Error. Could not initialize framebuffer on RGB mode.\n");
         abort();
     }
 
@@ -188,7 +189,7 @@ void kernel_main(Multiboot* mb_info) {
     fb_init((uint32_t*)(uint32_t)mb_info->framebuffer_addr,
             mb_info->framebuffer_pitch, mb_info->framebuffer_width,
             mb_info->framebuffer_height, mb_info->framebuffer_bpp);
-    vga_sprint("Framebuffer initialized.\n");
+    vga_print("Framebuffer initialized.\n");
 
     /* Draw the 3 logos on top */
     const uint32_t logo_y = 3;
