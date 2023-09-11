@@ -1,13 +1,12 @@
-
-; For more information, see:
-;   https://wiki.osdev.org/GDT_Tutorial
-;   https://www.youtube.com/watch?v=Wh5nPn2U_1w
+; For more information, see the wiki:
+; https://github.com/fs-os/fs-os/wiki/Kernel-and-bootloader#gdt
 
 %include "structs.asm"      ; tss_t, gdt_entry_t
 
 section .text
 
-; C struct in: src/kernel/include/kernel/multitask.h
+; ASM struct in: src/kernel/structs.asm
+; C struct in:   src/kernel/include/kernel/multitask.h
 tss_start:
     istruc tss_t
         at tss_t.link,      dw 0x0000
@@ -61,40 +60,31 @@ TSS_SIZE    equ tss_end - tss_start
 
 ; ------------------------------------------------------------------------------
 
+; For more information about each entry, see the fs-os wiki
 gdt_start:
     .null_descriptor:           ; First segment is the null descriptor, where
         dd      0x00000000      ; the base, limit, access bytes, and flags are 0
         dd      0x00000000      ; We declare 2 double words (2 * 32 bits)
     .kernel_code:
-        dw      0xffff          ; Define the first 16 bits of the limit
-        dw      0x0000          ; First 24 bits of the base (16 + 8)
-        db      0x00
-        db      10011010b       ; ppt flags (4bits) + type flags (4bits). Note*
-        db      11001111b       ; Other flags + last 4 bits of the limit. Note*
-        db      0x00            ; Last 8 bits of the base
-    .kernel_data:
-        dw      0xffff          ; Same limit as code
-        dw      0x0000          ; Same base as code
-        db      0x00
-        db      10010010b       ; Same ppt flags as code, but new type. Note*
-        db      11001111b       ; Same "Other flags", same limit as code
-        db      0x00            ; Same base as code
-    .user_code:
-        dw      0xffff          ; Same limit and base as kernel (start to end)
-        dw      0x0000
-        db      0x00
-        db      11111010b       ; Same as kenel but in ring 3 (11 -> ring 3)
-        db      11001111b       ; Same as kernel
-        db      0x00
-    .user_data:
-        dw      0xffff
-        dw      0x0000
-        db      0x00
-        db      10010010b       ; Same as kernel data but ring 3 (11 -> ring 3)
-        db      11001111b
-        db      0x00
-    .tss:
         istruc gdt_entry_t                          ; See src/kernel/structs.asm
+            at gdt_entry_t.limit0,  dw 0xffff       ; First 16 bits of the limit
+            at gdt_entry_t.base0,   dw 0x0000       ; First 24 bits of the base
+            at gdt_entry_t.base1,   db 0x00         ; Mid 8 bits of base
+            at gdt_entry_t.flags,   db 10011010b    ; ppt flags + type flags
+            at gdt_entry_t.limit1,  db 11001111b    ; Other flags, end of limit
+            at gdt_entry_t.base2,   db 0x00         ; Last 8 bits of the base
+        iend
+    .kernel_data:
+        istruc gdt_entry_t
+            at gdt_entry_t.limit0,  dw 0xffff       ; Same limit & base as code
+            at gdt_entry_t.base0,   dw 0x0000
+            at gdt_entry_t.base1,   db 0x00
+            at gdt_entry_t.flags,   db 10010010b    ; Change type flag
+            at gdt_entry_t.limit1,  db 11001111b
+            at gdt_entry_t.base2,   db 0x00
+        iend
+    .tss:
+        istruc gdt_entry_t
             at gdt_entry_t.limit0,  dw 0x0000       ; First 16 bits of limit
             at gdt_entry_t.base0,   dw 0x0000       ; First 16 bits of base
             at gdt_entry_t.base1,   db 0x00         ; Mid 8 bits of base
@@ -111,11 +101,6 @@ gdt_descriptor:
 
 KERNEL_CODE_SEG equ gdt_start.kernel_code - gdt_start   ; Constants for
 KERNEL_DATA_SEG equ gdt_start.kernel_data - gdt_start   ; descriptor offsets.
-USER_CODE_SEG   equ gdt_start.user_code   - gdt_start   ; User segs currently
-USER_DATA_SEG   equ gdt_start.user_data   - gdt_start   ; unused.
-
-; Note: The 3 notes have been removed and are explained in the wiki. See:
-;   https://github.com/fs-os/fs-os/wiki/Kernel-and-bootloader#gdt
 
 ; ------------------------------------------------------------------------------
 

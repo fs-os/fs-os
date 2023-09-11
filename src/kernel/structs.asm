@@ -53,7 +53,7 @@ struc tss_t
     .ssp:       resd 1
 endstruc
 
-; Used for overwritting the tss entry of the gdt
+; Used for writing entries of the GDT in src/kernel/gdt.asm
 struc gdt_entry_t
     .limit0:    resw 1          ; First 16 bits of limit
     .base0:     resw 1          ; First 16 bits of base
