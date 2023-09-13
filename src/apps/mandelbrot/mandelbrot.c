@@ -17,6 +17,9 @@
 #include <kernel/keyboard.h>
 #include <kernel/framebuffer.h>
 
+/* If defined, the program will use an intermediate buffer to avoid tearing */
+#define DOUBLE_BUFFERING
+
 /* Keys */
 #define KEY_ZOOM_IN     '.'
 #define KEY_ZOOM_OUT    ','
@@ -86,11 +89,20 @@ int main_mandelbrot(int argc, char** argv) {
     bool was_kb_raw = kb_getraw();
     kb_raw();
 
-    /* Framebuffer. Each 32 bit entry is a color */
+    /* Framebuffer. Each 32 bit entry is a color. We will draw the mandelbrot to
+     * the intermediate `pixels` ptr, which will be overwritten if
+     * DOUBLE_BUFFERING is defined. */
     volatile uint32_t* fb = fb_get_ptr();
+    uint32_t* pixels      = fb;
 
     const uint32_t w = fb_get_width();
     const uint32_t h = fb_get_height();
+
+#ifdef DOUBLE_BUFFERING
+    /* Use double buffering */
+    uint32_t* back_buff = calloc(w * h, sizeof(uint32_t));
+    pixels              = back_buff;
+#endif
 
     /* Draw X and Y axis. Toggled with KEY_TOGGLE_AXIS */
     bool draw_axis = false;
@@ -163,7 +175,7 @@ int main_mandelbrot(int argc, char** argv) {
                     if (sqr_x + sqr_y > 2 * 2) {
                         /* Scale 0..360 HUE based on iter..max_iter ratio */
                         int scaled_hue = iter * MAX_H / max_iter;
-                        fb[fb_idx]     = hue2rgb(scaled_hue);
+                        pixels[fb_idx] = hue2rgb(scaled_hue);
 
                         inside_set = false;
                         break;
@@ -176,7 +188,7 @@ int main_mandelbrot(int argc, char** argv) {
 
                 /* We passed all iterations, we are inside the set. */
                 if (inside_set)
-                    fb[fb_idx] = INSIDE_COL;
+                    pixels[fb_idx] = INSIDE_COL;
 
                 fb_idx++;
             }
@@ -187,11 +199,17 @@ int main_mandelbrot(int argc, char** argv) {
             const uint32_t mid_y = h / 2;
 
             for (uint32_t y_px = 0; y_px < h; y_px++)
-                fb[y_px * w + mid_x] = AXIS_COL;
+                pixels[y_px * w + mid_x] = AXIS_COL;
 
             for (uint32_t x_px = 0; x_px < w; x_px++)
-                fb[mid_y * w + x_px] = AXIS_COL;
+                pixels[mid_y * w + x_px] = AXIS_COL;
         }
+
+#ifdef DOUBLE_BUFFERING
+        /* Swap the buffers */
+        for (uint32_t i = 0; i < w * h; i++)
+            fb[i] = pixels[i];
+#endif
 
         /* Get user input */
         switch (getchar()) {
@@ -244,6 +262,10 @@ int main_mandelbrot(int argc, char** argv) {
                 break;
         }
     }
+
+#ifdef DOUBLE_BUFFERING
+    free(back_buff);
+#endif
 
     if (was_kb_echo)
         kb_echo();
