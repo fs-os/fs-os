@@ -1,15 +1,11 @@
-
 ; I/O port functions.
 ; For more info on registers, see:
 ;   https://www.felixcloutier.com/x86/in
 
 section .text:
-    global io_inb
-    global io_inl
-    global io_outb
-    global io_outl
 
 ; uint8_t io_inb(uint16_t port)
+global io_inb
 io_inb:
     push    ebp
     mov     ebp, esp
@@ -27,6 +23,7 @@ io_inb:
     ret
 
 ; uint32_t io_inl(uint16_t port)
+global io_inl
 io_inl:
     push    ebp
     mov     ebp, esp
@@ -41,6 +38,7 @@ io_inl:
     ret
 
 ; void io_outb(uint16_t port, uint8_t data)
+global io_outb
 io_outb:
     push    ebp
     mov     ebp, esp
@@ -59,6 +57,7 @@ io_outb:
     ret
 
 ; void io_outl(uint16_t port, uint32_t data)
+global io_outl
 io_outl:
     push    ebp
     mov     ebp, esp
