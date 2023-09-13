@@ -92,8 +92,8 @@ int main_mandelbrot(int argc, char** argv) {
     /* Framebuffer. Each 32 bit entry is a color. We will draw the mandelbrot to
      * the intermediate `pixels` ptr, which will be overwritten if
      * DOUBLE_BUFFERING is defined. */
-    volatile uint32_t* fb = fb_get_ptr();
-    uint32_t* pixels      = fb;
+    volatile uint32_t* fb     = fb_get_ptr();
+    volatile uint32_t* pixels = fb;
 
     const uint32_t w = fb_get_width();
     const uint32_t h = fb_get_height();
