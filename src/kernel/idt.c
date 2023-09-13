@@ -15,11 +15,11 @@
 #define IDT_SZ 256
 
 /** @brief Interrupt descriptor table itself, 256 entries. */
-idt_entry idt[IDT_SZ] = { 0 };
+static idt_entry idt[IDT_SZ] = { 0 };
 
 /** @brief The descriptor containing the idt size and ptr. Initialized in
  * idt_init. */
-idt_descriptor descriptor;
+static idt_descriptor descriptor;
 
 /**
  * @brief Registers an interrupt service routine in the selected index of the
@@ -121,6 +121,6 @@ void idt_init(void) {
     /* See src/kernel/idt.asm */
     idt_load(&descriptor);
 
-    /* Enable interrupts (opposite of cli) */
+    /* Enable interrupts. It should not be necessary */
     asm("sti");
 }
