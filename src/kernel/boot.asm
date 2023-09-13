@@ -68,7 +68,8 @@ section .bss
 
 ; Declare the kernel entry point.
 section .text
-    global _start:function (_start.end - _start)    ; Size of the _start section
+    global _start:function (_start.end - _start)
+    extern kernel_main                              ; src/kernel/kernel.c
     extern gdt_init                                 ; src/kernel/gdt.asm
     extern is_sse_supported                         ; src/kernel/util.asm
     extern sse_supported                            ; src/kernel/kernel.c
@@ -140,16 +141,16 @@ _start:
     ; See src/kernel/include/kernel/multiboot.h
     push    ebx
 
-    ; Enter a high level kernel.
-    extern  kernel_main
+    ; Call the C entry point at src/kernel/kernel.c
     call    kernel_main
 
     ; We should not reach here. If the system has nothing more to do, put the
-    ; computer into an infinite loop: - Disable interrupts with cli (clear
-    ; interrupt enable in eflags) - Wait for the next interrupt to arrive with
-    ; hlt (Halt instruction). Since interrupts are disabled, will lock up the
-    ; computer. - Jump to the hlt instruction in case it wakes up from a
-    ; non-maskable interrupt or due to system management mode.
+    ; computer into an infinite loop:
+    ; - Disable interrupts with CLI (clear interrupt enable in EFLAGS)
+    ; - Wait for the next interrupt to arrive with HLT (Halt instruction). Since
+    ;   interrupts are disabled, will lock up the computer.
+    ; - Jump to the hlt instruction in case it wakes up from a non-maskable
+    ;   interrupt or due to system management mode.
     cli
 
 .hang:
