@@ -4,6 +4,7 @@
 
 #include <stdint.h>
 #include <kernel/color.h>
+#include <kernel/font.h>
 
 /**
  * @brief Framebuffer types returned by the bootloader
@@ -104,6 +105,16 @@ static inline void fb_drawrect(uint32_t y, uint32_t x, uint32_t h, uint32_t w,
  */
 void fb_drawrect_fast(uint32_t y, uint32_t x, uint32_t h, uint32_t w,
                       uint32_t col);
+
+/**
+ * @brief Draw text on the framebuffer
+ * @param[in] y, x Top left position of the text on the screen
+ * @param[in] cols Background/foreground color pair for the text
+ * @param[out] font Font for the text
+ * @param[in] s String to draw
+ */
+void fb_drawtext(uint32_t y, uint32_t x, color_pair cols, Font* font,
+                 const char* s);
 
 /**
  * @brief Draw image from C array exported by gimp.

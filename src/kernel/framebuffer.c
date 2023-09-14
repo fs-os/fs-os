@@ -71,6 +71,27 @@ void fb_drawrect_fast(uint32_t y, uint32_t x, uint32_t h, uint32_t w,
             g_fb[cur_y * g_width + cur_x] = col;
 }
 
+void fb_drawtext(uint32_t y, uint32_t x, color_pair cols, Font* font,
+                 const char* s) {
+    const uint32_t fb_w = fb_get_width();
+
+    /* Iterate chars of string */
+    for (; *s != '\0'; s++, x += font->w) {
+        /* Then iterate each pixel that forms the font char */
+        for (uint8_t fy = 0; fy < font->h; fy++) {
+            for (uint8_t fx = 0; fx < font->w; fx++) {
+                /* Screen coordinates of current pixel offset  */
+                const uint32_t final_y = y + fy;
+                const uint32_t final_x = x + fx;
+
+                /* Depending on the font, set background or foreground */
+                g_fb[final_y * fb_w + final_x] =
+                  get_font_bit(font, *s, fy, fx) ? cols.fg : cols.bg;
+            }
+        }
+    }
+}
+
 void fb_drawimage(uint32_t y, uint32_t x, const GimpImage* img) {
     if (y >= g_height || x >= g_width)
         return;
