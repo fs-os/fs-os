@@ -176,61 +176,61 @@ void kb_handler(void) {
     if (final_key == 0)
         KB_HANDLER_RETURN();
 
-    /* If a program called kb_getchar */
-    if (getting_char) {
-        /* If this variable is not set, kb_raw has been called. kb_getchar will
-         * need to return each character inmediately, so we don't use the line
-         * buffer. */
-        if (!wait_for_eol) {
-            /* getchar_buf_pos will always be 0. See kb_getchar comment */
-            getchar_buf[getchar_buf_pos++] = final_key;
+    /* We only want to go to the next part if a program called kb_getchar */
+    if (!getting_char)
+        KB_HANDLER_RETURN();
 
-            /* We don't use line buffer, we just print here and return */
-            if (print_chars)
-                putchar(final_key);
+    /* If this variable is not set, kb_raw has been called. kb_getchar will need
+     * to return each character inmediately, so we don't use the line buffer. */
+    if (!wait_for_eol) {
+        /* getchar_buf_pos will always be 0. See kb_getchar comment */
+        getchar_buf[getchar_buf_pos++] = final_key;
 
-            KB_HANDLER_RETURN();
+        /* We don't use line buffer, we just print here and return */
+        if (print_chars)
+            putchar(final_key);
+
+        KB_HANDLER_RETURN();
+    }
+
+    if (getchar_line_buf_pos >= KB_GETCHAR_BUFSZ)
+        panic_line("getchar buffer out of bounds");
+
+    /* Store the current char to the getchar line buffer */
+    getchar_line_buf[getchar_line_buf_pos++] = final_key;
+
+    /* If the key we just saved is '\n', the user is done with the input
+     * line so we can move the chars to the final buffer */
+    if (final_key == '\n') {
+        for (int i = 0; i < getchar_line_buf_pos; i++) {
+            getchar_buf[i]      = getchar_line_buf[i];
+            getchar_line_buf[i] = EOF;
         }
 
-        if (getchar_line_buf_pos >= KB_GETCHAR_BUFSZ)
-            panic_line("getchar buffer out of bounds");
+        getchar_buf_pos      = 0; /* Not needed */
+        getchar_line_buf_pos = 0;
 
-        /* Store the current char to the getchar line buffer */
-        getchar_line_buf[getchar_line_buf_pos++] = final_key;
+        putchar(final_key);
+    } else if (final_key == '\b') {
+        /* Delete last char from line buffer if we detect '\b'. First, remove
+         * the '\b' we just added. */
+        getchar_line_buf[--getchar_line_buf_pos] = EOF;
 
-        /* If the key we just saved is '\n', the user is done with the input
-         * line so we can move the chars to the final buffer */
-        if (final_key == '\n') {
-            for (int i = 0; i < getchar_line_buf_pos; i++) {
-                getchar_buf[i]      = getchar_line_buf[i];
-                getchar_line_buf[i] = EOF;
-            }
-
-            getchar_buf_pos      = 0; /* Not needed */
-            getchar_line_buf_pos = 0;
-
-            putchar(final_key);
-        } else if (final_key == '\b') {
-            /* Delete last char from line buffer if we detect '\b' */
-
-            /* Remove the '\b' we just added */
+        /* If we have something to delete, delete the last char */
+        if (getchar_line_buf_pos > 0) {
             getchar_line_buf[--getchar_line_buf_pos] = EOF;
 
-            /* Delete the last char and print '\b', only if we have something to
-             * delete */
-            if (getchar_line_buf_pos > 0) {
-                getchar_line_buf[--getchar_line_buf_pos] = EOF;
-                putchar(final_key);
-            }
-        } else if (print_chars) {
-            /* We print the typed char here for:
-             *   - Only printing keyboard input when a program asks for it
-             *   - Handle special cases like:
-             *     - '\n': Just print
-             *     - '\b': Only print if we have something to delete
-             *   - In those special cases, print them inside that block */
-            putchar(final_key);
+            /* Printing this to the fbc will delete last chararacter */
+            putchar('\b');
         }
+    } else if (print_chars) {
+        /* We print the typed char here for:
+         *  1. Only printing keyboard input when print_chars is true. Changed
+         *     with kb_echo() and kb_noecho().
+         *  2. Handle special cases (the conditional blocks above):
+         *     - '\n': Just print.
+         *     - '\b': Only print if we have something to delete. */
+        putchar(final_key);
     }
 
     /* Tell CPU that it's okay to resume interrupts. See:
