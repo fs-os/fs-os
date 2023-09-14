@@ -55,13 +55,7 @@ void itoa(char* str, int64_t num) {
     /* Since we know the last idx, write null terminator */
     str[digits + sign] = '\0';
 
-    /*
-     * Add 1 if num is negative (for "-")
-     * Subtract 1 because we start on the string's idx (3 digits -> 2 last idx)
-     *
-     * Loop until i < sign (instead of until 0), because if sign is 1 (num is
-     * negative), we want to stop before writing "-" (last pos is 1).
-     */
+    /* Write from end of string to start */
     for (int i = digits + sign - 1; i >= sign; i--) {
         str[i] = num % 10 + '0';
         num /= 10;

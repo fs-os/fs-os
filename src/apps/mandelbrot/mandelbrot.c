@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include <math.h> /* fabs, fmod */
 
+#include <kernel/font.h>
 #include <kernel/keyboard.h>
 #include <kernel/framebuffer.h>
 
@@ -210,6 +211,12 @@ int main_mandelbrot(int argc, char** argv) {
         for (uint32_t i = 0; i < w * h; i++)
             fb[i] = pixels[i];
 #endif
+
+        static char iter_str[] = "Iters: 9999";
+        itoa(&iter_str[7], max_iter);
+
+        static color_pair cols = { 0xFFFFFF, 0x000000 };
+        fb_drawtext(5, 5, cols, &main_font, iter_str);
 
         /* Get user input */
         switch (getchar()) {
