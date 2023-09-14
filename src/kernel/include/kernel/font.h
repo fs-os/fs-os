@@ -12,6 +12,8 @@ typedef struct {
     uint8_t* font; /**< @brief Bitmap ptr. Size must be (256 * w) */
 } Font;
 
+extern Font main_font;
+
 /**
  * @brief Gets the bit at pos \p y, \p x of the char \p c from the Font \p font.
  * @details Would be the same as `font->font[c][y][x]` if it was a 3d array.
