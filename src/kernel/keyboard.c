@@ -266,7 +266,8 @@ void kb_noraw(void) {
 }
 
 bool kb_getraw(void) {
-    return wait_for_eol;
+    /* Raw -> !wait_for_eol; NoRaw->wait_for_eol */
+    return !wait_for_eol;
 }
 
 void kb_setlayout(const Layout* ptr) {
