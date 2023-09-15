@@ -603,6 +603,10 @@ int main_minesweeper(int argc, char** argv) {
                     generate_grid(&ms, cursor,
                                   DIFFIC2BOMBPERCENT(ms.difficulty));
                     ms.playing = PLAYING_TRUE;
+                } else if (ms.grid[cursor.y * ms.w + cursor.x].flags &
+                           FLAG_FLAGGED) {
+                    print_message(&ms, "Can't reveal a flagged tile.");
+                    break;
                 }
 
                 reveal_tiles(&ms, cursor.y, cursor.x, true);
