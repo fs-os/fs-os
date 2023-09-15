@@ -1,0 +1,3 @@
+[submodule "src/apps/doom"]
+	path = src/apps/doom
+	url = https://github.com/fs-os/doom
