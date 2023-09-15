@@ -40,11 +40,13 @@ ASM_OBJS=obj/kernel/boot.asm.o \
          obj/kernel/util.asm.o \
          obj/libk/math.asm.o
 
+DOOM_OBJS=$(patsubst src/%, obj/%.o, $(wildcard src/apps/doom/doom/*.c))
 APP_OBJS=obj/apps/sh/sh.c.o \
          obj/apps/piano/piano.c.o \
          obj/apps/minesweeper/minesweeper.c.o \
          obj/apps/5x5/5x5.c.o \
-         obj/apps/mandelbrot/mandelbrot.c.o
+         obj/apps/mandelbrot/mandelbrot.c.o \
+         $(DOOM_OBJS)
 
 # Libk is the libc version used by the kernel. We will link the final kernel
 # binary with these objects.
@@ -55,6 +57,7 @@ LIBK_OBJS=obj/libk/string.c.o \
           obj/libk/time.c.o \
           obj/libk/curses.c.o \
           obj/libk/math.c.o
+
 
 # Paths for the sysroot
 SYSROOT=./sysroot
