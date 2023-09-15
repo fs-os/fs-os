@@ -274,6 +274,11 @@ void kernel_main(Multiboot* mb_info) {
     puts("https://github.com/fs-os/fs-os");
     fbc_setfore(COLOR_WHITE);
 
+    /* TODO */
+    int main_doom(int argc, char** argv);
+    char* argv[] = { "doom" };
+    main_doom(1, argv);
+
     /* Main shell */
     sh_main();
 
