@@ -76,28 +76,27 @@
     printf(s2fmt, __VA_ARGS__);     \
     putchar('\n');
 
-/* Need tmp to remove '\0' from itoa */
-#define PAD_ZEROS(n, p)                \
-    do {                               \
-        if (n < 10) {                  \
-            *p       = '0';            \
-            *(p + 1) = n + '0';        \
-        } else {                       \
-            const char tmp = *(p + 2); \
-            itoa(p, n);                \
-            *(p + 2) = tmp;            \
-        }                              \
-    } while (0);
+static inline void pad_zeros(int n, char* p) {
+    if (n < 10) {
+        *p       = '0';
+        *(p + 1) = n + '0';
+    } else {
+        /* Need `tmp` to replace the '\0' placed by itoa with the old char */
+        const char tmp = *(p + 2);
+        itoa(p, n);
+        *(p + 2) = tmp;
+    }
+}
 
 static inline void format_date(char* str, DateTime now) {
     /* "00/00/00 - 00:00:00" */
 
-    PAD_ZEROS(now.date.d, &str[0]);
-    PAD_ZEROS(now.date.m, &str[3]);
-    PAD_ZEROS(now.date.y, &str[6]);
-    PAD_ZEROS(now.time.h, &str[11]);
-    PAD_ZEROS(now.time.m, &str[14]);
-    PAD_ZEROS(now.time.s, &str[17]);
+    pad_zeros(now.date.d, &str[0]);
+    pad_zeros(now.date.m, &str[3]);
+    pad_zeros(now.date.y, &str[6]);
+    pad_zeros(now.time.h, &str[11]);
+    pad_zeros(now.time.m, &str[14]);
+    pad_zeros(now.time.s, &str[17]);
 }
 
 static inline void test_colors(void) {

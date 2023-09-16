@@ -26,26 +26,25 @@
 #include "../../media/soviet_anthem.h"
 #include "../../media/thunderstruck.h"
 
+#define LENGTH(arr) (sizeof(arr) / sizeof(arr[0]))
+
 #define TEST_TITLE(...)         \
     fbc_setfore(COLOR_WHITE_B); \
     printf(__VA_ARGS__);        \
     putchar('\n');              \
     fbc_setfore(COLOR_GRAY);
 
-/* Need tmp to remove '\0' from itoa */
-#define PAD_ZEROS(n, p)                \
-    do {                               \
-        if (n < 10) {                  \
-            *p       = '0';            \
-            *(p + 1) = n + '0';        \
-        } else {                       \
-            const char tmp = *(p + 2); \
-            itoa(p, n);                \
-            *(p + 2) = tmp;            \
-        }                              \
-    } while (0);
-
-#define LENGTH(arr) (sizeof(arr) / sizeof(arr[0]))
+static inline void pad_zeros(int n, char* p) {
+    if (n < 10) {
+        *p       = '0';
+        *(p + 1) = n + '0';
+    } else {
+        /* Need `tmp` to replace the '\0' placed by itoa with the old char */
+        const char tmp = *(p + 2);
+        itoa(p, n);
+        *(p + 2) = tmp;
+    }
+}
 
 /* -------------------------------------------------------------------------- */
 
@@ -318,12 +317,12 @@ static int cmd_date() {
     static char date_str[] = "00/00/00 - 00:00:00";
     const DateTime now     = rtc_get_datetime();
 
-    PAD_ZEROS(now.date.d, &date_str[0]);
-    PAD_ZEROS(now.date.m, &date_str[3]);
-    PAD_ZEROS(now.date.y, &date_str[6]);
-    PAD_ZEROS(now.time.h, &date_str[11]);
-    PAD_ZEROS(now.time.m, &date_str[14]);
-    PAD_ZEROS(now.time.s, &date_str[17]);
+    pad_zeros(now.date.d, &date_str[0]);
+    pad_zeros(now.date.m, &date_str[3]);
+    pad_zeros(now.date.y, &date_str[6]);
+    pad_zeros(now.time.h, &date_str[11]);
+    pad_zeros(now.time.m, &date_str[14]);
+    pad_zeros(now.time.s, &date_str[17]);
 
     fbc_setfore(COLOR_WHITE_B);
     printf("Date: ");
