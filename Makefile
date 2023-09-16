@@ -79,7 +79,7 @@ $(ISO): $(SYSROOT_KERNEL) limine/limine-deploy
 	@mkdir -p iso/boot/
 	cp $(SYSROOT_KERNEL) iso/boot/$(KERNEL_BIN)
 	cp limine/limine.sys limine/limine-cd.bin iso/
-	cat cfg/limine.cfg | sed "s/(GITHASH)/$(COMMIT_SHA1)/" > iso/limine.cfg
+	cat cfg/limine.cfg | sed "s/ (GITHASH)/$(COMMIT_SHA1)/" > iso/limine.cfg
 	xorriso -as mkisofs -b limine-cd.bin                 \
 		-no-emul-boot -boot-load-size 4 -boot-info-table \
 		--protective-msdos-label                         \

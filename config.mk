@@ -2,6 +2,9 @@
 # Set to false to disable SSE/SSE2 support (experimental)
 SSE_SUPPORT=true
 
+# Set to false to remove last commit from bootloader entry
+BOOTLOADER_GIT_HASH=true
+
 # Assembler
 ASM=nasm
 ASM_FLAGS=-f elf32 -isrc/kernel -isrc/kernel/include/kernel
@@ -75,11 +78,11 @@ SRC_HEADERS=$(wildcard $(KERNEL_INCLUDE_DIR)/*/*.h) $(wildcard $(LIBK_INCLUDE_DI
 SYSROOT_HEADERS=$(patsubst $(LIBK_INCLUDE_DIR)/%, $(SYSROOT_INCLUDE_DIR)/%, \
                 $(patsubst $(KERNEL_INCLUDE_DIR)/%, $(SYSROOT_INCLUDE_DIR)/%, $(SRC_HEADERS)))
 
-# For replacing "(GITHASH)" with the last commit in the bootloader entry.
-# Comment these lines if you just want the os name.
+ifeq ($(BOOTLOADER_GIT_HASH), true)
 PERCENT:=%
 COMMIT_CMD=git branch -v --format="$(PERCENT)(objectname:short)$(PERCENT)(HEAD)" | grep "*$$" | tr -d "*"
-COMMIT_SHA1=($(shell $(COMMIT_CMD)))
+COMMIT_SHA1=\ ($(shell $(COMMIT_CMD)))
+endif
 
 ifeq ($(SSE_SUPPORT), true)
 CFLAGS += -msse -msse2 -DENABLE_SSE
