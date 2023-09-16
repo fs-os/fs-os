@@ -42,13 +42,32 @@ int abs(int x);
 double fabs(double x);
 
 /**
- * @brief Calculates the modulus (remainder) of 2 numbers.
+ * @brief Calculates the absolute value of a float.
+ * @param[in] x The input number.
+ * @return The absolute value of x.
+ */
+static inline float fabsf(float x) {
+    return (x >= 0.f) ? x : -x;
+}
+
+/**
+ * @brief Calculates the modulus (remainder) of 2 doubles.
  * @param[in] x The dividend.
  * @param[in] x The divisor.
  * @return The remainder of x/y.
  */
 static inline double fmod(double x, double y) {
     return x - y * (uint64_t)(x / y);
+}
+
+/**
+ * @brief Calculates the modulus (remainder) of 2 floats.
+ * @param[in] x The dividend.
+ * @param[in] x The divisor.
+ * @return The remainder of x/y.
+ */
+static inline float fmodf(float x, float y) {
+    return x - y * (uint32_t)(x / y);
 }
 
 /**
