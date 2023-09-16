@@ -91,8 +91,8 @@ limine/limine-deploy:
 	make -C limine
 
 # We use --sysroot so we can for example include with <lib.h>
-$(KERNEL_BIN): cfg/linker.ld $(ASM_OBJS) $(KERNEL_OBJS) $(LIBK_OBJS) $(APP_OBJS)
-	$(CC) --sysroot=sysroot -isystem=/usr/include -ffreestanding -nostdlib -T cfg/linker.ld -o $@ $(CFLAGS) $(ASM_OBJS) $(KERNEL_OBJS) $(LIBK_OBJS) $(APP_OBJS) -lgcc
+$(KERNEL_BIN): cfg/linker.ld $(KERNEL_OBJS) $(LIBK_OBJS) $(APP_OBJS)
+	$(CC) --sysroot=sysroot -isystem=/usr/include -ffreestanding -nostdlib -T cfg/linker.ld -o $@ $(CFLAGS) $(KERNEL_OBJS) $(LIBK_OBJS) $(APP_OBJS) -lgcc
 
 obj/%.asm.o: src/%.asm
 	@mkdir -p $(dir $@)

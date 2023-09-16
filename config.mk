@@ -14,8 +14,8 @@ CFLAGS=-Wall -Wextra -O2 -masm=intel
 KERNEL_BIN=fs-os.bin
 ISO=$(KERNEL_BIN:.bin=.iso)
 
-# List of object files to be linked with the kernel. Same for asm_objs but with
-# different compilation method.
+# List of object files to be linked with the kernel, apps and libk (libc version
+# used by the kernel)
 KERNEL_OBJ_FILES=kernel.c.o \
                  vga.c.o \
                  paging.c.o \
@@ -28,18 +28,15 @@ KERNEL_OBJ_FILES=kernel.c.o \
                  rtc.c.o \
                  pit.c.o \
                  pcspkr.c.o \
-                 keyboard.c.o
-
-# TODO: Remove ASM_OBJS
-ASM_OBJ_FILES=kernel/boot.asm.o \
-              kernel/io.asm.o \
-              kernel/gdt.asm.o \
-              kernel/idt.asm.o \
-              kernel/paging.asm.o \
-              kernel/multitask.asm.o \
-              kernel/rand.asm.o \
-              kernel/util.asm.o \
-              libk/math.asm.o
+                 keyboard.c.o \
+                 boot.asm.o \
+                 io.asm.o \
+                 gdt.asm.o \
+                 idt.asm.o \
+                 paging.asm.o \
+                 multitask.asm.o \
+                 rand.asm.o \
+                 util.asm.o \
 
 APP_OBJ_FILES=sh/sh.c.o \
               piano/piano.c.o \
@@ -47,15 +44,14 @@ APP_OBJ_FILES=sh/sh.c.o \
               5x5/5x5.c.o \
               mandelbrot/mandelbrot.c.o
 
-# Libk is the libc version used by the kernel. We will link the final kernel
-# binary with these objects.
 LIBK_OBJ_FILES=string.c.o \
                stdlib.c.o \
                stdio.c.o \
                ctype.c.o \
                time.c.o \
                curses.c.o \
-               math.c.o
+               math.c.o \
+               math.asm.o
 
 # Paths for the sysroot
 SYSROOT=./sysroot
@@ -69,9 +65,9 @@ KERNEL_INCLUDE_DIR=src/kernel/include
 LIBK_INCLUDE_DIR=src/libk/include
 
 #-------------------------------------------------------------------------------
+# Automatic stuff
 
 KERNEL_OBJS=$(addprefix obj/kernel/, $(KERNEL_OBJ_FILES))
-ASM_OBJS=$(addprefix obj/, $(ASM_OBJ_FILES))
 APP_OBJS=$(addprefix obj/apps/, $(APP_OBJ_FILES))
 LIBK_OBJS=$(addprefix obj/libk/, $(LIBK_OBJ_FILES))
 
