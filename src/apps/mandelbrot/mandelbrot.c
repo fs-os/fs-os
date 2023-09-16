@@ -284,8 +284,8 @@ int main_mandelbrot(int argc, char** argv) {
 }
 
 static uint32_t hue2rgb(float h) {
-    float prime = fmod(h / 60.f, 6);
-    float x     = 1 - fabs(fmod(prime, 2) - 1);
+    float prime = fmodf(h / 60.f, 6);
+    float x     = 1 - fabsf(fmodf(prime, 2) - 1);
 
     uint32_t ret = 0x000000;
 
