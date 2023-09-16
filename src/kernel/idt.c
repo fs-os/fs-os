@@ -86,7 +86,7 @@ void idt_init(void) {
     /* Exception Handling. With exceptions, we set the gate type to TRAP instead
      * of INT. The exc_N functions defined in src/kernel/idt.asm */
     register_isr(0, exc_0, true);
-    register_isr(1, exc_debug, true); /* Special handler for debug */
+    register_isr(1, exc_debug, false); /* Special handler for debug */
     register_isr(2, exc_2, true);
     register_isr(3, exc_3, true);
     register_isr(4, exc_4, true);

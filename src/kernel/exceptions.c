@@ -50,6 +50,7 @@ void handle_debug(uint64_t* tsc, void* eip) {
     if (tsc != NULL) {
         printf(" TimeStampCounter: %llu", *tsc);
 
+        /* FIXME: Currently broken (Compile with DEBUG defined) */
         if (last_tsc != 0)
             printf(" (+%llu)", *tsc - last_tsc);
     }
