@@ -30,18 +30,21 @@ typedef uint32_t FILE;
  * list.
  *
  * Formats supported:
+ *   - "%%"
  *   - "%c"
  *   - "%p"
- *   - "%%"
  *   - "%s", "%25s"
  *   - "%d", "%ld", "%lld"
  *   - "%u", "%lu", "%llu"
  *   - "%f", "%lf"
  *   - "%x", "%lx", "%llx", "%X", "%lX", "%llX"
- *   - "%25d", "%25ld", "%25lld"
- *   - "%25u", "%25lu", "%25llu"
- *   - "%25f", "%25lf", "%.3f", "%25.3f"
- *   - "%25x", "%25lx", "%25llx", "%25X", "%25lX", "%25llX"
+ *   - "%025d", "%25d", "%25ld", "%25lld"
+ *   - "%025u", "%25u", "%25lu", "%25llu"
+ *   - "%025f", "%25f", "%25lf", "%.3f", "%25.3f"
+ *   - "%025x", "%25x", "%25lx", "%25llx", "%025X", "%25X", "%25lX", "%25llX"
+ *
+ * Note that using "%025..." instead of "%25..." changes the padding character
+ * from ' ' to '0'.
  *
  * @param[in] fmt Format string.
  * @param[in] va Variable argument list.

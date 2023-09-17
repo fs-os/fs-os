@@ -20,8 +20,19 @@
  */
 #define DEFAULT_DOUBLE_DECIMALS 6
 
-static const char hex_chars_lower[] = "0123456789abcdef";
-static const char hex_chars_upper[] = "0123456789ABCDEF";
+/**
+ * @def DEFAULT_PAD_CHAR
+ * @brief Default character used for padding "%123d" formats. We can also use
+ * "%05d" to temporarily use '0' instead.
+ */
+#define DEFAULT_PAD_CHAR ' '
+
+/**
+ * @var cur_pad_char
+ * @brief Current character used by print_pad() for printing paddings of "%123d"
+ * formats. Can be overwritten with '0' temporarily in "%05d" formats.
+ */
+static char cur_pad_char = DEFAULT_PAD_CHAR;
 
 /**
  * @brief Print N ammount of spaces.
@@ -30,7 +41,10 @@ static const char hex_chars_upper[] = "0123456789ABCDEF";
  */
 static inline size_t print_pad(size_t n) {
     for (size_t i = 0; i < n; i++)
-        putchar(' ');
+        putchar(cur_pad_char);
+
+    /* Reset to default on each call */
+    cur_pad_char = DEFAULT_PAD_CHAR;
 
     return n;
 }
@@ -57,10 +71,13 @@ static inline size_t fmt_s(const char* str) {
  * @param[in] pad Padding for the string.
  * @return Bytes written.
  */
-static inline size_t fmt_s_pad(const char* str, int pad) {
+static inline size_t fmt_s_pad(const char* str, size_t pad) {
     size_t ret = 0;
 
-    ret += print_pad(strlen(str) - pad);
+    const size_t len = strlen(str);
+    if (len < pad)
+        ret += print_pad(pad - len);
+
     ret += fmt_s(str);
 
     return ret;
@@ -88,16 +105,19 @@ static size_t fmt_d(int64_t num) {
  * @param[in] pad Padding for the number.
  * @return Bytes written.
  */
-static size_t fmt_d_pad(int64_t num, int pad) {
-    int sign   = (num < 0) ? 1 : 0;
-    int digits = digits_int(num);
+static size_t fmt_d_pad(int64_t num, size_t pad) {
+    size_t ret = 0;
+
+    uint32_t digits = digits_int(num);
+    if (num < 0)
+        digits++; /* The minus sign */
 
     static char str[21] = { '\0' };
     itoa(str, num);
 
-    size_t ret = 0;
+    if (digits < pad)
+        ret += print_pad(pad - digits);
 
-    ret += print_pad(pad - (digits + sign));
     ret += fmt_s(str);
 
     return ret;
@@ -151,10 +171,13 @@ static size_t fmt_f(double num, int decimals) {
  * @param[in] num Decimals. Used for "%.5f"
  * @return Bytes written.
  */
-static size_t fmt_f_pad(double num, int pad, int decimals) {
+static size_t fmt_f_pad(double num, size_t pad, int decimals) {
     size_t ret = 0;
 
-    ret += print_pad(pad - digits_double(num, decimals));
+    const size_t digits = digits_double(num, decimals);
+    if (digits < pad)
+        ret += print_pad(pad - digits);
+
     ret += fmt_f(num, decimals);
 
     return ret;
@@ -167,6 +190,8 @@ static size_t fmt_f_pad(double num, int pad, int decimals) {
  * @return Bytes written.
  */
 static size_t fmt_x(uint64_t num, bool uppercase) {
+    static const char hex_chars_lower[] = "0123456789abcdef";
+    static const char hex_chars_upper[] = "0123456789ABCDEF";
     const char* hex_chars = uppercase ? hex_chars_upper : hex_chars_lower;
 
     if (num == 0) {
@@ -196,10 +221,13 @@ static size_t fmt_x(uint64_t num, bool uppercase) {
  * @param[in] uppercase If true will use uppercase hex chars.
  * @return Bytes written.
  */
-static size_t fmt_x_pad(int64_t num, int pad, bool uppercase) {
+static size_t fmt_x_pad(int64_t num, size_t pad, bool uppercase) {
     size_t ret = 0;
 
-    ret += print_pad(pad - digits_hex(num));
+    const size_t digits = digits_hex(num);
+    if (digits < pad)
+        ret += print_pad(pad - digits);
+
     ret += fmt_x(num, uppercase);
 
     return ret;
@@ -340,7 +368,14 @@ int vprintf(const char* restrict fmt, va_list va) {
                         break;
                 } /* %ld switch */
                 break;
-            case '0': /* Not necessary */
+            case '0': /* "%0..." */
+                /* If the padding starts with zero, we use '0' as pad char */
+                cur_pad_char = '0';
+
+                /* Skip the zero and read normal format */
+                fmt++;
+
+                /* fall through */
             case '1':
             case '2':
             case '3':
