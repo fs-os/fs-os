@@ -76,29 +76,6 @@
     printf(s2fmt, __VA_ARGS__);     \
     putchar('\n');
 
-static inline void pad_zeros(int n, char* p) {
-    if (n < 10) {
-        *p       = '0';
-        *(p + 1) = n + '0';
-    } else {
-        /* Need `tmp` to replace the '\0' placed by itoa with the old char */
-        const char tmp = *(p + 2);
-        itoa(p, n);
-        *(p + 2) = tmp;
-    }
-}
-
-static inline void format_date(char* str, DateTime now) {
-    /* "00/00/00 - 00:00:00" */
-
-    pad_zeros(now.date.d, &str[0]);
-    pad_zeros(now.date.m, &str[3]);
-    pad_zeros(now.date.y, &str[6]);
-    pad_zeros(now.time.h, &str[11]);
-    pad_zeros(now.time.m, &str[14]);
-    pad_zeros(now.time.s, &str[17]);
-}
-
 static inline void test_colors(void) {
     printf("\n\t");
     fbc_setfore(COLOR_BLACK);
@@ -256,15 +233,17 @@ void kernel_main(Multiboot* mb_info) {
     SYSTEM_INFO("Resolution:\t", "%ldx%ld", mb_info->framebuffer_width,
                 mb_info->framebuffer_height);
     SYSTEM_INFO("Font:\t\t", "%s", main_font.name);
-    char date_fmt[] = "00/00/00 - 00:00:00";
-    format_date(date_fmt, rtc_get_datetime());
-    SYSTEM_INFO("Time:\t\t", "%s", date_fmt);
+
+    /* "00/00/00 - 00:00:00" */
+    const DateTime now = rtc_get_datetime();
+    SYSTEM_INFO("Time:\t\t", "%02u/%02u/%02u - %02u:%02u:%02u\n", now.date.d,
+                now.date.m, now.date.y, now.time.h, now.time.m, now.time.s);
     putchar('\n');
 
     LOAD_INFO("Color palette:");
     test_colors();
 
-    /* ---------------------------------------------------------------------- */
+    /*------------------------------------------------------------------------*/
 
     fbc_setfore(COLOR_MAGENTA);
     puts("\nHello, welcome to the Free and Simple Operating System!\n"

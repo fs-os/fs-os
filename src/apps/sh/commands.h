@@ -34,19 +34,7 @@
     putchar('\n');              \
     fbc_setfore(COLOR_GRAY);
 
-static inline void pad_zeros(int n, char* p) {
-    if (n < 10) {
-        *p       = '0';
-        *(p + 1) = n + '0';
-    } else {
-        /* Need `tmp` to replace the '\0' placed by itoa with the old char */
-        const char tmp = *(p + 2);
-        itoa(p, n);
-        *(p + 2) = tmp;
-    }
-}
-
-/* -------------------------------------------------------------------------- */
+/*----------------------------------------------------------------------------*/
 
 /* Used in sh_main and cmd_quit */
 static bool quit_sh = false;
@@ -211,8 +199,7 @@ static Command cmd_list[] = {
     },
 };
 
-/* -------------------------------------------------------------------------------
- */
+/*----------------------------------------------------------------------------*/
 
 static int cmd_unk() {
     puts("Unknown command... See \"help\" for more details.");
@@ -314,20 +301,15 @@ static int cmd_ticks() {
 }
 
 static int cmd_date() {
-    static char date_str[] = "00/00/00 - 00:00:00";
-    const DateTime now     = rtc_get_datetime();
-
-    pad_zeros(now.date.d, &date_str[0]);
-    pad_zeros(now.date.m, &date_str[3]);
-    pad_zeros(now.date.y, &date_str[6]);
-    pad_zeros(now.time.h, &date_str[11]);
-    pad_zeros(now.time.m, &date_str[14]);
-    pad_zeros(now.time.s, &date_str[17]);
+    const DateTime now = rtc_get_datetime();
 
     fbc_setfore(COLOR_WHITE_B);
     printf("Date: ");
     fbc_setfore(COLOR_GRAY);
-    puts(date_str);
+
+    /* "00/00/00 - 00:00:00" */
+    printf("%02u/%02u/%02u - %02u:%02u:%02u\n", now.date.d, now.date.m,
+           now.date.y, now.time.h, now.time.m, now.time.s);
 
     fbc_setfore(COLOR_WHITE_B);
     printf("Epoch (Not acurate): ");
