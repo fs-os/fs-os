@@ -228,6 +228,6 @@ void heap_dump_headers(void) {
         if (blk->prev == NULL)
             printf("  ");
 
-        printf(" | Sz: 0x%lX\n", blk->sz);
+        printf(" | Sz: 0x%07lX\n", blk->sz);
     }
 }
