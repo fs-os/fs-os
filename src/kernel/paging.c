@@ -64,8 +64,9 @@ enum page_tab_flags {
     /* 12..31 Bits 12..31 of the page address */
 };
 
-uint32_t page_tables[DIR_ENTRIES][TABLE_ENTRIES] __attribute__((aligned(4096)));
-uint32_t page_directory[DIR_ENTRIES] __attribute__((aligned(4096)));
+static uint32_t page_directory[DIR_ENTRIES] __attribute__((aligned(4096)));
+static uint32_t page_tables[DIR_ENTRIES][TABLE_ENTRIES]
+  __attribute__((aligned(4096)));
 
 void paging_init(void) {
     /* Initialize empty page directory */
@@ -111,20 +112,6 @@ void paging_init(void) {
     enable_paging();
 }
 
-#if 0
-/* paging_map: simply map the "vaddr" virtual address to the "paddr" physical address
- * with the specified "flags". Both addresses should be page-aligned. */
-void paging_map(void* paddr, void* vaddr, uint16_t flags) {
-    /* Last 10 bits, page dir index */
-    uint32_t pd_idx = (uint32_t)vaddr >> 22;
-
-    /* Bits 12..20, page table index */
-    uint32_t pt_idx = (uint32_t)vaddr >> 12 & 0x03FF;
-
-    /* TODO */
-}
-#endif
-
 void paging_show_map(void) {
     typedef struct {
         uint32_t dir_i, tab_i;
@@ -135,7 +122,7 @@ void paging_show_map(void) {
 
     /* AVL, Global, Page atribute table, Dirty, Accessed, Cache disable,
      * Write-through, User (0 means supervisor), Writable, Present */
-    const char* flags_str = "---GPDACWUWP";
+    static const char* flags_str = "---GPDACWUWP";
 
     /* Used to compare the current and last address' flags */
     table_entry last_entry = { 0, 0, 0, 0, 0 };
