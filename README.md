@@ -113,8 +113,8 @@ See [todo.md](TODO.md) or the todo list of the doxygen documentation.
 > **Note**  
 > Some screenshots might be a bit outdated.
 
-![fs-os0](https://user-images.githubusercontent.com/29655971/225747442-1821fdeb-4eba-44b9-98aa-35c65b797e64.png)
-![fs-os1](https://user-images.githubusercontent.com/29655971/225747462-00290292-4d12-4f64-97ff-9c6f04e5713c.png)
+![fs-os0](https://user-images.githubusercontent.com/29655971/269358077-593eb986-078f-46f3-b69b-cc8d3bd6a212.png)
+![fs-os1](https://user-images.githubusercontent.com/29655971/269358675-487565a2-523c-49a4-816b-7c834a1121f3.png)
 
 ### Credits
 - [OSDev wiki](https://wiki.osdev.org)
