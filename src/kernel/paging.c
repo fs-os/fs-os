@@ -108,8 +108,8 @@ void paging_init(void) {
     for (uint32_t i = rodata_start_idx; i <= rodata_end_idx; i++)
         ((uint32_t*)page_tables)[i] &= ~PAGETAB_READWRITE;
 
-    load_page_dir(page_directory);
-    enable_paging();
+    paging_load(page_directory);
+    paging_enable();
 }
 
 void paging_show_map(void) {
