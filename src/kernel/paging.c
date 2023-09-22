@@ -4,22 +4,53 @@
 #include <stdio.h>
 #include <kernel/paging.h>
 
-/* For readability */
-#define DIR_ENTRIES   1024
-#define TABLE_ENTRIES 1024
-#define PAGE_SIZE     4096 /**< @brief In KiB */
+#define DIR_ENTRIES   1024 /* Array size */
+#define TABLE_ENTRIES 1024 /* Array size*/
+#define PAGE_SIZE     4096 /* KiB */
 
 /**
  * @def TABLES_MAPPED
- * @details For example 128 tables mapped would map 512MiB of ram: \n
+ * @details For example 128 tables mapped would map 512MiB of ram:
  *   512 MiB / 4 MiB (Memory mapped per table) = 128 filled table entries
  */
-
 #define TABLES_MAPPED DIR_ENTRIES
 
 /**
- * @name Symbols from linker script
- * @{ */
+ * @enum page_dir_flags
+ * @brief Bits for the page directory entries.
+ */
+enum page_dir_flags {
+    PAGEDIR_PRESENT   = 0x01,
+    PAGEDIR_READWRITE = 0x02,
+    PAGEDIR_USER      = 0x04, /* If clear, only supervisor can access page */
+    PAGEDIR_PWT       = 0x08,
+    PAGEDIR_PCD       = 0x10,
+    PAGEDIR_ACCESSED  = 0x20,
+    PAGEDIR_AVL0      = 0x40, /* Unused */
+    PAGEDIR_PAGESZ    = 0x80, /* If set, pages are 4MiB. Otherwise, 4KiB */
+    /* Bits 09..11 of entry are available */
+    /* Bits 12..31 of entry are bits 12..31 of the page frame address */
+};
+
+/**
+ * @enum page_tab_flags
+ * @brief Bits for the page table entries.
+ */
+enum page_tab_flags {
+    PAGETAB_PRESENT   = 0x001,
+    PAGETAB_READWRITE = 0x002,
+    PAGETAB_USER      = 0x004,
+    PAGETAB_PWT       = 0x008,
+    PAGETAB_PCD       = 0x010,
+    PAGETAB_ACCESSED  = 0x020,
+    PAGETAB_DIRTY     = 0x040, /* It has been written to */
+    PAGETAB_PAT       = 0x080, /* Page attribute table */
+    PAGETAB_GLOBAL    = 0x100,
+    /* Bits 09..11 of entry are available */
+    /* Bits 12..31 of entry are bits 12..31 of the page address */
+};
+
+/* Symbols from linker script */
 extern uint8_t _text_start;
 extern uint8_t _text_end;
 extern uint8_t _rodata_start;
@@ -28,72 +59,31 @@ extern uint8_t _data_start;
 extern uint8_t _data_end;
 extern uint8_t _bss_start;
 extern uint8_t _bss_end;
-/**  @} */
 
-/**
- * @brief Bits for the page directory entries.
- */
-enum page_dir_flags {
-    PAGEDIR_PRESENT   = 0x1,
-    PAGEDIR_READWRITE = 0x2,
-    PAGEDIR_USER      = 0x4, /**< @brief If 1, everybody can access it, if 0,
-                               only supervisor */
-    PAGEDIR_PWT      = 0x8,
-    PAGEDIR_PCD      = 0x10,
-    PAGEDIR_ACCESSED = 0x20,
-    PAGEDIR_AVL0     = 0x40, /**< @brief Unused */
-    PAGEDIR_PAGESZ   = 0x80, /**< @brief Pages are 4MiB if this bit is 1 */
-    /*  8..11 Available */
-    /* 12..31 Bits 12..31 of the address */
-};
-
-/**
- * @brief Bits for the page table entries.
- */
-enum page_tab_flags {
-    PAGETAB_PRESENT   = 0x1,
-    PAGETAB_READWRITE = 0x2,
-    PAGETAB_USER      = 0x4,
-    PAGETAB_PWT       = 0x8,
-    PAGETAB_PCD       = 0x10,
-    PAGETAB_ACCESSED  = 0x20,
-    PAGETAB_DIRTY     = 0x40, /**< @brief It has been written to */
-    PAGETAB_PAT       = 0x80, /**< @brief Page attribute table */
-    PAGETAB_GLOBAL    = 0x100,
-    /*  9..11 Available */
-    /* 12..31 Bits 12..31 of the page address */
-};
-
+/* Page directory and page tables, filled and loaded in paging_init() */
 static uint32_t page_directory[DIR_ENTRIES] __attribute__((aligned(4096)));
 static uint32_t page_tables[DIR_ENTRIES][TABLE_ENTRIES]
   __attribute__((aligned(4096)));
 
 void paging_init(void) {
-    /* Initialize empty page directory */
-    for (int i = 0; i < DIR_ENTRIES; i++) {
-        /*
-         * Present bit not set
-         * Read and write enabled
-         * No user flag (only supervisor)
-         * 4KiB in size (not 4MiB)
-         */
-        page_directory[i] = PAGEDIR_READWRITE;
-    }
+    /* Initialize empty page directory, will be overwritten next for mapped
+     * entries (in our case 1:1 mapping of entire memory) */
+    for (int i = 0; i < DIR_ENTRIES; i++)
+        page_directory[i] = 0;
 
     /* Initialize the page tables by doing a 1:1 mapping */
     for (uint32_t i = 0; i < TABLES_MAPPED; i++) {
         for (uint32_t j = 0; j < TABLE_ENTRIES; j++) {
             /* For each entry of the table (i), map a new 4096 (PAGE_SIZE) page.
              * We only care about storing bits 12..31 of the address. */
-            page_tables[i][j] =
-              (i * TABLE_ENTRIES * PAGE_SIZE + j * PAGE_SIZE) |
-              PAGETAB_PRESENT | PAGETAB_READWRITE;
+            page_tables[i][j] = i * TABLE_ENTRIES * PAGE_SIZE + j * PAGE_SIZE;
+            page_tables[i][j] |= PAGETAB_PRESENT | PAGETAB_READWRITE;
         }
 
-        /* Bits 31..12 of the entry are bits 31..12 of the address, no need to
+        /* Bits 12..31 of the entry are bits 12..31 of the address, no need to
          * shift */
-        page_directory[i] =
-          ((uint32_t)&page_tables[i][0]) | PAGEDIR_PRESENT | PAGEDIR_READWRITE;
+        page_directory[i] = (uint32_t)&page_tables[i][0];
+        page_directory[i] |= PAGEDIR_READWRITE | PAGEDIR_PRESENT;
     }
 
     /* Frame number where the .rodata section starts */
@@ -103,10 +93,13 @@ void paging_init(void) {
      * the start of the next section. */
     const uint32_t rodata_end_idx = ((uint32_t)&_rodata_end >> 12) - 1;
 
+    /* Convert to 1D array */
+    uint32_t* page_frames = (uint32_t*)page_tables;
+
     /* Remove write permissions from the page frame where .rodata start to the
      * page frame where it ends (included) */
     for (uint32_t i = rodata_start_idx; i <= rodata_end_idx; i++)
-        ((uint32_t*)page_tables)[i] &= ~PAGETAB_READWRITE;
+        page_frames[i] &= ~PAGETAB_READWRITE;
 
     paging_load(page_directory);
     paging_enable();
