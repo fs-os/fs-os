@@ -69,11 +69,11 @@
     putchar('\n');            \
     fbc_setfore(COLOR_WHITE);
 
-#define SYSTEM_INFO(s1, s2fmt, ...) \
-    fbc_setfore(COLOR_WHITE_B);     \
-    printf("\t%s", s1);             \
-    fbc_setfore(COLOR_WHITE);       \
-    printf(s2fmt, __VA_ARGS__);     \
+#define SYSTEM_INFO(s1, ...)    \
+    fbc_setfore(COLOR_WHITE_B); \
+    printf("\t%s", s1);         \
+    fbc_setfore(COLOR_WHITE);   \
+    printf(__VA_ARGS__);        \
     putchar('\n');
 
 static inline void test_colors(void) {
@@ -232,7 +232,7 @@ void kernel_main(Multiboot* mb_info) {
     SYSTEM_INFO("Memory:\t\t", "%ldMiB", mb_info->mem_upper / 1024);
     SYSTEM_INFO("Resolution:\t", "%ldx%ld", mb_info->framebuffer_width,
                 mb_info->framebuffer_height);
-    SYSTEM_INFO("Font:\t\t", "%s", main_font.name);
+    SYSTEM_INFO("Font:\t\t", main_font.name);
 
     /* "00/00/00 - 00:00:00" */
     const DateTime now = rtc_get_datetime();
