@@ -46,14 +46,14 @@ clean:
 	rm -f $(KERNEL_OBJS) $(ASM_OBJS)
 	rm -f $(KERNEL_BIN) $(ISO)
 	rm -f $(APP_OBJS)
-	rm -rf iso sysroot
+	rm -rf iso $(SYSROOT)
 
 # ------------------------------------------------------------------------------
 
 # The sysroot target creates the sysroot folder, copies the kernel and libk
 # headers to the sysroot, and copies the compiles kernel (after building it)
 # into the sysroot's boot folder.
-sysroot: $(SYSROOT_HEADERS) $(SYSROOT_KERNEL)
+sysroot: $(SYSROOT_HEADERS) $(SYSROOT_KERNEL_BIN)
 
 # Copy the libk headers into the sysroot's include folder
 $(SYSROOT_INCLUDE_DIR)/%.h: $(LIBK_INCLUDE_DIR)/%.h
@@ -66,7 +66,7 @@ $(SYSROOT_INCLUDE_DIR)/%.h: $(KERNEL_INCLUDE_DIR)/%.h
 	@cp --preserve=timestamps $< $@
 
 # Copy the kernel binary into the sysroot's boot folder
-$(SYSROOT_KERNEL): $(KERNEL_BIN)
+$(SYSROOT_KERNEL_BIN): $(KERNEL_BIN)
 	@mkdir -p $(dir $@)
 	@cp --preserve=timestamps $< $@
 
@@ -75,9 +75,9 @@ $(SYSROOT_KERNEL): $(KERNEL_BIN)
 # Use the sysroot kernel path as rule to make sure we have the sysroot ready.
 # User should run "make sysroot" before "make all". Sysroot already has all the
 # components (kernel and includes) compiled and copied into it.
-$(ISO): $(SYSROOT_KERNEL) limine/limine-deploy
+$(ISO): $(SYSROOT_KERNEL_BIN) limine/limine-deploy
 	@mkdir -p iso/boot/
-	cp $(SYSROOT_KERNEL) iso/boot/$(KERNEL_BIN)
+	cp $(SYSROOT_KERNEL_BIN) iso/boot/$(KERNEL_BIN)
 	cp limine/limine.sys limine/limine-cd.bin iso/
 	cat cfg/limine.cfg | sed "s/ (GITHASH)/$(COMMIT_SHA1)/" > iso/limine.cfg
 	xorriso -as mkisofs -b limine-cd.bin                 \
@@ -92,7 +92,7 @@ limine/limine-deploy:
 
 # We use --sysroot so we can for example include with <lib.h>
 $(KERNEL_BIN): cfg/linker.ld $(KERNEL_OBJS) $(LIBK_OBJS) $(APP_OBJS)
-	$(CC) --sysroot=sysroot -isystem=/usr/include -ffreestanding -nostdlib -T cfg/linker.ld -o $@ $(CFLAGS) $(KERNEL_OBJS) $(LIBK_OBJS) $(APP_OBJS) -lgcc
+	$(CC) --sysroot=$(SYSROOT) -isystem=/usr/include -ffreestanding -nostdlib -T cfg/linker.ld -o $@ $(CFLAGS) $(KERNEL_OBJS) $(LIBK_OBJS) $(APP_OBJS) -lgcc
 
 obj/%.asm.o: src/%.asm
 	@mkdir -p $(dir $@)
@@ -100,5 +100,4 @@ obj/%.asm.o: src/%.asm
 
 obj/%.c.o: src/%.c
 	@mkdir -p $(dir $@)
-	$(CC) --sysroot=sysroot -isystem=/usr/include -ffreestanding -std=gnu11 -Iinclude $(CFLAGS) -c -o $@ $<
-
+	$(CC) --sysroot=$(SYSROOT) -isystem=/usr/include -ffreestanding -std=gnu11 -Iinclude $(CFLAGS) -c -o $@ $<

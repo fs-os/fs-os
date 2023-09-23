@@ -17,8 +17,7 @@ CFLAGS=-Wall -Wextra -O2 -masm=intel
 KERNEL_BIN=fs-os.bin
 ISO=$(KERNEL_BIN:.bin=.iso)
 
-# List of object files to be linked with the kernel, apps and libk (libc version
-# used by the kernel)
+# From src/kernel/*
 KERNEL_OBJ_FILES=kernel.c.o \
                  vga.c.o \
                  paging.c.o \
@@ -41,12 +40,14 @@ KERNEL_OBJ_FILES=kernel.c.o \
                  rand.asm.o \
                  util.asm.o \
 
+# From src/apps/*
 APP_OBJ_FILES=sh/sh.c.o \
               piano/piano.c.o \
               minesweeper/minesweeper.c.o \
               5x5/5x5.c.o \
               mandelbrot/mandelbrot.c.o
 
+# From src/libk/*
 LIBK_OBJ_FILES=string.c.o \
                stdlib.c.o \
                stdio.c.o \
@@ -60,7 +61,7 @@ LIBK_OBJ_FILES=string.c.o \
 SYSROOT=./sysroot
 SYSROOT_INCLUDE_DIR=$(SYSROOT)/usr/include
 SYSROOT_BOOT_DIR=$(SYSROOT)/boot
-SYSROOT_KERNEL=$(SYSROOT_BOOT_DIR)/$(KERNEL_BIN)
+SYSROOT_KERNEL_BIN=$(SYSROOT_BOOT_DIR)/$(KERNEL_BIN)
 
 # Paths for moving the headers to the sysroot. For example:
 # (src/libk/include/*.h -> sysroot/usr/include/*.h)
