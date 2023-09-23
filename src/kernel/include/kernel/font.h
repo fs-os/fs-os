@@ -8,7 +8,7 @@
 typedef struct {
     uint8_t w;     /**< @brief Width */
     uint8_t h;     /**< @brief Height */
-    uint8_t* name; /**< @brief Font name */
+    char* name;    /**< @brief Font name */
     uint8_t* font; /**< @brief Bitmap ptr. Size must be (256 * w) */
 } Font;
 
