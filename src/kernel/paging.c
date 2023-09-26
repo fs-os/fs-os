@@ -76,7 +76,7 @@ void paging_init(void) {
         for (uint32_t j = 0; j < TABLE_ENTRIES; j++) {
             /* For each entry of the table (i), map a new 4096 (PAGE_SIZE) page.
              * We only care about storing bits 12..31 of the address. */
-            page_tables[i][j] = i * TABLE_ENTRIES * PAGE_SIZE + j * PAGE_SIZE;
+            page_tables[i][j] = (i * TABLE_ENTRIES + j) * PAGE_SIZE;
             page_tables[i][j] |= PAGETAB_PRESENT | PAGETAB_READWRITE;
         }
 
