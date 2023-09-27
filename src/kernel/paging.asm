@@ -22,8 +22,9 @@ paging_enable:
 
     ; Enable paging, see Vol. 3, Chapter 4.3 and Vol.3, Chapter 2.5
     mov     eax, cr0            ; We can't work directly with cr0
-    or      eax, (1 << 31)      ; Set paging flag (bit 31):
-    or      eax, (1 << 0)       ; Set protected mode flag (bit 1). Should be on.
+    or      eax, (1 << 31)      ; Set CR0.PG[bit 31]. Enable paging.
+    or      eax, (1 << 16)      ; Set CR0.WP[bit 16]. Enable write protection.
+    or      eax, (1 << 0)       ; Set CR0.PE[bit 0]. Paging should be on.
     mov     cr0, eax            ; And move back to cr0
 
     mov     esp, ebp
