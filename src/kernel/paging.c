@@ -83,7 +83,7 @@ void paging_init(void) {
         /* Bits 12..31 of the entry are bits 12..31 of the address, no need to
          * shift */
         page_directory[i] = (uint32_t)&page_tables[i][0];
-        page_directory[i] |= PAGEDIR_READWRITE | PAGEDIR_PRESENT;
+        page_directory[i] |= PAGEDIR_PRESENT | PAGEDIR_READWRITE;
     }
 
     /* Frame number where the .rodata section starts */
