@@ -92,7 +92,7 @@ limine/limine-deploy:
 
 # We use --sysroot so we can for example include with <lib.h>
 $(KERNEL_BIN): cfg/linker.ld $(KERNEL_OBJS) $(LIBK_OBJS) $(APP_OBJS)
-	$(CC) --sysroot=$(SYSROOT) -isystem=/usr/include -ffreestanding -nostdlib -T cfg/linker.ld -o $@ $(CFLAGS) $(KERNEL_OBJS) $(LIBK_OBJS) $(APP_OBJS) -lgcc
+	$(CC) -T cfg/linker.ld -nostdlib $(CFLAGS) -o $@ $(KERNEL_OBJS) $(LIBK_OBJS) $(APP_OBJS) -lgcc
 
 obj/%.asm.o: src/%.asm
 	@mkdir -p $(dir $@)
@@ -100,4 +100,4 @@ obj/%.asm.o: src/%.asm
 
 obj/%.c.o: src/%.c
 	@mkdir -p $(dir $@)
-	$(CC) --sysroot=$(SYSROOT) -isystem=/usr/include -ffreestanding -std=gnu11 -Iinclude $(CFLAGS) -c -o $@ $<
+	$(CC) --sysroot=$(SYSROOT) -isystem=/usr/include $(CFLAGS) -c -o $@ $<
