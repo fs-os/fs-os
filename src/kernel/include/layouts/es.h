@@ -1,6 +1,6 @@
 
-#ifndef _LAYOUTS_ES_H
-#define _LAYOUTS_ES_H
+#ifndef LAYOUTS_ES_H_
+#define LAYOUTS_ES_H_ 1
 
 #include <kernel/keyboard.h> /* Layout */
 
@@ -118,4 +118,4 @@ const Layout es_layout = {
       },
 };
 
-#endif /* _LAYOUTS_ES_H */
+#endif /* LAYOUTS_ES_H_ */

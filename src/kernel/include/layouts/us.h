@@ -1,6 +1,6 @@
 
-#ifndef _LAYOUTS_US_H
-#define _LAYOUTS_US_H
+#ifndef LAYOUTS_US_H_
+#define LAYOUTS_US_H_ 1
 
 #include <kernel/keyboard.h> /* Layout */
 
@@ -114,5 +114,4 @@ const Layout us_layout = {
       },
 };
 
-#endif /* _LAYOUTS_US_H */
-
+#endif /* LAYOUTS_US_H_ */

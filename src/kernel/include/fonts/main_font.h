@@ -1,6 +1,6 @@
 
-#ifndef _FONTS_MAIN_FONT_H
-#define _FONTS_MAIN_FONT_H
+#ifndef FONTS_MAIN_FONT_H_
+#define FONTS_MAIN_FONT_H_ 1
 
 #include <kernel/font.h>
 #include "font_defines.h"
@@ -3633,4 +3633,4 @@ Font main_font = {
       },
 };
 
-#endif /* _FONTS_MAIN_FONT_H */
+#endif /* FONTS_MAIN_FONT_H_ 1 */
