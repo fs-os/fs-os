@@ -210,7 +210,7 @@ static void init_grid(ms_t* ms) {
  * @param[in] fy, fx Position of the tile to check.
  * @return Number of bombs adjacent
  */
-static int get_bombs(ms_t* ms, int fy, int fx) {
+static int adjacent_bombs(ms_t* ms, int fy, int fx) {
     int ret = 0;
 
     const int top_left_y = (fy > 0) ? fy - 1 : fy;
@@ -280,7 +280,7 @@ static void redraw_grid(ms_t* ms, point_t* cursor) {
             char final_ch     = 0;
 
             if (ms->grid[y * ms->w + x].flags & FLAG_CLEARED) {
-                const int bombs = get_bombs(ms, y, x);
+                const int bombs = adjacent_bombs(ms, y, x);
                 if (ms->grid[y * ms->w + x].c == BOMB_CH) {
                     /* Bomb (we lost) */
                     final_col = COL_BOMB;
@@ -356,13 +356,13 @@ static void generate_grid(ms_t* ms, point_t start, int bomb_percent) {
 
 /**
  * @brief Returns true if all adjacent bombs from a cell have been flagged.
- * @details Assumes get_bombs() has been called and it didn't return 0.
+ * @details Assumes adjacent_bombs() has been called and it didn't return 0.
  * @param[in] ms Minesweeper struct used to read the grid.
  * @param[in] fy, fx Position to check
  * @return True if all adjacent bombs have been flagged by the user.
  */
 static inline bool surrounding_bombs_flagged(ms_t* ms, int fy, int fx) {
-    /* We assume get_bombs() has been called and it didn't return 0 */
+    /* We assume adjacent_bombs() has been called and it didn't return 0 */
 
     for (int y = (fy > 0) ? fy - 1 : fy; y <= fy + 1 && y < ms->h; y++)
         for (int x = (fx > 0) ? fx - 1 : fx; x <= fx + 1 && x < ms->w; x++)
@@ -393,7 +393,7 @@ static void reveal_tiles(ms_t* ms, int fy, int fx, bool user_call) {
         return;
     }
 
-    if (!get_bombs(ms, fy, fx)) {
+    if (adjacent_bombs(ms, fy, fx) == 0) {
         /* If we have no bombs in surrounding tiles, make sure we mark the
          * current one as revealed so we don't have an endless loop when
          * recursing */
