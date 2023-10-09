@@ -1,6 +1,6 @@
 
-#ifndef _APPS_MINESWEEPER_H
-#define _APPS_MINESWEEPER_H 1
+#ifndef APPS_MINESWEEPER_H_
+#define APPS_MINESWEEPER_H_ 1
 
 /**
  * @brief Entry point of the program
@@ -10,4 +10,4 @@
  */
 int main_minesweeper(int argc, char** argv);
 
-#endif /* _APPS_MINESWEEPER_H */
+#endif /* APPS_MINESWEEPER_H_ */

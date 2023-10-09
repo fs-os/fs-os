@@ -1,6 +1,6 @@
 
-#ifndef _KERNEL_FRAMEBUFFER_CONSOLE_H
-#define _KERNEL_FRAMEBUFFER_CONSOLE_H
+#ifndef KERNEL_FRAMEBUFFER_CONSOLE_H_
+#define KERNEL_FRAMEBUFFER_CONSOLE_H_ 1
 
 #include <stdint.h>
 #include <stddef.h>
@@ -159,4 +159,4 @@ void fbc_setback(uint32_t bg);
 void fbc_setcol_rgb(uint8_t fore_r, uint8_t fore_g, uint8_t fore_b,
                     uint8_t back_r, uint8_t back_g, uint8_t back_b);
 
-#endif /* _KERNEL_FRAMEBUFFER_CONSOLE_H */
+#endif /* KERNEL_FRAMEBUFFER_CONSOLE_H_ */

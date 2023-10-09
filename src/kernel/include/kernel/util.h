@@ -1,6 +1,6 @@
 
-#ifndef _KERNEL_UTIL_H
-#define _KERNEL_UTIL_H 1
+#ifndef KERNEL_UTIL_H_
+#define KERNEL_UTIL_H_ 1
 
 /**
  * @brief Dump N elements of S size from the stack
@@ -40,4 +40,4 @@ void asm_enable_debug(uint32_t on_branch);
  */
 void asm_disable_debug(uint32_t on_branch);
 
-#endif /* _KERNEL_UTIL_H */
+#endif /* KERNEL_UTIL_H_ */

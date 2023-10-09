@@ -1,6 +1,6 @@
 
-#ifndef _KERNEL_PIT_H
-#define _KERNEL_PIT_H
+#ifndef KERNEL_PIT_H_
+#define KERNEL_PIT_H_ 1
 
 #include <stdint.h>
 
@@ -98,4 +98,4 @@ void pit_set_ticks(uint64_t num);
  */
 uint64_t pit_get_ticks(void);
 
-#endif /* _KERNEL_PIT_H */
+#endif /* KERNEL_PIT_H_ */

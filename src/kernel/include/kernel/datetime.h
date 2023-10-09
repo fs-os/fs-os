@@ -1,6 +1,6 @@
 
-#ifndef _KERNEL_DATETIME_H
-#define _KERNEL_DATETIME_H
+#ifndef KERNEL_DATETIME_H_
+#define KERNEL_DATETIME_H_ 1
 
 #include <stdint.h>
 
@@ -22,4 +22,4 @@ typedef struct {
     Time time; /**< @brief Not a pointer */
 } DateTime;
 
-#endif /* _KERNEL_DATETIME_H */
+#endif /* KERNEL_DATETIME_H_ */

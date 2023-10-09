@@ -1,6 +1,6 @@
 
-#ifndef _STDIO_H
-#define _STDIO_H
+#ifndef STDIO_H_
+#define STDIO_H_ 1
 
 #include <stdarg.h>
 #include <stdint.h>
@@ -105,4 +105,4 @@ int putchar(int c);
  */
 int getchar(void);
 
-#endif /* _STDIO_H */
+#endif /* STDIO_H_ */

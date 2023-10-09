@@ -1,10 +1,7 @@
-/**
- * @file  logo_small.h
- * @brief GIMP header image file format (RGB): fs-os-logo-small.h
- */
+/* GIMP header image file format (RGB): logo_small.h */
 
-#ifndef _MEDIA_LOGO_SMALL_H
-#define _MEDIA_LOGO_SMALL_H 1
+#ifndef MEDIA_LOGO_SMALL_H_
+#define MEDIA_LOGO_SMALL_H_ 1
 
 static GimpImage fsos_logo_s = {
     .h = 100,
@@ -640,4 +637,4 @@ static GimpImage fsos_logo_s = {
       "",
 };
 
-#endif /* _MEDIA_LOGO_SMALL_H */
+#endif /* MEDIA_LOGO_SMALL_H_ */

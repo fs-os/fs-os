@@ -1,6 +1,6 @@
 
-#ifndef _KERNEL_PAGING_H
-#define _KERNEL_PAGING_H
+#ifndef KERNEL_PAGING_H_
+#define KERNEL_PAGING_H_ 1
 
 #include <stdint.h>
 
@@ -30,4 +30,4 @@ void paging_load(uint32_t* page_dir);
  */
 void paging_enable(void);
 
-#endif /* _KERNEL_PAGING_H */
+#endif /* KERNEL_PAGING_H_ */

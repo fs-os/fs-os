@@ -1,6 +1,6 @@
 
-#ifndef _DEFINES_H
-#define _DEFINES_H 1
+#ifndef APPS_MINESWEEPER_DEFINES_H_
+#define APPS_MINESWEEPER_DEFINES_H_ 1
 
 /**
  * @def REVEAL_SURROUNDING
@@ -132,4 +132,4 @@ enum playing_flags {
  */
 #define KEY_CTRLC 3
 
-#endif /* _DEFINES_H */
+#endif /* APPS_MINESWEEPER_DEFINES_H_ */

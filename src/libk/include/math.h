@@ -1,10 +1,6 @@
-/**
- * @file math.h
- * @brief Mathematical functions and constants.
- */
 
-#ifndef _MATH_H
-#define _MATH_H
+#ifndef MATH_H_
+#define MATH_H_ 1
 
 #include <stdint.h>
 
@@ -147,4 +143,4 @@ double ceil(double x);
  */
 double round(double x);
 
-#endif /* _MATH_H */
+#endif /* MATH_H_ */

@@ -1,6 +1,6 @@
 
-#ifndef _APPS_SH_H
-#define _APPS_SH_H
+#ifndef APPS_SH_H_
+#define APPS_SH_H_ 1
 
 /**
  * @brief Simple command structure for the shell
@@ -22,5 +22,4 @@ typedef struct {
  */
 int sh_main(void);
 
-#endif /* _APPS_SH_H */
-
+#endif /* APPS_SH_H_ */

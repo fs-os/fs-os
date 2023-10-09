@@ -1,6 +1,6 @@
 
-#ifndef _TIME_H
-#define _TIME_H
+#ifndef TIME_H_
+#define TIME_H_ 1
 
 #include <stdint.h>
 
@@ -36,4 +36,4 @@ void timer_start(void);
  */
 uint64_t timer_stop(void);
 
-#endif /* _TIME_H */
+#endif /* TIME_H_ */

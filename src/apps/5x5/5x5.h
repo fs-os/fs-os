@@ -1,5 +1,6 @@
-#ifndef _APPS_5x5_H
-#define _APPS_5x5_H 1
+
+#ifndef APPS_5x5_H_
+#define APPS_5x5_H_ 1
 
 /**
  * @brief Entry point of the 5x5 game
@@ -9,4 +10,4 @@
  */
 int main_5x5(int argc, char** argv);
 
-#endif /* _APPS_5x5_H */
+#endif /* APPS_5x5_H_ */

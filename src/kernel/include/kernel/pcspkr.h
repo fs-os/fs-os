@@ -1,6 +1,6 @@
 
-#ifndef _KERNEL_PCSPKR_H
-#define _KERNEL_PCSPKR_H
+#ifndef KERNEL_PCSPKR_H_
+#define KERNEL_PCSPKR_H_ 1
 
 #include <stdint.h>
 
@@ -52,4 +52,4 @@ static inline void pcspkr_beep(void) {
     pcspkr_beep_custom((Beep){ 1000, 20 });
 }
 
-#endif /* _KERNEL_PCSPKR_H */
+#endif /* KERNEL_PCSPKR_H_ */

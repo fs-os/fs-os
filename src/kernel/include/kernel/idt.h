@@ -1,6 +1,6 @@
 
-#ifndef _KERNEL_IDT_H
-#define _KERNEL_IDT_H
+#ifndef KERNEL_IDT_H_
+#define KERNEL_IDT_H_ 1
 
 #include <stdint.h>
 
@@ -125,4 +125,4 @@ void idt_init(void);
  */
 void idt_load(void* idt_desc);
 
-#endif /* _KERNEL_IDT_H */
+#endif /* KERNEL_IDT_H_ */

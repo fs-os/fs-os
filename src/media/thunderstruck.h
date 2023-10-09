@@ -1,4 +1,7 @@
 
+#ifndef MEDIA_THUNDERSTRUCK_H_
+#define MEDIA_THUNDERSTRUCK_H_ 1
+
 #include <kernel/keyboard.h> /* kb_held */
 #include <kernel/pcspkr.h>
 #include <kernel/framebuffer_console.h>
@@ -297,3 +300,5 @@ static inline void play_thunderstruck(void) {
 
     putchar('\n');
 }
+
+#endif /* MEDIA_THUNDERSTRUCK_H_ */

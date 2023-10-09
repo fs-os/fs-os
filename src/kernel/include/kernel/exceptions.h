@@ -1,6 +1,6 @@
 
-#ifndef _KERNEL_EXCEPTIONS_H
-#define _KERNEL_EXCEPTIONS_H
+#ifndef KERNEL_EXCEPTIONS_H_
+#define KERNEL_EXCEPTIONS_H_ 1
 
 /**
  * @brief Exceptions header
@@ -80,4 +80,4 @@ void irq_default_master(void);
  */
 void irq_default_slave(void);
 
-#endif /* _KERNEL_EXCEPTIONS_H */
+#endif /* KERNEL_EXCEPTIONS_H_ */

@@ -1,5 +1,6 @@
+
 #ifndef INTTYPES_H_
-#define INTTYPES_H_
+#define INTTYPES_H_ 1
 
 #include <stddef.h>
 #include <stdint.h>

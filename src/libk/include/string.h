@@ -1,6 +1,6 @@
 
-#ifndef _STRING_H
-#define _STRING_H
+#ifndef STRING_H_
+#define STRING_H_ 1
 
 #include <stddef.h>
 
@@ -62,4 +62,4 @@ void* memcpy(void* restrict dst, const void* restrict src, size_t sz)
  */
 int strcmp(const char* a, const char* b);
 
-#endif /* _STRING_H */
+#endif /* STRING_H_ */

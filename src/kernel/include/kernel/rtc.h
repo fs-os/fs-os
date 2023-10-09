@@ -1,6 +1,6 @@
 
-#ifndef _KERNEL_RTC_H
-#define _KERNEL_RTC_H
+#ifndef KERNEL_RTC_H_
+#define KERNEL_RTC_H_ 1
 
 #include <stdint.h>
 #include <kernel/datetime.h>
@@ -37,4 +37,4 @@ Date rtc_get_date(void);
  */
 DateTime rtc_get_datetime(void);
 
-#endif /* _KERNEL_RTC_H */
+#endif /* KERNEL_RTC_H_ */

@@ -1,6 +1,6 @@
 
-#ifndef _CTYPE_H
-#define _CTYPE_H 1
+#ifndef CTYPE_H_
+#define CTYPE_H_ 1
 
 #include <stdbool.h>
 
@@ -72,4 +72,4 @@ static inline bool isblank(int c) {
     return c == ' ' || c == '\t';
 }
 
-#endif /* _CTYPE_H */
+#endif /* CTYPE_H_ */

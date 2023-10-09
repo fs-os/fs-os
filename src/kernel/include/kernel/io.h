@@ -1,6 +1,6 @@
 
-#ifndef _KERNEL_IO_H
-#define _KERNEL_IO_H
+#ifndef KERNEL_IO_H_
+#define KERNEL_IO_H_ 1
 
 #include <stdint.h>
 
@@ -40,4 +40,4 @@ void io_outb(uint16_t port, uint8_t data);
  */
 void io_outl(uint16_t port, uint32_t data);
 
-#endif /* _KERNEL_IO_H */
+#endif /* KERNEL_IO_H_ */

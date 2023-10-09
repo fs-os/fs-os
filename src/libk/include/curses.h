@@ -1,23 +1,19 @@
-/**
- * @file        curses.h
- * @brief       Simple curses lib.
- *
- * @todo Add functions:
+
+/*
+ * TODO: Add functions:
  *  - wprintw   (window printf)
  *  - mvwprintw (move & window printf)
  *  - waddch    (window putchar)
  *  - mvwaddch  (move & window putchar)
  *
- * Error:
+ * TODO (Long term):
  *  - keypad    (arrow keys, numpad)
  *  - mousemask (cursor)
  *  - getmouse
- *
- *  @file
  */
 
-#ifndef _CURSES_H
-#define _CURSES_H 1
+#ifndef CURSES_H_
+#define CURSES_H_ 1
 
 #include <stdarg.h>
 #include <stdbool.h>
@@ -271,4 +267,4 @@ int reset_pair(void);
  */
 int invert_pair(uint16_t pair);
 
-#endif /* _CURSES_H */
+#endif /* CURSES_H_ */

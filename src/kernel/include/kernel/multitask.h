@@ -1,6 +1,6 @@
 
-#ifndef _KERNEL_MULTITASK_H
-#define _KERNEL_MULTITASK_H
+#ifndef KERNEL_MULTITASK_H_
+#define KERNEL_MULTITASK_H_ 1
 
 #include <stdint.h>
 
@@ -166,4 +166,4 @@ void mt_dump_tasks(void);
  */
 void mt_print_fpu_data(fpu_data_t* p);
 
-#endif /* _KERNEL_MULTITASK_H */
+#endif /* KERNEL_MULTITASK_H_ */

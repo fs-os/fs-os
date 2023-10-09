@@ -1,6 +1,6 @@
 
-#ifndef _STDLIB_H
-#define _STDLIB_H
+#ifndef STDLIB_H_
+#define STDLIB_H_ 1
 
 #include <stddef.h>
 #include <stdint.h>
@@ -106,4 +106,4 @@ int rand(void);
  */
 void srand(uint32_t seed);
 
-#endif /* _STDLIB_H */
+#endif /* STDLIB_H_ */

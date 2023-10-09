@@ -1,6 +1,6 @@
 
-#ifndef _KERNEL_MULTIBOOT_H
-#define _KERNEL_MULTIBOOT_H
+#ifndef KERNEL_MULTIBOOT_H_
+#define KERNEL_MULTIBOOT_H_ 1
 
 #include <stdint.h>
 
@@ -61,4 +61,4 @@ typedef struct {
     /* color_info depends on the fb type */
 } Multiboot __attribute__((packed));
 
-#endif /* _KERNEL_MULTIBOOT_H */
+#endif /* KERNEL_MULTIBOOT_H_ */

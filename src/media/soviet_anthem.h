@@ -1,4 +1,7 @@
 
+#ifndef MEDIA_SOVIET_ANTHEM_H_
+#define MEDIA_SOVIET_ANTHEM_H_ 1
+
 #include <kernel/keyboard.h> /* kb_held */
 #include <kernel/pcspkr.h>
 #include <kernel/framebuffer_console.h>
@@ -46,3 +49,5 @@ static inline void play_soviet_anthem(void) {
 
     putchar('\n');
 }
+
+#endif /* MEDIA_SOVIET_ANTHEM_H_ */

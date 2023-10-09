@@ -1,3 +1,6 @@
+#ifndef FONTS_FONT_DEFINES_H_
+#define FONTS_FONT_DEFINES_H_ 1
+
 #define ________ 0x00
 #define _______X 0x01
 #define ______X_ 0x02
@@ -254,3 +257,5 @@
 #define XXXXXX_X 0xFD
 #define XXXXXXX_ 0xFE
 #define XXXXXXXX 0xFF
+
+#endif /* FONTS_FONT_DEFINES_H_ */

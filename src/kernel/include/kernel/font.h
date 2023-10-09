@@ -1,6 +1,6 @@
 
-#ifndef _KERNEL_FONT_H
-#define _KERNEL_FONT_H
+#ifndef KERNEL_FONT_H_
+#define KERNEL_FONT_H_ 1
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -33,4 +33,4 @@ static inline bool get_font_bit(Font* font, uint8_t c, uint8_t y, uint8_t x) {
     return font->font[c * font->h + y] & (0x80 >> x);
 }
 
-#endif /* _KERNEL_FONT_H */
+#endif /* KERNEL_FONT_H_ */

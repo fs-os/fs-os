@@ -1,5 +1,6 @@
-#ifndef _APPS_5x5_DEFINES_H
-#define _APPS_5x5_DEFINES_H 1
+
+#ifndef APPS_5x5_DEFINES_H_
+#define APPS_5x5_DEFINES_H_ 1
 
 /**
  * @def CHEAT
@@ -105,4 +106,4 @@ typedef struct {
     uint8_t* grid;
 } ctx_t;
 
-#endif /* _APPS_5x5_DEFINES_H */
+#endif /* APPS_5x5_DEFINES_H_ */

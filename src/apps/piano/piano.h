@@ -1,6 +1,6 @@
 
-#ifndef _APPS_PIANO_H
-#define _APPS_PIANO_H
+#ifndef APPS_PIANO_H_
+#define APPS_PIANO_H_ 1
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -19,4 +19,4 @@ int main_piano(int argc, char** argv);
  */
 int main_piano_random(int argc, char** argv);
 
-#endif /* _APPS_PIANO_H */
+#endif /* APPS_PIANO_H_ */

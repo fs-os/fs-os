@@ -1,6 +1,6 @@
 
-#ifndef _KERNEL_COLOR_H
-#define _KERNEL_COLOR_H
+#ifndef KERNEL_COLOR_H_
+#define KERNEL_COLOR_H_ 1
 
 #include <stdint.h>
 
@@ -152,4 +152,4 @@ static inline void col2rgb(uint8_t* r, uint8_t* g, uint8_t* b, uint32_t col) {
 #endif
 /**  @} */
 
-#endif /* _KERNEL_COLOR_H */
+#endif /* KERNEL_COLOR_H_ */

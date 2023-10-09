@@ -1,4 +1,7 @@
 
+#ifndef APPS_SH_COMMANDS_H_
+#define APPS_SH_COMMANDS_H_ 1
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
@@ -680,3 +683,5 @@ static int cmd_kernel_map() {
 
     return 0;
 }
+
+#endif /* APPS_SH_COMMANDS_H_ */

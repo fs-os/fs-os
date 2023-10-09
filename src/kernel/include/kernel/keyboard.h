@@ -1,6 +1,6 @@
 
-#ifndef _KERNEL_KEYBOARD_H
-#define _KERNEL_KEYBOARD_H
+#ifndef KERNEL_KEYBOARD_H_
+#define KERNEL_KEYBOARD_H_ 1
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -144,4 +144,4 @@ void kb_getchar_init(void);
  */
 int kb_getchar(void);
 
-#endif /* _KERNEL_KEYBOARD_H */
+#endif /* KERNEL_KEYBOARD_H_ */

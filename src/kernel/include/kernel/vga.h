@@ -1,6 +1,6 @@
 
-#ifndef _KERNEL_VGA_H
-#define _KERNEL_VGA_H
+#ifndef KERNEL_VGA_H_
+#define KERNEL_VGA_H_ 1
 
 #include <stddef.h> /* size_t */
 #include <stdint.h> /* uintX_t */
@@ -110,4 +110,4 @@ void vga_putchar(char c);
  */
 void vga_print(const char* s);
 
-#endif /* _KERNEL_VGA_H */
+#endif /* KERNEL_VGA_H_ */

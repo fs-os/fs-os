@@ -1,6 +1,6 @@
 
-#ifndef _KERNEL_RAND_H
-#define _KERNEL_RAND_H
+#ifndef KERNEL_RAND_H_
+#define KERNEL_RAND_H_ 1
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -32,4 +32,4 @@ bool check_rdrand(void);
  */
 uint32_t cpu_rand(void);
 
-#endif /* _KERNEL_RAND_H */
+#endif /* KERNEL_RAND_H_ */

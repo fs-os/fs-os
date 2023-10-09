@@ -1,10 +1,7 @@
-/**
- * @file  logo.h
- * @brief GIMP header image file format (RGB): fs-os-logo.h
- */
+/* GIMP header image file format (RGB): logo.h */
 
-#ifndef _MEDIA_LOGO_H
-#define _MEDIA_LOGO_H 1
+#ifndef MEDIA_LOGO_H_
+#define MEDIA_LOGO_H_ 1
 
 static GimpImage fsos_logo = {
     .h = 250,
@@ -4088,4 +4085,4 @@ static GimpImage fsos_logo = {
       ">Q(`>Q$`>Q$`>Q$`",
 };
 
-#endif /* _MEDIA_LOGO_H */
+#endif /* MEDIA_LOGO_H_ */

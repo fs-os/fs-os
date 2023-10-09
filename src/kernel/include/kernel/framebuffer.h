@@ -1,6 +1,6 @@
 
-#ifndef _KERNEL_FRAMEBUFFER_H
-#define _KERNEL_FRAMEBUFFER_H
+#ifndef KERNEL_FRAMEBUFFER_H_
+#define KERNEL_FRAMEBUFFER_H_ 1
 
 #include <stdint.h>
 #include <kernel/color.h>
@@ -126,4 +126,4 @@ void fb_drawtext(uint32_t y, uint32_t x, color_pair cols, Font* font,
  */
 void fb_drawimage(uint32_t y, uint32_t x, const GimpImage* img);
 
-#endif /* _KERNEL_FRAMEBUFFER_H */
+#endif /* KERNEL_FRAMEBUFFER_H_ */
