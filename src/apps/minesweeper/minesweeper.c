@@ -16,36 +16,42 @@
 #define DIFFIC2BOMBPERCENT(d) ((MAX_BOMBS - MIN_BOMBS) * d / 100 + MIN_BOMBS)
 
 /**
- * @struct tile_t
+ * @struct Tile
  * @brief Tile of the minesweeper.
  * @description The char indicates its contents and the flags special
  * information (for example if the user flagged the tile, revealed it...)
  */
 typedef struct {
-    char c;        /**< @brief Char in that tile, actual item */
-    uint8_t flags; /**< @brief Tile status (revealed, flagged, etc) */
-} tile_t;
+    char c;        /* Char in that tile, actual item */
+    uint8_t flags; /* Tile status (revealed, flagged, etc) */
+} Tile;
 
 /**
- * @struct ms_t
+ * @struct Game
  * @brief Minesweeper struct containing the game information.
  */
 typedef struct {
-    uint16_t w;         /**< @brief Minesweeper width */
-    uint16_t h;         /**< @brief Minesweeper height */
-    tile_t* grid;       /**< @brief Pointer to the minesweeper grid */
-    uint8_t playing;    /**< @brief The user revealed the first tile */
-    uint8_t difficulty; /**< @brief Percentage of bombs to fill in the grid */
-} ms_t;
+    uint16_t w, h;      /* Width and height */
+    Tile* grid;         /* Pointer to the minesweeper grid */
+    uint8_t playing;    /* The user revealed the first tile */
+    uint8_t difficulty; /* Percentage of bombs to fill in the grid */
+} Game;
 
 /**
- * @struct point_t
- * @brief Point in the terminal
+ * @struct vec2_t
+ * @brief Two-dimensional vector
  */
 typedef struct {
-    uint16_t y; /**< @brief Y coordinate */
-    uint16_t x; /**< @brief X coordinate */
-} point_t;
+    uint16_t x, y; /**< Description */
+} vec2_t;
+
+/*----------------------------------------------------------------------------*/
+
+/**
+ * @var ms
+ * @brief Global game struct
+ */
+static Game ms;
 
 /**
  * @var use_color
@@ -53,11 +59,15 @@ typedef struct {
  */
 static bool use_color = false;
 
+/*----------------------------------------------------------------------------*/
+
 /**
  * @brief Parses a resolution string with format `WIDTHxHEIGHT` using atoi.
  * @param[out] dst_w Pointer where to save the resolution's width
  * @param[out] dst_h Pointer where to save the resolution's height
  * @param[inout] src String containing the resolution in `WIDTHxHEIGHT` format
+ *
+ * @todo Return bool and check in parse_args
  */
 static void parse_resolution(uint16_t* dst_w, uint16_t* dst_h, char* src) {
     *dst_w = 0;
@@ -82,10 +92,9 @@ static void parse_resolution(uint16_t* dst_w, uint16_t* dst_h, char* src) {
  * @brief Parses the program arguments changing the properties of ms.
  * @param[in] argc Number of arguments from main.
  * @param[in] argv String vector with the artuments.
- * @param[out] ms Target ms_t struct to write the changes.
  * @return False if the caller (main()) needs to exit. True otherwise.
  */
-static inline bool parse_args(int argc, char** argv, ms_t* ms) {
+static inline bool parse_args(int argc, char** argv) {
     bool arg_error = false;
     for (int i = 1; i < argc; i++) {
         if (!strcmp(argv[i], "-r") || !strcmp(argv[i], "--resolution")) {
@@ -96,8 +105,8 @@ static inline bool parse_args(int argc, char** argv, ms_t* ms) {
             }
 
             i++;
-            parse_resolution(&ms->w, &ms->h, argv[i]);
-            if (ms->w < MIN_W || ms->h < MIN_H) {
+            parse_resolution(&ms.w, &ms.h, argv[i]);
+            if (ms.w < MIN_W || ms.h < MIN_H) {
                 printf("Invalid resolution format for \"%s\".\n"
                        "Minimum resolution: %dx%d\n",
                        argv[i - 1], MIN_W, MIN_H);
@@ -111,8 +120,8 @@ static inline bool parse_args(int argc, char** argv, ms_t* ms) {
                 break;
             }
 
-            ms->difficulty = atoi(argv[++i]);
-            if (ms->difficulty < 1 || ms->difficulty > 100) {
+            ms.difficulty = atoi(argv[++i]);
+            if (ms.difficulty < 1 || ms.difficulty > 100) {
                 printf("Invalid difficulty format for \"%s\".\n"
                        "Difficulty range: 1-100\n",
                        argv[i - 1]);
@@ -161,29 +170,28 @@ static inline bool parse_args(int argc, char** argv, ms_t* ms) {
 
 /**
  * @brief Draws the grid border for the minesweeper.
- * @param[in] ms Minesweeper structure for the width and height.
  */
-static void draw_border(ms_t* ms) {
+static void draw_border(void) {
     BOLD_ON();
     SET_COL(COL_NORM);
 
     /* First line */
     mvaddch(0, 0, '+');
-    for (int x = 0; x < ms->w; x++)
+    for (int x = 0; x < ms.w; x++)
         mvaddch(0, x + 1, '-');
-    mvaddch(0, ms->w + 1, '+');
+    mvaddch(0, ms.w + 1, '+');
 
     /* Mid lines */
-    for (int y = 1; y <= ms->h; y++) {
+    for (int y = 1; y <= ms.h; y++) {
         mvaddch(y, 0, '|');
-        mvaddch(y, ms->w + 1, '|');
+        mvaddch(y, ms.w + 1, '|');
     }
 
     /* Last line */
-    mvaddch(ms->h + 1, 0, '+');
-    for (int x = 0; x < ms->w; x++)
-        mvaddch(ms->h + 1, x + 1, '-');
-    mvaddch(ms->h + 1, ms->w + 1, '+');
+    mvaddch(ms.h + 1, 0, '+');
+    for (int x = 0; x < ms.w; x++)
+        mvaddch(ms.h + 1, x + 1, '-');
+    mvaddch(ms.h + 1, ms.w + 1, '+');
 
     RESET_COL();
     BOLD_OFF();
@@ -191,13 +199,12 @@ static void draw_border(ms_t* ms) {
 
 /**
  * @brief Initializes the empty background grid for the ms_t struct
- * @param[out] ms The minesweeper struct
  */
-static void init_grid(ms_t* ms) {
-    for (int y = 0; y < ms->h; y++) {
-        for (int x = 0; x < ms->w; x++) {
-            ms->grid[y * ms->w + x].c     = BACK_CH;
-            ms->grid[y * ms->w + x].flags = FLAG_NONE;
+static inline void init_grid(void) {
+    for (int y = 0; y < ms.h; y++) {
+        for (int x = 0; x < ms.w; x++) {
+            ms.grid[y * ms.w + x].c     = BACK_CH;
+            ms.grid[y * ms.w + x].flags = FLAG_NONE;
         }
     }
 }
@@ -206,22 +213,23 @@ static void init_grid(ms_t* ms) {
  * @brief Returns the number of bombs adjacent to a specified tile.
  * @details Adjacent meaning in a 3x3 grid with the speicified tile at its
  * center.
- * @param[in] ms Minesweeper struct needed to get the bomb locations.
  * @param[in] fy, fx Position of the tile to check.
  * @return Number of bombs adjacent
  */
-static int adjacent_bombs(ms_t* ms, int fy, int fx) {
+static int adjacent_bombs(int y, int x) {
     int ret = 0;
 
-    const int top_left_y = (fy > 0) ? fy - 1 : fy;
-    const int top_left_x = (fx > 0) ? fx - 1 : fx;
+    const int start_y = (y > 0) ? y - 1 : y;
+    const int start_x = (x > 0) ? x - 1 : x;
+    const int end_y   = (y < ms.h - 1) ? y + 1 : y;
+    const int end_x   = (x < ms.w - 1) ? x + 1 : x;
 
     /* ###
      * #X#
      * ### */
-    for (int y = top_left_y; y <= fy + 1 && y < ms->h; y++)
-        for (int x = top_left_x; x <= fx + 1 && x < ms->w; x++)
-            if (ms->grid[y * ms->w + x].c == BOMB_CH)
+    for (int cur_y = start_y; cur_y <= end_y; cur_y++)
+        for (int cur_x = start_x; cur_x <= end_x; cur_x++)
+            if (ms.grid[cur_y * ms.w + cur_x].c == BOMB_CH)
                 ret++;
 
     return ret;
@@ -229,17 +237,14 @@ static int adjacent_bombs(ms_t* ms, int fy, int fx) {
 
 /**
  * @brief Prints the specified message 2 lines bellow `ms`'s grid
- * @param[in] ms Minesweeper struct needed to get the grid size.
  * @param[in] str String to be printed.
  */
-static void print_message(ms_t* ms, const char* str) {
+static void print_message(const char* str) {
     int y, x;
     getyx(stdscr, y, x);
 
     SET_COL(COL_NORM);
-
-    mvprintw(ms->h + 3, 1, "%s", str);
-
+    mvprintw(ms.h + 3, 1, "%s", str);
     RESET_COL();
 
     move(y, x);
@@ -264,24 +269,23 @@ static inline void clear_line(int y) {
  * @brief Redraws the grid based on the ms.grid array.
  * @details Color macros will only do something if color is enabled and
  * supported.
- * @param[in] ms Minesweeper struct needed to get the grid.
  * @param[in] cursor Current cursor location for inverting the color.
  */
-static void redraw_grid(ms_t* ms, point_t* cursor) {
+static void redraw_grid(vec2_t* cursor) {
     const int border_sz = 1;
 
-    draw_border(ms);
+    draw_border();
 
-    for (int y = 0; y < ms->h; y++) {
-        for (int x = 0; x < ms->w; x++) {
+    for (int y = 0; y < ms.h; y++) {
+        for (int x = 0; x < ms.w; x++) {
             const int final_y = y + border_sz;
             const int final_x = x + border_sz;
             int final_col     = COL_NORM;
             char final_ch     = 0;
 
-            if (ms->grid[y * ms->w + x].flags & FLAG_CLEARED) {
-                const int bombs = adjacent_bombs(ms, y, x);
-                if (ms->grid[y * ms->w + x].c == BOMB_CH) {
+            if (ms.grid[y * ms.w + x].flags & FLAG_CLEARED) {
+                const int bombs = adjacent_bombs(y, x);
+                if (ms.grid[y * ms.w + x].c == BOMB_CH) {
                     /* Bomb (we lost) */
                     final_col = COL_BOMB;
                     final_ch  = BOMB_CH;
@@ -295,9 +299,9 @@ static void redraw_grid(ms_t* ms, point_t* cursor) {
                 } else {
                     /* Empty tile with no bombs adjacent */
                     final_col = COL_NORM;
-                    final_ch  = ms->grid[y * ms->w + x].c;
+                    final_ch  = ms.grid[y * ms.w + x].c;
                 }
-            } else if (ms->grid[y * ms->w + x].flags & FLAG_FLAGGED) {
+            } else if (ms.grid[y * ms.w + x].flags & FLAG_FLAGGED) {
                 BOLD_ON();
                 final_col = COL_FLAG;
                 final_ch  = FLAG_CH;
@@ -326,22 +330,21 @@ static void redraw_grid(ms_t* ms, point_t* cursor) {
  * @brief Fill the grid with bombs at random locations.
  * @details Will leave a margin area around the first user selection (so it
  * never reveals a bomb on the first input).
- * @param[out] ms Minesweeper struct used to fill the grid.
  * @param[in] start Position of the first tile that the user tried to reveal.
  * @param[in] bomb_percent The percentage of bombs to fill.
  */
-static void generate_grid(ms_t* ms, point_t start, int bomb_percent) {
-    int total_bombs = ms->h * ms->w * bomb_percent / 100;
+static void generate_grid(vec2_t start, int bomb_percent) {
+    int total_bombs = ms.h * ms.w * bomb_percent / 100;
 
     /* Actual tiles available for bombs (keep in mind the empty zone around the
      * cursor) */
-    const int max_bombs = ms->w * ms->h - BOMB_MARGIN * 4;
+    const int max_bombs = ms.w * ms.h - BOMB_MARGIN * 4;
     if (total_bombs > max_bombs)
         total_bombs = max_bombs;
 
     for (int bombs = 0; bombs < total_bombs; bombs++) {
-        int bomb_y = (uint32_t)rand() % ms->h;
-        int bomb_x = (uint32_t)rand() % ms->w;
+        int bomb_y = (uint32_t)rand() % ms.h;
+        int bomb_x = (uint32_t)rand() % ms.w;
 
         /* Leave an empty zone around cursor */
         if (bomb_y > start.y - BOMB_MARGIN && bomb_y < start.y + BOMB_MARGIN &&
@@ -350,25 +353,29 @@ static void generate_grid(ms_t* ms, point_t start, int bomb_percent) {
             continue;
         }
 
-        ms->grid[bomb_y * ms->w + bomb_x].c = BOMB_CH;
+        ms.grid[bomb_y * ms.w + bomb_x].c = BOMB_CH;
     }
 }
 
 /**
  * @brief Returns true if all adjacent bombs from a cell have been flagged.
  * @details Assumes adjacent_bombs() has been called and it didn't return 0.
- * @param[in] ms Minesweeper struct used to read the grid.
- * @param[in] fy, fx Position to check
+ * @param[in] y, x Position to check
  * @return True if all adjacent bombs have been flagged by the user.
  */
-static inline bool surrounding_bombs_flagged(ms_t* ms, int fy, int fx) {
-    /* We assume adjacent_bombs() has been called and it didn't return 0 */
+static inline bool surrounding_bombs_flagged(int y, int x) {
+    /* NOTE: Assumes adjacent_bombs() has been called and it didn't return 0 */
 
-    for (int y = (fy > 0) ? fy - 1 : fy; y <= fy + 1 && y < ms->h; y++)
-        for (int x = (fx > 0) ? fx - 1 : fx; x <= fx + 1 && x < ms->w; x++)
+    const int start_y = (y > 0) ? y - 1 : y;
+    const int start_x = (x > 0) ? x - 1 : x;
+    const int end_y   = (y < ms.h - 1) ? y + 1 : y;
+    const int end_x   = (x < ms.w - 1) ? x + 1 : x;
+
+    for (int cur_y = start_y; cur_y <= end_y; cur_y++)
+        for (int cur_x = start_x; cur_x <= end_x; cur_x++)
             /* We found an adjacent bomb and it was not flagged */
-            if (ms->grid[y * ms->w + x].c == BOMB_CH &&
-                !(ms->grid[y * ms->w + x].flags & FLAG_FLAGGED))
+            if (ms.grid[cur_y * ms.w + cur_x].c == BOMB_CH &&
+                !(ms.grid[cur_y * ms.w + cur_x].flags & FLAG_FLAGGED))
                 return false;
 
     return true;
@@ -376,41 +383,42 @@ static inline bool surrounding_bombs_flagged(ms_t* ms, int fy, int fx) {
 
 /**
  * @brief Reveals the needed tiles using recursion, starting at y and x.
- * @param[inout] ms Minesweeper struct used to save the revealed bombs.
- * @param[in] fy, fx Position to be revealed.
+ * @param[in] y, x Position to be revealed.
  * @param[in] user_call Used to know if we are recursing in the current function
  * call or not.
  *
- * @todo Because the function uses recustion, with low ms->difficulty (lots of
+ * @todo Because the function uses recustion, with low ms.difficulty (lots of
  * free cells, lots of recursive reveals) a stack overflow may occur, and the
  * whole system might crash :)
  */
-static void reveal_tiles(ms_t* ms, int fy, int fx, bool user_call) {
-    if (ms->grid[fy * ms->w + fx].c == BOMB_CH) {
-        print_message(ms, "You lost. Press any key to restart.");
-        ms->grid[fy * ms->w + fx].flags |= FLAG_CLEARED;
-        ms->playing = PLAYING_FALSE;
+static void reveal_tiles(int y, int x, bool user_call) {
+    if (ms.grid[y * ms.w + x].c == BOMB_CH) {
+        print_message("You lost. Press any key to restart.");
+        ms.grid[y * ms.w + x].flags |= FLAG_CLEARED;
+        ms.playing = PLAYING_FALSE;
         return;
     }
 
-    if (adjacent_bombs(ms, fy, fx) == 0) {
+    if (adjacent_bombs(y, x) == 0) {
         /* If we have no bombs in surrounding tiles, make sure we mark the
          * current one as revealed so we don't have an endless loop when
          * recursing */
-        ms->grid[fy * ms->w + fx].flags |= FLAG_CLEARED;
+        ms.grid[y * ms.w + x].flags |= FLAG_CLEARED;
 
-        const int top_left_y = (fy > 0) ? fy - 1 : fy;
-        const int top_left_x = (fx > 0) ? fx - 1 : fx;
+        const int start_y = (y > 0) ? y - 1 : y;
+        const int start_x = (x > 0) ? x - 1 : x;
+        const int end_y   = (y < ms.h - 1) ? y + 1 : y;
+        const int end_x   = (x < ms.w - 1) ? x + 1 : x;
 
         /* No bombs in surrounding tiles, reveal them
          * ###
          * #X#
          * ### */
-        for (int y = top_left_y; y <= fy + 1 && y < ms->h; y++)
-            for (int x = top_left_x; x <= fx + 1 && x < ms->w; x++)
+        for (int cur_y = start_y; cur_y <= end_y; cur_y++)
+            for (int cur_x = start_x; cur_x <= end_x; cur_x++)
                 /* If we are not revealing that one, reveal */
-                if (!(ms->grid[y * ms->w + x].flags & FLAG_CLEARED))
-                    reveal_tiles(ms, y, x, false);
+                if (!(ms.grid[cur_y * ms.w + cur_x].flags & FLAG_CLEARED))
+                    reveal_tiles(cur_y, cur_x, false);
     } else {
         /* This part is for revealing adjacent tiles when clicking a revealed
          * one if all adjacent bombs have been flagged. We only care about this
@@ -418,52 +426,60 @@ static void reveal_tiles(ms_t* ms, int fy, int fx, bool user_call) {
          *
          * We have adjacent bombs, check if the tile we are tying to reveal was
          * already revealed */
-        if (user_call && ms->grid[fy * ms->w + fx].flags & FLAG_CLEARED) {
+        if (user_call && ms.grid[y * ms.w + x].flags & FLAG_CLEARED) {
 #ifdef REVEAL_SURROUNDING
             /* If it was, check if all surrounding bombs have been flagged by
              * the user */
-            if (surrounding_bombs_flagged(ms, fy, fx))
+            if (surrounding_bombs_flagged(y, x)) {
+                const int start_y = (y > 0) ? y - 1 : y;
+                const int start_x = (x > 0) ? x - 1 : x;
+                const int end_y   = (y < ms.h - 1) ? y + 1 : y;
+                const int end_x   = (x < ms.w - 1) ? x + 1 : x;
+
                 /* If they have been, we can automatically reveal all the other
                  * non-bomb adjacent tiles when clicking it. */
-                for (int y = (fy > 0) ? fy - 1 : fy; y <= fy + 1 && y < ms->h;
-                     y++)
-                    for (int x = (fx > 0) ? fx - 1 : fx;
-                         x <= fx + 1 && x < ms->w; x++)
-                        if (ms->grid[y * ms->w + x].c != BOMB_CH)
-                            reveal_tiles(ms, y, x, false);
+                for (int cur_y = start_y; cur_y <= end_y; cur_y++)
+                    for (int cur_x = start_x; cur_x <= end_x; cur_x++)
+                        if (ms.grid[cur_y * ms.w + cur_x].c != BOMB_CH)
+                            reveal_tiles(cur_y, cur_x, false);
+            }
 #endif
         } else {
             /* If the current tile has bombs adjacent, but was not revealed,
              * reveal it */
-            ms->grid[fy * ms->w + fx].flags |= FLAG_CLEARED;
+            ms.grid[y * ms.w + x].flags |= FLAG_CLEARED;
         }
     }
 }
 
 /**
  * @brief Toggles the FLAG_FLAGGED bit of the tile at the specified position.
- * @param[out] ms Minesweeper struct for updating the flaged/unflagged tile.
  * @param[in] fy, fx Position of the tile.
+ *
+ * @todo Use XOR :)
  */
-static inline void toggle_flag(ms_t* ms, int fy, int fx) {
-    if (ms->grid[fy * ms->w + fx].flags & FLAG_CLEARED) {
-        print_message(ms, "Can't flag a revealed tile!");
+static inline void toggle_flag(int fy, int fx) {
+    if (ms.grid[fy * ms.w + fx].flags & FLAG_CLEARED) {
+        print_message("Can't flag a revealed tile!");
         return;
     }
 
-    if (ms->grid[fy * ms->w + fx].flags & FLAG_FLAGGED)
-        ms->grid[fy * ms->w + fx].flags &= ~FLAG_FLAGGED;
+    if (ms.grid[fy * ms.w + fx].flags & FLAG_FLAGGED)
+        ms.grid[fy * ms.w + fx].flags &= ~FLAG_FLAGGED;
     else
-        ms->grid[fy * ms->w + fx].flags |= FLAG_FLAGGED;
+        ms.grid[fy * ms.w + fx].flags |= FLAG_FLAGGED;
 }
 
-/* check_win: returns true if all bombs have been flagged */
-static bool check_win(ms_t* ms) {
-    for (int y = 0; y < ms->h; y++)
-        for (int x = 0; x < ms->w; x++)
+/**
+ * @brief Check if the player won
+ * @return True if all bombs have been flagged
+ */
+static inline bool check_win(void) {
+    for (int y = 0; y < ms.h; y++)
+        for (int x = 0; x < ms.w; x++)
             /* If there is an unflagged bomb, return false */
-            if (ms->grid[y * ms->w + x].c == BOMB_CH &&
-                !(ms->grid[y * ms->w + x].flags & FLAG_FLAGGED))
+            if (ms.grid[y * ms.w + x].c == BOMB_CH &&
+                !(ms.grid[y * ms.w + x].flags & FLAG_FLAGGED))
                 return false;
 
     return true;
@@ -471,7 +487,7 @@ static bool check_win(ms_t* ms) {
 
 int main_minesweeper(int argc, char** argv) {
     /* Main minesweeper struct */
-    ms_t ms = (ms_t){
+    ms = (Game){
         .w          = DEFAULT_W,
         .h          = DEFAULT_H,
         .grid       = NULL,
@@ -480,7 +496,7 @@ int main_minesweeper(int argc, char** argv) {
     };
 
     /* Parse arguments before curses */
-    if (!parse_args(argc, argv, &ms))
+    if (!parse_args(argc, argv))
         return 1;
 
     initscr(); /* Init curses */
@@ -517,20 +533,23 @@ int main_minesweeper(int argc, char** argv) {
     srand(time(NULL));
 
     /* Allocate and initialize grid */
-    ms.grid = malloc(ms.w * ms.h * sizeof(tile_t));
-    init_grid(&ms);
+    ms.grid = malloc(ms.w * ms.h * sizeof(Tile));
+    init_grid();
     ms.playing = PLAYING_CLEAR;
 
     /* User cursor in the grid, not the screen. Start at the middle. */
-    point_t cursor = (point_t){ (ms.h - 1) / 2, (ms.w - 1) / 2 };
+    vec2_t cursor = {
+        .y = (ms.h - 1) / 2,
+        .x = (ms.w - 1) / 2,
+    };
 
-    redraw_grid(&ms, &cursor);
+    redraw_grid(&cursor);
 
     /* Char the user is pressing */
     int c = 0;
     do {
         /* First, redraw the grid */
-        redraw_grid(&ms, &cursor);
+        redraw_grid(&cursor);
 
         /* Update the cursor (+margins) */
         move(cursor.y + 1, cursor.x + 1);
@@ -547,7 +566,7 @@ int main_minesweeper(int argc, char** argv) {
         /* If it's the first iteration on a new game, clear grid. We will only
          * generate the bombs once we press space the first time */
         if (ms.playing == PLAYING_FALSE) {
-            init_grid(&ms);
+            init_grid();
             ms.playing = PLAYING_CLEAR;
         }
 
@@ -584,15 +603,15 @@ int main_minesweeper(int argc, char** argv) {
             case 'f':
                 /* If we just started playing, but we don't have the bombs */
                 if (ms.playing == PLAYING_CLEAR) {
-                    print_message(&ms, "Can't flag a tile before starting the "
-                                       "game!");
+                    print_message("Can't flag a tile before starting the "
+                                  "game!");
                     break;
                 }
 
-                toggle_flag(&ms, cursor.y, cursor.x);
+                toggle_flag(cursor.y, cursor.x);
 
-                if (check_win(&ms)) {
-                    print_message(&ms, "You won! Press any key to continue.");
+                if (check_win()) {
+                    print_message("You won! Press any key to continue.");
                     ms.playing = PLAYING_FALSE;
                 }
 
@@ -600,27 +619,25 @@ int main_minesweeper(int argc, char** argv) {
             case ' ':
                 /* Initialize the bombs once we reveal for the first time */
                 if (ms.playing == PLAYING_CLEAR) {
-                    generate_grid(&ms, cursor,
-                                  DIFFIC2BOMBPERCENT(ms.difficulty));
+                    generate_grid(cursor, DIFFIC2BOMBPERCENT(ms.difficulty));
                     ms.playing = PLAYING_TRUE;
                 } else if (ms.grid[cursor.y * ms.w + cursor.x].flags &
                            FLAG_FLAGGED) {
-                    print_message(&ms, "Can't reveal a flagged tile.");
+                    print_message("Can't reveal a flagged tile.");
                     break;
                 }
 
-                reveal_tiles(&ms, cursor.y, cursor.x, true);
+                reveal_tiles(cursor.y, cursor.x, true);
                 break;
             case 'r':
                 /* Generate if it's the first time playing */
                 if (ms.playing == PLAYING_CLEAR) {
-                    generate_grid(&ms, cursor,
-                                  DIFFIC2BOMBPERCENT(ms.difficulty));
+                    generate_grid(cursor, DIFFIC2BOMBPERCENT(ms.difficulty));
                     ms.playing = PLAYING_TRUE;
                 }
 
-                print_message(&ms, "Revealing all tiles and aborting game. "
-                                   "Press any key to continue.");
+                print_message("Revealing all tiles and aborting game. "
+                              "Press any key to continue.");
 
                 for (int y = 0; y < ms.h; y++)
                     for (int x = 0; x < ms.w; x++)
