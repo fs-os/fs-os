@@ -8,7 +8,7 @@
 #include <string.h>
 
 #include <time.h>  /* time */
-#include <ctype.h> /* tolower */
+#include <ctype.h> /* tolower, isdigit */
 #include <curses.h>
 
 #include "defines.h"
@@ -66,26 +66,27 @@ static bool use_color = false;
  * @param[out] dst_w Pointer where to save the resolution's width
  * @param[out] dst_h Pointer where to save the resolution's height
  * @param[inout] src String containing the resolution in `WIDTHxHEIGHT` format
- *
- * @todo Return bool and check in parse_args
+ * @return True on success, false if invalid format
  */
-static void parse_resolution(uint16_t* dst_w, uint16_t* dst_h, char* src) {
+static bool parse_resolution(uint16_t* dst_w, uint16_t* dst_h, char* src) {
     *dst_w = 0;
     *dst_h = 0;
 
     char* start = src;
-    while (*src != 'x' && *src != '\0')
+    while (isdigit(*src))
         src++;
 
-    /* No x, invalid format */
+    /* First non-digit char was not 'x', invalid format */
     if (*src != 'x')
-        return;
+        return false;
 
     /* Cut string at 'x', make it point to start of 2nd digit */
     *src++ = '\0';
 
     *dst_w = atoi(start);
     *dst_h = atoi(src);
+
+    return true;
 }
 
 /**
@@ -105,8 +106,8 @@ static inline bool parse_args(int argc, char** argv) {
             }
 
             i++;
-            parse_resolution(&ms.w, &ms.h, argv[i]);
-            if (ms.w < MIN_W || ms.h < MIN_H) {
+            if (!parse_resolution(&ms.w, &ms.h, argv[i]) || ms.w < MIN_W ||
+                ms.h < MIN_H) {
                 printf("Invalid resolution format for \"%s\".\n"
                        "Minimum resolution: %dx%d\n",
                        argv[i - 1], MIN_W, MIN_H);
@@ -455,8 +456,6 @@ static void reveal_tiles(int y, int x, bool user_call) {
 /**
  * @brief Toggles the FLAG_FLAGGED bit of the tile at the specified position.
  * @param[in] fy, fx Position of the tile.
- *
- * @todo Use XOR :)
  */
 static inline void toggle_flag(int fy, int fx) {
     if (ms.grid[fy * ms.w + fx].flags & FLAG_CLEARED) {
@@ -464,10 +463,7 @@ static inline void toggle_flag(int fy, int fx) {
         return;
     }
 
-    if (ms.grid[fy * ms.w + fx].flags & FLAG_FLAGGED)
-        ms.grid[fy * ms.w + fx].flags &= ~FLAG_FLAGGED;
-    else
-        ms.grid[fy * ms.w + fx].flags |= FLAG_FLAGGED;
+    ms.grid[fy * ms.w + fx].flags ^= FLAG_FLAGGED;
 }
 
 /**
