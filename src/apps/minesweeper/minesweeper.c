@@ -18,7 +18,7 @@
 
 /**
  * @struct Tile
- * @brief Tile of the minesweeper.
+ * @brief Tile of the minesweeper
  * @description The char indicates its contents and the flags special
  * information (for example if the user flagged the tile, revealed it...)
  */
@@ -29,7 +29,7 @@ typedef struct {
 
 /**
  * @struct Game
- * @brief Minesweeper struct containing the game information.
+ * @brief Minesweeper struct containing the game information
  */
 typedef struct {
     uint16_t w, h;      /* Width and height */
@@ -64,7 +64,7 @@ static bool use_color = false;
 
 /**
  * @var queue
- * @brief Global vec2_t queue.
+ * @brief Global vec2_t queue
  * @details Used by reveal_tiles() to avoid recursion. Allocated and freed from
  * main()
  */
@@ -81,7 +81,8 @@ static int queue_pos = 0;
 /*----------------------------------------------------------------------------*/
 
 /**
- * @brief Parses a resolution string with format `WIDTHxHEIGHT` using atoi.
+ * @brief Parses a resolution string with format `WIDTHxHEIGHT` using atoi
+ * @details Writes an extra '\0' to src
  * @param[out] dst_w Pointer where to save the resolution's width
  * @param[out] dst_h Pointer where to save the resolution's height
  * @param[inout] src String containing the resolution in `WIDTHxHEIGHT` format
@@ -109,9 +110,9 @@ static bool parse_resolution(uint16_t* dst_w, uint16_t* dst_h, char* src) {
 }
 
 /**
- * @brief Parses the program arguments changing the properties of ms.
- * @param[in] argc Number of arguments from main.
- * @param[in] argv String vector with the artuments.
+ * @brief Parses the program arguments changing the properties of ms
+ * @param[in] argc Number of arguments from main
+ * @param[in] argv String vector with the artuments
  * @return False if the caller (main()) needs to exit. True otherwise.
  */
 static inline bool parse_args(int argc, char** argv) {
@@ -189,7 +190,7 @@ static inline bool parse_args(int argc, char** argv) {
 }
 
 /**
- * @brief Draws the grid border for the minesweeper.
+ * @brief Draws the grid border for the minesweeper
  */
 static void draw_border(void) {
     BOLD_ON();
@@ -230,26 +231,32 @@ static inline void init_grid(void) {
 }
 
 /**
- * @brief Returns the number of bombs adjacent to a specified tile.
+ * @brief Returns the number of bombs adjacent to a specified tile
  * @details Adjacent meaning in a 3x3 grid with the speicified tile at its
  * center.
- * @param[in] fy, fx Position of the tile to check.
+ * @param[in] p Position of the tile to check
  * @return Number of bombs adjacent
  */
-static int adjacent_bombs(int y, int x) {
+static int adjacent_bombs(vec2_t p) {
     int ret = 0;
 
-    const int start_y = (y > 0) ? y - 1 : y;
-    const int start_x = (x > 0) ? x - 1 : x;
-    const int end_y   = (y < ms.h - 1) ? y + 1 : y;
-    const int end_x   = (x < ms.w - 1) ? x + 1 : x;
+    const vec2_t start = {
+        .y = (p.y > 0) ? p.y - 1 : p.y,
+        .x = (p.x > 0) ? p.x - 1 : p.x,
+    };
+
+    const vec2_t end = {
+        .y = (p.y < ms.h - 1) ? p.y + 1 : p.y,
+        .x = (p.x < ms.w - 1) ? p.x + 1 : p.x,
+    };
 
     /* ###
      * #X#
      * ### */
-    for (int cur_y = start_y; cur_y <= end_y; cur_y++)
-        for (int cur_x = start_x; cur_x <= end_x; cur_x++)
-            if (ms.grid[cur_y * ms.w + cur_x].c == BOMB_CH)
+    vec2_t cur;
+    for (cur.y = start.y; cur.y <= end.y; cur.y++)
+        for (cur.x = start.x; cur.x <= end.x; cur.x++)
+            if (ms.grid[cur.y * ms.w + cur.x].c == BOMB_CH)
                 ret++;
 
     return ret;
@@ -257,7 +264,7 @@ static int adjacent_bombs(int y, int x) {
 
 /**
  * @brief Prints the specified message 2 lines bellow `ms`'s grid
- * @param[in] str String to be printed.
+ * @param[in] str String to be printed
  */
 static void print_message(const char* str) {
     int y, x;
@@ -271,9 +278,9 @@ static void print_message(const char* str) {
 }
 
 /**
- * @brief Clears a line in the screen.
- * @details Doesn't change the cursor position.
- * @param[in] y Line number starting from 0 to clear.
+ * @brief Clears a line in the screen
+ * @details Doesn't change the cursor position
+ * @param[in] y Line number starting from 0 to clear
  */
 static inline void clear_line(int y) {
     int oy, ox;
@@ -286,10 +293,10 @@ static inline void clear_line(int y) {
 }
 
 /**
- * @brief Redraws the grid based on the ms.grid array.
+ * @brief Redraws the grid based on the ms.grid array
  * @details Color macros will only do something if color is enabled and
  * supported.
- * @param[in] cursor Current cursor location for inverting the color.
+ * @param[in] cursor Current cursor location for inverting the color
  */
 static void redraw_grid(vec2_t* cursor) {
     const int border_sz = 1;
@@ -304,7 +311,7 @@ static void redraw_grid(vec2_t* cursor) {
             char final_ch     = 0;
 
             if (ms.grid[y * ms.w + x].flags & FLAG_CLEARED) {
-                const int bombs = adjacent_bombs(y, x);
+                const int bombs = adjacent_bombs((vec2_t){ x, y });
                 if (ms.grid[y * ms.w + x].c == BOMB_CH) {
                     /* Bomb (we lost) */
                     final_col = COL_BOMB;
@@ -347,11 +354,11 @@ static void redraw_grid(vec2_t* cursor) {
 }
 
 /**
- * @brief Fill the grid with bombs at random locations.
+ * @brief Fill the grid with bombs at random locations
  * @details Will leave a margin area around the first user selection (so it
  * never reveals a bomb on the first input).
- * @param[in] start Position of the first tile that the user tried to reveal.
- * @param[in] bomb_percent The percentage of bombs to fill.
+ * @param[in] start Position of the first tile that the user tried to reveal
+ * @param[in] bomb_percent The percentage of bombs to fill
  */
 static void generate_grid(vec2_t start, int bomb_percent) {
     int total_bombs = ms.h * ms.w * bomb_percent / 100;
@@ -378,24 +385,30 @@ static void generate_grid(vec2_t start, int bomb_percent) {
 }
 
 /**
- * @brief Returns true if all adjacent bombs from a cell have been flagged.
- * @details Assumes adjacent_bombs() has been called and it didn't return 0.
+ * @brief Returns true if all adjacent bombs from a cell have been flagged
+ * @details Assumes adjacent_bombs() has been called and it didn't return 0
  * @param[in] y, x Position to check
- * @return True if all adjacent bombs have been flagged by the user.
+ * @return True if all adjacent bombs have been flagged by the user
  */
-static inline bool surrounding_bombs_flagged(int y, int x) {
+static inline bool surrounding_bombs_flagged(vec2_t p) {
     /* NOTE: Assumes adjacent_bombs() has been called and it didn't return 0 */
 
-    const int start_y = (y > 0) ? y - 1 : y;
-    const int start_x = (x > 0) ? x - 1 : x;
-    const int end_y   = (y < ms.h - 1) ? y + 1 : y;
-    const int end_x   = (x < ms.w - 1) ? x + 1 : x;
+    const vec2_t start = {
+        .y = (p.y > 0) ? p.y - 1 : p.y,
+        .x = (p.x > 0) ? p.x - 1 : p.x,
+    };
 
-    for (int cur_y = start_y; cur_y <= end_y; cur_y++)
-        for (int cur_x = start_x; cur_x <= end_x; cur_x++)
+    const vec2_t end = {
+        .y = (p.y < ms.h - 1) ? p.y + 1 : p.y,
+        .x = (p.x < ms.w - 1) ? p.x + 1 : p.x,
+    };
+
+    vec2_t cur;
+    for (cur.y = start.y; cur.y <= end.y; cur.y++)
+        for (cur.x = start.x; cur.x <= end.x; cur.x++)
             /* We found an adjacent bomb and it was not flagged */
-            if (ms.grid[cur_y * ms.w + cur_x].c == BOMB_CH &&
-                !(ms.grid[cur_y * ms.w + cur_x].flags & FLAG_FLAGGED))
+            if (ms.grid[cur.y * ms.w + cur.x].c == BOMB_CH &&
+                !(ms.grid[cur.y * ms.w + cur.x].flags & FLAG_FLAGGED))
                 return false;
 
     return true;
@@ -419,7 +432,7 @@ static inline bool is_hidden(vec2_t p) {
  */
 static inline bool is_empty(vec2_t p) {
     return p.x >= 0 && p.x < ms.w && p.y >= 0 && p.y < ms.h &&
-           adjacent_bombs(p.y, p.x) == 0;
+           adjacent_bombs(p) == 0;
 }
 
 /**
@@ -448,10 +461,10 @@ static inline void queue_push(vec2_t x) {
 }
 
 /**
- * @brief Reveals the needed tiles using recursion, starting at y and x.
- * @param[in] y, x Position to be revealed.
+ * @brief Reveals the needed tiles using recursion, starting at y and x
+ * @param[in] y, x Position to be revealed
  * @param[in] user_call Used to know if we are recursing in the current function
- * call or not.
+ * call or not
  *
  * @todo Don't malloc and free the queue in each call, alloc once as global
  */
@@ -466,7 +479,7 @@ void reveal_tiles(vec2_t p, bool user_call) {
     REVEAL_TILE(p);
 
     /* Current tile has no number in it */
-    if (adjacent_bombs(p.y, p.x) == 0) {
+    if (adjacent_bombs(p) == 0) {
         /* Queue is allocated once globally */
         queue_pos = 0;
 
@@ -500,7 +513,7 @@ void reveal_tiles(vec2_t p, bool user_call) {
             }
         }
     } else if (user_call && (ms.grid[p.y * ms.w + p.x].flags & FLAG_CLEARED) &&
-               surrounding_bombs_flagged(p.y, p.x)) {
+               surrounding_bombs_flagged(p)) {
 #ifdef REVEAL_SURROUNDING
         /*
          * If the user is trying to reveal an already cleared flag, and all
@@ -536,16 +549,16 @@ void reveal_tiles(vec2_t p, bool user_call) {
 }
 
 /**
- * @brief Toggles the FLAG_FLAGGED bit of the tile at the specified position.
- * @param[in] fy, fx Position of the tile.
+ * @brief Toggles the FLAG_FLAGGED bit of the tile at the specified position
+ * @param[in] p Position of the tile
  */
-static inline void toggle_flag(int fy, int fx) {
-    if (ms.grid[fy * ms.w + fx].flags & FLAG_CLEARED) {
+static inline void toggle_flag(vec2_t p) {
+    if (ms.grid[p.y * ms.w + p.x].flags & FLAG_CLEARED) {
         print_message("Can't flag a revealed tile!");
         return;
     }
 
-    ms.grid[fy * ms.w + fx].flags ^= FLAG_FLAGGED;
+    ms.grid[p.y * ms.w + p.x].flags ^= FLAG_FLAGGED;
 }
 
 /**
@@ -689,7 +702,7 @@ int main_minesweeper(int argc, char** argv) {
                     break;
                 }
 
-                toggle_flag(cursor.y, cursor.x);
+                toggle_flag(cursor);
 
                 if (check_win()) {
                     print_message("You won! Press any key to continue.");
