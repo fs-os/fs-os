@@ -14,6 +14,7 @@
 #include "defines.h"
 
 #define DIFFIC2BOMBPERCENT(d) ((MAX_BOMBS - MIN_BOMBS) * d / 100 + MIN_BOMBS)
+#define REVEAL_TILE(P)        ms.grid[P.y * ms.w + P.x].flags |= FLAG_CLEARED
 
 /**
  * @struct Tile
@@ -40,9 +41,11 @@ typedef struct {
 /**
  * @struct vec2_t
  * @brief Two-dimensional vector
+ *
+ * @todo Use in all (y, x) functions
  */
 typedef struct {
-    uint16_t x, y; /**< Description */
+    int32_t x, y;
 } vec2_t;
 
 /*----------------------------------------------------------------------------*/
@@ -383,73 +386,154 @@ static inline bool surrounding_bombs_flagged(int y, int x) {
 }
 
 /**
+ * @brief Check if the specified tile doesn't have the CLEARED flag set
+ * @param[in] p Position to check
+ * @return True if a valid position in the grid and if the CLEARED flag is not
+ * set
+ */
+static inline bool is_hidden(vec2_t p) {
+    return p.x >= 0 && p.x < ms.w && p.y >= 0 && p.y < ms.h &&
+           !(ms.grid[p.y * ms.w + p.x].flags & FLAG_CLEARED);
+}
+
+/**
+ * @brief Check if the specified tile has any adjacent bombs
+ * @param[in] p Position to check
+ * @return True if a valid position in the grid and if it has no adjacent bombs
+ */
+static inline bool is_empty(vec2_t p) {
+    return p.x >= 0 && p.x < ms.w && p.y >= 0 && p.y < ms.h &&
+           adjacent_bombs(p.y, p.x) == 0;
+}
+
+/**
+ * @brief Pop value from the front of a 2d vector queue
+ * @details Used by reveal_tiles(). Note that the `top` value is not the index
+ * of the last pushed value, but the next one.
+ * @param[inout] q Queue
+ * @param[inout] top Pointer to the integer holding the top of the queue
+ * @return Value at the front (index 0) of the queue
+ */
+static inline vec2_t queue_pop_front(vec2_t* q, int* top) {
+    vec2_t ret = q[0];
+
+    /* Shift. Note that `top` is not the last pushed value, but the next one */
+    *top -= 1;
+    for (int i = 0; i < *top; i++)
+        q[i] = q[i + 1];
+
+    return ret;
+}
+
+/**
+ * @brief Push value to the back of a 2d vector queue
+ * @details Used by reveal_tiles(). See queue_pop_front() for more info.
+ * @param[inout] q Queue
+ * @param[inout] top Pointer to the integer holding the top of the queue
+ * @param[in] x Value to push
+ */
+static inline void queue_push(vec2_t* q, int* top, vec2_t x) {
+    q[*top] = x;
+    *top += 1;
+}
+
+/**
  * @brief Reveals the needed tiles using recursion, starting at y and x.
  * @param[in] y, x Position to be revealed.
  * @param[in] user_call Used to know if we are recursing in the current function
  * call or not.
  *
- * @todo Because the function uses recustion, with low ms.difficulty (lots of
- * free cells, lots of recursive reveals) a stack overflow may occur, and the
- * whole system might crash :)
+ * @todo Flood-fill doesn't reveal non-filled tiles in corners
+ * @todo Don't malloc and free the queue in each call, alloc once as global
  */
-static void reveal_tiles(int y, int x, bool user_call) {
-    if (ms.grid[y * ms.w + x].c == BOMB_CH) {
+void reveal_tiles(vec2_t p, bool user_call) {
+    if (user_call && ms.grid[p.y * ms.w + p.x].c == BOMB_CH) {
         print_message("You lost. Press any key to restart.");
-        ms.grid[y * ms.w + x].flags |= FLAG_CLEARED;
+        ms.grid[p.y * ms.w + p.x].flags |= FLAG_CLEARED;
         ms.playing = PLAYING_FALSE;
         return;
     }
 
-    if (adjacent_bombs(y, x) == 0) {
-        /* If we have no bombs in surrounding tiles, make sure we mark the
-         * current one as revealed so we don't have an endless loop when
-         * recursing */
-        ms.grid[y * ms.w + x].flags |= FLAG_CLEARED;
+    REVEAL_TILE(p);
 
-        const int start_y = (y > 0) ? y - 1 : y;
-        const int start_x = (x > 0) ? x - 1 : x;
-        const int end_y   = (y < ms.h - 1) ? y + 1 : y;
-        const int end_x   = (x < ms.w - 1) ? x + 1 : x;
+    /* Current tile has no number in it */
+    if (adjacent_bombs(p.y, p.x) == 0) {
+        /* First in, first out */
+        vec2_t* queue = malloc(ms.w * ms.h * sizeof(vec2_t));
+        int queue_pos = 0;
 
-        /* No bombs in surrounding tiles, reveal them
-         * ###
-         * #X#
-         * ### */
-        for (int cur_y = start_y; cur_y <= end_y; cur_y++)
-            for (int cur_x = start_x; cur_x <= end_x; cur_x++)
-                /* If we are not revealing that one, reveal */
-                if (!(ms.grid[cur_y * ms.w + cur_x].flags & FLAG_CLEARED))
-                    reveal_tiles(cur_y, cur_x, false);
-    } else {
-        /* This part is for revealing adjacent tiles when clicking a revealed
-         * one if all adjacent bombs have been flagged. We only care about this
-         * feature if the user is the function caller.
-         *
-         * We have adjacent bombs, check if the tile we are tying to reveal was
-         * already revealed */
-        if (user_call && ms.grid[y * ms.w + x].flags & FLAG_CLEARED) {
-#ifdef REVEAL_SURROUNDING
-            /* If it was, check if all surrounding bombs have been flagged by
-             * the user */
-            if (surrounding_bombs_flagged(y, x)) {
-                const int start_y = (y > 0) ? y - 1 : y;
-                const int start_x = (x > 0) ? x - 1 : x;
-                const int end_y   = (y < ms.h - 1) ? y + 1 : y;
-                const int end_x   = (x < ms.w - 1) ? x + 1 : x;
+        /* Push parameter and reveal it */
+        queue_push(queue, &queue_pos, p);
 
-                /* If they have been, we can automatically reveal all the other
-                 * non-bomb adjacent tiles when clicking it. */
-                for (int cur_y = start_y; cur_y <= end_y; cur_y++)
-                    for (int cur_x = start_x; cur_x <= end_x; cur_x++)
-                        if (ms.grid[cur_y * ms.w + cur_x].c != BOMB_CH)
-                            reveal_tiles(cur_y, cur_x, false);
+        /* Queue is not empty */
+        while (queue_pos > 0) {
+            const vec2_t cur = queue_pop_front(queue, &queue_pos);
+
+            vec2_t up = { cur.x, cur.y - 1 };
+            if (is_hidden(up)) {
+                REVEAL_TILE(up);
+                if (is_empty(up))
+                    queue_push(queue, &queue_pos, up);
             }
-#endif
-        } else {
-            /* If the current tile has bombs adjacent, but was not revealed,
-             * reveal it */
-            ms.grid[y * ms.w + x].flags |= FLAG_CLEARED;
+
+            vec2_t down = { cur.x, cur.y + 1 };
+            if (is_hidden(down)) {
+                REVEAL_TILE(down);
+                if (is_empty(down))
+                    queue_push(queue, &queue_pos, down);
+            }
+
+            vec2_t left = { cur.x - 1, cur.y };
+            if (is_hidden(left)) {
+                REVEAL_TILE(left);
+                if (is_empty(left))
+                    queue_push(queue, &queue_pos, left);
+            }
+
+            vec2_t right = { cur.x + 1, cur.y };
+            if (is_hidden(right)) {
+                REVEAL_TILE(right);
+                if (is_empty(right))
+                    queue_push(queue, &queue_pos, right);
+            }
         }
+
+        free(queue);
+    } else if (user_call && (ms.grid[p.y * ms.w + p.x].flags & FLAG_CLEARED) &&
+               surrounding_bombs_flagged(p.y, p.x)) {
+#ifdef REVEAL_SURROUNDING
+        /*
+         * If the user is trying to reveal an already cleared flag, and all
+         * adjacent bombs are flagged, auto-reveal surrounding.
+         *
+         * We only care about this feature if the user is the function caller
+         * (we are not recursing). Note that we only use recursion here (with
+         * less than 8 calls) to avoid a stack overflow.
+         */
+
+        const vec2_t start = {
+            .y = (p.y > 0) ? p.y - 1 : p.y,
+            .x = (p.x > 0) ? p.x - 1 : p.x,
+        };
+
+        const vec2_t end = {
+            .y = (p.y < ms.h - 1) ? p.y + 1 : p.y,
+            .x = (p.x < ms.w - 1) ? p.x + 1 : p.x,
+        };
+
+        /*
+         * Iterate and reveal X, avoiding bombs and the middle tile:
+         *   XX@
+         *   XpX
+         *   X@X
+         */
+        vec2_t cur;
+        for (cur.y = start.y; cur.y <= end.y; cur.y++)
+            for (cur.x = start.x; cur.x <= end.x; cur.x++)
+                if (ms.grid[cur.y * ms.w + cur.x].c != BOMB_CH &&
+                    (cur.x != p.x || cur.y != p.y))
+                    reveal_tiles(cur, false);
+#endif
     }
 }
 
@@ -623,7 +707,7 @@ int main_minesweeper(int argc, char** argv) {
                     break;
                 }
 
-                reveal_tiles(cursor.y, cursor.x, true);
+                reveal_tiles(cursor, true);
                 break;
             case 'r':
                 /* Generate if it's the first time playing */
