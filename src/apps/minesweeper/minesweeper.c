@@ -62,6 +62,22 @@ static Game ms;
  */
 static bool use_color = false;
 
+/**
+ * @var queue
+ * @brief Global vec2_t queue.
+ * @details Used by reveal_tiles() to avoid recursion. Allocated and freed from
+ * main()
+ */
+static vec2_t* queue = NULL;
+
+/**
+ * @var queue_pos
+ * @brief Top of the queue
+ * @details Index in the queue that will be used for the next pushed item, not
+ * the index of the last item.
+ */
+static int queue_pos = 0;
+
 /*----------------------------------------------------------------------------*/
 
 /**
@@ -408,33 +424,27 @@ static inline bool is_empty(vec2_t p) {
 
 /**
  * @brief Pop value from the front of a 2d vector queue
- * @details Used by reveal_tiles(). Note that the `top` value is not the index
- * of the last pushed value, but the next one.
- * @param[inout] q Queue
- * @param[inout] top Pointer to the integer holding the top of the queue
+ * @details Used by reveal_tiles()
  * @return Value at the front (index 0) of the queue
  */
-static inline vec2_t queue_pop_front(vec2_t* q, int* top) {
-    vec2_t ret = q[0];
+static inline vec2_t queue_pop_front() {
+    vec2_t ret = queue[0];
 
     /* Shift. Note that `top` is not the last pushed value, but the next one */
-    *top -= 1;
-    for (int i = 0; i < *top; i++)
-        q[i] = q[i + 1];
+    queue_pos--;
+    for (int i = 0; i < queue_pos; i++)
+        queue[i] = queue[i + 1];
 
     return ret;
 }
 
 /**
  * @brief Push value to the back of a 2d vector queue
- * @details Used by reveal_tiles(). See queue_pop_front() for more info.
- * @param[inout] q Queue
- * @param[inout] top Pointer to the integer holding the top of the queue
+ * @details Used by reveal_tiles()
  * @param[in] x Value to push
  */
-static inline void queue_push(vec2_t* q, int* top, vec2_t x) {
-    q[*top] = x;
-    *top += 1;
+static inline void queue_push(vec2_t x) {
+    queue[queue_pos++] = x;
 }
 
 /**
@@ -457,16 +467,15 @@ void reveal_tiles(vec2_t p, bool user_call) {
 
     /* Current tile has no number in it */
     if (adjacent_bombs(p.y, p.x) == 0) {
-        /* First in, first out */
-        vec2_t* queue = malloc(ms.w * ms.h * sizeof(vec2_t));
-        int queue_pos = 0;
+        /* Queue is allocated once globally */
+        queue_pos = 0;
 
         /* Push parameter and reveal it */
-        queue_push(queue, &queue_pos, p);
+        queue_push(p);
 
         /* Queue is not empty */
         while (queue_pos > 0) {
-            const vec2_t cur = queue_pop_front(queue, &queue_pos);
+            const vec2_t cur = queue_pop_front();
 
             /* Iterate adjacent, avoiding the middle tile (cur).
              *  ...
@@ -485,13 +494,11 @@ void reveal_tiles(vec2_t p, bool user_call) {
 
                         /* If we encounter another empty tile, push queue */
                         if (is_empty(iter))
-                            queue_push(queue, &queue_pos, iter);
+                            queue_push(iter);
                     }
                 }
             }
         }
-
-        free(queue);
     } else if (user_call && (ms.grid[p.y * ms.w + p.x].flags & FLAG_CLEARED) &&
                surrounding_bombs_flagged(p.y, p.x)) {
 #ifdef REVEAL_SURROUNDING
@@ -602,6 +609,9 @@ int main_minesweeper(int argc, char** argv) {
 
     /* Init random seed */
     srand(time(NULL));
+
+    /* Allocate global queue used by reveal_tiles() */
+    queue = malloc(ms.w * ms.h * sizeof(vec2_t));
 
     /* Allocate and initialize grid */
     ms.grid = malloc(ms.w * ms.h * sizeof(Tile));
@@ -725,6 +735,7 @@ int main_minesweeper(int argc, char** argv) {
         }
     } while (c != 'q');
 
+    free(queue);
     free(ms.grid);
     endwin();
     return 0;
