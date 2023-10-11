@@ -41,8 +41,6 @@ typedef struct {
 /**
  * @struct vec2_t
  * @brief Two-dimensional vector
- *
- * @todo Use in all (y, x) functions
  */
 typedef struct {
     int32_t x, y;
@@ -161,7 +159,7 @@ static inline bool parse_args(int argc, char** argv) {
 #endif
                    "           r - Reveal all tiles and end game\n"
                    "           q - Quit the game\n");
-            return 0;
+            return false;
         } else if (!strcmp(argv[i], "-h") || !strcmp(argv[i], "--help")) {
             arg_error = true;
             break;

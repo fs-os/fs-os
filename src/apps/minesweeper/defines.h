@@ -55,31 +55,24 @@ enum color_ids {
  * Will only work if color is enabled and supported. Bold is not yet supported
  * in fs-os.
  * @{ */
-#define SET_COL(col)       \
-    {                      \
-        if (use_color) {   \
-            use_pair(col); \
-        }                  \
+#define SET_COL(col)   \
+    if (use_color) {   \
+        use_pair(col); \
     }
 
-#define RESET_COL()       \
-    {                     \
-        if (use_color) {  \
-            reset_pair(); \
-        }                 \
+#define RESET_COL()   \
+    if (use_color) {  \
+        reset_pair(); \
     }
 
-#define INVERT_COL(col)       \
-    {                         \
-        if (use_color) {      \
-            invert_pair(col); \
-        }                     \
+#define INVERT_COL(col)   \
+    if (use_color) {      \
+        invert_pair(col); \
     }
 
-/* Not supported in fs-os yet */
+/* Bold is not supported in the fs-os terminal yet */
 #define BOLD_ON()
 #define BOLD_OFF()
-/** @} */
 
 #define DEFAULT_W 50 /**< @brief Default width */
 #define DEFAULT_H 20 /**< @brief Default height */
@@ -118,13 +111,15 @@ enum playing_flags {
 };
 
 /**
- * @name Characters for the tiles
- * @{ */
-#define UNKN_CH '.' /**< @brief Not revealed tile */
-#define BACK_CH ' ' /**< @brief Empty tile with no bombs adjacent */
-#define BOMB_CH '@' /**< @brief Revealed tile with bomb */
-#define FLAG_CH 'F' /**< @brief Flagged hidden tile */
-/** @} */
+ * @enum tile_chars
+ * @brief Characters for the tiles
+ */
+enum tile_chars {
+    UNKN_CH = '.', /* Not revealed tile */
+    BACK_CH = ' ', /* Empty tile with no bombs adjacent */
+    BOMB_CH = '@', /* Revealed tile with bomb */
+    FLAG_CH = 'F', /* Flagged hidden tile */
+};
 
 /**
  * @def KEY_CTRLC
