@@ -443,7 +443,6 @@ static inline void queue_push(vec2_t* q, int* top, vec2_t x) {
  * @param[in] user_call Used to know if we are recursing in the current function
  * call or not.
  *
- * @todo Flood-fill doesn't reveal non-filled tiles in corners
  * @todo Don't malloc and free the queue in each call, alloc once as global
  */
 void reveal_tiles(vec2_t p, bool user_call) {
@@ -469,32 +468,26 @@ void reveal_tiles(vec2_t p, bool user_call) {
         while (queue_pos > 0) {
             const vec2_t cur = queue_pop_front(queue, &queue_pos);
 
-            vec2_t up = { cur.x, cur.y - 1 };
-            if (is_hidden(up)) {
-                REVEAL_TILE(up);
-                if (is_empty(up))
-                    queue_push(queue, &queue_pos, up);
-            }
+            /* Iterate adjacent, avoiding the middle tile (cur).
+             *  ...
+             *  .p.
+             *  ...  */
+            vec2_t iter;
+            for (iter.y = cur.y - 1; iter.y <= cur.y + 1; iter.y++) {
+                for (iter.x = cur.x - 1; iter.x <= cur.x + 1; iter.x++) {
+                    /* Skip middle tile */
+                    if (iter.x == cur.x && iter.y == cur.y)
+                        continue;
 
-            vec2_t down = { cur.x, cur.y + 1 };
-            if (is_hidden(down)) {
-                REVEAL_TILE(down);
-                if (is_empty(down))
-                    queue_push(queue, &queue_pos, down);
-            }
+                    /* If hidden, reveal */
+                    if (is_hidden(iter)) {
+                        REVEAL_TILE(iter);
 
-            vec2_t left = { cur.x - 1, cur.y };
-            if (is_hidden(left)) {
-                REVEAL_TILE(left);
-                if (is_empty(left))
-                    queue_push(queue, &queue_pos, left);
-            }
-
-            vec2_t right = { cur.x + 1, cur.y };
-            if (is_hidden(right)) {
-                REVEAL_TILE(right);
-                if (is_empty(right))
-                    queue_push(queue, &queue_pos, right);
+                        /* If we encounter another empty tile, push queue */
+                        if (is_empty(iter))
+                            queue_push(queue, &queue_pos, iter);
+                    }
+                }
             }
         }
 
@@ -521,12 +514,10 @@ void reveal_tiles(vec2_t p, bool user_call) {
             .x = (p.x < ms.w - 1) ? p.x + 1 : p.x,
         };
 
-        /*
-         * Iterate and reveal X, avoiding bombs and the middle tile:
-         *   XX@
-         *   XpX
-         *   X@X
-         */
+        /* Iterate and reveal X, avoiding bombs and the middle tile:
+         *  ..@
+         *  .p.
+         *  .@.  */
         vec2_t cur;
         for (cur.y = start.y; cur.y <= end.y; cur.y++)
             for (cur.x = start.x; cur.x <= end.x; cur.x++)
