@@ -35,19 +35,19 @@
  * @brief Color ids used for the curses color pairs.
  */
 enum color_ids {
-    COL_NORM = 0,  /**< @brief White */
-    COL_1    = 1,  /**< @brief 1 bombs adjacent */
-    COL_2    = 2,  /**< @brief 2 bombs adjacent */
-    COL_3    = 3,  /**< @brief 3 bombs adjacent */
-    COL_4    = 4,  /**< @brief 4 bombs adjacent */
-    COL_5    = 5,  /**< @brief 5 bombs adjacent */
-    COL_6    = 6,  /**< @brief 6 bombs adjacent */
-    COL_7    = 7,  /**< @brief 7 bombs adjacent */
-    COL_8    = 8,  /**< @brief 8 bombs adjacent */
-    COL_9    = 9,  /**< @brief 9 bombs adjacent */
-    COL_FLAG = 10, /**< @brief Red  */
-    COL_BOMB = 11, /**< @brief Red  */
-    COL_UNK  = 12, /**< @brief Gray */
+    COL_NORM = 0,  /* White */
+    COL_1    = 1,  /* 1 bombs adjacent */
+    COL_2    = 2,  /* 2 bombs adjacent */
+    COL_3    = 3,  /* 3 bombs adjacent */
+    COL_4    = 4,  /* 4 bombs adjacent */
+    COL_5    = 5,  /* 5 bombs adjacent */
+    COL_6    = 6,  /* 6 bombs adjacent */
+    COL_7    = 7,  /* 7 bombs adjacent */
+    COL_8    = 8,  /* 8 bombs adjacent */
+    COL_9    = 9,  /* 9 bombs adjacent */
+    COL_FLAG = 10, /* Red  */
+    COL_BOMB = 11, /* Red  */
+    COL_UNK  = 12, /* Gray */
 };
 
 /**
@@ -94,9 +94,9 @@ enum color_ids {
  * @brief For tile_t.flags
  */
 enum tile_flags {
-    FLAG_NONE    = 0x0, /**< @brief Tile is hidden and not flagged */
-    FLAG_CLEARED = 0x1, /**< @brief Tile is revealed */
-    FLAG_FLAGGED = 0x2, /**< @brief Tile is flagged */
+    FLAG_NONE    = 0x0, /* Tile is hidden and not flagged */
+    FLAG_CLEARED = 0x1, /* Tile is revealed */
+    FLAG_FLAGGED = 0x2, /* Tile is flagged */
 };
 
 /**
@@ -104,10 +104,9 @@ enum tile_flags {
  * @brief For ms_t.playing
  */
 enum playing_flags {
-    PLAYING_FALSE = 0x0, /**< @brief Just started a game. Grid empty. */
-    PLAYING_TRUE  = 0x1, /**< @brief Playing a game. Grid filled. */
-    PLAYING_CLEAR = 0x2, /**< @brief Just initialized the empty grid. Fill with
-                            bombs */
+    PLAYING_FALSE = 0x0, /* Just started a game. Grid empty. */
+    PLAYING_TRUE  = 0x1, /* Playing a game. Grid filled. */
+    PLAYING_CLEAR = 0x2, /* Just initialized the empty grid. Fill with bombs */
 };
 
 /**
@@ -115,10 +114,10 @@ enum playing_flags {
  * @brief Characters for the tiles
  */
 enum tile_chars {
-    UNKN_CH = '.', /* Not revealed tile */
-    BACK_CH = ' ', /* Empty tile with no bombs adjacent */
-    BOMB_CH = '@', /* Revealed tile with bomb */
-    FLAG_CH = 'F', /* Flagged hidden tile */
+    CH_UNKN = '.', /* Not revealed tile */
+    CH_BACK = ' ', /* Empty tile with no bombs adjacent */
+    CH_BOMB = '@', /* Revealed tile with bomb */
+    CH_FLAG = 'F', /* Flagged hidden tile */
 };
 
 /**
