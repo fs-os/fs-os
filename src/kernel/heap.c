@@ -10,12 +10,10 @@
  */
 #define HEADER_TO_PTR(blk) ((void*)((uint32_t)(blk) + sizeof(Block)))
 
-Block* blk_cursor = (Block*)HEAP_START;
+static Block* const first_block = (Block*)HEAP_START;
 
 void heap_init(void) {
-    void* first_blk = HEAP_START;
-
-    *(Block*)first_blk = (Block){
+    *first_block = (Block){
         .next = NULL,                      /* It's the last block */
         .prev = NULL,                      /* And first block */
         .sz   = HEAP_SIZE - sizeof(Block), /* Size of heap - this block */
@@ -24,20 +22,14 @@ void heap_init(void) {
 }
 
 void* heap_alloc(size_t sz, size_t align) {
-    /* From block cursor (last allocation/free), traverse blocks until we find
-     * one free or until we loop back to the original cursor. */
-    for (Block* blk = blk_cursor;; blk = blk->next) {
-        /* Invalid block, check next */
+    /* From first block, traverse linked list until we find a free one or until
+     * we reach the end. */
+    for (Block* blk = first_block;; blk = blk->next) {
+        /* Is it an invalid block? */
         if (!blk->free || blk->sz < sz + sizeof(Block)) {
-            /**
-             * @todo Pretty sure this isn't supposed to work since last block
-             * is NULL, doesn't "loop". We need to find a new way to loop, not
-             * chaging the NULL part since we need to know which block is the
-             * first and last
-             */
-
-            /* If we are back to where we started, there is no block left */
-            if (blk->next == blk_cursor)
+            /* If we reached the end of the linked list, exit loop and panic.
+             * Otherwise, continue to the next block */
+            if (blk->next == NULL)
                 break;
             else
                 continue;
@@ -88,8 +80,6 @@ void* heap_alloc(size_t sz, size_t align) {
             .sz   = blk->sz - sz - sizeof(Block), /* Shrink the old blk sz */
             .free = true,
         };
-
-        blk_cursor = new_blk;
 
         /* Update values from old block */
         blk->next = new_blk;
@@ -161,11 +151,6 @@ void heap_free(void* ptr) {
 
     /* If the next block is being used, just set this one free */
     blk->free = true;
-
-    /* If blk_cursor was pointing to a smaller block than the one we just freed,
-     * update it */
-    if (blk->sz > blk_cursor->sz)
-        blk_cursor = blk;
 }
 
 void* heap_calloc(size_t item_n, size_t item_sz, size_t align) {
@@ -208,10 +193,6 @@ enum header_mod {
 };
 
 void heap_dump_headers(void) {
-    printf("Cursor: %p\n"
-           "Dumping heap block headers:\n",
-           blk_cursor);
-
     int i = 0;
 
     /* From start of the heap, jump to the next block until end of heap. */
