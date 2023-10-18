@@ -13,6 +13,8 @@
 static Block* const first_block = (Block*)HEAP_START;
 
 void heap_init(void) {
+    memset(HEAP_START, 0, HEAP_SIZE);
+
     *first_block = (Block){
         .next = NULL,                      /* It's the last block */
         .prev = NULL,                      /* And first block */
