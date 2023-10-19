@@ -2,12 +2,12 @@
 #ifndef KERNEL_VGA_H_
 #define KERNEL_VGA_H_ 1
 
-#include <stddef.h> /* size_t */
-#include <stdint.h> /* uintX_t */
+#include <stddef.h>
+#include <stdint.h>
 
 /**
  * @enum vga_color
- * @brief Colors for the vga console entries.
+ * @brief Colors for the VGA console entries.
  */
 enum vga_color {
     VGA_COLOR_BLACK         = 0,
@@ -37,13 +37,12 @@ enum vga_color {
 /**
  * @name Width and height of the VGA console.
  * @brief Defined in vga.c
- * @{ */
-extern const size_t VGA_WIDTH;
-extern const size_t VGA_HEIGHT;
-/** @} */
+ */
+#define VGA_WIDTH  80
+#define VGA_HEIGHT 25
 
 /**
- * @brief Get vga color pair from foreground and background colors.
+ * @brief Get VGA color pair from foreground and background colors.
  * @details Foreground will be bits 0..3 and background bits 4..7
  * @param[in] fg Foreground color from the vga_color enum.
  * @param[in] bg Background color from the vga_color enum.
@@ -54,7 +53,7 @@ static inline uint8_t vga_entry_color(enum vga_color fg, enum vga_color bg) {
 }
 
 /**
- * @brief Get vga entry from char and color pair
+ * @brief Get VGA entry from char and color pair
  * @param[in] uc Char for the VGA entry.
  * @param[in] color 8 bit VGA color returned from vga_entry_color()
  * @return VGA entry with the char and color.
@@ -70,7 +69,7 @@ static inline uint16_t vga_entry(uint8_t uc, uint8_t color) {
 void vga_init(void);
 
 /**
- * @brief changes the current color for the terminal from a vga entry
+ * @brief changes the current color for the terminal from a VGA entry
  * @param[in] col VGA color pair returned from vga_entry_color()
  */
 void vga_setcol_entry(uint8_t col);
@@ -84,7 +83,7 @@ void vga_setcol(enum vga_color fg, enum vga_color bg);
 
 /**
  * @brief Writes the specified char with the specified color at the specified
- * location in the vga terminal.
+ * location in the VGA terminal.
  * @param[in] y, x Position for the new char.
  * @param[in] col 8 bit VGA color pair for the new char.
  * @param[in] c Char to put in that location.
@@ -104,7 +103,7 @@ void vga_shift_rows(int n);
 void vga_putchar(char c);
 
 /**
- * @brief Prints a zero-terminated string to the vga terminal using vga_write()
+ * @brief Prints a zero-terminated string to the VGA terminal using vga_write()
  * @details If we used the VGA terminal, we would need to improve this function.
  * @param[in] s Zero-terminated string to print.
  */
