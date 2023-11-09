@@ -11,7 +11,7 @@
  *
  * @details Each item of the char idx is a 8px row of that char, represented by
  * each bit of the byte. Example:
- * ```c
+ *
  *      *.font['a'] = {
  *          ........ ,
  *          ..####.. ,
@@ -24,15 +24,14 @@
  *          ........ ,
  *          ........ ,
  *      }
- * ```
  *
  * Where each item of idx 'a' is a byte, and each '#' is a bit set to 1 of that
  * byte, and each '.' is a bit set to 0.
  *
  * Because it is a 3d array in 1d format, to access a px of a char we use:
- * ```c
+ *
  *      Font->font['C' * Font->h + y] & (0x80 >> x)
- * ```
+ *
  * (See src/kernel/include/kernel/font.h)
  *
  * For more information see:
@@ -3633,4 +3632,4 @@ Font main_font = {
       },
 };
 
-#endif /* FONTS_MAIN_FONT_H_ 1 */
+#endif /* FONTS_MAIN_FONT_H_ */
