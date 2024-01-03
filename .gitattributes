@@ -5,4 +5,4 @@
 /src/kernel/include/fonts/main_font.h linguist-detectable=false
 
 # Ignore the bootloader code
-/limine/* linguist-detectable=false
+/limine/** linguist-detectable=false
