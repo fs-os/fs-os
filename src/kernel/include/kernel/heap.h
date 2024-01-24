@@ -1,6 +1,6 @@
 
-#ifndef KERNEL_ALLOC_H_
-#define KERNEL_ALLOC_H_ 1
+#ifndef KERNEL_HEAP_H_
+#define KERNEL_HEAP_H_ 1
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -70,4 +70,4 @@ void* heap_calloc(size_t item_n, size_t item_sz, size_t align);
  */
 void heap_dump_headers(void);
 
-#endif /* KERNEL_ALLOC_H_ */
+#endif /* KERNEL_HEAP_H_ */
