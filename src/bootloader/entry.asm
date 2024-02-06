@@ -5,8 +5,9 @@
 
 bits 16
 
-; Specify base address where the BIOS will load us.
-; TODO: Replace with linker script?
+; Specify base address where the BIOS will load us. We need to use NASM's
+; built-in "linker" because we are generating a raw binary, and we can't link
+; with `ld'.
 org 0x7C00
 
 section .text
@@ -44,7 +45,7 @@ bios_puts:
 
 .loop:
     lodsb                   ; Load byte from SI into AL, and increment SI
-    test    al, al
+    test    al, al          ; Did we reach the end of the string?
     jz      .done
 
     mov     ah, 0xE         ; BIOS code for writing char
@@ -61,7 +62,10 @@ bios_puts:
 
 ;-------------------------------------------------------------------------------
 
-; The string also needs to be inside the first 512 bytes.
+; No `.data' section because the string also needs to be inside the first 512
+; bytes, and we need to add the padding. Also note the position of the string
+; inside the file. After the file is placed into 0x7C00, the BIOS will jump to
+; the first instruction, so the entry point needs to be first.
 msg_boot: db "Hello, world.", 13, 10, 0 ; "\r\n\0"
 
 ;-------------------------------------------------------------------------------
