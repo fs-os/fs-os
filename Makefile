@@ -74,15 +74,13 @@ $(SYSROOT_KERNEL_BIN): $(KERNEL_BIN)
 # Use the sysroot kernel path as rule to make sure we have the sysroot ready.
 # User should run "make sysroot" before "make all". Sysroot already has all the
 # components (kernel and includes) compiled and copied into it.
-# TODO: Fix bootloader in ISO
 $(ISO): $(BOOTLOADER_BIN) $(SYSROOT_KERNEL_BIN)
-	@mkdir -p iso/boot/
-	cp $(SYSROOT_KERNEL_BIN) iso/boot/$(KERNEL_BIN)
-	cp $(BOOTLOADER_BIN) iso/
-	xorriso -as mkisofs -b $(BOOTLOADER_BIN)             \
-		-no-emul-boot -boot-load-size 4 -boot-info-table \
-		--protective-msdos-label                         \
-		iso -o $(ISO)
+	@mkdir -p ./iso/boot/
+	cp $(SYSROOT_KERNEL_BIN) ./iso/boot/$(KERNEL_BIN)
+	cp $(BOOTLOADER_BIN) ./iso/
+	xorriso -as mkisofs -b $(BOOTLOADER_BIN) \
+		-no-emul-boot -boot-load-size 4      \
+		./iso/ -o $(ISO)
 
 # Only ran once
 # TODO: Remove all limine stuff after we have our own bootloader.
