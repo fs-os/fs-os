@@ -12,8 +12,41 @@ org 0x7C00
 
 section .text
 
+; Entry point of the bootloader. The Boot Record must start with a short jump to
+; the real entry point followed by a NOP.
 global _start
 _start:
+    jmp     short bootloader_entry
+    nop
+
+;-------------------------------------------------------------------------------
+
+; Now the BIOS Parameter Block (BPB)
+bpb_oem:                    db "fsosboot"   ; 3 (Shouldn't matter, 8 bytes)
+bpb_bytes_per_sector:       dw 512          ; 11
+bpb_sectors_per_cluster:    db 1            ; 13
+bpb_reserved_sectors:       dw 1            ; 14 (Includes boot sector)
+bpb_fat_count:              db 2            ; 16
+bpb_dir_entries_count:      dw 0xE0         ; 17
+bpb_total_sectors:          dw 2880         ; 19 (1.44MiB / 512bps = 2880)
+bpb_media_descriptor_type:  db 0xF0         ; 21 (3.5" floppy disk)
+bpb_sectors_per_fat:        dw 9            ; 22
+bpb_sectors_per_track:      dw 18           ; 24
+bpb_heads:                  dw 2            ; 26
+bpb_hidden_sectors:         dd 0            ; 28
+bpb_large_sector_count:     dd 0            ; 32 (Set if entry 19 is zero)
+
+; Next, the Extended Boot Record (EBR)
+ebr_drive_number:           db 0            ; 36 (0 for floppy, 0x80 for HDDs)
+ebr_reserved:               db 0            ; 37
+ebr_signature:              db 0x28         ; 38 (0x28 or 0x29)
+ebr_volume_id:              db "FSOS"       ; 39 (Shouldn't matter, 4 bytes)
+ebr_volume_label:           db "Bootloader " ; 43 (Shouldn't matter, 11 bytes)
+ebr_system_id:              db "FAT12   "   ; 54 (8 bytes)
+
+;-------------------------------------------------------------------------------
+
+bootloader_entry:
     ; Start by setting up the Data and Extra segments. We need to use an
     ; intermediate register to write to them.
     mov     ax, 0
