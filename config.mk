@@ -11,11 +11,13 @@ ASM_FLAGS=-f elf32 -isrc/kernel -isrc/kernel/include/kernel
 
 # i686 cross-compiler. See https://github.com/fs-os/cross-compiler
 CC=/usr/local/cross/bin/i686-elf-gcc
-CFLAGS=-Wall -Wextra -O2 -masm=intel -ffreestanding -std=gnu11
+CFLAGS=-Wall -Wextra -O2 -fno-pic -masm=intel -ffreestanding -std=gnu11
+LDFLAGS=-no-pie -nostdlib -lgcc
 
-# Kernel binary and iso filenames
+# Kernel and bootloader binaries, and ISO filename
 KERNEL_BIN=fs-os.bin
 ISO=$(KERNEL_BIN:.bin=.iso)
+BOOTLOADER_BIN=bootloader.bin
 
 # From src/kernel/*
 KERNEL_OBJ_FILES=kernel.c.o \

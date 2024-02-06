@@ -42,9 +42,8 @@ qemu-debug: debug-flags clean all
 		-cdrom $(ISO)
 
 clean:
-	rm -f $(LIBK_OBJS) $(LIBC_OBJS) $(LIBC)
-	rm -f $(KERNEL_OBJS) $(ASM_OBJS)
-	rm -f $(KERNEL_BIN) $(ISO)
+	rm -f $(KERNEL_OBJS) $(ASM_OBJS) $(LIBK_OBJS)
+	rm -f $(BOOTLOADER_BIN) $(KERNEL_BIN) $(ISO)
 	rm -f $(APP_OBJS)
 	rm -rf iso $(SYSROOT)
 
@@ -75,24 +74,28 @@ $(SYSROOT_KERNEL_BIN): $(KERNEL_BIN)
 # Use the sysroot kernel path as rule to make sure we have the sysroot ready.
 # User should run "make sysroot" before "make all". Sysroot already has all the
 # components (kernel and includes) compiled and copied into it.
-$(ISO): $(SYSROOT_KERNEL_BIN) limine/limine-deploy
+# TODO: Fix bootloader in ISO
+$(ISO): $(BOOTLOADER_BIN) $(SYSROOT_KERNEL_BIN)
 	@mkdir -p iso/boot/
 	cp $(SYSROOT_KERNEL_BIN) iso/boot/$(KERNEL_BIN)
-	cp limine/limine.sys limine/limine-cd.bin iso/
-	cat cfg/limine.cfg | sed "s/ (GITHASH)/$(COMMIT_SHA1)/" > iso/limine.cfg
-	xorriso -as mkisofs -b limine-cd.bin                 \
+	cp $(BOOTLOADER_BIN) iso/
+	xorriso -as mkisofs -b $(BOOTLOADER_BIN)             \
 		-no-emul-boot -boot-load-size 4 -boot-info-table \
 		--protective-msdos-label                         \
 		iso -o $(ISO)
-	limine/limine-deploy --quiet $(ISO)
 
 # Only ran once
+# TODO: Remove all limine stuff after we have our own bootloader.
 limine/limine-deploy:
 	make -C limine
 
 # We use --sysroot so we can for example include with <lib.h>
 $(KERNEL_BIN): cfg/linker.ld $(KERNEL_OBJS) $(LIBK_OBJS) $(APP_OBJS)
-	$(CC) -T cfg/linker.ld -nostdlib $(CFLAGS) -o $@ $(KERNEL_OBJS) $(LIBK_OBJS) $(APP_OBJS) -lgcc
+	$(CC) -T cfg/linker.ld -o $@ $(KERNEL_OBJS) $(LIBK_OBJS) $(APP_OBJS) $(LDFLAGS)
+
+# Bootloader uses `-f bin` instead of `-f elf32`
+$(BOOTLOADER_BIN): src/bootloader/entry.asm
+	$(ASM) -f bin -o $@ $<
 
 obj/%.asm.o: src/%.asm
 	@mkdir -p $(dir $@)
