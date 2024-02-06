@@ -49,7 +49,7 @@ ebr_system_id:              db "FAT12   "   ; 54 (8 bytes)
 bootloader_entry:
     ; Start by setting up the Data and Extra segments. We need to use an
     ; intermediate register to write to them.
-    mov     ax, 0
+    xor     ax, ax
     mov     ds, ax
     mov     es, ax
 
@@ -93,6 +93,40 @@ bios_puts:
     pop     ax
     ret
 
+; uint24_t lba_to_chs(uint16_t ax);
+;
+; Converting Logical Block Address scheme (LBA) to Cylinder-Head-Sector
+; scheme (CHS):
+;   Cylinder: (LBA / SectorsPerTrack) / heads
+;   Head:     (LBA / SectorsPerTrack) % heads
+;   Sector:   (LBA % SectorsPerTrack) + 1
+;
+; We will return:
+;   The Sector number in cx[0..5]
+;   The Cylinder number in cx[6..15]
+;   The Head number in dx[8..15] (dh)
+; Because it's the format that the BIOS interrupt 0x13,2 expects.
+lba_to_chs:
+    ; First, calculate Sector and store in `cx'.
+    xor     dx, dx                          ; For div
+    div     word [bpb_sectors_per_track]    ; dx = ax % SpT; ax /= SpT;
+    inc     dx                              ; dx++;
+    mov     cx, dx                          ; Return Sector in cx[0..5]
+
+    ; Now that `ax' contains (LBA / SpT), get Cylinder and Head.
+    xor     dx, dx
+    div     word [bpb_heads]                ; dx = ax % heads; ax /= heads;
+    mov     dh, dl                          ; Return Head in dx[8..15]
+
+    ; Return bits [8..9] of Cylinder in cx[6..7] and bits [0..7] of Cylinder in
+    ; cx[8..15]
+    mov     ch, al                          ; cx[8..15] = cylinder[0..7];
+    shl     ah, 6                           ; ah >>= 6;
+    or      cl, ah                          ; cx[6..7] = cylinder[8..9];
+
+    ret
+
+
 ;-------------------------------------------------------------------------------
 
 ; No `.data' section because the string also needs to be inside the first 512
@@ -110,8 +144,8 @@ msg_boot: db "Hello, world.", 13, 10, 0 ; "\r\n\0"
 
 ; Fill the rest of the binary up to 510 with zeros. We subtract the address of
 ; the current instruction ($) from the address of the start of the current
-; section ($$). Note that acording to our linker script (cfg/bootloader.ld), the
-; first section will be the current one (.text).
+; section ($$). Note that according to our linker script (cfg/bootloader.ld),
+; the first section will be the current one (.text).
 times 510 - ($ - $$) db 0x00
 
 ; The BIOS will look for the 0xAA55 signature in bytes 511-512. Note the
