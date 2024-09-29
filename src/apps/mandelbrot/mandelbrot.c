@@ -156,7 +156,7 @@ int main_mandelbrot(int argc, char** argv) {
                 real_x -= 0.5;
                 real_x += x_offset;
 
-                /* These 2 values will be increased each iteration bellow */
+                /* These 2 values will be increased each iteration below */
                 double x = real_x;
                 double y = real_y;
 

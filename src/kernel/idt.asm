@@ -45,7 +45,7 @@ section .bss
     ; This is how GCC stores 64 bit integers in 32 bits. See:
     ; https://github.com/8dcc/c-stuff/blob/main/Misc/64bit-vars-in-32bit-pc.c
     align 16                    ; Align to 16 bytes for SSE
-    tsc_lo: resd 1              ; uint64_t tsc used in exc_debug() bellow
+    tsc_lo: resd 1              ; uint64_t tsc used in exc_debug() below
     tsc_hi: resd 1
 
 section .text
@@ -71,7 +71,7 @@ idt_load:
 ; for the idt. We use different macros depending on the exception number because
 ; the CPU pushes an extra error code argument before calling the ISR.
 EXC_WRAPPER     0
-; EXC_DEBUG is managed bellow
+; EXC_DEBUG is managed below
 EXC_WRAPPER     2
 EXC_WRAPPER     3
 EXC_WRAPPER     4

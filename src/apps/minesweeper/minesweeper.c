@@ -261,7 +261,7 @@ static int adjacent_bombs(vec2_t p) {
 }
 
 /**
- * @brief Prints the specified message 2 lines bellow `ms`'s grid
+ * @brief Prints the specified message 2 lines below `ms`'s grid
  * @param[in] str String to be printed
  */
 static void print_message(const char* str) {

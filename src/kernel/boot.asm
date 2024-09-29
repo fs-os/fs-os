@@ -5,7 +5,7 @@
 
 MB_ALIGN    equ 1 << 0      ; Align loaded modules on page boundaries
 MB_MEMINFO  equ 1 << 1      ; Provide memory map
-MB_GFX      equ 1 << 2      ; Use GFX (For the framebuffer, see bellow)
+MB_GFX      equ 1 << 2      ; Use GFX (For the framebuffer, see below)
 
 ; Multiboot flag field
 MB_FLAGS    equ MB_ALIGN | MB_MEMINFO | MB_GFX

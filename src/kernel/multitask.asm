@@ -309,7 +309,7 @@ mt_get_fpu_data:
 
     fxsave  [eax]               ; Fill 512 bytes we just allocated
 
-    push    eax                 ; Preserve and use as parameter for free bellow
+    push    eax                 ; Preserve and use as parameter for free below
 
     push    dword fpu_data_t_size   ; Size
     push    eax                     ; Source

@@ -50,7 +50,7 @@ dump_stack:
     jz      .done               ;   break;
 
     push    eax                 ; Registers that should be preserved by the caller
-    push    ecx                 ; We use +12 bellow because we push 3 dwords
+    push    ecx                 ; We use +12 below because we push 3 dwords
     push    edx
 
     push    dword [esp + ecx + 12]      ; printf(" 0x%lX\n", stack[ecx]);
